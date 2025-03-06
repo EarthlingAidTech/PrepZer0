@@ -1,0 +1,284 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <title>Manage Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        .actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+        }
+        .edit-btn { background: #28a745; }
+        .delete-btn { background: #dc3545; }
+        .add-btn { background: #007bff; display: inline-block; padding: 10px; }
+        .back-btn { background: #6c757d; display: inline-block; padding: 10px; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Manage Questions for <%= exam.name %></h1>
+    <p><strong>Question Type:</strong> <%= exam.questionType %></p>
+    <p><strong>Total Questions Required:</strong> <%= exam.numTotalQuestions %></p>
+
+    <% if (exam.questionType.includes("mcq")) { %>
+        <h2>MCQs (Added: <%= mcqQuestions.length %> / Required: <%= exam.numMCQs %>)</h2>
+        <% if (mcqQuestions.length < exam.numMCQs) { %>
+            <a href="/admin/exam/<%= exam._id %>/add/mcq" class="add-btn">➕ Add MCQ</a>
+        <% } %>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Options</th>
+                <th>Correct Answer</th>
+                <th>Actions</th>
+            </tr>
+            <% mcqQuestions.forEach((mcq, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= mcq.question %></td>
+                    <td><%= mcq.options.join(", ") %></td>
+                    <td><strong><%= mcq.correctAnswer %></strong></td>
+                    <td class="actions">
+                        <a href="/admin/exam/<%= mcq._id %>/edit/mcq" class="edit-btn">✏️ Edit</a>
+                        <a href="/admin/exam/<%= mcq._id %>/delete/mcq" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</a>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    <% } %>
+
+    <% if (exam.questionType.includes("coding")) { %>
+        <h2>Coding Questions (Added: <%= codingQuestions.length %> / Required: <%= exam.numCoding %>)</h2>
+        <% if (codingQuestions.length < exam.numCoding) { %>
+            <a href="/admin/exam/<%= exam._id %>/add/coding" class="add-btn">➕ Add Coding Question</a>
+        <% } %>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Question</th>
+                <th>Constraints</th>
+                <th>Input Format</th>
+                <th>Output Format</th>
+                <th>Sample Input</th>
+                <th>Sample Output</th>
+                <th>Actions</th>
+            </tr>
+            <% codingQuestions.forEach((coding, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><strong><%= coding.questionTile %></strong></td>
+                    <td><pre><%= coding.questiontext %></pre></td>
+                    <td><pre><%= coding.constraits %></pre></td>
+                    <td><pre><%= coding.inputFormat %></pre></td>
+                    <td><pre><%= coding.outputFormat %></pre></td>
+                    <td><pre><%= coding.sampleInput %></pre></td>
+                    <td><pre><%= coding.sampleOutput %></pre></td>
+                    <td class="actions">
+                        <a href="/admin/exam/<%= coding._id %>/edit/coding" class="edit-btn">✏️ Edit</a>
+
+
+
+                        <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
+                        </form>
+                       
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    <% } %>
+
+    <br>
+    <a href="/admin" class="back-btn">⬅ Back to Exams</a>
+</div>
+
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Manage Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+        .actions a, .actions form button {
+            margin-right: 10px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: white;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .edit-btn { background: #28a745; }
+        .delete-btn { background: #dc3545; }
+        .add-btn { background: #007bff; display: inline-block; padding: 10px; }
+        .back-btn { background: #6c757d; display: inline-block; padding: 10px; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Manage Questions for <%= exam.name %></h1>
+    <p><strong>Question Type:</strong> <%= exam.questionType %></p>
+    <p><strong>Total Questions Required:</strong> <%= exam.numTotalQuestions %></p>
+
+    <% if (exam.questionType.includes("mcq")) { %>
+        <h2>MCQs (Added: <%= mcqQuestions.length %> / Required: <%= exam.numMCQs %>)</h2>
+        <% if (mcqQuestions.length < exam.numMCQs) { %>
+            <a href="/admin/exam/<%= exam._id %>/add/mcq" class="add-btn">➕ Add MCQ</a>
+        <% } %>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Options</th>
+                <th>Correct Answer</th>
+                <th>Actions</th>
+            </tr>
+            <% mcqQuestions.forEach((mcq, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= mcq.question %></td>
+                    <td><%= mcq.options.join(", ") %></td>
+                    <td><strong><%= mcq.correctAnswer %></strong></td>
+                    <td class="actions">
+                        <a href="/admin/exam/<%= exam._id %>/edit/mcq/<%= mcq._id %>" class="edit-btn">✏️ Edit</a>
+                        <form action="/admin/exam/<%= exam._id %>/delete/mcq/<%= mcq._id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    <% } %>
+
+    <% if (exam.questionType.includes("coding")) { %>
+        <h2>Coding Questions (Added: <%= codingQuestions.length %> / Required: <%= exam.numCoding %>)</h2>
+        <% if (codingQuestions.length < exam.numCoding) { %>
+            <a href="/admin/exam/<%= exam._id %>/add/coding" class="add-btn">➕ Add Coding Question</a>
+        <% } %>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Question</th>
+                <th>Constraints</th>
+                <th>Input Format</th>
+                <th>Output Format</th>
+                <th>Sample Input</th>
+                <th>Sample Output</th>
+                <th>Actions</th>
+            </tr>
+            <% codingQuestions.forEach((coding, index) => { %>
+                <tr>
+                    <td><%= index + 1 %></td>
+                    <td><strong><%= coding.questionTile %></strong></td>
+                    <td><pre><%= coding.questiontext %></pre></td>
+                    <td><pre><%= coding.constraits %></pre></td>
+                    <td><pre><%= coding.inputFormat %></pre></td>
+                    <td><pre><%= coding.outputFormat %></pre></td>
+                    <td><pre><%= coding.sampleInput %></pre></td>
+                    <td><pre><%= coding.sampleOutput %></pre></td>
+                    <td class="actions">
+                        <a href="/admin/exam/<%= exam._id %>/edit/coding/<%= coding._id %>" class="edit-btn">✏️ Edit</a>
+                        <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST" style="display:inline;">
+                            <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    <% } %>
+
+    <br>
+    <a href="/admin" class="back-btn">⬅ Back to Exams</a>
+</div>
+
+</body>
+</html>
+
+
+
+

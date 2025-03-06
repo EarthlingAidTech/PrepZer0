@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= exam.name %> - Test</title>
+    <style>
+        video, canvas {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1><%= exam.name %> - Test</h1>
+    <button id="startExamBtn">Start Exam</button>
+    <div id="examContent" style="display: none;">
+        <form action="/dashboard/submit-test" method="POST">
+            <input type="hidden" name="examId" value="<%= exam._id %>">
+
+            <% exam.mcqQuestions.forEach((question, index) => { %>
+                <div>
+                    <p><strong>Q<%= index + 1 %>:</strong> <%= question.question %></p>
+                    <% question.options.forEach((option, idx) => { %>
+                        <label>
+                            <input type="radio" name="mcq-<%= question._id %>" value="<%= option %>">
+                            <%= option %>
+                        </label>
+                    <% }); %>
+                </div>
+            <% }); %>
+
+            <% exam.codingQuestions.forEach((question, index) => { %>
+                <div>
+                    <p><strong>Q<%= index + 1 + exam.mcqQuestions.length %>:</strong> <%= question.question %></p>
+                    <textarea name="coding-<%= question._id %>" rows="5" cols="50" placeholder="Write your code here..."></textarea>
+                </div>
+            <% }); %>
+
+            <button type="submit">Submit Test</button>
+        </form>
+    </div>
+
+    <h1>Online Examination Anti-Cheat System</h1>
+    <p><strong>Tab Changes Detected:</strong> <span id="tabChangeCount">0</span></p>
+    <p><strong>Mouse Left Workspace:</strong> <span id="mouseOutCount">0</span></p>
+    <p><strong>Fullscreen Exit Attempts:</strong> <span id="fullscreenExitCount">0</span></p>
+    <p><strong>Copy Attempts:</strong> <span id="copyAttemptCount">0</span></p>
+    <p><strong>Paste Attempts:</strong> <span id="pasteAttemptCount">0</span></p>
+    <p><strong>Focus Changes Detected:</strong> <span id="focusChangeCount">0</span></p>
+    <p><strong>Last Event:</strong> <span id="lastEvent">N/A</span></p>
+    <p><strong>Screen Configuration:</strong> <span id="screenConfig">Checking...</span></p>
+
+    <canvas id="canvas" width="320" height="240"></canvas>
+
+    <script>
+        function sendIntegrityUpdate(eventType) {
+            const data = {
+                examId: "<%= exam._id %>", 
+                userId: "<%= user._id %>", 
+                eventType: eventType
+            };
+
+            fetch('/update-integrity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Integrity event logged:', data))
+            .catch(error => console.error('Error sending integrity update:', error));
+        }
+
+        let tabChangeCount = 0;
+        let mouseOutCount = 0;
+        let fullscreenExitCount = 0;
+        let copyAttemptCount = 0;
+        let pasteAttemptCount = 0;
+        let focusChangeCount = 0;
+        let isFullscreenActive = false;
+
+        function updateUI() {
+            document.getElementById('tabChangeCount').textContent = tabChangeCount;
+            document.getElementById('mouseOutCount').textContent = mouseOutCount;
+            document.getElementById('fullscreenExitCount').textContent = fullscreenExitCount;
+            document.getElementById('copyAttemptCount').textContent = copyAttemptCount;
+            document.getElementById('pasteAttemptCount').textContent = pasteAttemptCount;
+            document.getElementById('focusChangeCount').textContent = focusChangeCount;
+        }
+
+        function handleTabChange() {
+            if (document.hidden) {
+                tabChangeCount++;
+                sendIntegrityUpdate("tabChanges");
+            }
+            updateUI();
+        }
+
+        function handleMouseOut(event) {
+            if (event.clientX < 0 || event.clientX > window.innerWidth - 1 || event.clientY < 0 || event.clientY > window.innerHeight - 1) {
+                mouseOutCount++;
+                sendIntegrityUpdate("mouseOuts");
+                updateUI();
+            }
+        }
+
+        document.addEventListener('copy', (e) => {
+            e.preventDefault();
+            copyAttemptCount++;
+            sendIntegrityUpdate("copyAttempts");
+            updateUI();
+        });
+
+        document.addEventListener('paste', (e) => {
+            e.preventDefault();
+            pasteAttemptCount++;
+            sendIntegrityUpdate("pasteAttempts");
+            updateUI();
+        });
+
+        function handleFocusChange(event) {
+            if (event.type === 'blur') {
+                focusChangeCount++;
+                sendIntegrityUpdate("focusChanges");
+            }
+            updateUI();
+        }
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            }
+            else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+
+
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                fullscreenExitCount++;
+                enterFullscreen();
+                sendIntegrityUpdate("fullscreenExits");
+                updateStatus("Fullscreen exited");
+                updateUI();
+                
+             
+            } else {
+                if (!isFullscreenActive) {
+                    document.addEventListener('mouseout', handleMouseOut);
+                    isFullscreenActive = true;
+                    enterFullscreen();
+                }
+                updateStatus("Fullscreen entered");
+            }
+        });
+
+        function startWebcamCapture() {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    const video = document.createElement('video');
+                    video.srcObject = stream;
+                    video.play();
+
+                    setInterval(() => {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                        canvas.toBlob((blob) => {
+                            if (!blob) return;
+
+                            const formData = new FormData();
+                            formData.append('image', blob, `capture-${Date.now()}.png`);
+
+                            fetch('/save-image', { 
+                                method: 'POST',
+                                body: formData,
+                            })
+                            .then(response => response.json())
+                            .then(data => console.log('Image saved:', data))
+                            .catch(error => console.error('Error saving image:', error));
+
+                        }, 'image/png');
+
+                    }, 5000);
+                })
+                .catch((error) => {
+                    console.error("Error accessing webcam:", error);
+                    alert("Unable to access the webcam. Please allow access.");
+                });
+        }
+
+        document.addEventListener('visibilitychange', handleTabChange);
+        window.addEventListener('blur', handleFocusChange);
+        window.addEventListener('focus', handleFocusChange);
+
+        window.onload = () => {
+            enterFullscreen();
+            startWebcamCapture();
+        };
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                enterFullscreen();
+                updateStatus("Fullscreen mode ensured after click");
+            }
+        });
+        document.getElementById("startExamBtn").addEventListener("click", function() {
+            enterFullscreen()
+            document.getElementById("examContent").style.display = "block"; 
+            this.style.display = "none";  
+        });
+    </script>
+</body>
+</html>
