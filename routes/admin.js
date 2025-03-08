@@ -19,10 +19,11 @@ router.route('/exam/:examId/add/coding').get(questionController.getaddcodingQues
 
 
 router.route("/exam/:examId/edit/mcq/:mcqId").get(questionController.getEditmcqQuestion).post(questionController.postEditmcqQuestion)
-router.route("/exam/:exaId/delete/mcq/:mcqId").post(questionController.deleteMCQ)
+router.route("/exam/:examId/delete/mcq/:mcqId").post(questionController.deleteMCQ)
 router.route("/exam/:examId/edit/coding/:codingId").get(questionController.getEditcodingQuestion).post(questionController.postEditcodingQuestion)
 router.route("/exam/:examId/delete/coding/:codingId").post(questionController.deleteCoding)
-
+router.route("/predefined-mcqs").get(questionController.getPredefinedMCQs);
+router.route("/predefined-coding").get(questionController.getPredefinedCodingQuestions);
 
 
 
