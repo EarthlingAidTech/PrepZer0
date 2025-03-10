@@ -451,6 +451,7 @@
      </style>
  </head>
  <body>
+     <% if (!locals.isStudentPage) { %>
      <!-- Navbar -->
      <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
          <div class="container">
@@ -482,6 +483,7 @@
              </div>
          </div>
      </nav>
+     <% } %>
  
      <div class="floating-elements">
          <svg class="floating-element element-1" width="100" height="100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
