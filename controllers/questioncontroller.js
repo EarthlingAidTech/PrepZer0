@@ -27,32 +27,19 @@ exports.getQuestion = async (req, res,) => {
 
 
 
-
 exports.getaddmcqQuestion = async (req, res) => {
-    res.render("add_mcq", { examId: req.params.examId });
-}
-
-
-
-exports.postaddmcqQuestion = async (req, res) => {
     try {
-        const { question, options, correctAnswer, marks } = req.body;
-        const newMCQ = new MCQ({
-            examId: req.params.examId,
-            question,
-            options: options.split(","),
-            correctAnswer,
-            marks
+        const predefinedQuestions = await MCQ.find({ isPredefined: true }); // Fetch predefined MCQs
+        res.render("add_mcq", { 
+            examId: req.params.examId, 
+            predefinedQuestions 
         });
-        await newMCQ.save();
-
-        await Exam.findByIdAndUpdate(req.params.examId, { $push: { mcqQuestions: newMCQ._id } });
-        res.redirect(`/admin/exam/questions/${req.params.examId}`);
     } catch (error) {
         console.error(error);
-        res.status(500).send("Error adding MCQ.");
+        res.status(500).send("Error loading add MCQ page.");
     }
-}
+};
+
 
 
 
@@ -119,6 +106,23 @@ exports.deleteCoding = async (req, res) => {
 
 
 
+exports.getPredefinedMCQs = async (req, res) => {
+    try {
+        const mcqs = await MCQ.find({ isPredefined: true });
+        res.json(mcqs);
+    } catch (error) {
+        res.status(500).send("Error fetching predefined MCQs.");
+    }
+};
+
+exports.getPredefinedCodingQuestions = async (req, res) => {
+    try {
+        const codingQuestions = await CodingQuestion.find({ isPredefined: true });
+        res.json(codingQuestions);
+    } catch (error) {
+        res.status(500).send("Error fetching predefined coding questions.");
+    }
+};
 
 
 
@@ -126,24 +130,98 @@ exports.deleteCoding = async (req, res) => {
 
 
 exports.getaddcodingQuestion = async (req, res) => {
-    res.render("add_coding", { examId: req.params.examId });
-}
+    try {
+        const predefinedQuestions = await CodingQuestion.find({ isPredefined: true }); // Fetch predefined coding questions
+        res.render("add_coding", { 
+            examId: req.params.examId, 
+            predefinedQuestions 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error loading add coding question page.");
+    }
+};
+
+exports.postaddmcqQuestion = async (req, res) => {
+    try {
+        const { predefinedId, question, options, correctAnswer, marks } = req.body;
+        let newMCQ;
+
+        if (predefinedId) {
+            // Use predefined question (fetching only necessary fields)
+            const predefinedMCQ = await MCQ.findById(predefinedId);
+            if (!predefinedMCQ) return res.status(404).send("Predefined MCQ not found");
+
+            newMCQ = new MCQ({
+                examId: req.params.examId,
+                question: predefinedMCQ.question,
+                options: predefinedMCQ.options,
+                correctAnswer: predefinedMCQ.correctAnswer,
+                marks: predefinedMCQ.marks
+            });
+
+            await newMCQ.save();
+        } else {
+            // Create a new question manually
+            newMCQ = new MCQ({
+                examId: req.params.examId,
+                question,
+                options: options.split(","),
+                correctAnswer,
+                marks
+            });
+
+            await newMCQ.save();
+        }
+
+        await Exam.findByIdAndUpdate(req.params.examId, { $push: { mcqQuestions: newMCQ._id } });
+        res.redirect(`/admin/exam/questions/${req.params.examId}`);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error adding MCQ.");
+    }
+};
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, sampleInput, sampleOutput, solutionTemplate,marks } = req.body;
+        if (!req.user) {
+            return res.status(401).send("Unauthorized: User not logged in");
+        }
 
-        const newCodingQuestion = new CodingQuestion({
-            questionTile,
-            questiontext,
-            constraits,
-            inputFormat,
-            outputFormat,
-            sampleInput,
-            sampleOutput,
-            solutionTemplate,
-            marks,
-            createdBy: req.user._id
-        });
+        const { predefinedId, questionTitle, questionText, constraints, inputFormat, outputFormat, sampleInput, sampleOutput, solutionTemplate, marks } = req.body;
+        let newCodingQuestion;
+
+        if (predefinedId) {
+            const predefinedCoding = await CodingQuestion.findById(predefinedId).lean();
+            if (!predefinedCoding) return res.status(404).send("Predefined coding question not found");
+
+            newCodingQuestion = new CodingQuestion({
+                examId: req.params.examId,
+                questionTitle: predefinedCoding.questionTitle,
+                questionText: predefinedCoding.questionText,
+                constraints: predefinedCoding.constraints,
+                inputFormat: predefinedCoding.inputFormat,
+                outputFormat: predefinedCoding.outputFormat,
+                sampleInput: predefinedCoding.sampleInput,
+                sampleOutput: predefinedCoding.sampleOutput,
+                solutionTemplate: predefinedCoding.solutionTemplate,
+                marks: predefinedCoding.marks,
+                createdBy: req.user._id
+            });
+        } else {
+            newCodingQuestion = new CodingQuestion({
+                examId: req.params.examId,
+                questionTitle,
+                questionText,
+                constraints,
+                inputFormat,
+                outputFormat,
+                sampleInput,
+                sampleOutput,
+                solutionTemplate,
+                marks,
+                createdBy: req.user._id
+            });
+        }
 
         await newCodingQuestion.save();
         await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
@@ -153,4 +231,6 @@ exports.postaddcodingQuestion = async (req, res) => {
         console.error(error);
         res.status(500).send("Error adding Coding Question.");
     }
-}
+};
+
+
