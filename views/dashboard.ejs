@@ -1,174 +1,390 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
     <title>EAT - Dashboard</title>
     <p hidden id="logged"><%=logged_in %></p>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">
-            <img src="https://salty-lowlands-81889.herokuapp.com/images/eat.png" width="30" height="30" class="d-inline-block align-top" alt=""> Earthling Aid Tech
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/">Home</a>
-            </li>
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Dashboard</a>
-            </li>
-            <li class="nav-item dropdown" id="roots">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img id="navimg" src="<%=pic%>" width="30" height="30" class="rounded-circle">   
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="/profile">Profile</a>
-                <a class="dropdown-item" href="/logout">Log Out</a>
-              </div>
-            </li>   
-            <li class="nav-item dropdown" id="roots1">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Sign In
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="/authenticate/login">Login</a>
-                <a class="dropdown-item" href="/authenticate/signup">Signup</a>
-              </div>
-            </li>
-          </ul>
-        </div>
+    <style>
+      .theme-color1-text {
+        color: #5150ea;
+      }
+      .theme-color2-text {
+        color: #8639ea;
+      }
+      body {
+        font-family: "Work Sans", sans-serif;
+        background-color: #f1f6ff; /* Light gray background */
+        color: #333; /* Dark gray text */
+      }
+      .navbar {
+        background-color: #ffffffe0; /* Updated color */
+      }
+      .navbar-brand,
+      .nav-link,
+      .navbar-toggler-icon {
+        color: #5150ea !important;
+        font-weight: 600; /* White text for navbar */
+      }
+      .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+      }
+      .gradient-text {
+  background: linear-gradient(90deg, #5150ea 30%, #7a42ea 70%, #8639ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+      .nav-item {
+        color: black;
+      }
+      .navbar-nav {
+        margin: 0 auto; /* Center the nav links */
+      }
+      .list-group-item {
+        background-color: #fff; /* White background for list items */
+        border: 1px solid #ddd; /* Light gray border */
+      }
+      .list-group-item h5,
+      .list-group-item p {
+        color: #333; /* Dark gray text */
+      }
+      .btn-primary {
+        background-color: #5150ea; /* Updated color */
+        border-color: #5150ea; /* Updated color */
+      }
+      .btn-secondary {
+        background-color: #6c757d; /* Gray buttons */
+        border-color: #6c757d;
+      }
+      .btn-danger {
+        background-color: #dc3545; /* Red buttons */
+        border-color: #dc3545;
+      }
+      .modal-content {
+        background-color: #fff; /* White background for modals */
+        color: #333; /* Dark gray text */
+      }
+      .modal-header,
+      .modal-footer {
+        border-color: #ddd; /* Light gray borders */
+      }
+      .alert-success {
+        background-color: #d4edda; /* Light green background for success alerts */
+        color: #155724; /* Dark green text */
+        border-color: #c3e6cb; /* Light green border */
+      }
+      .close {
+        color: #333; /* Dark gray close button */
+      }
+      .welcome-message {
+        margin-top: 5rem;
+        text-align: left; /* Left-align the welcome message */
+        font-size: 3rem; /* Increase the font size */
+      }
+      .navbar-nav {
+        margin: 0 auto;
+      }
+      .navbar-nav.ms-auto {
+        margin-left: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg p-2 border ">
+      <a class="navbar-brand ms-5 ps-5" href="#">
+        <img
+          src="https://salty-lowlands-81889.herokuapp.com/images/eat.png"
+          width="30"
+          height="30"
+          class="d-inline-block align-top rounded-circle"
+          alt=""
+        />
+        <p class="m-0 d-inline-block ps-2 fw-bold fs-4 gradient-text">Earthling Aid Tech</p>
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto fs-5">
+          <li class="nav-item">
+            <a class="nav-link ms-5 ps-5" href="/">Home</a>
+          </li>
+          <li class="nav-item active ms-5">
+            <a class="nav-link" href="#">Dashboard</a>
+          </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item dropdown" id="roots">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              <img
+                id="navimg"
+                src="<%=pic%>"
+                width="30"
+                height="30"
+                class="rounded-circle"
+              />
+            </a>
+            <div class="dropdown-menu aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item theme-color1-text" href="/profile">Profile</a>
+              <a class="dropdown-item theme-color1-text" href="/logout">Log Out</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown" id="roots1">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdownMenuLink"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              Sign In
+            </a>
+            <div class="dropdown-menu theme-color1-text" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="/authenticate/login">Login</a>
+              <a class="dropdown-item" href="/authenticate/signup">Signup</a>
+            </div>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <style>
-      video, canvas {
-    display: none;
-}
+      video,
+      canvas {
+        display: none;
+      }
     </style>
     <div class="container mt-5">
-        <header class="text-center">
-            <h1>Welcome, <%= user.fname %> <%= user.lname %></h1>
-            <p class="text-muted">Department: <%= user.Department.toUpperCase() %> | Semester: <%= user.Semester %></p>
-        </header>
+      <header class="welcome-message mb-5">
+        <p class="display-3 fw-bolder theme-color1-text">
+          Welcome,
+          <span class="gradient-text"><%= user.USN %></span>
+        </p>
+        <p class="text-muted fs-2">
+          Department: <%= user.Department.toUpperCase() %> | Semester: <%=
+          user.Semester %>
+        </p>
+      </header>
 
-        <main>
-            <h2 class="text-center mt-4">Available Exams</h2>
-            <% exams.forEach(exam => { 
-             
-          %>
-              <div class="list-group-item list-group-item-action flex-column align-items-start">
-                  <h5 class="mb-1"><%= exam.name %></h5>
-                  <p class="mb-1">Type: <strong><%= exam.questionType.toUpperCase() %></strong></p>
-                  <p class="mb-1">Duration: <strong><%= exam.duration %> minutes</strong></p>
-                  <p class="mb-1">Scheduled At: <strong><%= new Date(exam.scheduledAt).toLocaleString() %></strong></p>
-                  <p class="mb-1">Scheduled Till: <strong><%= new Date(exam.scheduleTill).toLocaleString() %></strong></p>
-                  
-                  <% if (exam.alreadyGiven) { %>
-                      <button class="btn btn-secondary mt-2" disabled>Exam Already Taken</button>
-                  <% } else { %>
-                      <!-- <form action="/dashboard/start-test/<%= exam._id %>" method="GET">
+      <main>
+        <h1 class="text-center mt-5 pt-3 gradient-text">Available Exams</h1>
+        <% console.log(exams); %>
+        <% exams.forEach(exam => { %>
+        <div
+          class="list-group-item list-group-item-action flex-column align-items-start"
+        >
+          <h5 class="mb-1"><%= exam.name %></h5>
+          <p class="mb-1">
+            Type: <strong><%= exam.questionType.toUpperCase() %></strong>
+          </p>
+          <p class="mb-1">
+            Duration: <strong><%= exam.duration %> minutes</strong>
+          </p>
+          <p class="mb-1">
+            Scheduled At:
+            <strong><%= new Date(exam.scheduledAt).toLocaleString() %></strong>
+          </p>
+          <p class="mb-1">
+            Scheduled Till:
+            <strong><%= new Date(exam.scheduleTill).toLocaleString() %></strong>
+          </p>
+
+          <% if (exam.alreadyGiven) { %>
+          <button class="btn btn-secondary mt-2" disabled>
+            Exam Already Taken
+          </button>
+          <% } else { %>
+          <!-- <form action="/dashboard/start-test/<%= exam._id %>" method="GET">
                           <button type="submit" class="btn btn-primary mt-2">Start Test</button>
                       </form> -->
-                      <button class="btn btn-primary mt-2 start-test-btn" data-exam-id="<%= exam._id %>">Start Test</button>
+          <button
+            class="btn btn-primary mt-2 start-test-btn"
+            data-exam-id="<%= exam._id %>"
+          >
+            Start Test
+          </button>
 
-                  <% } %>
-              </div>
-          <% }); %>
-          
-        </main>
+          <% } %>
+        </div>
+        <% }); %>
+      </main>
     </div>
     <% if (successMessage) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <%= successMessage %>
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= successMessage %>
+      <button
+        type="button"
+        class="close"
+        data-dismiss="alert"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <% } %>
+
+    <!-- Exam Rules & Camera Permission Modal -->
+    <div
+      class="modal fade"
+      id="examRulesModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="examRulesModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="examRulesModalLabel">
+              Exam Rules & Permissions
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
               <span aria-hidden="true">&times;</span>
-          </button>
-      </div>
-  <% } %>
-
-
-
-  <!-- Exam Rules & Camera Permission Modal -->
-<div class="modal fade" id="examRulesModal" tabindex="-1" role="dialog" aria-labelledby="examRulesModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="examRulesModalLabel">Exam Rules & Permissions</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p><strong>Rules for Examination:</strong></p>
-        <ul>
-          <li>Ensure you are alone in the room.</li>
-          <li>Do not navigate away from the exam window.</li>
-          <li>Keep your camera on at all times.</li>
-          <li>Any suspicious activity may result in disqualification.</li>
-        </ul>
-        <p><strong>Camera Access:</strong></p>
-        <p>We need to turn on your camera for proctoring. Click "Allow" when prompted.</p>
-        <button id="requestCamera" class="btn btn-secondary">Enable Camera</button>
-        <p id="cameraStatus" class="text-muted mt-2"></p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-        <button id="confirmStartTest" class="btn btn-primary" disabled>Start Test</button>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Rules for Examination:</strong></p>
+            <ul>
+              <li>Ensure you are alone in the room.</li>
+              <li>Do not navigate away from the exam window.</li>
+              <li>Keep your camera on at all times.</li>
+              <li>Any suspicious activity may result in disqualification.</li>
+            </ul>
+            <p><strong>Camera Access:</strong></p>
+            <p>
+              We need to turn on your camera for proctoring. Click "Allow" when
+              prompted.
+            </p>
+            <button id="requestCamera" class="btn btn-secondary">
+              Enable Camera
+            </button>
+            <p id="cameraStatus" class="text-muted mt-2"></p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">
+              Cancel
+            </button>
+            <button id="confirmStartTest" class="btn btn-primary" disabled>
+              Start Test
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<script>
-  let selectedExamId = null;
-
-  // Open Modal on "Start Test" button click
-  document.querySelectorAll('.start-test-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      selectedExamId = this.getAttribute('data-exam-id');
-      $('#examRulesModal').modal('show');
-    });
-  });
-
-  // Handle Camera Permission Request
-  document.getElementById('requestCamera').addEventListener('click', async function() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      document.getElementById('cameraStatus').innerHTML = "✅ Camera access granted!";
-      document.getElementById('confirmStartTest').removeAttribute('disabled');
-    } catch (error) {
-      document.getElementById('cameraStatus').innerHTML = "❌ Camera access denied. You must allow it to proceed.";
-    }
-  });
-
-  // Start the test when confirmed
-  document.getElementById('confirmStartTest').addEventListener('click', function() {
-    if (selectedExamId) {
-      window.location.href = `/dashboard/start-test/${selectedExamId}`;
-    }
-  });
-</script>
-
     <script>
-        var loggedIn = document.getElementById("logged").innerHTML;
-        if (loggedIn === "true") { 
-            document.getElementById("roots1").setAttribute("hidden", true);
-            document.getElementById("roots").removeAttribute("hidden");
-        } else {
-            document.getElementById("roots").setAttribute("hidden", true);
-            document.getElementById("roots1").removeAttribute("hidden");
-        }
+      const userData = JSON.parse('<%- JSON.stringify(user) %>');
+      const examsData = JSON.parse('<%- JSON.stringify(exams) %>');
+    
+      console.log("User Data:", userData);
+      console.log("Exams Data:", examsData);
+    </script>
+    <script>
+      let selectedExamId = null;
+
+      // Open Modal on "Start Test" button click
+      document.querySelectorAll(".start-test-btn").forEach((button) => {
+        button.addEventListener("click", function () {
+          selectedExamId = this.getAttribute("data-exam-id");
+          $("#examRulesModal").modal("show");
+        });
+      });
+
+      // Handle Camera Permission Request
+      document
+        .getElementById("requestCamera")
+        .addEventListener("click", async function () {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+            });
+            document.getElementById("cameraStatus").innerHTML =
+              "✅ Camera access granted!";
+            document
+              .getElementById("confirmStartTest")
+              .removeAttribute("disabled");
+          } catch (error) {
+            document.getElementById("cameraStatus").innerHTML =
+              "❌ Camera access denied. You must allow it to proceed.";
+          }
+        });
+
+      // Start the test when confirmed
+      document
+        .getElementById("confirmStartTest")
+        .addEventListener("click", function () {
+          if (selectedExamId) {
+            window.location.href = `/dashboard/start-test/${selectedExamId}`;
+          }
+        });
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-</body>
+    <script>
+      var loggedIn = document.getElementById("logged").innerHTML;
+      if (loggedIn === "true") {
+        document.getElementById("roots1").setAttribute("hidden", true);
+        document.getElementById("roots").removeAttribute("hidden");
+      } else {
+        document.getElementById("roots").setAttribute("hidden", true);
+        document.getElementById("roots1").removeAttribute("hidden");
+      }
+    </script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>

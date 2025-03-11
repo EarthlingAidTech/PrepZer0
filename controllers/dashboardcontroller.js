@@ -49,6 +49,9 @@ exports.getcontrol = async (req, res) => {
                 departments: student.Department,
                 scheduleTill: { $gte: currentTime }
             });
+            console.log("Student Details:", student);
+console.log("Exams Found:", exams);
+console.log("User: ",req.user);
 
             // Fetch exams that the user has already taken
             const submittedExams = await Submission.find({ student: req.user._id }).distinct("exam");
