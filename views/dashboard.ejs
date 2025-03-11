@@ -107,6 +107,149 @@
       .navbar-nav.ms-auto {
         margin-left: auto;
       }
+      .gradient-btn {
+  background: linear-gradient(90deg, #5150ea 30%, #7a42ea 70%, #8639ea 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;      /* Slightly bigger button */
+  font-size: 16px;        /* Increased font size */
+  border-radius: 8px;     /* Boxy with modestly rounded edges */
+  display: inline-block;  /* Aligns to the left */
+}
+
+.gradient-btn:hover {
+  background: linear-gradient(90deg, #8639ea 30%, #7a42ea 70%, #5150ea 100%);
+}
+
+  /* Card styling for a cleaner, full-width look */
+  .card {
+    font-family: 'Work Sans', sans-serif;
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  .card:hover {
+  box-shadow: 0 4px 12px rgba(81, 80, 234, 0.3); /* Soft purple glow */
+  transform: translateY(-2px); /* Slight lift effect */
+  cursor: pointer;
+}
+  .card-header {
+    background: none;
+    border-bottom: none;
+    font-size: 1.75rem;
+    font-weight: 600;
+    padding: 1rem 1.25rem 0.5rem;
+  }
+  .card-body {
+    padding: 0 1.25rem 0.5rem;
+  }
+  .card-text {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem; /* reduced line spacing */
+  }
+  .card-footer {
+    background: none;
+    border-top: none;
+    padding: 0 1.25rem 1rem;
+  }
+  /* Modal Theming Styles */
+  .themed-modal {
+  background-color: #fff;
+  border-radius: 8px;
+  font-family: 'Work Sans', sans-serif;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.themed-modal-header {
+  background: linear-gradient(90deg, #5150ea 30%, #7a42ea 70%, #8639ea 100%);
+  color: #fff;
+  padding: 1rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: none;
+}
+
+.themed-modal-header .modal-title {
+  font-weight: 600;
+}
+
+.themed-modal-header .close {
+  color: #fff;
+  opacity: 1;
+}
+
+.themed-modal-body {
+  padding: 1rem;
+}
+
+.themed-modal-body p,
+.themed-modal-body ul {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.themed-modal-body ul li {
+  margin-bottom: 0.5rem;
+}
+
+.themed-modal-footer {
+  border-top: none;
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Primary Button (Start Test) */
+.themed-btn-primary {
+  background: linear-gradient(90deg, #5150ea 30%, #7a42ea 70%, #8639ea 100%);
+  color: #fff;
+  border: none;
+  padding: 8px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+}
+
+.themed-btn-primary:hover {
+  background: linear-gradient(90deg, #8639ea 30%, #7a42ea 70%, #5150ea 100%);
+}
+
+/* Force disabled primary button to keep white text */
+.themed-btn-primary:disabled {
+  color: #fff !important;
+  opacity: 1;
+}
+
+/* Secondary Button (Enable Camera) */
+.themed-btn-secondary {
+  background-color: #6c757d;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.themed-btn-secondary:hover {
+  background-color: #5a6268; /* Darker shade on hover */
+}
+
+/* Danger Button (Cancel) */
+.themed-btn-danger {
+  background-color: #dc3545;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 16px;
+  color: #fff;
+}
+
+.themed-btn-danger:hover {
+  background-color: #c82333; /* Darker shade on hover */
+}
+
     </style>
   </head>
   <body>
@@ -195,7 +338,7 @@
       <header class="welcome-message mb-5">
         <p class="display-3 fw-bolder theme-color1-text">
           Welcome,
-          <span class="gradient-text"><%= user.USN %></span>
+          <span class="gradient-text"><%=  user.fname %></span>
         </p>
         <p class="text-muted fs-2">
           Department: <%= user.Department.toUpperCase() %> | Semester: <%=
@@ -204,48 +347,43 @@
       </header>
 
       <main>
-        <h1 class="text-center mt-5 pt-3 gradient-text">Available Exams</h1>
-        <% console.log(exams); %>
-        <% exams.forEach(exam => { %>
-        <div
-          class="list-group-item list-group-item-action flex-column align-items-start"
-        >
-          <h5 class="mb-1"><%= exam.name %></h5>
-          <p class="mb-1">
-            Type: <strong><%= exam.questionType.toUpperCase() %></strong>
-          </p>
-          <p class="mb-1">
-            Duration: <strong><%= exam.duration %> minutes</strong>
-          </p>
-          <p class="mb-1">
-            Scheduled At:
-            <strong><%= new Date(exam.scheduledAt).toLocaleString() %></strong>
-          </p>
-          <p class="mb-1">
-            Scheduled Till:
-            <strong><%= new Date(exam.scheduleTill).toLocaleString() %></strong>
-          </p>
-
-          <% if (exam.alreadyGiven) { %>
-          <button class="btn btn-secondary mt-2" disabled>
-            Exam Already Taken
-          </button>
-          <% } else { %>
-          <!-- <form action="/dashboard/start-test/<%= exam._id %>" method="GET">
-                          <button type="submit" class="btn btn-primary mt-2">Start Test</button>
-                      </form> -->
-          <button
-            class="btn btn-primary mt-2 start-test-btn"
-            data-exam-id="<%= exam._id %>"
-          >
-            Start Test
-          </button>
-
-          <% } %>
+        <h1 class="text-center mt-5 mb-4 pt-3 gradient-text">Available Exams</h1>
+        <div class="container">
+          <% exams.forEach(exam => { %>
+            <div class="card p-3">
+              <div class="card-header mb-2">
+                <h4 class="mb-3"><%= exam.name %></h4>
+              </div>
+              <div class="card-body">
+                <p class="card-text mb-1">Type: <strong><%= exam.questionType.toUpperCase() %></strong></p>
+                <p class="card-text mb-1">Duration: <strong><%= exam.duration %> minutes</strong></p>
+                <p class="card-text mb-1">
+                  Scheduled At: <strong><%= new Date(exam.scheduledAt).toLocaleString() %></strong>
+                </p>
+                <p class="card-text mb-3">
+                  Scheduled Till: <strong><%= new Date(exam.scheduleTill).toLocaleString() %></strong>
+                </p>
+              </div>
+              <div class="card-footer">
+                <% if (exam.alreadyGiven) { %>
+                  <button class="btn btn-secondary w-100" disabled>
+                    Exam Already Taken
+                  </button>
+                <% } else { %>
+                  <button class="gradient-btn start-test-btn" data-exam-id="<%= exam._id %>">
+                    Start Test
+                  </button>
+                <% } %>
+              </div>
+            </div>
+          <% }); %>
         </div>
-        <% }); %>
       </main>
-    </div>
+      
+      
+      
+      
+    <!-- </div>
     <% if (successMessage) { %>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
       <%= successMessage %>
@@ -258,61 +396,59 @@
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <% } %>
+    <% } %> -->
 
     <!-- Exam Rules & Camera Permission Modal -->
+    <!-- Modal HTML -->
     <div
-      class="modal fade"
-      id="examRulesModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="examRulesModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="examRulesModalLabel">
-              Exam Rules & Permissions
-            </h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p><strong>Rules for Examination:</strong></p>
-            <ul>
-              <li>Ensure you are alone in the room.</li>
-              <li>Do not navigate away from the exam window.</li>
-              <li>Keep your camera on at all times.</li>
-              <li>Any suspicious activity may result in disqualification.</li>
-            </ul>
-            <p><strong>Camera Access:</strong></p>
-            <p>
-              We need to turn on your camera for proctoring. Click "Allow" when
-              prompted.
-            </p>
-            <button id="requestCamera" class="btn btn-secondary">
-              Enable Camera
-            </button>
-            <p id="cameraStatus" class="text-muted mt-2"></p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-danger" data-dismiss="modal">
-              Cancel
-            </button>
-            <button id="confirmStartTest" class="btn btn-primary" disabled>
-              Start Test
-            </button>
-          </div>
+    class="modal fade"
+    id="examRulesModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="examRulesModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog" role="document">
+      <div class="modal-content themed-modal">
+        <div class="modal-header themed-modal-header">
+          <h5 class="modal-title" id="examRulesModalLabel">
+            Exam Rules &amp; Permissions
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body themed-modal-body">
+          <p><strong>Rules for Examination:</strong></p>
+          <ul>
+            <li>Ensure you are alone in the room.</li>
+            <li>Do not navigate away from the exam window.</li>
+            <li>Keep your camera on at all times.</li>
+            <li>Any suspicious activity may result in disqualification.</li>
+          </ul>
+          <p><strong>Camera Access:</strong></p>
+          <p>
+            We need to turn on your camera for proctoring. Click "Allow" when
+            prompted.
+          </p>
+          <button id="requestCamera" class="btn themed-btn-secondary">
+            Enable Camera
+          </button>
+          <p id="cameraStatus" class="text-muted mt-2"></p>
+        </div>
+        <div class="modal-footer themed-modal-footer">
+          <button type="button" class="btn themed-btn-danger" data-dismiss="modal">
+            Cancel
+          </button>
+          <button id="confirmStartTest" class="btn themed-btn-primary" disabled>
+            Start Test
+          </button>
         </div>
       </div>
     </div>
+  </div>
+  
+
     <script>
       const userData = JSON.parse('<%- JSON.stringify(user) %>');
       const examsData = JSON.parse('<%- JSON.stringify(exams) %>');
