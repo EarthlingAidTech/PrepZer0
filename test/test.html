@@ -1,0 +1,300 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>College Placement Exams</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header */
+        header {
+            background-color: #fff;
+            padding: 60px 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            width: 100%;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3.6rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        nav a {
+            color: #333;
+            padding: 18px 30px;
+            font-size: 1rem;
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #007aff;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: url('https://via.placeholder.com/1600x900') no-repeat center center;
+            background-size: cover;
+            color: #fff;
+            padding: 120px 20px;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero h2 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            max-width: 700px;
+            line-height: 1.8;
+        }
+
+        .hero .btn {
+            padding: 18px 35px;
+            background-color: #007aff;
+            color: white;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+        .hero .btn:hover {
+            background-color: #005bb5;
+            transform: translateY(-5px);
+        }
+
+        /* Main Content Section */
+        .content {
+            padding: 100px 20px;
+            text-align: center;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .content h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .content p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #555;
+            max-width: 900px;
+            margin: 0 auto 40px auto;
+        }
+
+        .content .btn {
+            background-color: #007aff;
+            color: white;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .content .btn:hover {
+            background-color: #005bb5;
+            transform: translateY(-5px);
+        }
+
+        /* Footer */
+        footer {
+            background-color: #fff;
+            color: #333;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 3rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .content h2 {
+                font-size: 2.5rem;
+            }
+
+            .content p {
+                font-size: 1rem;
+            }
+
+            nav a {
+                padding: 15px 20px;
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+   
+    <header class="animate">
+        <h1>College Placement Exams</h1>
+    </header>
+
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#">Exam Details</a>
+        <a href="#">Preparation</a>
+        <a href="#">Results</a>
+        <a href="#">Contact</a>
+    </nav>
+
+
+    <section class="hero animate">
+        <h2>Prepare for Your Future</h2>
+        <p>Take the first step towards your dream job. Our placement exams are designed to help you excel. Start your journey now!</p>
+        <a href="#" class="btn">Start Exam</a>
+    </section>
+
+    
+    <section class="content animate">
+        <h2>Why Choose Our Placement Exams?</h2>
+        <p>Our platform offers expertly designed tests with detailed feedback to help you prepare effectively. Stay on top of your performance and progress with ease.</p>
+        <a href="#" class="btn">Learn More</a>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 College Placement Exams. All Rights Reserved.</p>
+    </footer>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .verification-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 10px 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="verification-container">
+        <h2>Email Verification</h2>
+        
+        <!-- Email Verification Form -->
+        <form action="/authenticate/verify/<%=check%>" method="POST">
+            <div class="mb-3">
+                
+                <input type="text" name="otp" id="otp" class="form-control" value="<%=check%>" hidden>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

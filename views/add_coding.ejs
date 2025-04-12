@@ -1,0 +1,135 @@
+<!-- <form action="/admin/exam/<%= examId %>/add/coding" method="POST">
+    <label>Title:</label>
+    <input type="text" name="questionTile" required><br>
+
+    <label>Question Text:</label>
+    <textarea name="questiontext" required></textarea><br>
+
+    <label>Constraints:</label>
+    <textarea name="constraits" required></textarea><br>
+
+    <label>Input Format:</label>
+    <textarea name="inputFormat" required></textarea><br>
+
+    <label>Output Format:</label>
+    <textarea name="outputFormat" required></textarea><br>
+
+    <label>Sample Input:</label>
+    <textarea name="sampleInput" required></textarea><br>
+
+    <label>Sample Output:</label>
+    <textarea name="sampleOutput" required></textarea><br>
+
+    <label>Solution Template:</label>
+    <textarea name="solutionTemplate" required></textarea><br>
+    <label>Marks:</label>
+    <input name="marks" required type="number"><br>
+
+
+    <button type="submit">Add Coding Question</button>
+</form> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Coding Question</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 10px 20px;
+        }
+        .back-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+        textarea {
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Add Coding Question</h1>
+
+        <!-- Add Coding Question Form -->
+        <div class="card p-4 mb-3">
+            <form action="/admin/exam/<%= examId %>/add/coding" method="POST">
+
+                <div class="mb-3">
+                    <label for="questionTile" class="form-label">Title:</label>
+                    <input type="text" id="questionTile" name="questionTile" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="questiontext" class="form-label">Question Text:</label>
+                    <textarea id="questiontext" name="questiontext" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="constraints" class="form-label">Constraints:</label>
+                    <textarea id="constraints" name="constraits" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="inputFormat" class="form-label">Input Format:</label>
+                    <textarea id="inputFormat" name="inputFormat" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="outputFormat" class="form-label">Output Format:</label>
+                    <textarea id="outputFormat" name="outputFormat" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="sampleInput" class="form-label">Sample Input:</label>
+                    <textarea id="sampleInput" name="sampleInput" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="sampleOutput" class="form-label">Sample Output:</label>
+                    <textarea id="sampleOutput" name="sampleOutput" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="solutionTemplate" class="form-label">Solution Template:</label>
+                    <textarea id="solutionTemplate" name="solutionTemplate" class="form-control" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="marks" class="form-label">Marks:</label>
+                    <input type="number" id="marks" name="marks" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Coding Question</button>
+            </form>
+        </div>
+
+        <!-- Back Link -->
+        <div class="back-link">
+            <a href="/admin/exam/questions/<%= examId %>" class="btn btn-link">Back to Questions</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

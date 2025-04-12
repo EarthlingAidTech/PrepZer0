@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        .form-control, .form-select {
+            margin-bottom: 15px;
+        }
+        .form-check-inline {
+            margin-right: 10px;
+        }
+        .btn-primary {
+            padding: 10px 20px;
+        }
+        .card {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Edit Exam - <%= exam.name %></h1>
+        <div class="card">
+            <form action="/admin/exam/<%= exam._id %>" method="POST">
+                <div class="mb-3">
+                    <label for="examName" class="form-label">Exam Name:</label>
+                    <input type="text" id="examName" name="name" class="form-control" value="<%= exam.name %>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Departments:</label><br>
+                    <% ["mc", "is", "cs", "et", "ec", "ai", "cv"].forEach(dept => { %>
+                        <div class="form-check form-check-inline">
+                            <input type="checkbox" name="departments" value="<%= dept %>" class="form-check-input" 
+                                <%= exam.departments.includes(dept) ? "checked" : "" %>>
+                            <label class="form-check-label"><%= dept.toUpperCase() %></label>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <div class="mb-3">
+                    <label for="semester" class="form-label">Semester:</label>
+                    <input type="number" id="semester" name="semester" class="form-control" min="1" max="8" value="<%= exam.semester %>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="questionType" class="form-label">Question Type:</label>
+                    <select id="questionType" name="questionType" class="form-select" onchange="toggleQuestionFields()" required>
+                        <option value="mcq" <%= exam.questionType === "mcq" ? "selected" : "" %>>MCQ</option>
+                        <option value="coding" <%= exam.questionType === "coding" ? "selected" : "" %>>Coding</option>
+                        <option value="mcq&coding" <%= exam.questionType === "mcq&coding" ? "selected" : "" %>>MCQ + Coding</option>
+                    </select>
+                </div>
+
+                <div id="mcqFields" class="mb-3" style="display: none;">
+                    <label for="numMCQs" class="form-label">Number of MCQ Questions:</label>
+                    <input type="number" id="numMCQs" name="numMCQs" class="form-control" value="<%= exam.numMCQs || '' %>">
+                </div>
+
+                <div id="codingFields" class="mb-3" style="display: none;">
+                    <label for="numCoding" class="form-label">Number of Coding Questions:</label>
+                    <input type="number" id="numCoding" name="numCoding" class="form-control" value="<%= exam.numCoding || '' %>">
+                </div>
+
+                <div id="totalQuestionFields" class="mb-3" style="display: none;">
+                    <label for="numTotalQuestions" class="form-label">Total Questions:</label>
+                    <input type="number" id="numTotalQuestions" name="numTotalQuestions" class="form-control" value="<%= exam.numMCQs + exam.numCoding || '' %>">
+                </div>
+
+                <div class="mb-3">
+                    <label for="duration" class="form-label">Duration (minutes):</label>
+                    <input type="number" id="duration" name="duration" class="form-control" value="<%= exam.duration || '' %>" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="scheduledAt" class="form-label">Scheduled At:</label>
+                    <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control" 
+                        value="<%= exam.scheduledAt ? new Date(exam.scheduledAt).toISOString().slice(0,16) : '' %>" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="scheduleTill" class="form-label">Scheduled Till:</label>
+                    <input type="datetime-local" id="scheduleTill" name="scheduleTill" class="form-control" 
+                        value="<%= exam.scheduleTill ? new Date(exam.scheduleTill).toISOString().slice(0,16) : '' %>" required>
+                </div>
+                
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Update Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        function convertToLocalTime(inputId) {
+            const inputElement = document.getElementById(inputId);
+            if (inputElement && inputElement.value) {
+                let utcDate = new Date(inputElement.value);
+    
+                if (isNaN(utcDate.getTime())) {
+                    console.warn(`Invalid date in input ${inputId}:`, inputElement.value);
+                    return;
+                }
+                
+                // Convert UTC to local timezone
+                let localDate = new Date(utcDate.getTime() - (utcDate.getTimezoneOffset() * 60000));
+    
+                let year = localDate.getFullYear();
+                let month = String(localDate.getMonth() + 1).padStart(2, '0');
+                let day = String(localDate.getDate()).padStart(2, '0');
+                let hours = String(localDate.getHours()).padStart(2, '0');
+                let minutes = String(localDate.getMinutes()).padStart(2, '0');
+    
+                let formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                console.log(`Setting value for ${inputId}:`, formattedDateTime);
+                inputElement.value = formattedDateTime;
+            }
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(() => {
+                convertToLocalTime("scheduledAt");
+                convertToLocalTime("scheduleTill");
+            }, 1000); // Slight delay to ensure the input fields are populated
+        });
+    </script>
+    
+
+    
+    
+
+    <script>
+        function toggleQuestionFields() {
+            const type = document.getElementById("questionType").value;
+            document.getElementById("mcqFields").style.display = type === "mcq" || type === "mcq&coding" ? "block" : "none";
+            document.getElementById("codingFields").style.display = type === "coding" || type === "mcq&coding" ? "block" : "none";
+            document.getElementById("totalQuestionFields").style.display = type === "mcq&coding" ? "block" : "none";
+        }
+        toggleQuestionFields();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!-- <form action="/authenticate/verify/<%=check%>" , method="post">
+    <input type="text" name="otp" hidden value="<%=check%>">
+<input type="submit">
+</form> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .verification-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-control {
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 10px 20px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="verification-container">
+        <h2>Email Verification</h2>
+        
+        <!-- Email Verification Form -->
+        <form action="/authenticate/verify/<%=check%>" method="POST">
+            <div class="mb-3">
+                <label for="otp" class="form-label">Enter OTP:</label>
+                <input type="text" name="otp" id="otp" class="form-control" value="<%=check%>" hidden>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Verify</button>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
