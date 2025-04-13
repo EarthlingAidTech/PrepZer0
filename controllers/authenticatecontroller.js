@@ -9,7 +9,7 @@ exports.getlogincontrol = (req,res)=>{
         if(req.isAuthenticated()){
             res.redirect('/')
         }else{
-            res.render('login' , {errormsg : ""})
+            res.render('login' , {errormsg : "", isStudentPage: true})
         }
     } catch (error) {
         console.log(error)
@@ -44,7 +44,7 @@ exports.getlogincontrol = (req,res)=>{
 
 
  exports.getsignupcontrol = (req,res)=>{
-    res.render('signup' , {errormsg : ""})
+    res.render('signup' , {errormsg : "", isStudentPage: true})
  }
 
  exports.signupcontrol = async(req,res)=>{

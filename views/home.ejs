@@ -2,89 +2,1548 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link id="u-theme-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:200,300,400,500,600,700|Open+Sans:300,300i,400,400i,500,500i,600,600i,700,700i,800,800i">
-    <link id="u-page-google-font" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:200,300,400,500,600,700|Montserrat:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i">
-    <p hidden id="logged"><%=logged_in %></p>
-   
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#"><img  src="https://salty-lowlands-81889.herokuapp.com/images/eat.png" width="30" height="30" class="d-inline-block align-top" alt=""> Earthling Aid Tech</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/dashboard">Dashboard</a>
-            </li>
-
-           
-              <li class="nav-item dropdown" id="roots">
-              <a class="nav-link dropdown-toggle" id="tols" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <img id="navimg" src="<%= pic %>" width="30" height="30" class=" rounded-circle">   
-              </a>
-              <div class="dropdown-menu"  aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="/profile">Profile</a>
-                <a class="dropdown-item" href="/logout">Log Out</a>
-              </div>
-            </li>   
-            <li class="nav-item dropdown" id="roots1">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Sign_In
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="/authenticate/login">login</a>
-                <a class="dropdown-item" href="/authenticate/signup">Signup</a>
-                   
-              </div>
-            </li>
-        
-          </ul>
-        </div>
-      </nav>
-</head>
-<body>
-
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="EarthlingAidTech - Your comprehensive platform for placement preparation">
+    
+    <!-- Favicon and App Icons -->
+    <link rel="icon" href="/images/favicon.ico">
+    <link rel="apple-touch-icon" href="/images/logo192.png">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <title>EarthlingAidTech - Your Career Journey Starts Here</title>
+    
+    <!-- Dark mode preference -->
   <script>
-    var apples = document.getElementById("logged").innerHTML
-
-if (apples === "true") {  // Compare as a string
-    document.getElementById("roots1").setAttribute("hidden", true);
-    document.getElementById("roots").removeAttribute("hidden");
-
-} else {
-    document.getElementById("roots").setAttribute("hidden", true);
-    document.getElementById("roots1").removeAttribute("hidden");
-
+        // Check for dark mode preference
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!('darkMode' in localStorage) && 
+             window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
 }
    </script>
 
+    <style>
+        /* Base styles */
+        :root {
+            --primary: #60a5fa;
+            --primary-dark: #3b82f6;
+            --dark-bg: #0f172a;
+            --dark-surface: #1e293b;
+            --font-primary: 'Poppins', sans-serif;
+        }
 
+        /* Apply Poppins font globally */
+        html, body {
+            font-family: var(--font-primary);
+        }
 
+        /* Ensure all text elements inherit the font */
+        h1, h2, h3, h4, h5, h6,
+        p, a, span, button, input, textarea, select {
+            font-family: var(--font-primary);
+        }
 
- 
+        /* Update specific component fonts */
+        .logo-text {
+            font-family: var(--font-primary);
+        }
+
+        .nav-link {
+            font-family: var(--font-primary);
+        }
+
+        .gradient-text {
+            font-family: var(--font-primary);
+        }
+
+        .auth-button {
+            font-family: var(--font-primary);
+        }
+
+        /* Dark mode transitions */
+        .dark {
+            @apply bg-gray-900 text-white;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Gradient text effect */
+        .gradient-text {
+            background: linear-gradient(to right, var(--primary), #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dark .gradient-text {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+        }
+
+        /* Hero card with backdrop filter */
+        .hero-card {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .hero-card {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: rgba(51, 65, 85, 0.4);
+        }
+
+        /* Feature card hover effects */
+        .feature-card {
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform, box-shadow;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dark .feature-card {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-color: rgba(51, 65, 85, 0.5);
+            padding: 2.5rem;
+        }
+
+        .dark .feature-card:hover {
+            background: rgba(17, 24, 39, 0.98);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Logo gradient animation */
+        .logo-gradient {
+            background: linear-gradient(to right, #60a5fa, #3b82f6);
+            background-size: 200% 200%;
+            animation: gradient-shift 3s ease infinite;
+        }
+
+        .dark .logo-gradient {
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+        }
+
+        /* Text shadow for emphasis */
+        .logo-text-shadow {
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .dark .logo-text-shadow {
+            text-shadow: 0 2px 10px rgba(96, 165, 250, 0.3);
+        }
+
+        /* Grid pattern background */
+        .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+        }
+
+        .dark .bg-grid-pattern {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+        }
+
+        /* Dark mode text improvements */
+        .dark .text-gray-600 {
+            color: rgba(0, 128, 255, 0.95) !important;
+        }
+
+        .dark .text-gray-400 {
+            color: rgba(0, 128, 255, 0.98) !important;
+        }
+
+        .dark .text-gray-300 {
+            color: rgb(0, 128, 255) !important;
+        }
+
+        /* Feature card text in dark mode */
+        .dark .feature-card p {
+            color: rgba(0, 128, 255, 0.95) !important;
+        }
+
+        .dark .feature-card h3 {
+            color: rgb(0, 128, 255) !important;
+        }
+
+        /* About card text in dark mode */
+        .dark .group p {
+            color: rgba(0, 128, 255, 0.95) !important;
+        }
+
+        .dark .group h3 {
+            color: rgb(0, 128, 255) !important;
+        }
+
+        /* Animations */
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Dark mode specific hover effects */
+        .dark .hover\:bg-gray-800:hover {
+            background-color: rgba(30, 41, 59, 0.9) !important;
+        }
+
+        .dark .hover\:text-white:hover {
+            color: #fff !important;
+        }
+
+        .dark .hover\:border-blue-500:hover {
+            border-color: #60a5fa !important;
+        }
+
+        /* Custom shadow effects */
+        .hover-shadow-custom {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .dark .hover-shadow-custom {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .hover-shadow-custom:hover {
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        .dark .hover-shadow-custom:hover {
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Navbar Styles */
+        header {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-link {
+            text-decoration: none;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            padding: 0.5rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #ffffff !important;
+        }
+
+        .auth-button {
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            text-decoration: none !important;
+        }
+
+        .auth-button:hover,
+        .auth-button:focus,
+        .auth-button:active {
+            text-decoration: none !important;
+            outline: none;
+        }
+
+        .auth-button i {
+            pointer-events: none;
+        }
+
+        .student-button, .admin-button {
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        /* Remove focus outline and replace with subtle shadow */
+        .auth-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        .dark .auth-button:focus {
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .student-button {
+            background: linear-gradient(135deg, rgb(59, 130, 246), rgb(37, 99, 235));
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .student-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            background: linear-gradient(135deg, rgb(37, 99, 235), rgb(29, 78, 216));
+        }
+
+        .student-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .admin-button {
+            background: linear-gradient(135deg, rgb(124, 58, 237), rgb(109, 40, 217));
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.2);
+        }
+
+        .admin-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.3);
+            background: linear-gradient(135deg, rgb(109, 40, 217), rgb(91, 33, 182));
+        }
+
+        .admin-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(124, 58, 237, 0.2);
+        }
+
+        /* Dark mode enhancements for auth buttons */
+        .dark .student-button {
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+        }
+
+        .dark .student-button:hover {
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25);
+        }
+
+        .dark .admin-button {
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
+        }
+
+        .dark .admin-button:hover {
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.25);
+        }
+
+        /* Add ripple effect for button clicks */
+        .auth-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+
+        .auth-button:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(100, 100);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Menu Styles */
+        #mobileMenu {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            transform-origin: top;
+            transform: scaleY(0);
+            transition: transform 0.3s ease-in-out;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+        }
+
+        #mobileMenu.show {
+            transform: scaleY(1);
+        }
+
+        #mobileMenu .nav-link {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #mobileMenu.show .nav-link {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #mobileMenu .nav-link:nth-child(1) { transition-delay: 0.1s; }
+        #mobileMenu .nav-link:nth-child(2) { transition-delay: 0.2s; }
+        #mobileMenu .nav-link:nth-child(3) { transition-delay: 0.3s; }
+        #mobileMenu .nav-link:nth-child(4) { transition-delay: 0.4s; }
+
+        @media (max-width: 768px) {
+            .nav-link {
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 0.75rem 1rem;
+                margin: 0.25rem 0;
+                border-radius: 0.5rem;
+            }
+            
+            #mobileMenu .auth-button {
+                opacity: 0;
+                transform: translateY(-10px);
+                transition: all 0.3s ease;
+            }
+            
+            #mobileMenu.show .auth-button {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            #mobileMenu .auth-button:nth-child(1) { transition-delay: 0.5s; }
+            #mobileMenu .auth-button:nth-child(2) { transition-delay: 0.6s; }
+        }
+
+        /* Logo styles */
+        .logo-link {
+            text-decoration: none !important;
+            pointer-events: none;
+            cursor: default;
+        }
+
+        .logo-text {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.25rem;
+            letter-spacing: -0.025em;
+        }
+
+        /* Remove any hover effects for logo */
+        .logo-link:hover,
+        .logo-link:focus,
+        .logo-link:active {
+            text-decoration: none !important;
+            color: inherit;
+            transform: none;
+        }
+
+        .logo-text:hover,
+        .logo-text:focus,
+        .logo-text:active {
+            color: #fff;
+            text-decoration: none !important;
+        }
+
+        /* Navigation link styles */
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+            position: relative;
+            margin: 0 0.25rem;
+        }
+
+        .nav-link.active {
+            color: #fff !important;
+        }
+
+        /* Remove the underline effect styles */
+        .nav-link::after {
+            display: none;
+        }
+
+        /* Add pop-up animation for nav items */
+        @keyframes navPopUp {
+            0% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        .nav-item:hover .nav-link {
+            animation: navPopUp 0.3s ease;
+        }
+
+        @keyframes spin-slow {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .animate-spin-slow {
+            animation: spin-slow 8s linear infinite;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dark mode toggle button styles */
+        #darkModeToggle {
+            position: fixed;
+            top: 5rem;
+            right: 1.25rem;
+            z-index: 50;
+            padding: 0.75rem;
+            border-radius: 50%;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #darkModeToggle i {
+            font-size: 1.75rem;
+            color: #fbbf24;
+            filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.7));
+            transition: all 0.3s ease;
+        }
+
+        .dark #darkModeToggle i {
+            color: #64748b;
+            filter: none;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.7));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.9));
+                transform: scale(1.1);
+            }
+        }
+
+        :not(.dark) #darkModeToggle i {
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        #darkModeToggle:hover i {
+            transform: scale(1.1);
+        }
+
+        .dark #darkModeToggle:hover i {
+            transform: scale(1.1);
+            color: #94a3b8;
+        }
+
+        /* Dark mode styles */
+        .dark {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        .dark .bg-white {
+            background-color: #1e293b;
+        }
+
+        .dark .text-gray-900 {
+            color: #f8fafc;
+        }
+
+        .dark .border-gray-200 {
+            border-color: #334155;
+        }
+
+        .dark .shadow-lg {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark .group {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-color: rgba(51, 65, 85, 0.5);
+            padding: 2.5rem;
+        }
+
+        .dark .group:hover {
+            background: rgba(17, 24, 39, 0.98);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .dark .nav-link {
+            color: rgba(248, 250, 252, 0.9) !important;
+        }
+
+        .dark .nav-link:hover {
+            color: #60a5fa !important;
+        }
+
+        /* Dark mode gradients */
+        .dark .bg-gradient-to-br {
+            background-image: linear-gradient(to bottom right, #0f172a, #1e293b);
+        }
+
+        .dark .from-blue-50 {
+            --tw-gradient-from: #0f172a;
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(15, 23, 42, 0));
+        }
+
+        .dark .to-purple-50 {
+            --tw-gradient-to: #1e293b;
+        }
+
+        /* Dark mode transitions */
+        .dark * {
+            transition-property: background-color, border-color, color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Dark mode feature cards */
+        .dark .feature-card {
+            background: rgba(17, 24, 39, 0.95);
+            border-color: rgba(51, 65, 85, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 2.5rem;
+        }
+
+        .dark .feature-card:hover {
+            background: rgba(17, 24, 39, 0.98);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Dark mode hero section */
+        .dark .hero-gradient {
+            background: linear-gradient(to bottom right, #0f172a, #1e293b);
+        }
+
+        /* Dark mode footer */
+        .dark footer {
+            background-color: #0f172a;
+            border-top: 1px solid rgba(51, 65, 85, 0.4);
+        }
+
+        .dark footer a:hover {
+            color: #60a5fa;
+        }
+
+        /* Base transitions */
+        * {
+            @apply transition-colors duration-300 ease-in-out;
+        }
+
+        /* Dark mode base styles */
+        .dark {
+            @apply bg-gray-900 text-white;
+        }
+
+        /* Dark mode specific styles */
+        .dark body {
+            @apply bg-gray-900 text-gray-200;
+        }
+
+        .dark .navbar {
+            @apply bg-gray-800 border-gray-700;
+        }
+
+        .dark .card {
+            @apply bg-gray-800 border-gray-700;
+        }
+
+        .dark .feature-card {
+            @apply bg-gray-800/90 backdrop-blur-sm border-gray-700 hover:border-blue-500;
+        }
+
+        .dark .about-card {
+            @apply bg-gray-800/90 backdrop-blur-sm border-gray-700;
+        }
+
+        /* Text colors in dark mode */
+        .dark .text-gray-600 {
+            @apply text-gray-300;
+        }
+
+        .dark .text-gray-700 {
+            @apply text-gray-200;
+        }
+
+        .dark .text-gray-800 {
+            @apply text-gray-100;
+        }
+
+        .dark .text-gray-900 {
+            @apply text-white;
+        }
+
+        /* Button styles in dark mode */
+        .dark .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-700 text-white;
+        }
+
+        .dark .btn-secondary {
+            @apply bg-gray-700 hover:bg-gray-600 text-white;
+        }
+
+        /* Input styles in dark mode */
+        .dark input, .dark textarea, .dark select {
+            @apply bg-gray-800 border-gray-700 text-white;
+        }
+
+        /* Link hover effects in dark mode */
+        .dark a:hover {
+            @apply text-blue-400;
+        }
+
+        /* Footer styles in dark mode */
+        .dark footer {
+            @apply bg-gray-800 border-t border-gray-700;
+        }
+
+        /* Card hover effects in dark mode */
+        .dark .feature-card:hover {
+            @apply transform -translate-y-1 shadow-lg shadow-blue-500/20;
+        }
+
+        /* Gradient text in dark mode */
+        .dark .gradient-text {
+            @apply bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent;
+        }
+
+        /* Dark mode specific styles */
+        .dark {
+            .feature-card, .about-card {
+                @apply bg-gray-800/95 border-gray-700;
+                background: rgba(17, 24, 39, 0.95);
+                backdrop-filter: blur(12px);
+                padding: 2.5rem;
+            }
+
+            .feature-card:hover, .group:hover {
+                background: rgba(17, 24, 39, 0.98);
+                border-color: rgba(96, 165, 250, 0.4);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            /* Improve text contrast */
+            .feature-card p, .group p {
+                color: rgba(248, 250, 252, 0.95) !important;
+            }
+
+            .feature-card h3, .group h3 {
+                color: rgba(248, 250, 252, 1) !important;
+            }
+
+            /* Enhance emoji and icon visibility */
+            .feature-card .text-5xl,
+            .group .text-5xl {
+                filter: drop-shadow(0 0 8px rgba(96, 165, 250, 0.3));
+            }
+
+            /* Improve hover state readability */
+            .feature-card:hover p, .group:hover p {
+                color: rgba(248, 250, 252, 1) !important;
+            }
+
+            .feature-card:hover .text-5xl,
+            .group:hover .text-5xl {
+                filter: drop-shadow(0 0 12px rgba(96, 165, 250, 0.4));
+            }
+        }
+
+        /* Update group styles for about cards */
+        .dark .group {
+            background: rgba(17, 24, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-color: rgba(51, 65, 85, 0.5);
+            padding: 2.5rem;
+        }
+
+        .dark .group:hover {
+            background: rgba(17, 24, 39, 0.98);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced smooth animations for feature cards and about boxes */
+        .feature-card, .group {
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            position: relative;
+            z-index: 1;
+            text-decoration: none !important;
+            will-change: transform, box-shadow;
+        }
+
+        .feature-card:hover, .group:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Smooth icon transitions */
+        .feature-card .text-5xl,
+        .group .text-5xl,
+        .feature-card i,
+        .group i {
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        filter 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform;
+        }
+
+        .feature-card:hover .text-5xl,
+        .group:hover .text-5xl,
+        .feature-card:hover i,
+        .group:hover i {
+            transform: scale(1.1);
+        }
+
+        /* Smooth background transitions */
+        .feature-card, 
+        .group, 
+        .dark .feature-card, 
+        .dark .group {
+            background-color: transparent;
+            background-position: center;
+            background-size: 200% 200%;
+            transition: background 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+                        transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.5s cubic-bezier(0.25, 1, 0.5, 1),
+                        border-color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Dark mode feature cards with smooth transitions */
+        .dark .feature-card, 
+        .dark .group {
+            background: rgba(17, 24, 39, 0.95);
+            border-color: rgba(51, 65, 85, 0.5);
+            backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transform: translateZ(0); /* Hardware acceleration */
+        }
+
+        .dark .feature-card:hover, 
+        .dark .group:hover {
+            background: rgba(17, 24, 39, 0.98);
+            border-color: rgba(96, 165, 250, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Text transitions */
+        .feature-card h3, 
+        .feature-card p, 
+        .group h3, 
+        .group p {
+            transition: color 0.4s ease;
+        }
+
+        /* Overlay gradient transition */
+        .feature-card .bg-gradient-to-br,
+        .group .bg-gradient-to-br {
+            transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Add motion-reduce media query for users who prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .feature-card, 
+            .group,
+            .feature-card .text-5xl,
+            .group .text-5xl,
+            .feature-card i,
+            .group i {
+                transition: none !important;
+                transform: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light dark:bg-gray-900">
+    <% if (!locals.isStudentPage) { %>
+    <!-- Navigation -->
+    <header class="fixed w-full z-50">
+        <div class="container mx-auto px-6">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="logo-link flex items-center space-x-2">
+                        <span class="text-2xl">🌍</span>
+                        <span class="logo-text">EarthlingAidTech</span>
+                        <span class="text-orange-500 text-sm"></span>
+                    </a>
+                </div>
+
+                <!-- Center Navigation -->
+                <nav class="hidden md:flex items-center">
+                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                </nav>
+
+                <!-- Right Side Buttons -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <% if (locals.logged_in && locals.user) { %>
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/10 hover:bg-white/20 transition-all duration-300">
+                                <img src="<%= locals.user.pic || '/images/default-avatar.png' %>" class="w-8 h-8 rounded-full" alt="Profile">
+                                <span class="text-white"><%= locals.user.username || locals.user.email || 'User' %></span>
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-2 hidden group-hover:block">
+                                <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-user mr-2"></i>Profile
+                                </a>
+                                <a href="/dashboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                                </a>
+                                <div class="border-t border-gray-200 my-1"></div>
+                                <a href="/logout" class="block px-4 py-2 text-red-600 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Log Out
+                                </a>
+                            </div>
+              </div>
+                    <% } else { %>
+                        <!-- Auth Buttons -->
+                        <div class="flex items-center space-x-4">
+                            <a href="/authenticate/signup" class="auth-button student-button text-white">
+                                <i class="fas fa-user-graduate mr-2"></i>Student
+                            </a>
+                            <a href="/admin/signup" class="auth-button admin-button text-white">
+                                <i class="fas fa-user-shield mr-2"></i>Admin
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button type="button" onclick="toggleMobileMenu()" class="text-white hover:text-gray-300 transition-colors">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation -->
+            <div id="mobileMenu" class="md:hidden hidden pb-6">
+                <nav class="flex flex-col space-y-4">
+                    <a href="#home" class="nav-link">Home</a>
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#about" class="nav-link">About</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                    
+                    <% if (locals.logged_in && locals.user) { %>
+                        <div class="border-t border-gray-700 my-4"></div>
+                        <a href="/profile" class="nav-link">
+                            <i class="fas fa-user mr-2"></i>Profile
+                        </a>
+                        <a href="/dashboard" class="nav-link">
+                            <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                        </a>
+                        <a href="/logout" class="text-red-400 hover:text-red-300 px-4 py-2">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Log Out
+                        </a>
+                    <% } else { %>
+                        <div class="border-t border-gray-700 my-4"></div>
+                        <div class="flex flex-col space-y-2">
+                            <a href="/authenticate/signup" class="auth-button student-button text-white text-center">
+                                <i class="fas fa-user-graduate mr-2"></i>Student
+                            </a>
+                            <a href="/admin/signup" class="auth-button admin-button text-white text-center">
+                                <i class="fas fa-user-shield mr-2"></i>Admin
+                            </a>
+                        </div>
+                    <% } %>
+                </nav>
+            </div>
+              </div>
+    </header>
+    <% } %>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen pt-16 bg-gradient-to-br from-blue-600 to-indigo-700 dark:from-gray-900 dark:to-indigo-900 relative overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0">
+            <div class="absolute inset-0 bg-grid-pattern opacity-[0.05] dark:opacity-[0.02]"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container mx-auto px-6 py-20 relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <!-- Left Column -->
+                <div class="text-white space-y-8">
+                    <div class="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm dark:bg-gray-800/30">
+                        🚀 Your Career Journey Starts Here
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-6xl font-bold leading-tight">
+                        Prepare, Practice,
+                        <span class="text-blue-200 dark:text-blue-400">Succeed</span>
+                    </h1>
+                    
+                    <p class="text-lg md:text-xl text-blue-100 dark:text-gray-300">
+                        Your one-stop platform for placement preparation. Master technical interviews, 
+                        solve coding challenges, and track your progress towards success.
+                    </p>
+                    
+                    <div>
+                        <a href="/authenticate/signup" 
+                           style="text-decoration: none;"
+                           class="inline-flex items-center px-8 py-4 rounded-full 
+                                  text-white font-semibold text-lg
+                                  bg-blue-600 hover:bg-blue-700
+                                  transform transition-all duration-300 hover:scale-105
+                                  shadow-lg hover:shadow-blue-500/50">
+                            <i class="fas fa-graduation-cap text-xl me-3"></i>
+                            Get Started
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="hidden md:block relative animate-fade-in" style="animation-delay: 200ms">
+                    <div class="relative z-10 transform transition-transform duration-700 hover:scale-105">
+                        <img src="/images/hero-image.png" 
+                             alt="Developer Illustration" 
+                             class="w-full max-w-2xl mx-auto animate-float dark:opacity-90"
+                             style="animation: float 6s ease-in-out infinite;"
+                             loading="lazy">
+                    </div>
+                    
+                    <!-- Animated Decorative Elements -->
+                    <div class="absolute top-1/4 -right-4 text-blue-200/20 dark:text-blue-400/20 text-6xl animate-pulse">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="absolute bottom-1/4 -left-4 text-blue-200/20 dark:text-blue-400/20 text-6xl animate-bounce">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    
+                    <!-- Additional floating elements -->
+                    <div class="absolute -top-10 right-20 text-blue-200/30 dark:text-blue-400/30 text-4xl animate-spin-slow">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="absolute bottom-10 right-10 text-blue-200/30 dark:text-blue-400/30 text-3xl animate-ping">
+                        <i class="fas fa-dot-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-950 dark:to-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-20 px-4 animate-fade-in">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-8 leading-[1.2] md:leading-[1.3] tracking-normal">
+                        <span class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 
+                               dark:from-blue-400 dark:via-indigo-400 dark:to-purple-400 
+                               bg-clip-text text-transparent inline-block">
+                            Everything You Need to Succeed
+                        </span>
+                    </h2>
+                    <p class="text-gray-700 dark:text-gray-200 max-w-2xl mx-auto text-lg leading-relaxed">
+                        Comprehensive tools and resources to help you ace your placement interviews
+                    </p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto px-4">
+                <!-- Feature Cards -->
+                <div class="group relative bg-white/70 dark:bg-white/5 backdrop-blur-lg p-10 rounded-2xl shadow-lg 
+                            transition-all duration-300 hover:shadow-2xl border border-gray-100/20 
+                            dark:border-white/10 flex flex-col items-center text-center animate-fade-in hover:-translate-y-2">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 
+                               dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl opacity-0 
+                               group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 w-full">
+                        <div class="text-5xl mb-6 transform group-hover:scale-110 
+                                 transition-transform duration-300 flex justify-center text-blue-500 dark:text-blue-400">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white/90 
+                                group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                                transition-colors duration-300 leading-tight">
+                            Interactive Quizzes
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300/90 leading-relaxed text-base">
+                            Practice with our vast collection of technical and aptitude questions
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white/70 dark:bg-white/5 backdrop-blur-lg p-10 rounded-2xl shadow-lg 
+                            transition-all duration-300 hover:shadow-2xl border border-gray-100/20 
+                            dark:border-white/10 flex flex-col items-center text-center animate-fade-in hover:-translate-y-2"
+                     style="animation-delay: 100ms">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 
+                               dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl opacity-0 
+                               group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 w-full">
+                        <div class="text-5xl mb-6 transform group-hover:scale-110 
+                                 transition-transform duration-300 flex justify-center text-purple-500 dark:text-purple-400">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white/90 
+                                group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                                transition-colors duration-300 leading-tight">
+                            Code Practice
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300/90 leading-relaxed text-base">
+                            Solve real coding problems with our integrated IDE
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white/70 dark:bg-white/5 backdrop-blur-lg p-10 rounded-2xl shadow-lg 
+                            transition-all duration-300 hover:shadow-2xl border border-gray-100/20 
+                            dark:border-white/10 flex flex-col items-center text-center animate-fade-in hover:-translate-y-2"
+                     style="animation-delay: 200ms">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 
+                               dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl opacity-0 
+                               group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 w-full">
+                        <div class="text-5xl mb-6 transform group-hover:scale-110 
+                                 transition-transform duration-300 flex justify-center text-blue-500 dark:text-blue-400">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white/90 
+                                group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                                transition-colors duration-300 leading-tight">
+                            Track Progress
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300/90 leading-relaxed text-base">
+                            Monitor your improvement with detailed performance analytics
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-gray-50 dark:bg-gray-950">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-20 animate-fade-in">
+                <div class="mb-8 px-2 md:px-4">
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight md:leading-[1.4] tracking-normal 
+                               bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 
+                               bg-clip-text text-transparent py-2 break-words">
+                        About<span class="hidden sm:inline"> </span><br class="sm:hidden"/>EarthlingAidTech
+                    </h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-200 text-lg leading-relaxed px-4 max-w-3xl mx-auto">
+                    EarthlingAidTech is your comprehensive platform for placement preparation, designed to help students excel in 
+                    their career journey. We combine cutting-edge technology with expert guidance to provide the best learning 
+                    experience.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto px-6">
+                <!-- About Cards -->
+                <div class="group relative bg-white/70 dark:bg-white/5 backdrop-blur-lg p-10 rounded-2xl shadow-lg 
+                            transition-all duration-300 hover:shadow-2xl border border-gray-100/20 
+                            dark:border-white/10 flex flex-col animate-fade-in hover:-translate-y-2">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 
+                               dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl opacity-0 
+                               group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 flex-1">
+                        <span class="block text-5xl mb-6 transform group-hover:scale-110 
+                                   transition-transform duration-300">
+                            🎯
+                        </span>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white/90 
+                                 group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                                 transition-colors duration-300 leading-tight">
+                            Our Mission
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300/90 leading-relaxed text-base">
+                            To empower students with the tools and knowledge they need to secure their dream careers.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white/70 dark:bg-white/5 backdrop-blur-lg p-10 rounded-2xl shadow-lg 
+                            transition-all duration-300 hover:shadow-2xl border border-gray-100/20 
+                            dark:border-white/10 flex flex-col animate-fade-in hover:-translate-y-2"
+                     style="animation-delay: 100ms">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 
+                               dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl opacity-0 
+                               group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 flex-1">
+                        <span class="block text-5xl mb-6 transform group-hover:scale-110 
+                                   transition-transform duration-300">
+                            👁️
+                        </span>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white/90 
+                                 group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                                 transition-colors duration-300 leading-tight">
+                            Our Vision
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300/90 leading-relaxed text-base">
+                            To become the leading platform for placement preparation and career development.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="group relative bg-white/70 dark:bg-white/5 backdrop-blur-lg p-10 rounded-2xl shadow-lg 
+                            transition-all duration-300 hover:shadow-2xl border border-gray-100/20 
+                            dark:border-white/10 flex flex-col animate-fade-in hover:-translate-y-2"
+                     style="animation-delay: 200ms">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50 
+                               dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl opacity-0 
+                               group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10 flex-1">
+                        <span class="block text-5xl mb-6 transform group-hover:scale-110 
+                                   transition-transform duration-300">
+                            ⭐
+                        </span>
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800 dark:text-white/90 
+                                 group-hover:text-blue-600 dark:group-hover:text-blue-400 
+                                 transition-colors duration-300 leading-tight">
+                            Our Values
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300/90 leading-relaxed text-base">
+                            Excellence, Innovation, and Student Success drive everything we do.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-900 dark:bg-gray-800 text-gray-300 py-12 transition-colors duration-300">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <h3 class="text-xl font-bold text-white dark:text-gray-200 mb-4">EarthlingAidTech</h3>
+                    <p class="text-gray-400 dark:text-gray-400">
+                        Empowering students to achieve their career goals through comprehensive placement preparation.
+                    </p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white dark:text-gray-200 mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">Home</a></li>
+                        <li><a href="#about" class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">About Us</a></li>
+                        <li><a href="#features" class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">Features</a></li>
+                        <li><a href="https://bmsit.ac.in/" target="_blank" class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">College Website</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white dark:text-gray-200 mb-4">Contact Us</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-center space-x-3 text-gray-400 dark:text-gray-400">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:contact@earthlingaidtech" class="hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">contact@earthlingaidtech</a>
+                        </li>
+                        <li class="flex items-center space-x-3 text-gray-400 dark:text-gray-400">
+                            <i class="fas fa-phone"></i>
+                            <a href="tel:+919876543210" class="hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">+91 987 654 3210</a>
+                        </li>
+                        <li class="flex items-start space-x-3 text-gray-400 dark:text-gray-400">
+                            <i class="fas fa-map-marker-alt mt-1"></i>
+                            <span>Yelahanka, Avalahalli,<br>Bengaluru, Karnataka - 560064</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Social Links -->
+                <div>
+                    <h4 class="text-lg font-semibold text-white dark:text-gray-200 mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="https://www.linkedin.com/school/bms-institute-of-technology-and-management/posts/?feedView=all" 
+                           target="_blank" 
+                           class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">
+                            <i class="fab fa-linkedin text-2xl"></i>
+                        </a>
+                        <a href="https://twitter.com/earthlingaidtech" 
+                           target="_blank"
+                           class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">
+                            <i class="fab fa-twitter text-2xl"></i>
+                        </a>
+                        <a href="https://www.instagram.com/bmsitm_bengaluru/" 
+                           target="_blank"
+                           class="text-gray-400 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition-colors duration-300">
+                            <i class="fab fa-instagram text-2xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 dark:border-gray-700 mt-8 pt-8 text-center text-gray-400 dark:text-gray-500">
+                <p>&copy; <%= new Date().getFullYear() %> EarthlingAidTech. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Dark Mode Toggle Button -->
+    <button id="darkModeToggle" 
+            class="fixed top-20 right-5 z-50 p-3 rounded-full transition-all duration-300"
+            aria-label="Toggle dark mode">
+        <i class="fas fa-lightbulb"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js"></script>
     
-    
-    
+    <!-- Smooth Scroll Script -->
+    <script>
+        // Smooth scroll function
+        function smoothScroll(target, duration) {
+            const targetElement = document.querySelector(target);
+            const targetPosition = targetElement.offsetTop - 80; // Offset for fixed header
+            const startPosition = window.pageYOffset;
+            const distance = targetPosition - startPosition;
+            let startTime = null;
 
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const run = ease(timeElapsed, startPosition, distance, duration);
+                window.scrollTo(0, run);
+                if (timeElapsed < duration) requestAnimationFrame(animation);
+            }
 
+            // Easing function for smooth animation
+            function ease(t, b, c, d) {
+                t /= d / 2;
+                if (t < 1) return c / 2 * t * t + b;
+                t--;
+                return -c / 2 * (t * (t - 2) - 1) + b;
+            }
 
+            requestAnimationFrame(animation);
+        }
 
+        // Add click event listeners to all navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('href');
+                    
+                    // Only scroll if it's a section link
+                    if (target !== '#' && target.startsWith('#')) {
+                        // Close mobile menu if open
+                        const mobileMenu = document.getElementById('mobileMenu');
+                        if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.remove('show');
+                            setTimeout(() => {
+                                mobileMenu.classList.add('hidden');
+                            }, 300);
+                        }
+                        
+                        // Perform smooth scroll
+                        smoothScroll(target, 1000);
+                    }
+                });
+            });
+        });
+    </script>
 
+    <!-- Dark Mode Toggle Script -->
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const icon = darkModeToggle.querySelector('i');
+        const html = document.documentElement;
 
+        function updateIcon() {
+            const isDark = html.classList.contains('dark');
+            
+            // Remove existing classes
+            icon.className = 'fas';
+            
+            // Add appropriate icon class and styles
+            if (isDark) {
+                icon.classList.add('fa-lightbulb');
+                icon.style.color = '#64748b';
+                icon.style.filter = 'none';
+                icon.style.transform = 'scale(0.95)';
+            } else {
+                icon.classList.add('fa-lightbulb');
+                icon.style.color = '#fbbf24';
+                icon.style.filter = 'drop-shadow(0 0 12px rgba(251, 191, 36, 0.7))';
+                icon.style.transform = 'scale(1)';
+            }
+            
+            // Add scale animation
+            requestAnimationFrame(() => {
+                icon.style.transform = isDark ? 'scale(0.95)' : 'scale(1)';
+            });
+        }
 
+        function toggleDarkMode() {
+            // Add transition classes
+            html.classList.add('transition-all', 'duration-300', 'ease-in-out');
+            
+            // Toggle dark mode with animation
+            requestAnimationFrame(() => {
+                html.classList.toggle('dark');
+                updateIcon();
+                
+                // Store preference
+                localStorage.setItem('darkMode', html.classList.contains('dark'));
+                
+                // Remove transition classes after animation
+                setTimeout(() => {
+                    html.classList.remove('transition-all', 'duration-300', 'ease-in-out');
+                }, 300);
+            });
+        }
 
+        // Initialize dark mode based on preference
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!('darkMode' in localStorage) && 
+             window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
 
+        // Add click event listener
+        darkModeToggle.addEventListener('click', toggleDarkMode);
 
+        // Initialize icon on load
+        updateIcon();
 
-  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            if (!('darkMode' in localStorage)) {
+                if (e.matches) {
+                    html.classList.add('dark');
+                } else {
+                    html.classList.remove('dark');
+                }
+                updateIcon();
+            }
+        });
+    </script>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+            // Add a small delay before adding the show class for the animation to work
+            setTimeout(() => {
+                mobileMenu.classList.toggle('show');
+            }, 10);
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuButton = document.querySelector('[onclick="toggleMobileMenu()"]');
+            
+            if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+                mobileMenu.classList.remove('show');
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300); // Match this delay with the CSS transition duration
+            }
+        });
+
+        // Close mobile menu when window is resized to desktop view
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                const mobileMenu = document.getElementById('mobileMenu');
+                mobileMenu.classList.remove('show');
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
   </body>
 </html>
+

@@ -1,11 +1,12 @@
 {
-  "name": "new-test",
+  "name": "earthlingaidtech",
   "version": "1.0.0",
-  "description": "",
+  "description": "EarthlingAidTech Platform",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "build:css": "npx tailwindcss -i ./public/css/landing.css -o ./public/css/style.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
@@ -37,6 +38,9 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "autoprefixer": "^10.4.16",
+    "nodemon": "^3.1.7",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.2"
   }
 }

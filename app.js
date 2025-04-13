@@ -245,7 +245,7 @@ app.all('*', async (req,res,next)=>{
     next();
 })
 
-s
+
 module.exports = app
 
 module
