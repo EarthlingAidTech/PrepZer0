@@ -1,6 +1,7 @@
 const User = require("./../models/usermodel");
 const Exam = require("../models/Exam");
-const Submission = require("./../models/SubmissionSchema")
+const Submission = require("./../models/SubmissionSchema");
+const { redirect } = require("express/lib/response");
 // exports.getcontrol = async (req, res) => {
 //     if (req.isAuthenticated()) {
 //         try {
@@ -122,7 +123,10 @@ exports.postStartExam = async(req,res)=>{
     try {
         const { examId } = req.body;
         const student = req.user;
-
+        const existingSubmission = await Submission.findOne({ exam: examId, student: student });
+        if (existingSubmission) {
+            return res.status(403).send("You have already taken this exam and cannot attempt it again.");
+        }
         const exam = await Exam.findById(examId);
         if (!exam) {
             return res.status(404).send("Exam not found");
