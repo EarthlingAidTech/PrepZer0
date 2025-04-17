@@ -159,7 +159,7 @@ exports.postStartExam = async(req,res)=>{
 
         await submission.save();
         
-        req.flash('success', 'You have successfully completed the test!');
+
         
         // Redirect to dashboard
         res.redirect("/dashboard");
