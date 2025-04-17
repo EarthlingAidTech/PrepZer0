@@ -39,6 +39,9 @@ exports.getcontrol = async (req, res) => {
     if (req.isAuthenticated()) {
         try {
             const student = await User.findById(req.user._id); // Get the logged-in student
+            if (student.usertype !="student"){
+                res.redirect("/admin")
+            } else{
 
             if (!student) return res.status(404).json({ error: "Student not found" });
 
@@ -79,7 +82,7 @@ console.log(examsWithStatus);
                 logged_in: "true", 
                 exams: examsWithStatus, 
                 user: req.user 
-            });
+            });}
 
         } catch (error) {
             res.status(500).json({ error: "Server Error" });
