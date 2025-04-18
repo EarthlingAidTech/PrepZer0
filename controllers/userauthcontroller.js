@@ -22,7 +22,7 @@ exports.forgotcontrol = async(req,res)=>{
                  await sendEmails({
                      email  : req.body.email ,
                      subject : "reset password", 
-                     html : "The password reset link is : <a href = 'http://localhost:3000/user/resetpassword/"+resetToken+"'>click here</a>"
+                     html : "The password reset link is : <a href = 'http://51.20.78.42/user/resetpassword/"+resetToken+"'>click here</a>"
                  })
                  
                  res.redirect('/')
