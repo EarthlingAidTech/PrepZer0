@@ -57,10 +57,13 @@ const mcqQuestionSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  createdBy: {
+    type: String
   }
 });
 
 
-const MCQQuestion = mongoose.model('MCQQuestion', mcqQuestionSchema);
+const MCQQuestion = mongoose.model('MCQQuestion', mcqQuestionSchema, 'allmcqquestions');
 
 module.exports = MCQQuestion;
