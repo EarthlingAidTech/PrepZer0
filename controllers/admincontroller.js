@@ -103,7 +103,7 @@ exports.signuppostcontrol = async(req,res)=>{
             randurl = uuidv4()
 
           
-           badhttp = "https://51.20.78.42/authenticate/verify/"+randurl
+           badhttp = "http://localhost:3000/authenticate/verify/"+randurl
             try{
                 await sendEmails({
                     email  : req.body.email ,
@@ -116,9 +116,8 @@ exports.signuppostcontrol = async(req,res)=>{
                    console.log(error)
                    console.log("maybe email was not sent")
                }
-               console.log("whats happening")
 
-        await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role,/* Department : req.body.department  */}, req.body.password,(err,user)=>{
+        await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role, Department : req.body.department }, req.body.password,(err,user)=>{
             if(err){   
                 console.log(err)
                 res.render('signup',{errormsg : "email already taken"})
