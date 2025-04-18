@@ -55,7 +55,7 @@ exports.getlogincontrol = (req,res)=>{
             randurl = uuidv4()
 
           
-           badhttp = "http://localhost:3000/authenticate/verify/"+randurl
+           badhttp = "https://51.20.78.42/authenticate/verify/"+randurl
             try{
                 await sendEmails({
                     email  : req.body.email ,
