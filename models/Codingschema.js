@@ -10,37 +10,20 @@ const testCaseSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true
-  },
-  explanation: {
-    type: String,
-    trim: true
-  },
-  isSample: {
-    type: Boolean,
-    default: false
-  },
-  marks: {
-    type: Number,
-    required: true,
-    min: 0
-  },
-  timeoutMs: {
-    type: Number,
-    default: 2000
   }
 });
 
-const starterCodeSchema = new mongoose.Schema({
-  language: {
-    type: String,
-    required: true,
-    trim: true
-  },
-  code: {
-    type: String,
-    required: true
-  }
-});
+// const starterCodeSchema = new mongoose.Schema({
+//   language: {
+//     type: String,
+//     required: true,
+//     trim: true
+//   },
+//   code: {
+//     type: String,
+//     required: true
+//   }
+// });
 
 const codingQuestionSchema = new mongoose.Schema({
   title: {
@@ -67,14 +50,8 @@ const codingQuestionSchema = new mongoose.Schema({
     trim: true
   },
   classification: {
-    type: [String],
+    type: String,
     required: true,
-    validate: {
-      validator: function(classifications) {
-        return classifications.length > 0;
-      },
-      message: 'At least one classification is required'
-    },
     enum: [
       'Arrays',
       'Strings',
@@ -90,8 +67,6 @@ const codingQuestionSchema = new mongoose.Schema({
       'Hashing',
       'Greedy Algorithms',
       'Backtracking',
-      'Bit Manipulation',
-      'Mathematics'
     ]
   },
   level: {
@@ -99,14 +74,6 @@ const codingQuestionSchema = new mongoose.Schema({
     required: true,
     enum: ['easy', 'medium', 'hard'],
     default: 'easy'
-  },
-  timeLimit: {
-    type: Number,
-    default: 2000 // 2 seconds in milliseconds
-  },
-  memoryLimit: {
-    type: Number,
-    default: 262144 // 256MB in KB
   },
   maxMarks: {
     type: Number,
@@ -123,10 +90,10 @@ const codingQuestionSchema = new mongoose.Schema({
       message: 'At least one test case is required'
     }
   },
-  starterCode: {
-    type: [starterCodeSchema],
-    default: []
-  },
+  // starterCode: {
+  //   type: [starterCodeSchema],
+  //   default: []
+  // },
   createdAt: {
     type: Date,
     default: Date.now
@@ -141,6 +108,6 @@ codingQuestionSchema.index({ classification: 1 });
 codingQuestionSchema.index({ "classification": 1, "level": 1 });
 codingQuestionSchema.index({ maxMarks: 1 });
 
-const CodingQuestion = mongoose.model('CodingQuestion', codingQuestionSchema);
+const CodingQuestion = mongoose.model('CodingQuestion', codingQuestionSchema, 'allcodingquestions');
 
 module.exports = CodingQuestion;
