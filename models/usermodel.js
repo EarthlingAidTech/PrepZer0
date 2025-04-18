@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
         USN : { //
             type : String , 
             unique : true , 
-            require : true ,
+            
         } ,
         fname : {
             type : String , 
