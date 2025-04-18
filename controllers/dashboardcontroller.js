@@ -97,6 +97,7 @@ console.log(examsWithStatus);
 exports.getStartExam = async(req,res)=>{
 
     try {
+        const currentTime = new Date();
         const examId = req.params.examId;
         const studentId = req.user._id;
 
@@ -112,6 +113,14 @@ exports.getStartExam = async(req,res)=>{
 
         if (!exam) {
             return res.status(404).send("Exam not found");
+        }
+        if (currentTime < exam.scheduledAt) { // Assuming 'scheduleFrom' is the start time field
+            return res.status(403).send("This exam has not started yet. Please wait until the scheduled time.");
+        }
+        
+        // Check if the exam is still available
+        if (currentTime > exam.scheduleTill) {
+            return res.status(403).send("This exam is no longer available.");
         }
 
         res.render("test", { user: req.user, exam ,  });
