@@ -24,6 +24,29 @@ exports.getcontrol = async(req,res)=>{
         res.redirect('/admin/login')
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.postcontrol = async(req,res)=>{
+
+}
+
+
 exports.logingetcontrol = async(req,res)=>{
     res.render('adminlogin')
 }
@@ -95,7 +118,7 @@ exports.signuppostcontrol = async(req,res)=>{
                }
                console.log("whats happening")
 
-        await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role,/* Department : req.body.department*/ }, req.body.password,(err,user)=>{
+        await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role,/* Department : req.body.department  */}, req.body.password,(err,user)=>{
             if(err){   
                 console.log(err)
                 res.render('signup',{errormsg : "email already taken"})
