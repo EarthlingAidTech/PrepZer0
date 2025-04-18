@@ -51,9 +51,12 @@ exports.getlogincontrol = (req,res)=>{
    
     try {
         if(req.body.password == req.body.passcode){
-
+            const existingUSN = await User.findOne({ USN: req.body.USN });
+            if (existingUSN) {
+                return res.send("USN already exists");
+            }
             randurl = uuidv4()
-
+            
           
            badhttp = "https://51.20.78.42/authenticate/verify/"+randurl
             try{
