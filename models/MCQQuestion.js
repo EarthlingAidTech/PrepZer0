@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const MCQSchema = new mongoose.Schema({
     examId: { type: mongoose.Schema.Types.ObjectId, ref: "Exam", required: true }, // Links to Exam
-    classification: { type: String, required: true, trim: true,
+    classification: { type: String,  trim: true,
         enum: [
             'Data Structures',
             'Algorithms',
