@@ -71,10 +71,14 @@ exports.getlogincontrol = (req,res)=>{
   <title>Email Verification</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
-      background: #0f172a; /* dark background */
+      background: #0f172a;
       color: #f8fafc;
       display: flex;
       justify-content: center;
@@ -84,28 +88,29 @@ exports.getlogincontrol = (req,res)=>{
 
     .container {
       background: #1e293b;
-      padding: 2rem 2.5rem;
+      padding: 3rem 2.5rem;
       border-radius: 16px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-      max-width: 400px;
+      max-width: 450px;
       width: 100%;
       text-align: center;
     }
 
     .container h2 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       font-weight: 600;
-      margin-top: 0;
+      font-size: 1.5rem;
     }
 
     button {
       width: 100%;
-      padding: 0.75rem;
+      padding: 0.9rem;
       background-color: #0ea5e9;
       color: white;
       border: none;
       border-radius: 8px;
       font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
       transition: background-color 0.3s;
     }
@@ -113,18 +118,18 @@ exports.getlogincontrol = (req,res)=>{
     button:hover {
       background-color: #0284c7;
     }
-
   </style>
 </head>
 <body>
   <div class="container">
     <h2>Verify Your Email</h2>
-        <form action="`+badhttp+`" method="POST">
-            <button type="submit">Click to Verify</button>
-        </form>
+    <form action="${badhttp}" method="POST">
+      <button type="submit">Click to Verify</button>
+    </form>
   </div>
 </body>
-</html>`
+</html>
+`
                    
 //                     html :  `
 // <!DOCTYPE html>

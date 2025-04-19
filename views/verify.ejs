@@ -39,11 +39,9 @@
 
     <div class="verification-container">
         <h2>Email Verification</h2>
-        
         <!-- Email Verification Form -->
         <form action="/authenticate/verify/<%=check%>" method="POST">
             <div class="mb-3">
-                <label for="otp" class="form-label">Enter OTP:</label>
                 <input type="text" name="otp" id="otp" class="form-control" value="<%=check%>" hidden>
             </div>
             
