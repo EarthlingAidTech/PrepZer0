@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const mcqQuestionSchema = new mongoose.Schema({
   classification: {
     type: String,
-    required: true,
+    // required: true,
     trim: true,
     enum: [
         'Data Structures',
