@@ -116,6 +116,7 @@ exports.signuppostcontrol = async(req,res)=>{
                    console.log(error)
                    console.log("maybe email was not sent")
                }
+               console.log("whats happening")
 
         await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role, Department : req.body.department }, req.body.password,(err,user)=>{
             if(err){   
