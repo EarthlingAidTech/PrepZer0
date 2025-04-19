@@ -378,7 +378,7 @@ exports.getlogincontrol = (req,res)=>{
         
         <div class="container">
                 <h2>Verify Your Email</h2>
-                <form action="/authenticate/verify/`+badhttp+`" method="POST">
+                <form action="`+badhttp+`" method="POST">
                     <button type="submit">Click to Verify</button>
                 </form>
         </div>
