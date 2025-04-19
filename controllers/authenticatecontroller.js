@@ -63,7 +63,333 @@ exports.getlogincontrol = (req,res)=>{
                 await sendEmails({
                     email  : req.body.email ,
                     subject : "verify email",
-                    html : "<h1 style='color : red;'>Email Verify</h1>  <a href="+badhttp+">"+badhttp+"</a>"
+                   
+                    html :  `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1D4ED8;
+            --dark-color: #1f2a40;
+            --light-color: #f0f6ff;
+            --border-radius: 8px;
+        }
+        
+        body {
+            background-color: #141D2F;
+            font-family: 'Arial', sans-serif;
+            color: var(--dark-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Test paper layout */
+        .reset-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            margin: 2rem;
+        }
+        
+        .illustration-panel {
+            flex: 1;
+            padding: 30px;
+            display: none;
+        }
+        
+        @media (min-width: 992px) {
+            .illustration-panel {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+        
+        .reset-container {
+            flex: 1;
+            background-color: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            background-image: linear-gradient(to bottom, rgba(63, 142, 252, 0.03) 1px, transparent 1px);
+            background-size: 100% 28px;
+            border: 3px solid #1D4ED8;
+        }
+        
+        /* Paper clip effect */
+        .reset-container::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            right: 30px;
+            width: 40px;
+            height: 60px;
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="60"%3E%3Cpath d="M18.5 14.5V5.5C18.5 3.29 16.71 1.5 14.5 1.5H9.5C7.29 1.5 5.5 3.29 5.5 5.5V15.5C5.5 17.71 7.29 19.5 9.5 19.5H15.5" stroke="%231D4ED8" stroke-width="1.5" fill="none"%3E%3C/path%3E%3C/svg%3E');
+            transform: rotate(10deg);
+            opacity: 0.7;
+            z-index: 2;
+        }
+        
+        /* Grade watermark */
+        .reset-container::after {
+            content: "A+";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 120px;
+            font-weight: 900;
+            color: rgba(63, 142, 252, 0.05);
+            z-index: -1;
+        }
+        
+        .reset-header {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .reset-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .reset-logo svg {
+            height: 40px;
+        }
+        
+
+        
+
+
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .btn-primary:hover::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        .text-center {
+            margin-top: 25px;
+        }
+        
+        .text-center a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .text-center a i {
+            margin-right: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            opacity: 0.1;
+            animation-name: float;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+        
+        .element-1 {
+            top: 10%;
+            left: 10%;
+            animation-duration: 15s;
+        }
+        
+        .element-2 {
+            top: 20%;
+            right: 15%;
+            animation-duration: 18s;
+        }
+        
+        .element-3 {
+            bottom: 15%;
+            left: 20%;
+            animation-duration: 14s;
+        }
+        
+        .element-4 {
+            bottom: 10%;
+            right: 10%;
+            animation-duration: 16s;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+        
+        /* Description text */
+    
+    .container {
+      background: #1e293b;
+      padding: 2rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: transparent;
+    }
+
+    .container h2 {
+      margin-bottom: 1rem;
+      font-weight: 600;
+      margin-top: 0;
+      color: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #0ea5e9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+    }
+
+    button:hover {
+      background-color: #0284c7;
+    }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+
+
+    <div class="floating-elements">
+        <svg class="floating-element element-1" width="100" height="100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="#3f8efc" d="M21,5c-1.11-0.35-2.33-0.5-3.5-0.5c-1.95,0-4.05,0.4-5.5,1.5c-1.45-1.1-3.55-1.5-5.5-1.5S2.45,4.9,1,6v14.65 c0,0.25,0.25,0.5,0.5,0.5c0.1,0,0.15-0.05,0.25-0.05C3.1,20.45,5.05,20,6.5,20c1.95,0,4.05,0.4,5.5,1.5c1.35-0.85,3.8-1.5,5.5-1.5 c1.65,0,3.35,0.3,4.75,1.05c0.1,0.05,0.15,0.05,0.25,0.05c0.25,0,0.5-0.25,0.5-0.5V6C22.4,5.55,21.75,5.25,21,5z M21,18.5 c-1.1-0.35-2.3-0.5-3.5-0.5c-1.7,0-4.15,0.65-5.5,1.5V8c1.35-0.85,3.8-1.5,5.5-1.5c1.2,0,2.4,0.15,3.5,0.5V18.5z"/>
+        </svg>
+        <svg class="floating-element element-2" width="90" height="90" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="#3f8efc" d="M18,2H6C4.9,2,4,2.9,4,4v16c0,1.1,0.9,2,2,2h12c1.1,0,2-0.9,2-2V4C20,2.9,19.1,2,18,2z M9,4h2v5l-1-0.75L9,9V4z M18,20H6V4h1v9l3-2.25L13,13V4h5V20z"/>
+        </svg>
+        <svg class="floating-element element-3" width="80" height="80" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="#3f8efc" d="M12,3L1,9l4,2.18v6L12,21l7-3.82v-6l2-1.09V17h2V9L12,3z M18.82,9L12,12.72L5.18,9L12,5.28L18.82,9z M17,15.99l-5,2.73l-5-2.73v-3.72L12,15l5-2.73V15.99z"/>
+        </svg>
+        <svg class="floating-element element-4" width="85" height="85" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path fill="#3f8efc" d="M19,3H5C3.9,3,3,3.9,3,5v14c0,1.1,0.9,2,2,2h14c1.1,0,2-0.9,2-2V5C21,3.9,20.1,3,19,3z M19,19H5V5h14V19z"/>
+            <path fill="#3f8efc" d="M7,12h2v5h-2V12z M15,7h2v10h-2V7z M11,14h2v3h-2V14z M11,10h2v2h-2V10z"/>
+        </svg>
+    </div>
+
+    <div class="reset-wrapper">
+        <div class="illustration-panel">
+            <svg width="100%" height="auto" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+                <!-- Study scene illustration -->
+                <style>
+                    .st0{fill:#F0F6FF;}
+                    .st1{fill:#E0E0E0;}
+                    .st2{fill:#1D4ED8;}
+                    .st3{fill:#2E78E6;}
+                    .st4{fill:#FFFFFF;}
+                    .st5{fill:#1f2a40;}
+                </style>
+                <!-- Desk -->
+                <rect x="100" y="300" width="300" height="30" class="st1"/>
+                <rect x="120" y="330" width="20" height="100" class="st1"/>
+                <rect x="360" y="330" width="20" height="100" class="st1"/>
+                
+                <!-- Key and lock -->
+                <circle cx="250" cy="160" r="40" class="st2"/>
+                <rect x="240" y="160" width="20" height="60" rx="2" class="st5"/>
+                <rect x="235" y="180" width="30" height="15" rx="2" class="st5"/>
+                <circle cx="250" cy="160" r="15" class="st4"/>
+                <circle cx="250" cy="160" r="10" class="st0"/>
+                
+                <!-- Letter/Email -->
+                <rect x="150" y="210" width="80" height="90" rx="2" class="st3"/>
+                <rect x="155" y="215" width="70" height="80" rx="2" class="st4"/>
+                <rect x="160" y="230" width="60" height="5" class="st1"/>
+                <rect x="160" y="240" width="60" height="5" class="st1"/>
+                <rect x="160" y="250" width="40" height="5" class="st1"/>
+                <rect x="160" y="260" width="60" height="5" class="st1"/>
+                <path d="M155,215 L190,240 L225,215" class="st2" fill="none" stroke="#1D4ED8" stroke-width="2"/>
+                
+                <!-- Computer -->
+                <rect x="270" y="220" width="80" height="60" rx="3" class="st5"/>
+                <rect x="275" y="225" width="70" height="45" rx="2" class="st4"/>
+                <rect x="280" y="280" width="60" height="10" rx="2" class="st5"/>
+                <rect x="305" y="290" width="10" height="10" class="st5"/>
+                
+                <!-- Bird character -->
+                <circle cx="360" cy="150" r="25" class="st2"/>
+                <path d="M345,160 Q360,180 375,160" class="st3"/>
+                <circle cx="350" cy="145" r="5" class="st4"/>
+                <circle cx="350" cy="145" r="2" class="st5"/>
+                <circle cx="370" cy="145" r="5" class="st4"/>
+                <circle cx="370" cy="145" r="2" class="st5"/>
+                <path d="M335,135 L315,120 L330,125" class="st2"/>
+            </svg>
+        </div>
+        
+        <div class="container">
+                <h2>Verify Your Email</h2>
+                <form action="/authenticate/verify/`+badhttp+`" method="POST">
+                    <button type="submit">Click to Verify</button>
+                </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
+`
                 })
                 console.log("the email was sent tried to sent to be specific")
 
