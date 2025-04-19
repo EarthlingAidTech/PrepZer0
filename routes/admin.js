@@ -5,6 +5,7 @@ const admincontroller =  require('./../controllers/admincontroller')
 const authenticatecontroller =  require('./../controllers/authenticatecontroller')
 const examController = require("../controllers/examcontroller");
 const questionController = require("../controllers/questioncontroller");
+const mcqquestions = require("../controllers/allmcqcontroller");
 
 router.route("/").get(admincontroller.getcontrol).post(admincontroller.postcontrol)
 
@@ -30,4 +31,9 @@ router.route("/create_exam").get(examController.getExam).post( examController.cr
 router.route("/login").get(admincontroller.logingetcontrol).post(admincontroller.loginpostcontrol)
 router.route("/signup").get(admincontroller.signupgetcontrol).post(admincontroller.signuppostcontrol)
 router.route("/verify/:id").get(authenticatecontroller.getVerified).post(authenticatecontroller.postVerified)
+
+
+
+router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
+
 module.exports=router

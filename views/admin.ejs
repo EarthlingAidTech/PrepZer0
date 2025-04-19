@@ -1,207 +1,4 @@
-<!-- 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Exams</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        
-        body {
-            background-color: #f8f9fa;
-        }
-        
-        .header {
-            background-color: #282c34;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .header img {
-            margin-right: 10px;
-            width: 30px;
-            height: 30px;
-        }
-        
-        .welcome-banner {
-            background-color: #343a40;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .welcome-banner p {
-            margin-top: 5px;
-        }
-        
-        .container {
-            padding: 0 20px;
-            margin-bottom: 30px;
-        }
-        
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .btn-primary {
-            background-color: #0d6efd;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        
-        .table-responsive {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: white;
-            border: 1px solid #dee2e6;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: center;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-        }
-        
-        thead.table-dark {
-            background-color: #343a40;
-            color: white;
-        }
-        
-        tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 12px;
-            text-decoration: none;
-            margin: 2px;
-        }
-        
-        .btn-sm {
-            padding: 3px 8px;
-            font-size: 12px;
-        }
-        
-        .btn-warning {
-            background-color: #ffc107;
-            color: #212529;
-            border: none;
-        }
-        
-        .btn-info {
-            background-color: #17a2b8;
-            color: white;
-            border: none;
-        }
-        
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-        }
-        
-        .d-inline {
-            display: inline;
-        }
-        
-        .tabs {
-            display: flex;
-            border-bottom: 1px solid #dee2e6;
-            margin: 0 20px 20px;
-        }
-        
-        .tab {
-            padding: 10px 15px;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 16px;
-        }
-        
-        .tab.active {
-            border-bottom: 2px solid #0d6efd;
-            font-weight: bold;
-            color: #0d6efd;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1 class="mb-4 text-center">Admin Panel - Exams</h1>
-        <div class="d-flex justify-content-between mb-3">
-            <h2>All Exams</h2>
-            <a href="/admin/create_exam" class="btn btn-primary">Create New Exam</a>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Name</th>
-                        <th>Departments</th>
-                        <th>Semester</th>
-                        <th>Type</th>
-                        <th>MCQs</th>
-                        <th>Coding</th>
-                        <th>Exam Start</th>
-                        <th>Exam End</th>
-                        <th>Duration</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% exams.forEach(exam => { %>
-                        <tr>
-                            <td><%= exam.name %></td>
-                            <td><%= exam.departments.join(", ") %></td>
-                            <td><%= exam.semester %></td>
-                            <td><%= exam.questionType %></td>
-                            <td><%= exam.numMCQs %></td>
-                            <td><%= exam.numCoding %></td>
-                            <td><%= new Date(exam.scheduledAt).toLocaleString() %></td>
-                            <td><%= new Date(exam.scheduleTill).toLocaleString() %></td>
-                            <td><%= exam.duration %> mins</td>
-                            <td>
-                                <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="/admin/exam/questions/<%= exam._id %>" class="btn btn-sm btn-info">View/Edit Questions</a>
-                                <form action="/admin/exam/delete/<%= exam._id %>" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -249,7 +46,27 @@
             justify-content: space-between;
             margin-bottom: 2rem;
         }
-        
+        .subhead{
+            display: flex;
+            align-items:center;
+            justify-content: space-between;
+            
+        }
+        .subhead p{
+            margin-bottom: 0;
+            margin-left: 2rem;
+        }
+        .subhead p:nth-child(2){
+            margin-right: 2rem;
+        }
+        .allques:hover{
+            background-color: #dcdbdb;
+        }
+        .dropdown-content{
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
         .logo-section {
             display: flex;
             align-items: center;
@@ -506,11 +323,31 @@
             <img src="/api/placeholder/36/36" alt="Logo">
             <h1>PrepZer0</h1>
         </div>
-        <div>
+        <!-- <div class="subhead">
+            <p>Library</p>
+            <p>Report</p>
             <button class="btn btn-sm" style="background:transparent; border:1px solid var(--border-color); color:var(--secondary-text)"
             onclick="location.href='/profile'">
-            <i class="fas fa-user"></i> Admin
-        </button>
+                <i class="fas fa-user"></i> Admin
+            </button>
+        </div> -->
+        <div class="subhead">
+            <div class="dropdown" style="position: relative; display: inline-block;">
+                <button class="btn btn-sm dropdown-toggle" style="background:transparent; border:none; color:var(--secondary-text);font-size: 1rem;" onclick="toggleDropdown()">
+                    Library 
+                </button>
+                <div id="libraryDropdown" class="dropdown-content" style="display:none; position:absolute; background:white; min-width:160px; border:1px solid var(--border-color); z-index:1;">
+                    <a href="/admin/mcq-questions" class="allques" style="padding: 10px 18px; display:block; color: #333; text-decoration: none;">MCQ Questions</a>
+                    <a href="/admin/coding-questions" class="allques" style="padding: 10px 18px; display:block; color: #333; text-decoration: none;">Coding Question</a>
+                </div>
+            </div>
+        
+            <p>Report</p>
+        
+            <button class="btn btn-sm" style="background:transparent; border:1px solid var(--border-color); color:var(--secondary-text);"
+                onclick="location.href='/profile'">
+                <i class="fas fa-user"></i> Admin
+            </button>
         </div>
     </div>
 
@@ -643,5 +480,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDropdown() {
+            const dropdown = document.getElementById('libraryDropdown');
+            dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Optional: close dropdown if clicked outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropdown-toggle')) {
+                const dropdowns = document.getElementsByClassName("dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].style.display = "none";
+                }
+            }
+    }
+</script>
+
 </body>
 </html>
