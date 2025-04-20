@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Questions</title>
+    <style>
+        :root {
+            --primary-color: #141d2f;
+            --secondary-color: #2980b9;
+            --easy-color: #2ecc71;
+            --medium-color: #f39c12;
+            --hard-color: #e74c3c;
+            --background-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --border-color: #e1e1e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title-container {
+            display: flex;
+            align-items: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .question-count {
+            margin-left: 15px;
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 50px;
+            padding: 5px 12px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .filtering-controls {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .filter-select {
+            padding: 8px 15px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: white;
+            min-width: 200px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .questions-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .question-item {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-level {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .level-easy {
+            background-color: var(--easy-color);
+            color: white;
+        }
+
+        .level-medium {
+            background-color: var(--medium-color);
+            color: white;
+        }
+
+        .level-hard {
+            background-color: var(--hard-color);
+            color: white;
+        }
+
+        .question-content {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-text {
+            flex-grow: 1;
+        }
+
+        .toggle-icon {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+            margin-left: 10px;
+        }
+
+        .question-expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .question-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .classification-tag {
+            background-color: #e1e1e1;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .no-questions {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        /* New styles for options */
+        .question-options {
+            display: none;
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .question-expanded .question-options {
+            display: block;
+        }
+
+        .option-item {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background-color: #f5f7fa;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .option-item:hover {
+            background-color: #e8eef5;
+        }
+
+        .created-by {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+            font-size: 13px;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .filtering-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="title-container">
+                <h1>MCQ Questions</h1>
+                <span class="question-count"><%= mcqQuestions ? mcqQuestions.length : 0 %> Questions</span>
+            </div>
+            <nav>
+                <a href="/" style="color: white; margin-right: 15px;">Home</a>
+                <a href="/admin/coding-questions" style="color: white;">Coding Questions</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="filtering-controls">
+            <div class="filter-group">
+                <label class="filter-label" for="classification-filter">Classification</label>
+                <select id="classification-filter" class="filter-select" onchange="filterQuestions()">
+                    <option value="">All Classifications</option>
+                    <option value="Data Structures">Data Structures</option>
+                    <option value="Algorithms">Algorithms</option>
+                    <option value="Databases">Databases</option>
+                    <option value="Object-Oriented Programming">Object-Oriented Programming</option>
+                    <option value="Networking">Networking</option>
+                    <option value="Operating Systems">Operating Systems</option>
+                    <option value="Software Engineering">Software Engineering</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Artificial Intelligence">Artificial Intelligence</option>
+                    <option value="Machine Learning">Machine Learning</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label" for="level-filter">Level</label>
+                <select id="level-filter" class="filter-select" onchange="filterQuestions()">
+                    <option value="">All Levels</option>
+                    <option value="easy">Easy</option>
+                    <option value="medium">Medium</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="questions-container">
+            <% if (mcqQuestions && mcqQuestions.length > 0) { %>
+                <% mcqQuestions.forEach((question, index) => { %>
+                    <div class="question-item" 
+                         data-classification="<%= question.classification %>" 
+                         data-level="<%= question.level.toLowerCase() %>">
+                        <div class="question-header">
+                            <span>Question <%= index + 1 %></span>
+                            <span class="question-level level-<%= question.level.toLowerCase() %>">
+                                <%= question.level %>
+                            </span>
+                        </div>
+                        <div class="question-content" onclick="toggleQuestion(this)">
+                            <div class="question-text"><%= question.question %></div>
+                            <!-- <div class="toggle-icon">▼</div> -->
+                        </div>
+                        <div class="question-options">
+                            <% if (question.options && question.options.length > 0) { %>
+                                <% question.options.forEach((option, optionIndex) => { %>
+                                    <div class="option-item">
+                                        <%= String.fromCharCode(65 + optionIndex) %>. <%= option %>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div>No options available for this question.</div>
+                            <% } %>
+                            
+                            <div class="created-by">
+                                Created by: <%= question.createdBy || 'Anonymous' %>
+                            </div>
+                        </div>
+                        <div class="question-footer">
+                            <% if (question.classification) { %>
+                                <span class="classification-tag"><%= question.classification %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-questions">
+                    <h2>No questions found</h2>
+                    <p>There are no MCQ questions available in the database.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        // Toggle question options visibility
+        function toggleQuestion(element) {
+            const questionItem = element.closest('.question-item');
+            questionItem.classList.toggle('question-expanded');
+        }
+        
+        // Filtering functionality
+        function filterQuestions() {
+            const classificationFilter = document.getElementById('classification-filter').value;
+            const levelFilter = document.getElementById('level-filter').value;
+            
+            const questions = document.querySelectorAll('.question-item');
+            let visibleQuestions = 0;
+            
+            questions.forEach(question => {
+                const questionClassification = question.getAttribute('data-classification');
+                const questionLevel = question.getAttribute('data-level');
+                
+                const matchesClassification = !classificationFilter || questionClassification === classificationFilter;
+                const matchesLevel = !levelFilter || questionLevel === levelFilter;
+                
+                if (matchesClassification && matchesLevel) {
+                    question.style.display = 'flex';
+                    visibleQuestions++;
+                } else {
+                    question.style.display = 'none';
+                }
+            });
+            
+            // Update question count
+            document.querySelector('.question-count').textContent = visibleQuestions + ' Questions';
+            
+            // Show "no questions" message if no questions match the filters
+            const noQuestionsDiv = document.querySelector('.no-questions');
+            if (noQuestionsDiv) {
+                if (visibleQuestions === 0) {
+                    if (document.querySelector('.no-filter-results')) {
+                        // Already showing "no results" message
+                    } else {
+                        const noResults = document.createElement('div');
+                        noResults.className = 'no-questions no-filter-results';
+                        noResults.innerHTML = '<h2>No matching questions</h2><p>No questions match the selected filters. Try changing your selection.</p>';
+                        document.querySelector('.questions-container').appendChild(noResults);
+                    }
+                } else {
+                    const noResults = document.querySelector('.no-filter-results');
+                    if (noResults) {
+                        noResults.remove();
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

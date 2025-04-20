@@ -63,7 +63,73 @@ exports.getlogincontrol = (req,res)=>{
                 await sendEmails({
                     email  : req.body.email ,
                     subject : "verify email",
-                    html : "<h1 style='color : red;'>Email Verify</h1>  <a href="+badhttp+">"+badhttp+"</a>"
+                    html : `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Email Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #1e293b;
+      padding: 3rem 2.5rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 450px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .container h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #0ea5e9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0284c7;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Verify Your Email</h2>
+    <form action="${badhttp}" method="POST">
+      <button type="submit">Click to Verify</button>
+    </form>
+  </div>
+</body>
+</html>
+`
                 })
                 console.log("the email was sent tried to sent to be specific")
 
