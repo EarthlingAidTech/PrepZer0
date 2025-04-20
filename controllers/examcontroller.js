@@ -34,11 +34,52 @@ exports.getExam = async (req, res) => {
 
 exports.createExam = async (req, res) => {
     try {
-        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill } = req.body;
+        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill , draft } = req.body;
+        console.log(draft)
+        if(!scheduleTill || !scheduledAt){
+            console.log("what the fuck")
+            const newExamss = new Exam({
+                name,
+                departments: Array.isArray(departments) ? departments : [departments], 
+                semester,
+                questionType,
+                duration: Duration,
+                numMCQs: parseInt(numMCQs) || 0,
+                numCoding: parseInt(numCoding) || 0,
+                numTotalQuestions: parseInt(numTotalQuestions) || 0,
+                createdBy: req.user.id,
+                testStatus:"draft"
+
+            });
+            await newExamss.save();
+            res.redirect("/admin");
+        }
         
-        scheduledAt = moment.tz(scheduledAt, "Asia/Kolkata").toDate();
-        scheduleTill = moment.tz(scheduleTill, "Asia/Kolkata").toDate();
-        
+        else if(draft){
+            const newExams = new Exam({
+                name,
+                departments: Array.isArray(departments) ? departments : [departments], 
+                semester,
+                questionType,
+                duration: Duration,
+                numMCQs: parseInt(numMCQs) || 0,
+                numCoding: parseInt(numCoding) || 0,
+                numTotalQuestions: parseInt(numTotalQuestions) || 0,
+                createdBy: req.user.id,
+                testStatus:"draft"
+            });
+            await newExams.save();
+            res.redirect("/admin");
+        }
+        else{
+
+    
+        try{
+            scheduledAt = moment.tz(scheduledAt, "Asia/Kolkata").toDate();
+            scheduleTill = moment.tz(scheduleTill, "Asia/Kolkata").toDate();
+        }catch(err){
+            console.error("what an errror")
+        }
         const newExam = new Exam({
             name,
             departments: Array.isArray(departments) ? departments : [departments], 
@@ -47,7 +88,6 @@ exports.createExam = async (req, res) => {
             scheduledAt,
             scheduleTill,
             duration: Duration,
-
             numMCQs: parseInt(numMCQs) || 0,
             numCoding: parseInt(numCoding) || 0,
             numTotalQuestions: parseInt(numTotalQuestions) || 0,
@@ -56,6 +96,7 @@ exports.createExam = async (req, res) => {
 
         await newExam.save();
         res.redirect("/admin");
+    }
     } catch (error) {
         res.status(400).send(error.message);
     }
