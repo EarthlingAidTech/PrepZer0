@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router()
+const path = require('path');
+const multer = require('multer');
 
 const admincontroller =  require('./../controllers/admincontroller')
 const authenticatecontroller =  require('./../controllers/authenticatecontroller')
@@ -27,6 +29,8 @@ router.route("/exam/:examId/delete/coding/:codingId").post(questionController.de
 
 
 
+
+
 router.route("/create_exam").get(examController.getExam).post( examController.createExam);
 router.route("/login").get(admincontroller.logingetcontrol).post(admincontroller.loginpostcontrol)
 router.route("/signup").get(admincontroller.signupgetcontrol).post(admincontroller.signuppostcontrol)
@@ -37,5 +41,39 @@ router.route("/verify/:id").get(authenticatecontroller.getVerified).post(authent
 router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
 
 router.route("/profile/students").get(admincontroller.allStudents)
+
+
+
+
+
+// Multer setup
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    const uploadDir = path.join(__dirname, '../uploads');
+    const fs = require('fs');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function(req, file, cb) {
+    cb(null, 'mcq-' + Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: function(req, file, cb) {
+    if (path.extname(file.originalname) !== '.csv') {
+      return cb(new Error('Only CSV files are allowed'));
+    }
+    cb(null, true);
+  }
+});
+
+// Routes
+router.route("/exam/mcq/csv").get(mcqquestions.csvpage)
+router.route("/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV);
+
 
 module.exports=router

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCQ Upload Results</title>
+  <!-- Add your CSS here -->
+</head>
+<body>
+  <div class="container">
+    <h1>CSV Upload Results</h1>
+    
+    <div class="summary">
+      <p><strong>Total questions processed:</strong> <%= total %></p>
+      <p><strong>Successfully imported:</strong> <%= successCount %></p>
+      <p><strong>Failed:</strong> <%= errors.length %></p>
+    </div>
+    
+    <% if (errors.length > 0) { %>
+      <div class="errors">
+        <h2>Errors</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% errors.forEach(error => { %>
+              <tr>
+                <td><%= error.question %></td>
+                <td><%= error.error %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+    
+    <div class="actions">
+      <a href="/mcq-questions" class="btn btn-primary">View MCQ Questions</a>
+      <a href="/" class="btn btn-secondary">Back to Home</a>
+    </div>
+  </div>
+</body>
+</html>
