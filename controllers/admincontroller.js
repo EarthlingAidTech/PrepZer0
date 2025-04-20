@@ -13,8 +13,31 @@ exports.getcontrol = async(req,res)=>{
         const Userprofile = await User.findById({_id : req.user.id})
         if(Userprofile.usertype == "admin" || Userprofile.usertype == "teacher"){
             const exams = await Exam.find().populate("createdBy", "name");
-            console.log(exams.map(exam => exam.numMCQs)); 
-            res.render('admin' ,{  pic : Userprofile.imageurl , logged_in :"true" , exams : exams})
+            const [ongoingExams, draftExams, completedExams] = await Promise.all([
+                Exam.find({ testStatus: "ongoing" }).populate("createdBy", "name"),
+                Exam.find({ testStatus: "draft" }).populate("createdBy", "name"),
+                Exam.find({ testStatus: "completed" }).populate("createdBy", "name")
+            ]);
+            const ongoingCount = ongoingExams.length;
+            const draftCount = draftExams.length;
+            const completedCount = completedExams.length;
+            const total_exams = ongoingCount+draftCount+completedCount
+
+
+           
+
+            res.render('admin', {
+                pic: Userprofile.imageurl,
+                logged_in: "true",
+                ongoingExams,
+                draftExams,
+                completedExams,
+                ongoingCount,
+                draftCount,
+                completedCount,
+                exams : exams ,
+                total_exams : total_exams
+            });
         }
         else{
            res.redirect('/admin/login')
