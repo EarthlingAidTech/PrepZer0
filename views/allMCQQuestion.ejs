@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -157,6 +156,25 @@
             font-size: 16px;
             margin-bottom: 15px;
             line-height: 1.5;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-text {
+            flex-grow: 1;
+        }
+
+        .toggle-icon {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+            color: var(--primary-color);
+            margin-left: 10px;
+        }
+
+        .question-expanded .toggle-icon {
+            transform: rotate(180deg);
         }
 
         .question-footer {
@@ -180,6 +198,38 @@
             background-color: white;
             border-radius: 8px;
             width: 100%;
+        }
+
+        /* New styles for options */
+        .question-options {
+            display: none;
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .question-expanded .question-options {
+            display: block;
+        }
+
+        .option-item {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            background-color: #f5f7fa;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .option-item:hover {
+            background-color: #e8eef5;
+        }
+
+        .created-by {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+            font-size: 13px;
+            text-align: right;
         }
 
         @media (max-width: 768px) {
@@ -245,8 +295,24 @@
                                 <%= question.level %>
                             </span>
                         </div>
-                        <div class="question-content">
-                            <%= question.question %>
+                        <div class="question-content" onclick="toggleQuestion(this)">
+                            <div class="question-text"><%= question.question %></div>
+                            <!-- <div class="toggle-icon">▼</div> -->
+                        </div>
+                        <div class="question-options">
+                            <% if (question.options && question.options.length > 0) { %>
+                                <% question.options.forEach((option, optionIndex) => { %>
+                                    <div class="option-item">
+                                        <%= String.fromCharCode(65 + optionIndex) %>. <%= option %>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div>No options available for this question.</div>
+                            <% } %>
+                            
+                            <div class="created-by">
+                                Created by: <%= question.createdBy || 'Anonymous' %>
+                            </div>
                         </div>
                         <div class="question-footer">
                             <% if (question.classification) { %>
@@ -265,6 +331,12 @@
     </div>
 
     <script>
+        // Toggle question options visibility
+        function toggleQuestion(element) {
+            const questionItem = element.closest('.question-item');
+            questionItem.classList.toggle('question-expanded');
+        }
+        
         // Filtering functionality
         function filterQuestions() {
             const classificationFilter = document.getElementById('classification-filter').value;
@@ -310,43 +382,7 @@
                     }
                 }
             }
-            
-            // Update URL parameters
-            // const url = new URL(window.location);
-            // if (classificationFilter) {
-            //     url.searchParams.set('classification', classificationFilter);
-            // } else {
-            //     url.searchParams.delete('classification');
-            // }
-            
-            // if (levelFilter) {
-            //     url.searchParams.set('level', levelFilter);
-            // } else {
-            //     url.searchParams.delete('level');
-            // }
-            
-            // window.history.replaceState({}, '', url);
         }
-
-        // Set dropdown values based on URL parameters on page load
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const urlParams = new URLSearchParams(window.location.search);
-        //     const classificationParam = urlParams.get('classification');
-        //     const levelParam = urlParams.get('level');
-            
-        //     if (classificationParam) {
-        //         document.getElementById('classification-filter').value = classificationParam;
-        //     }
-            
-        //     if (levelParam) {
-        //         document.getElementById('level-filter').value = levelParam;
-        //     }
-            
-        //     // Apply filters if there are URL parameters
-        //     if (classificationParam || levelParam) {
-        //         filterQuestions();
-        //     }
-        // });
     </script>
 </body>
 </html>

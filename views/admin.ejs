@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,6 +111,7 @@
             font-size: 1.25rem;
             font-weight: 600;
             margin: 0;
+            color: #fff;
         }
         
         .btn {
@@ -250,6 +250,10 @@
             background-color: var(--secondary-text);
         }
         
+        .status-draft {
+            background-color: var(--info);
+        }
+        
         .empty-state {
             padding: 3rem 1rem;
             text-align: center;
@@ -265,7 +269,7 @@
         /* Quick stats cards */
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -275,6 +279,34 @@
             border-radius: 0.5rem;
             padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-card.active {
+            box-shadow: 0 0 0 2px var(--primary), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.active::after {
+            content: "✓";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
         }
         
         .stat-title {
@@ -302,6 +334,40 @@
         .trend-down {
             color: var(--danger);
         }
+
+        .filter-info {
+            background-color: rgba(79, 70, 229, 0.1);
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .clear-filter {
+            color: var(--primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .clear-filter i {
+            margin-right: 0.25rem;
+        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -323,14 +389,6 @@
             <img src="/api/placeholder/36/36" alt="Logo">
             <h1>PrepZer0</h1>
         </div>
-        <!-- <div class="subhead">
-            <p>Library</p>
-            <p>Report</p>
-            <button class="btn btn-sm" style="background:transparent; border:1px solid var(--border-color); color:var(--secondary-text)"
-            onclick="location.href='/profile'">
-                <i class="fas fa-user"></i> Admin
-            </button>
-        </div> -->
         <div class="subhead">
             <div class="dropdown" style="position: relative; display: inline-block;">
                 <button class="btn btn-sm dropdown-toggle" style="background:transparent; border:none; color:var(--secondary-text);font-size: 1rem;" onclick="toggleDropdown()">
@@ -354,34 +412,53 @@
     <div class="container">
         <!-- Stats Cards -->
         <div class="stats-container">
-            <div class="stat-card">
+            <div class="stat-card active" data-filter="all" onclick="filterByStatus('all')" id="all-card">
                 <div class="stat-title">Total Exams</div>
                 <div class="stat-value">24</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 12% from last month
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Active Exams</div>
-                <div class="stat-value">8</div>
+            <div class="stat-card" data-filter="upcoming" onclick="filterByStatus('upcoming')" id="upcoming-card">
+                <div class="stat-title">Upcoming Exams</div>
+                <div class="stat-value">6</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 20% from last month
+                </div>
+            </div>
+            <div class="stat-card" data-filter="active" onclick="filterByStatus('active')" id="active-card">
+                <div class="stat-title">Ongoing Exams</div>
+                <div class="stat-value">12</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 4% from last month
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-title">Upcoming</div>
-                <div class="stat-value">12</div>
-                <div class="stat-trend trend-up">
-                    <i class="fas fa-arrow-up"></i> 16% from last month
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Completed</div>
+            <div class="stat-card" data-filter="completed" onclick="filterByStatus('completed')" id="completed-card">
+                <div class="stat-title">Completed Exams</div>
                 <div class="stat-value">4</div>
                 <div class="stat-trend trend-down">
                     <i class="fas fa-arrow-down"></i> 8% from last month
                 </div>
             </div>
+            <div class="stat-card" data-filter="draft" onclick="filterByStatus('draft')" id="draft-card">
+                <div class="stat-title">Drafts Exams</div>
+                <div class="stat-value">8</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-arrow-up"></i> 16% from last month
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- Filter info banner (hidden by default) -->
+        <div class="filter-info" id="filter-info" style="display: none;">
+            <div>
+                <span>Filtered by: </span>
+                <span class="filter-badge" id="filter-badge">All Exams</span>
+            </div>
+            <button class="clear-filter" onclick="clearFilter()">
+                <i class="fas fa-times"></i> Clear filter
+            </button>
         </div>
 
         <div class="card">
@@ -415,19 +492,30 @@
                                 const endDate = new Date(exam.scheduleTill);
                                 let status = '';
                                 let statusClass = '';
+                                let statusType = '';
                                 
                                 if (now < startDate) {
                                     status = 'Upcoming';
                                     statusClass = 'status-upcoming';
+                                    statusType = 'upcoming';
                                 } else if (now >= startDate && now <= endDate) {
                                     status = 'Active';
                                     statusClass = 'status-active';
+                                    statusType = 'active';
                                 } else {
                                     status = 'Completed';
                                     statusClass = 'status-completed';
+                                    statusType = 'completed';
+                                }
+                                
+                                // Draft status (this is an example, you may need to adjust based on your actual data model)
+                                if (exam.isDraft) {
+                                    status = 'Draft';
+                                    statusClass = 'status-draft';
+                                    statusType = 'draft';
                                 }
                             %>
-                                <tr>
+                                <tr class="exam-row" data-status="<%= statusType %>">
                                     <td><strong><%= exam.name %></strong></td>
                                     <td><span class="badge badge-info"><%= exam.departments.join(", ") %></span></td>
                                     <td><%= exam.semester %></td>
@@ -475,6 +563,12 @@
                         <% } %>
                     </tbody>
                 </table>
+                <!-- Empty state for filtered results -->
+                <div class="empty-state" id="no-filtered-results" style="display: none;">
+                    <i class="fas fa-filter"></i>
+                    <h3>No matching exams</h3>
+                    <p>No exams match the selected filter</p>
+                </div>
             </div>
         </div>
     </div>
@@ -486,7 +580,7 @@
             dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
         }
 
-        // Optional: close dropdown if clicked outside
+        // Close dropdown if clicked outside
         window.onclick = function(event) {
             if (!event.target.matches('.dropdown-toggle')) {
                 const dropdowns = document.getElementsByClassName("dropdown-content");
@@ -494,8 +588,87 @@
                     dropdowns[i].style.display = "none";
                 }
             }
-    }
-</script>
-
+        }
+        
+        // Function to filter exams by status
+        function filterByStatus(status) {
+            // Remove active class from all stat cards
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Add active class to the clicked card
+            document.getElementById(`${status}-card`).classList.add('active');
+            
+            // Update filter badge and show filter info
+            const filterInfo = document.getElementById('filter-info');
+            const filterBadge = document.getElementById('filter-badge');
+            
+            filterInfo.style.display = 'flex';
+            
+            // Set filter badge text based on filter type
+            switch(status) {
+                case 'upcoming':
+                    filterBadge.textContent = 'Upcoming Exams';
+                    break;
+                case 'active':
+                    filterBadge.textContent = 'Ongoing Exams';
+                    break;
+                case 'draft':
+                    filterBadge.textContent = 'Draft Exams';
+                    break;
+                case 'completed':
+                    filterBadge.textContent = 'Completed Exams';
+                    break;
+                case 'all':
+                default:
+                    filterBadge.textContent = 'All Exams';
+                    break;
+            }
+            
+            // Filter the exam rows
+            const rows = document.querySelectorAll('.exam-row');
+            let visibleRows = 0;
+            
+            rows.forEach(row => {
+                const rowStatus = row.getAttribute('data-status');
+                
+                if (status === 'all' || rowStatus === status) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show/hide empty state message
+            const noFilteredResults = document.getElementById('no-filtered-results');
+            if (visibleRows === 0) {
+                noFilteredResults.style.display = 'block';
+            } else {
+                noFilteredResults.style.display = 'none';
+            }
+            
+            // Update the page title to reflect the current filter
+            const cardTitle = document.querySelector('.card-title');
+            if (status === 'all') {
+                cardTitle.textContent = 'All Exams';
+            } else {
+                cardTitle.textContent = filterBadge.textContent;
+            }
+        }
+        
+        // Function to clear active filter
+        function clearFilter() {
+            filterByStatus('all');
+            document.getElementById('filter-info').style.display = 'none';
+        }
+        
+        // Initialize with all exams showing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set the Total Exams card as active by default
+            document.getElementById('total-card').classList.add('active');
+        });
+    </script>
 </body>
 </html>
