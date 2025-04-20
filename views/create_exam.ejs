@@ -204,16 +204,17 @@
 
             <div class="form-group">
                 <label for="scheduledAt">Scheduled At:</label>
-                <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control form-control-sm" required>
+                <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control form-control-sm">
             </div>
 
             <div class="form-group">
                 <label for="scheduleTill">Scheduled Till:</label>
-                <input type="datetime-local" id="scheduleTill" name="scheduleTill" class="form-control form-control-sm" required>
+                <input type="datetime-local" id="scheduleTill" name="scheduleTill" class="form-control form-control-sm">
             </div>
 
             <div class="text-center mt-4">
-                <button type="submit" class="btn btn-primary btn-sm">Create Exam</button>
+                <button type="submit" name="draft"  value="draft" class="btn btn-secondary btn-sm ms-2">Save to Draft</button>
+                <button type="submit" name="action" value="create" class="btn btn-primary btn-sm">Create Exam</button>
             </div>
         </form>
     </div>

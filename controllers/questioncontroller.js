@@ -4,6 +4,7 @@ const sendEmails = require('./../utils/email')
 const User = require('./../models/usermodel')
 const { v4: uuidv4 } = require('uuid');
 const passport =  require('passport')
+const DbCodingQuestion = require('./../models/Codingschema')
 
 const MCQ = require("./../models/MCQQuestion");
 const CodingQuestion = require("./../models/CodingQuestion");
@@ -126,12 +127,13 @@ exports.deleteCoding = async (req, res) => {
 
 
 exports.getaddcodingQuestion = async (req, res) => {
+
     res.render("add_coding", { examId: req.params.examId });
 }
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, sampleInput, sampleOutput, solutionTemplate,marks } = req.body;
-
+        const { questionTile, questiontext, constraits, inputFormat, outputFormat, sampleInput, sampleOutput, solutionTemplate,maxMarks,level ,classification,testCases } = req.body;
+        //this one is for to be seen in exams so its connected to the exams it sayys this question belongs to this exam
         const newCodingQuestion = new CodingQuestion({
             questionTile,
             questiontext,
@@ -141,11 +143,32 @@ exports.postaddcodingQuestion = async (req, res) => {
             sampleInput,
             sampleOutput,
             solutionTemplate,
-            marks,
+            maxMarks,
+            testCases,
+            level,
+            classification,
             createdBy: req.user._id
         });
-
+        
+ 
         await newCodingQuestion.save();
+        //we have a database of questions so when we make 1 we push it into the database to so they can retrieve it later also and db increases
+        const addDBCodingQuestion = new DbCodingQuestion({
+            questionTile,
+            questiontext,
+            constraits,
+            inputFormat,
+            outputFormat,
+            sampleInput,
+            sampleOutput,
+            solutionTemplate,
+            maxMarks,
+            testCases,
+            level,
+            classification,
+            createdBy: req.user._id
+        });
+        await addDBCodingQuestion.save();
         await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
 
         res.redirect(`/admin/exam/questions/${req.params.examId}`);

@@ -222,6 +222,6 @@ codingQuestionSchema.index({ title: 1 }, { unique: true });
 codingQuestionSchema.index({ level: 1 });
 codingQuestionSchema.index({ classification: 1 });
 
-const CodingQuestion = mongoose.model('CodingQuestion', codingQuestionSchema);
+const DbCodingQuestion = mongoose.model('DbCodingQuestion', codingQuestionSchema);
 
-module.exports = CodingQuestion;
+module.exports = DbCodingQuestion;
