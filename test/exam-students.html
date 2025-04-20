@@ -1,0 +1,152 @@
+<!-- exam-students.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exam Students</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      background: #1a2035; 
+      margin: 0; 
+      padding: 2rem; 
+      color: #fff;
+    }
+    
+    h1 { 
+      text-align: center; 
+      color: #fff;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+    
+    .student-list { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 1rem; 
+      max-width: 600px; 
+      margin: auto; 
+      margin-top: 2rem; 
+    }
+    
+    .student-card {
+      background: #242b42;
+      padding: 1.2rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 4px solid #4f78ff;
+      color: #e0e6ff;
+      transition: all 0.2s ease;
+    }
+    
+    .student-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(79, 120, 255, 0.2);
+      background: #2d355a;
+    }
+    
+    .view-button {
+      background-color: #4f78ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    
+    .view-button:hover {
+      background-color: #3a63e4;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: #1e253d;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4f78ff;
+    }
+    
+    .back-button {
+      background-color: #4f78ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      transition: background-color 0.2s;
+    }
+    
+    .back-button:hover {
+      background-color: #3a63e4;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">PrepZer0</div>
+  </div>
+  
+  <div class="container">
+    <button class="back-button" onclick="history.back()">← Back</button>
+    
+    <h1 id="exam-title">Students</h1>
+  
+    <div class="student-list" id="student-list">
+      <!-- Student cards will be injected here -->
+    </div>
+  </div>
+
+  <script>
+    const queryParams = new URLSearchParams(window.location.search);
+    const examId = queryParams.get('exam');
+    
+    const examTitleMap = {
+      'exam-6': 'SET4 DEMO',
+      'exam-8': '2026 BATCH_CV/ME',
+      'midterm-sem6': 'TEST-01-03'
+    };
+
+    document.getElementById('exam-title').innerText = examTitleMap[examId] || "Unknown Exam";
+
+    // Dummy data
+    const students = {
+      'exam-6': ['Alice Johnson', 'Bob Smith', 'Charlie Nguyen'],
+      'exam-8': ['Emma Davis', 'James Lee', 'Sofia Patel'],
+      'midterm-sem6': ['Daniel Craig', 'Olivia Brown', 'Lucas Martinez']
+    };
+
+    const studentList = document.getElementById('student-list');
+    (students[examId] || []).forEach(name => {
+      const card = document.createElement('div');
+      card.className = 'student-card';
+      card.innerHTML = `
+        <span>${name}</span>
+        <button class="view-button" onclick="alert('View details for ${name}')">View</button>
+      `;
+      studentList.appendChild(card);
+    });
+  </script>
+
+</body>
+</html>

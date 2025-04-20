@@ -181,9 +181,76 @@ exports.signuppostcontrol = async(req,res)=>{
 
 
 
-exports.allStudents = async(req,res)=>{
-    res.send("hello");
-}
+// exports.allStudents = async(req, res) => {
+//     try {
+//         // Query the database for all users with usertype "student"
+//         const students = await User.find({ usertype: "student" })
+//             .select('-password -passwordresettoken -passwordresetdate') // Exclude sensitive fields
+//             .sort({ created: -1 }); // Sort by creation date, newest first
+        
+//         // Render the EJS template with the students data
+//         res.render('allstudentsprofile', { 
+//             students: students,
+//             title: 'All Students', 
+//             heading: 'Student Profiles'
+//         });
+//     } catch (error) {
+//         console.error('Error fetching students:', error);
+//         res.status(500).render('error', { 
+//             message: 'Failed to load student profiles',
+//             error: error
+//         });
+//     }
+// };
+
+    exports.allStudents = async(req, res) => {
+        try {
+            // Get filter parameters from query string
+            const { semester, department, usn } = req.query;
+            
+            // Build filter object
+            let filter = { usertype: "student" };
+            
+            // Add optional filters if they exist
+            if (semester) {
+                filter.Semester = semester;
+            }
+            
+            if (department) {
+                // Case insensitive search for department
+                filter.Department = new RegExp(department, 'i');
+            }
+            
+            if (usn) {
+                // Case insensitive search for USN
+                filter.USN = new RegExp(usn, 'i');
+            }
+            
+            // Query the database with all filters
+            const students = await User.find(filter)
+                .select('-password -passwordresettoken -passwordresetdate') // Exclude sensitive fields
+                .sort({ created: -1 }); // Sort by creation date, newest first
+            
+            // Render the EJS template with the students data
+            res.render('allstudentsprofile', { 
+                students: students,
+                title: 'All Students', 
+                heading: 'Student Profiles',
+                // Pass the current filter values to pre-populate the form
+                currentFilters: {
+                    semester: semester || '',
+                    department: department || '',
+                    usn: usn || ''
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching students:', error);
+            res.status(500).render('error', { 
+                message: 'Failed to load student profiles',
+                error: error
+            });
+        }
+    };
 
 
 

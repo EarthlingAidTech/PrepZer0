@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exam Info | Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a2035;
+      margin: 0;
+      padding: 0;
+      color: #e0e6ff;
+    }
+
+    .container {
+      width: 80%;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .card {
+      background: #242b42;
+      padding: 25px 30px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      border-radius: 10px;
+      border-left: 4px solid #4f78ff;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #fff;
+      border-bottom: 1px solid #3a4363;
+      padding-bottom: 12px;
+    }
+
+    .card p {
+      margin: 15px 0;
+      color: #cdd6f4;
+      font-size: 15px;
+    }
+
+    strong {
+      color: #fff;
+      font-weight: 600;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4f78ff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #3a63e4;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(79, 120, 255, 0.3);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: #1e253d;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4f78ff;
+    }
+    
+    .back-button {
+      background-color: #4f78ff;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      transition: background-color 0.2s;
+    }
+    
+    .back-button:hover {
+      background-color: #3a63e4;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      background-color: #27ae60;
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">PrepZer0</div>
+  </div>
+
+  <div class="container">
+    <button class="back-button" onclick="history.back()">← Back</button>
+    
+    <header>
+      <h1>Exam Info</h1>
+    </header>
+
+    <div class="card">
+      <h2>Test Name: SET4 DEMO</h2>
+      <p><strong>Date:</strong> April 12, 2025</p>
+      <p><strong>Time:</strong> 2:06 PM IST</p>
+      <p><strong>Duration:</strong> 1 hr 30 mins</p>
+      <p><strong>Test Type:</strong> Invite Only</p>
+      <p><strong>Number of Candidates:</strong> 2</p>
+      <p><strong>Status:</strong> <span class="status">Completed</span></p>
+
+      <button onclick="window.location.href = 'exam-students.html?exam=exam-6'">Candidates Info</button>
+
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("candidatesInfoBtn").addEventListener("click", () => {
+      // Redirect to student details page
+      window.location.href = "student-details.html";
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %> - Student Search</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #1B2638; /* Dark blue background */
+      color: #ffffff;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      background-color: #1e263a; /* Darker blue for header */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    header select,
+    header input {
+      padding: 10px 15px;
+      border: 1px solid #3d4b69;
+      border-radius: 8px;
+      font-size: 14px;
+      min-width: 150px;
+      background-color: #252e43;
+      color: #ffffff;
+    }
+
+    header button {
+      padding: 10px 20px;
+      background-color: #4285f4; /* Bright blue button */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .students-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .student-card {
+      background-color: #1e263a; /* Darker blue for cards */
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      border: 1px solid white;
+    }
+
+    .student-card img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .student-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .student-info strong {
+      font-size: 16px;
+      color: #ffffff;
+    }
+
+    .student-info span {
+      color: #a0aec0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- <header>
+    <select id="semesterSelect">
+      <option value="">Select Semester</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+    </select>
+
+    <select id="departmentSelect">
+      <option value="">Select Department</option>
+      <option value="CS">CS</option>
+      <option value="ISE">ISE</option>
+      <option value="Mech">Mech</option>
+      <option value="Civil">Civil</option>
+      <option value="ECE">ECE</option>
+      <option value="EEE">EEE</option>
+    </select>
+
+    <input type="text" id="usnSearch" placeholder="Enter USN" />
+    <button onclick="filterStudents()">Search</button>
+  </header> -->
+
+  <form action="" method="GET">
+    <header>
+      <select id="semesterSelect" name="semester">
+        <option value="">Select Semester</option>
+        <option value="1" <%= currentFilters.semester === '1' ? 'selected' : '' %>>1</option>
+        <option value="2" <%= currentFilters.semester === '2' ? 'selected' : '' %>>2</option>
+        <option value="3" <%= currentFilters.semester === '3' ? 'selected' : '' %>>3</option>
+        <option value="4" <%= currentFilters.semester === '4' ? 'selected' : '' %>>4</option>
+        <option value="5" <%= currentFilters.semester === '5' ? 'selected' : '' %>>5</option>
+        <option value="6" <%= currentFilters.semester === '6' ? 'selected' : '' %>>6</option>
+        <option value="7" <%= currentFilters.semester === '7' ? 'selected' : '' %>>7</option>
+        <option value="8" <%= currentFilters.semester === '8' ? 'selected' : '' %>>8</option>
+      </select>
+
+      <select id="departmentSelect" name="department">
+        <option value="">Select Department</option>
+        <option value="CS" <%= currentFilters.department === 'CS' ? 'selected' : '' %>>CS</option>
+        <option value="IS" <%= currentFilters.department === 'IS' ? 'selected' : '' %>>ISE</option>
+        <option value="Mech" <%= currentFilters.department === 'Mech' ? 'selected' : '' %>>Mech</option>
+        <option value="Civil" <%= currentFilters.department === 'Civil' ? 'selected' : '' %>>Civil</option>
+        <option value="EC" <%= currentFilters.department === 'EC' ? 'selected' : '' %>>ECE</option>
+        <option value="EEE" <%= currentFilters.department === 'EEE' ? 'selected' : '' %>>EEE</option>
+      </select>
+
+      <input type="text" id="usnSearch" name="usn" placeholder="Enter USN" value="<%= currentFilters.usn %>" />
+      <button type="submit">Search</button>
+    </header>
+  </form>
+
+  <div class="students-container" id="studentList">
+    <% if(students && students.length > 0) { %>
+      <% students.forEach(student => { %>
+        <div class="student-card">
+          <img src="<%= student.imageurl || 'https://randomuser.me/api/portraits/men/1.jpg' %>" alt="<%= student.name %>" />
+          <div class="student-info">
+            <span>USN: <%= student.USN || 'N/A' %></span>
+            <span>Dept: <%= student.Department || 'N/A' %> | Sem: <%= student.Semester || 'N/A' %></span>
+          </div>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="no-students">
+        <p>No students found</p>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- <script>
+    const students = <% if(students && students.length > 0) { %><%- JSON.stringify(students) %><% } else { %>[]<% } %>;
+
+    function renderStudents(list) {
+      const container = document.getElementById("studentList");
+      container.innerHTML = "";
+      if (list.length === 0) {
+        container.innerHTML = '<div class="no-students"><p>No matching students found</p></div>';
+        return;
+      }
+      
+      list.forEach(student => {
+        container.innerHTML += `
+          <div class="student-card">
+            <img src="${student.imageurl || 'https://randomuser.me/api/portraits/men/1.jpg'}" alt="${student.USN}" />
+            <div class="student-info">
+              <span>USN: ${student.USN || 'N/A'}</span>
+              <span>Dept: ${student.Department || 'N/A'} | Sem: ${student.Semester || 'N/A'}</span>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function filterStudents() {
+      const sem = document.getElementById("semesterSelect").value;
+      const dept = document.getElementById("departmentSelect").value.toLowerCase();
+      const usn = document.getElementById("usnSearch").value.toLowerCase();
+
+      const filtered = students.filter(s => {
+        return (
+          (sem === "" || (s.Semester && s.Semester.toString() === sem)) &&
+          (dept === "" || (s.Department && s.Department.toLowerCase() === dept)) &&
+          (usn === "" || (s.USN && s.USN.toLowerCase().includes(usn)))
+        );
+      });
+
+      renderStudents(filtered);
+    }
+
+    
+  </script> -->
+
+</body>
+</html>
