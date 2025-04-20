@@ -36,4 +36,6 @@ router.route("/verify/:id").get(authenticatecontroller.getVerified).post(authent
 
 router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
 
+router.route("/profile/students").get(admincontroller.allStudents)
+
 module.exports=router

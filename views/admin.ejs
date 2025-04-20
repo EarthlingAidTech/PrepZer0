@@ -416,7 +416,7 @@
             </div>
         
             <a href="" class="report">Report</a>
-            <a href="" class="profile">profile</a>
+            <a href="/admin//profile/students" class="profile">profile</a>
         
             <button class="btn btn-sm" style="background:transparent; border:1px solid var(--border-color); color:var(--secondary-text);"
                 onclick="location.href='/profile'">
@@ -430,7 +430,7 @@
         <div class="stats-container">
             <div class="stat-card active" data-filter="all" onclick="filterByStatus('all')" id="all-card">
                 <div class="stat-title">Total Exams</div>
-                <div class="stat-value" id="total-count"><%= total_exams%></div>
+                <div class="stat-value" id="total-count">0</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 12% from last month
                 </div>

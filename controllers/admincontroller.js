@@ -13,30 +13,35 @@ exports.getcontrol = async(req,res)=>{
         const Userprofile = await User.findById({_id : req.user.id})
         if(Userprofile.usertype == "admin" || Userprofile.usertype == "teacher"){
             const exams = await Exam.find().populate("createdBy", "name");
-            const [ongoingExams, draftExams, completedExams] = await Promise.all([
-                Exam.find({ testStatus: "ongoing" }).populate("createdBy", "name"),
-                Exam.find({ testStatus: "draft" }).populate("createdBy", "name"),
-                Exam.find({ testStatus: "completed" }).populate("createdBy", "name")
-            ]);
-            const ongoingCount = ongoingExams.length;
-            const draftCount = draftExams.length;
-            const completedCount = completedExams.length;
-            const total_exams = ongoingCount+draftCount+completedCount
+            // const [ongoingExams, draftExams, completedExams] = await Promise.all([
+            //     Exam.find({ testStatus: "ongoing" }).populate("createdBy", "name"),
+            //     Exam.find({ testStatus: "draft" }).populate("createdBy", "name"),
+            //     Exam.find({ testStatus: "completed" }).populate("createdBy", "name")
+            // ]);
+            // const ongoingCount = ongoingExams.length;
+            // const draftCount = draftExams.length;
+            // const completedCount = completedExams.length;
+            // const total_exams = ongoingCount+draftCount+completedCount
 
 
            
 
+            // res.render('admin', {
+            //     pic: Userprofile.imageurl,
+            //     logged_in: "true",
+            //     ongoingExams,
+            //     draftExams,
+            //     completedExams,
+            //     ongoingCount,
+            //     draftCount,
+            //     completedCount,
+            //     exams : exams ,
+            //     total_exams : total_exams
+            // });
             res.render('admin', {
                 pic: Userprofile.imageurl,
                 logged_in: "true",
-                ongoingExams,
-                draftExams,
-                completedExams,
-                ongoingCount,
-                draftCount,
-                completedCount,
-                exams : exams ,
-                total_exams : total_exams
+                exams : exams 
             });
         }
         else{
@@ -172,6 +177,12 @@ exports.signuppostcontrol = async(req,res)=>{
      }
 
     
+}
+
+
+
+exports.allStudents = async(req,res)=>{
+    res.send("hello");
 }
 
 
