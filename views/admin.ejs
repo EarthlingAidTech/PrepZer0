@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,12 +54,15 @@
             justify-content: space-between;
             
         }
-        .subhead p{
-            margin-bottom: 0;
-            margin-left: 2rem;
-        }
-        .subhead p:nth-child(2){
+        .profile{
+            text-decoration: none;
+            color: white;
             margin-right: 2rem;
+        }
+        .report{
+            text-decoration: none;
+            color: white;
+            margin: 0 2rem;
         }
         .allques:hover{
             background-color: #dcdbdb;
@@ -229,6 +235,15 @@
         .btn-danger:hover {
             background-color: #dc2626;
         }
+
+        .btn-secondary {
+            background-color: var(--secondary-text);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #6b7280;
+        }
         
         .status-pill {
             width: 0.5rem;
@@ -400,7 +415,8 @@
                 </div>
             </div>
         
-            <p>Report</p>
+            <a href="" class="report">Report</a>
+            <a href="/admin//profile/students" class="profile">profile</a>
         
             <button class="btn btn-sm" style="background:transparent; border:1px solid var(--border-color); color:var(--secondary-text);"
                 onclick="location.href='/profile'">
@@ -414,35 +430,35 @@
         <div class="stats-container">
             <div class="stat-card active" data-filter="all" onclick="filterByStatus('all')" id="all-card">
                 <div class="stat-title">Total Exams</div>
-                <div class="stat-value">24</div>
+                <div class="stat-value" id="total-count">0</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 12% from last month
                 </div>
             </div>
             <div class="stat-card" data-filter="upcoming" onclick="filterByStatus('upcoming')" id="upcoming-card">
                 <div class="stat-title">Upcoming Exams</div>
-                <div class="stat-value">6</div>
+                <div class="stat-value" id="upcoming-count">0</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 20% from last month
                 </div>
             </div>
             <div class="stat-card" data-filter="active" onclick="filterByStatus('active')" id="active-card">
                 <div class="stat-title">Ongoing Exams</div>
-                <div class="stat-value">12</div>
+                <div class="stat-value" id="active-count">0</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 4% from last month
                 </div>
             </div>
             <div class="stat-card" data-filter="completed" onclick="filterByStatus('completed')" id="completed-card">
                 <div class="stat-title">Completed Exams</div>
-                <div class="stat-value">4</div>
+                <div class="stat-value" id="completed-count">0</div>
                 <div class="stat-trend trend-down">
                     <i class="fas fa-arrow-down"></i> 8% from last month
                 </div>
             </div>
             <div class="stat-card" data-filter="draft" onclick="filterByStatus('draft')" id="draft-card">
                 <div class="stat-title">Drafts Exams</div>
-                <div class="stat-value">8</div>
+                <div class="stat-value" id="draft-count">0</div>
                 <div class="stat-trend trend-up">
                     <i class="fas fa-arrow-up"></i> 16% from last month
                 </div>
@@ -535,17 +551,25 @@
                                     </td>
                                     <td>
                                         <div class="actions">
-                                            <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <a href="/admin/exam/questions/<%= exam._id %>" class="btn btn-sm btn-info">
-                                                <i class="fas fa-list-check"></i> Questions
-                                            </a>
-                                            <form action="/admin/exam/delete/<%= exam._id %>" method="POST" style="display:inline">
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this exam?')">
-                                                    <i class="fas fa-trash"></i> Delete
-                                                </button>
-                                            </form>
+                                            <% if (statusType === 'completed') { %>
+                                                <!-- Show only "View Candidates" button for completed exams -->
+                                                <a href="/admin/exam/candidates/<%= exam._id %>" class="btn btn-sm btn-secondary">
+                                                    <i class="fas fa-users"></i> View Candidates
+                                                </a>
+                                            <% } else { %>
+                                                <!-- Show normal action buttons for other exam statuses -->
+                                                <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="/admin/exam/questions/<%= exam._id %>" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-list-check"></i> Questions
+                                                </a>
+                                                <form action="/admin/exam/delete/<%= exam._id %>" method="POST" style="display:inline">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this exam?')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            <% } %>
                                         </div>
                                     </td>
                                 </tr>
@@ -588,6 +612,42 @@
                     dropdowns[i].style.display = "none";
                 }
             }
+        }
+        
+        // Function to count exams by status
+        function countExams() {
+            const rows = document.querySelectorAll('.exam-row');
+            let totalCount = rows.length;
+            let upcomingCount = 0;
+            let activeCount = 0;
+            let completedCount = 0;
+            let draftCount = 0;
+            
+            rows.forEach(row => {
+                const status = row.getAttribute('data-status');
+                
+                switch(status) {
+                    case 'upcoming':
+                        upcomingCount++;
+                        break;
+                    case 'active':
+                        activeCount++;
+                        break;
+                    case 'completed':
+                        completedCount++;
+                        break;
+                    case 'draft':
+                        draftCount++;
+                        break;
+                }
+            });
+            
+            // Update the stat card values
+            document.getElementById('total-count').textContent = totalCount;
+            document.getElementById('upcoming-count').textContent = upcomingCount;
+            document.getElementById('active-count').textContent = activeCount;
+            document.getElementById('completed-count').textContent = completedCount;
+            document.getElementById('draft-count').textContent = draftCount;
         }
         
         // Function to filter exams by status
@@ -664,10 +724,9 @@
             document.getElementById('filter-info').style.display = 'none';
         }
         
-        // Initialize with all exams showing
+        // Run the count function when the page loads
         document.addEventListener('DOMContentLoaded', function() {
-            // Set the Total Exams card as active by default
-            document.getElementById('total-card').classList.add('active');
+            countExams();
         });
     </script>
 </body>
