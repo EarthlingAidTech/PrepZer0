@@ -72,12 +72,12 @@ const CodingQuestionSchema = new mongoose.Schema({
       },
       classification: {
         type: String,
-        required: true,
+       
         enum: [
           'Arrays', 'Strings', 'Linked Lists', 'Stacks', 'Queues',
           'Trees', 'Graphs', 'Recursion', 'Dynamic Programming',
           'Sorting', 'Searching', 'Hashing', 'Greedy Algorithms',
-          'Backtracking', 'Math', 'Bit Manipulation', 'Matrix'
+          'Backtracking', 'Math', 'Bit Manipulation', 'Matrix' ,'SQL'
         ]
       },
       level: {
