@@ -344,11 +344,14 @@
                             <td><pre><%= coding.sampleInput %></pre></td>
                             <td><pre><%= coding.sampleOutput %></pre></td>
                             <td class="actions">
-                                <a href="/admin/exam/<%= exam._id %>/edit/coding/<%= coding._id %>" class="edit-btn">✏️ Edit</a>
-                                <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST" style="display:inline;">
-                                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
-                                </form>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="/admin/exam/<%= exam._id %>/edit/coding/<%= coding._id %>" class="edit-btn">✏️ Edit</a>
+                                    <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST">
+                                        <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
+                                    </form>
+                                </div>
                             </td>
+                            
                         </tr>
                     <% }) %>
                 </tbody>
