@@ -132,7 +132,8 @@ exports.getaddcodingQuestion = async (req, res) => {
 }
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, sampleInput, sampleOutput, solutionTemplate,maxMarks,level ,classification,testCases } = req.body;
+        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate,maxMarks,level ,classification,testCases } = req.body;
+        console.log(req.body)
         //this one is for to be seen in exams so its connected to the exams it sayys this question belongs to this exam
         const newCodingQuestion = new CodingQuestion({
             questionTile,
@@ -140,8 +141,6 @@ exports.postaddcodingQuestion = async (req, res) => {
             constraits,
             inputFormat,
             outputFormat,
-            sampleInput,
-            sampleOutput,
             solutionTemplate,
             maxMarks,
             testCases,
@@ -159,8 +158,6 @@ exports.postaddcodingQuestion = async (req, res) => {
             constraits,
             inputFormat,
             outputFormat,
-            sampleInput,
-            sampleOutput,
             solutionTemplate,
             maxMarks,
             testCases,
@@ -169,6 +166,7 @@ exports.postaddcodingQuestion = async (req, res) => {
             createdBy: req.user._id
         });
         await addDBCodingQuestion.save();
+
         await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
 
         res.redirect(`/admin/exam/questions/${req.params.examId}`);

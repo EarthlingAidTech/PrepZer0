@@ -40,8 +40,7 @@ const starterCodeSchema = new mongoose.Schema({
 });
 
 const CodingQuestionSchema = new mongoose.Schema({
-    sampleInput: { type: String, required: true },
-    sampleOutput: { type: String, required: true },
+  
     solutionTemplate: { type: String, required: true }, 
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },
@@ -103,10 +102,6 @@ const CodingQuestionSchema = new mongoose.Schema({
       starterCode: {
         type: [starterCodeSchema],
         default: []
-      },
-      createdAt: {
-        type: Date,
-        default: Date.now
       }
     
 });

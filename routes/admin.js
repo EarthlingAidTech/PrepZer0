@@ -46,6 +46,7 @@ router.route("/profile/students").get(admincontroller.allStudents)
 
 
 
+
 // Multer setup
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -72,8 +73,11 @@ const upload = multer({
 });
 
 // Routes
-router.route("/exam/mcq/csv").get(mcqquestions.csvpage)
-router.route("/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV);
+router.route("/exam/:examId/csv").get(mcqquestions.csvPage)
+
+// router.route("/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
+router.route("/exam/:examId/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
+
 
 
 module.exports=router

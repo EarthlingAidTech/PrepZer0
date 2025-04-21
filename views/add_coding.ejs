@@ -29,7 +29,7 @@
     <button type="submit">Add Coding Question</button>
 </form> -->
 
-
+<!-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -179,10 +179,10 @@
     <div class="container">
         <h1>Add Coding Question</h1>
 
-        <!-- Add Coding Question Form -->
+     
         <div class="card">
             <form action="/admin/exam/<%= examId %>/add/coding" method="POST">
-                <!-- Basic Information -->
+               
                 <div class="mb-4">
                     <label for="questionTile" class="form-label">Title:</label>
                     <input type="text" id="questionTile" name="questionTile" class="form-control" 
@@ -199,7 +199,7 @@
                     <span>Specifications</span>
                 </div>
 
-                <!-- Specifications -->
+           
                 <div class="mb-4">
                     <label for="constraints" class="form-label">Constraints:</label>
                     <textarea id="constraints" name="constraits" class="form-control" 
@@ -222,7 +222,7 @@
                     <span>Examples</span>
                 </div>
 
-                <!-- Examples -->
+           
                 <div class="mb-4">
                     <label for="sampleInput" class="form-label">Sample Input:</label>
                     <textarea id="sampleInput" name="sampleInput" class="form-control" 
@@ -239,7 +239,7 @@
                     <span>Code</span>
                 </div>
 
-                <!-- Code and Evaluation -->
+             
                 <div class="mb-4">
                     <label for="solutionTemplate" class="form-label">Solution Template:</label>
                     <textarea id="solutionTemplate" name="solutionTemplate" class="form-control" rows="6"
@@ -257,7 +257,6 @@
             </form>
         </div>
 
-        <!-- Back Link -->
         <div class="back-link">
             <a href="/admin/exam/questions/<%= examId %>" class="btn btn-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-2" viewBox="0 0 16 16">
@@ -269,5 +268,519 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Coding Question</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #eaeaea;
+      padding-bottom: 10px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    textarea {
+      min-height: 100px;
+      font-family: monospace;
+    }
+    
+    select {
+      height: 44px;
+    }
+    
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #2980b9;
+    }
+    
+    button.secondary {
+      background-color: #95a5a6;
+    }
+    
+    button.secondary:hover {
+      background-color: #7f8c8d;
+    }
+    
+    button.warning {
+      background-color: #e74c3c;
+    }
+    
+    button.warning:hover {
+      background-color: #c0392b;
+    }
+    
+    .test-case {
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+      position: relative;
+      border-left: 4px solid #3498db;
+    }
+    
+    .test-case .remove-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #e74c3c;
+      color: white;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .test-case .remove-btn:hover {
+      background: #c0392b;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-top: 15px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    
+    .checkbox-group label {
+      margin-bottom: 0;
+      font-weight: normal;
+    }
+    
+    .section-title {
+      margin-top: 30px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-weight: bold;
+      font-size: 18px;
+      border-bottom: 1px solid #eaeaea;
+      padding-bottom: 8px;
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .form-col {
+      flex: 1;
+    }
+    
+    .controls {
+      margin-top: 30px;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .test-case-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .test-case-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+    
+    #testCasesContainer {
+      margin-top: 20px;
+    }
+    
+    .error {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .success-message {
+      background-color: #d4edda;
+      color: #155724;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Add Coding Question</h1>
+    
+    <div id="successMessage" class="success-message">
+      Question added successfully!
+    </div>
+    
+    <form id="codingQuestionForm" action='/admin/exam/<%= examId %>/add/coding' method="POST">
+      <!-- Basic Info Section -->
+      <div class="section-title">Basic Information</div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="questionTitle">Question Title*</label>
+            <input type="text" id="questionTitle" name="questionTitle" required>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="maxMarks">Maximum Marks*</label>
+            <input type="number" id="maxMarks" name="maxMarks" min="1" required>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="level">Difficulty Level*</label>
+            <select id="level" name="level" required>
+              <option value="">Select Difficulty</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="classification">Classification*</label>
+            <select id="classification" name="classification" required>
+              <option value="">Select Classification</option>
+              <option value="Arrays">Arrays</option>
+              <option value="Strings">Strings</option>
+              <option value="Linked Lists">Linked Lists</option>
+              <option value="Stacks">Stacks</option>
+              <option value="Queues">Queues</option>
+              <option value="Trees">Trees</option>
+              <option value="Graphs">Graphs</option>
+              <option value="Recursion">Recursion</option>
+              <option value="Dynamic Programming">Dynamic Programming</option>
+              <option value="Sorting">Sorting</option>
+              <option value="Searching">Searching</option>
+              <option value="Hashing">Hashing</option>
+              <option value="Greedy Algorithms">Greedy Algorithms</option>
+              <option value="Backtracking">Backtracking</option>
+              <option value="Math">Math</option>
+              <option value="Bit Manipulation">Bit Manipulation</option>
+              <option value="Matrix">Matrix</option>
+              <option value="SQL">SQL</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Question Content Section -->
+      <div class="section-title">Question Content</div>
+      
+      <div class="form-group">
+        <label for="questionText">Question Text*</label>
+        <textarea id="questionText" name="questionText" required></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="constraints">Constraints</label>
+        <textarea id="constraints" name="constraints"></textarea>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="inputFormat">Input Format</label>
+            <textarea id="inputFormat" name="inputFormat"></textarea>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="outputFormat">Output Format</label>
+            <textarea id="outputFormat" name="outputFormat"></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Examples Section -->
+      <div class="section-title">Sample Examples</div>
+      
+      <div class="form-row">
+        <div class="form-col">
+          <div class="form-group">
+            <label for="sampleInput">Sample Input*</label>
+            <textarea id="sampleInput" name="sampleInput" required></textarea>
+          </div>
+        </div>
+        <div class="form-col">
+          <div class="form-group">
+            <label for="sampleOutput">Sample Output*</label>
+            <textarea id="sampleOutput" name="sampleOutput" required></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="solutionTemplate">Solution Template*</label>
+        <textarea id="solutionTemplate" name="solutionTemplate" required></textarea>
+      </div>
+      
+      <!-- Test Cases Section -->
+      <div class="section-title">Test Cases</div>
+      <button type="button" id="addTestCase" class="secondary">Add Test Case</button>
+      
+      <div id="testCasesContainer">
+        <!-- Test cases will be added here dynamically -->
+      </div>
+      
+      <!-- Form Controls -->
+      <div class="controls">
+        <button type="button" id="clearForm" class="warning">Clear Form</button>
+        <button type="submit">Submit Question</button>
+      </div>
+    </form>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let testCaseCount = 0;
+      const testCasesContainer = document.getElementById('testCasesContainer');
+      const addTestCaseBtn = document.getElementById('addTestCase');
+      const clearFormBtn = document.getElementById('clearForm');
+      const form = document.getElementById('codingQuestionForm');
+      const successMessage = document.getElementById('successMessage');
+      
+      // Add test case function
+      function addTestCase() {
+        testCaseCount++;
+        
+        const testCaseDiv = document.createElement('div');
+        testCaseDiv.className = 'test-case';
+        testCaseDiv.setAttribute('data-id', testCaseCount);
+        
+        testCaseDiv.innerHTML = `
+          <div class="test-case-header">
+            <h3>Test Case #${testCaseCount}</h3>
+            <button type="button" class="remove-btn" onclick="removeTestCase(${testCaseCount})">×</button>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="testInput${testCaseCount}">Input*</label>
+                <textarea id="testInput${testCaseCount}" name="testInput${testCaseCount}" required></textarea>
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="expectedOutput${testCaseCount}">Expected Output*</label>
+                <textarea id="expectedOutput${testCaseCount}" name="expectedOutput${testCaseCount}" required></textarea>
+              </div>
+            </div>
+          </div>
+
+          
+          <div class="checkbox-group">
+            <input type="checkbox" id="isPublic${testCaseCount}" name="isPublic${testCaseCount}">
+            <label for="isPublic${testCaseCount}">Make this test case visible to students</label>
+          </div>
+        `;
+        
+        testCasesContainer.appendChild(testCaseDiv);
+      }
+      
+      // Remove test case function
+      window.removeTestCase = function(id) {
+        const testCase = document.querySelector(`.test-case[data-id="${id}"]`);
+        if (testCase) {
+          testCase.remove();
+        }
+      }
+      
+      // Add first test case by default
+      addTestCase();
+      
+      // Add test case button click event
+      addTestCaseBtn.addEventListener('click', addTestCase);
+      
+      // Clear form button click event
+      clearFormBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all form data?')) {
+          form.reset();
+          testCasesContainer.innerHTML = '';
+          testCaseCount = 0;
+          addTestCase(); // Add one default test case after clearing
+        }
+      });
+      
+      // Form submission
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Validate the form
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+          if (!field.value.trim()) {
+            isValid = false;
+            
+            // Add error message if not already present
+            let errorMsgElement = field.nextElementSibling;
+            if (!errorMsgElement || !errorMsgElement.classList.contains('error')) {
+              errorMsgElement = document.createElement('div');
+              errorMsgElement.className = 'error';
+              errorMsgElement.textContent = 'This field is required';
+              field.parentNode.insertBefore(errorMsgElement, field.nextSibling);
+            }
+          } else {
+            // Remove error message if field is valid
+            const errorMsg = field.nextElementSibling;
+            if (errorMsg && errorMsg.classList.contains('error')) {
+              errorMsg.remove();
+            }
+          }
+        });
+        
+        // Check if there's at least one test case
+        if (testCasesContainer.children.length === 0) {
+          isValid = false;
+          alert('At least one test case is required.');
+        }
+        
+        if (isValid) {
+          // Collect all form data
+          const formData = {
+            questionTile: document.getElementById('questionTitle').value,
+            questiontext: document.getElementById('questionText').value,
+            constraits: document.getElementById('constraints').value,
+            inputFormat: document.getElementById('inputFormat').value,
+            outputFormat: document.getElementById('outputFormat').value,
+            sampleInput: document.getElementById('sampleInput').value,
+            sampleOutput: document.getElementById('sampleOutput').value,
+            solutionTemplate: document.getElementById('solutionTemplate').value,
+            maxMarks: parseInt(document.getElementById('maxMarks').value),
+            level: document.getElementById('level').value,
+            classification: document.getElementById('classification').value,
+            testCases: []
+          };
+          
+          // Collect test cases
+          const testCases = testCasesContainer.querySelectorAll('.test-case');
+          testCases.forEach(testCase => {
+            const id = testCase.getAttribute('data-id');
+            formData.testCases.push({
+              input: document.getElementById(`testInput${id}`).value,
+              expectedOutput: document.getElementById(`expectedOutput${id}`).value,
+              isPublic: document.getElementById(`isPublic${id}`).checked,
+            //   memoryLimit: parseInt(document.getElementById(`memoryLimit${id}`).value)
+            });
+          });
+          
+          // Here you would send this data to your backend
+          console.log('Form data:', formData);
+          
+          // Example API call (commented out)
+
+        //   fetch('/admin/exam/<%= examId %>/add/coding', {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(formData)
+        //   })
+        //   .then(response => response.json())
+        //   .then(data => {
+        //     console.log('Success:', data);
+        //     successMessage.style.display = 'block';
+        //     setTimeout(() => {
+        //       successMessage.style.display = 'none';
+        //     }, 3000);
+        //     form.reset();
+        //     testCasesContainer.innerHTML = '';
+        //     testCaseCount = 0;
+        //     addTestCase();
+        //   })
+        //   .catch((error) => {
+        //     console.error('Error:', error);
+        //     alert('There was an error submitting the form. Please try again.');
+        //   });
+        
+          
+          // For demo purposes, just show success message
+          successMessage.style.display = 'block';
+          setTimeout(() => {
+            successMessage.style.display = 'none';
+          }, 3000);
+          
+          // Reset form after successful submission
+          form.reset();
+          testCasesContainer.innerHTML = '';
+          testCaseCount = 0;
+          addTestCase();
+        }
+      });
+    });
+  </script>
 </body>
 </html>
