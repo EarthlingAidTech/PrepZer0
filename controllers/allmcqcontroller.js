@@ -1,5 +1,6 @@
 // controllers/mcqQuestionController.js
 const MCQQuestion = require('../models/MCQschema');
+const Exam = require('../models/Exam');
 const fs = require('fs');
 const csv = require('csv-parser');
 
@@ -22,8 +23,8 @@ exports.getAllMCQQuestions = async (req, res) => {
 
 
 
-exports.csvpage = async (req, res) => {
-    res.render("csv");
+exports.csvPage = async (req, res) => {
+    res.render("csv", {examId: req.params.examId});
 }
 
 
@@ -36,6 +37,7 @@ exports.uploadMCQCSV = async (req, res) => {
       const createdBy = req.body.createdBy;
       const results = [];
       const errors = [];
+      const codingQuestions = [];
   
       fs.createReadStream(req.file.path)
         .pipe(csv())
@@ -68,11 +70,16 @@ exports.uploadMCQCSV = async (req, res) => {
             if (err) console.error('Error deleting file:', err);
           });
   
-          res.json({
-            successCount: results.length - errors.length,
-            errors: errors,
-            total: results.length
-          });
+        //   res.json({
+        //     successCount: results.length - errors.length,
+        //     errors: errors,
+        //     total: results.length
+        //   });
+        const examId = req.params.examId;
+        const exam = await Exam.findById(examId);
+        
+        res.render('view_questions', {mcqQuestions: results, exam: exam, codingQuestions });
+
         });
     } catch (error) {
       console.error('Error uploading CSV:', error);
