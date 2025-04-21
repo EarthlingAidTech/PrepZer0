@@ -154,13 +154,14 @@ const starterCodeSchema = new mongoose.Schema({
 
 // Main coding question schema
 const codingQuestionSchema = new mongoose.Schema({
-  title: {
+  questionTile: {
     type: String,
     required: true,
     unique: true,
     trim: true
   },
-  description: {
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  questiontext: {
     type: String,
     required: true,
     trim: true
@@ -173,10 +174,11 @@ const codingQuestionSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  constraintDescription: {
+  constraits: {
     type: String,
     trim: true
   },
+  solutionTemplate: { type: String, required: true }, 
   classification: {
     type: String,
     required: true,

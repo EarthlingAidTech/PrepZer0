@@ -366,11 +366,7 @@
               </div>
             </div>
           </div>
-          
-          <div class="form-group">
-            <label for="memoryLimit${testCaseCount}">Memory Limit (MB)</label>
-            <input type="number" id="memoryLimit${testCaseCount}" name="memoryLimit${testCaseCount}" value="256" min="16" max="1024">
-          </div>
+
           
           <div class="checkbox-group">
             <input type="checkbox" id="isPublic${testCaseCount}" name="isPublic${testCaseCount}">
@@ -465,7 +461,7 @@
               input: document.getElementById(`testInput${id}`).value,
               expectedOutput: document.getElementById(`expectedOutput${id}`).value,
               isPublic: document.getElementById(`isPublic${id}`).checked,
-              memoryLimit: parseInt(document.getElementById(`memoryLimit${id}`).value)
+            //   memoryLimit: parseInt(document.getElementById(`memoryLimit${id}`).value)
             });
           });
           
@@ -473,8 +469,8 @@
           console.log('Form data:', formData);
           
           // Example API call (commented out)
-          /*
-          fetch('/api/coding-questions', {
+
+          fetch('http://localhost:80/admin/exam/680565edd91ad3876e9a9126/add/coding', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -497,7 +493,7 @@
             console.error('Error:', error);
             alert('There was an error submitting the form. Please try again.');
           });
-          */
+        
           
           // For demo purposes, just show success message
           successMessage.style.display = 'block';
