@@ -123,8 +123,7 @@ exports.getlogincontrol = (req,res)=>{
 <body>
   <div class="container">
     <h2>Verify Your Email</h2>
-    <form action="${badhttp}" method="POST">
-      <button type="submit">Click to Verify</button>
+      <button > <a href=${badhttp}>${badhttp}</a>    </button>
     </form>
   </div>
 </body>
