@@ -68,17 +68,30 @@ exports.getlogincontrol = (req,res)=>{
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Email Verification</title>
+  <title>Email Verification - Prepzer0</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
 </head>
-<body>
-  <div class="container">
-    <h2>Verify Your Email</h2>
-      <button > <a href=${badhttp}>${badhttp}</a>    </button>
-    </form>
+<body style="margin: 0; padding: 0; font-family: 'Inter', sans-serif; background-color: #f4f4f4; color: #333;">
+  <div style="max-width: 600px; margin: 40px auto; padding: 30px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+    <h2 style="color: #2e86de; margin-bottom: 20px;">Welcome to Prepzer0 🎯</h2>
+    <p style="font-size: 16px; line-height: 1.6;">
+      Thanks for signing up! You're one step away from accessing your personalized placement test dashboard. Please verify your email address to get started.
+    </p>
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="${badhttp}" style="background-color: #2e86de; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+        Verify My Email
+      </a>
+    </div>
+    <p style="font-size: 14px; color: #888;">
+      If you didn’t create an account with Prepzer0, you can safely ignore this email.
+    </p>
+    <p style="font-size: 14px; margin-top: 40px; color: #aaa; text-align: center;">
+      &copy; ${new Date().getFullYear()} Prepzer0. All rights reserved.
+    </p>
   </div>
 </body>
 </html>
+
 `
                 })
                 console.log("the email was sent tried to sent to be specific")
