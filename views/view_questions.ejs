@@ -292,7 +292,6 @@
                     <% mcqQuestions.forEach((mcq, index) => { %>
                         <tr>
                             <td><%= index + 1 %></td>
-                          
                             <td><%= mcq.question %></td>
                             <td><%= mcq.options.join(", ") %></td>
                             <td><strong><%= mcq.correctAnswer %></strong></td>
@@ -300,7 +299,7 @@
                                 <a href="/admin/exam/<%= exam._id %>/edit/mcq/<%= mcq._id %>" class="edit-btn">✏️ Edit</a>
 
                                 <form action="/admin/exam/<%= exam._id %>/delete/mcq/<%= mcq._id %>" method="POST" style="display:inline;">
-                                    <button type="submit" class="delete-btn" >🗑 Delete</button>
+                                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
                                 </form>
                             </td>
                         </tr>
