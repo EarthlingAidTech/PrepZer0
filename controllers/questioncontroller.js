@@ -7,6 +7,11 @@ const passport =  require('passport')
 const DbCodingQuestion = require('./../models/Codingschema')
 
 const MCQ = require("./../models/MCQQuestion");
+
+
+const MCQQuestion = require("../models/MCQschema");///raj changed for testing the csv file
+
+
 const CodingQuestion = require("./../models/CodingQuestion");
 
 exports.getQuestion = async (req, res,) => {
@@ -80,8 +85,14 @@ exports.postEditmcqQuestion = async (req, res) => {
 }
 
 exports.deleteMCQ = async (req, res) => {
+    const { examId, mcqId } = req.params;
+    // console.log("examId:", examId);
+    // console.log("mcqId:", mcqId); 
     try {
-        await MCQ.findByIdAndDelete(req.params.mcqId);
+        await Exam.findByIdAndUpdate(examId, {
+            $pull: { mcqQuestions: mcqId }
+        });
+        await MCQ.findByIdAndDelete(req.params.mcqId); // change MCQ to MCQQuestion for uploading csv
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
     } catch (error) {
         res.status(500).send("Error deleting MCQ question");
