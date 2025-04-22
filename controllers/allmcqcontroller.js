@@ -3,6 +3,7 @@ const MCQQuestion = require('../models/MCQschema');
 const Exam = require('../models/Exam');
 const fs = require('fs');
 const csv = require('csv-parser');
+const { result } = require('lodash');
 
 
 exports.getAllMCQQuestions = async (req, res) => {
@@ -58,6 +59,7 @@ exports.uploadMCQCSV = async (req, res) => {
               const mcqQuestion = new MCQQuestion(item);
               await mcqQuestion.validate();
               await mcqQuestion.save();
+              await Exam.findByIdAndUpdate(req.params.examId, { $push: { mcqQuestions: mcqQuestion._id } });
             } catch (error) {
               errors.push({
                 question: item.question,
@@ -70,15 +72,18 @@ exports.uploadMCQCSV = async (req, res) => {
             if (err) console.error('Error deleting file:', err);
           });
   
-        //   res.json({
-        //     successCount: results.length - errors.length,
-        //     errors: errors,
-        //     total: results.length
-        //   });
-        const examId = req.params.examId;
-        const exam = await Exam.findById(examId);
+      
         
-        res.render('view_questions', {mcqQuestions: results, exam: exam, codingQuestions });
+        const exam = await Exam.findById(req.params.examId)
+                    .populate("mcqQuestions")
+                    .populate("codingQuestions")
+                    .lean();
+        // console.log(exam);
+        res.render("view_questions", {
+            exam,
+            mcqQuestions: exam.mcqQuestions || [],
+            codingQuestions: exam.codingQuestions || []
+        });
 
         });
     } catch (error) {

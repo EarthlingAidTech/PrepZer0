@@ -51,7 +51,7 @@ exports.getlogincontrol = (req,res)=>{
    
     try {
         if(req.body.password == req.body.passcode){
-            const existingUSN = await User.findOne({ USN: req.body.USN });
+            const existingUSN = await User.findOne({ USN: req.body.USN.toLowerCase() });
             if (existingUSN) {
                 return res.send("USN already exists");
             }
@@ -104,7 +104,7 @@ exports.getlogincontrol = (req,res)=>{
 
                //dividing the usn into year , department and roll number
 
-               const usn = req.body.USN;
+               const usn = req.body.USN.toLowerCase();
                const regex = /^(\d{0,2})by(\d{2})([a-zA-Z]{2})(\d{3})$/;
                const match = usn.match(regex);
    
@@ -126,7 +126,7 @@ exports.getlogincontrol = (req,res)=>{
 
     
 
-        await  User.register({email : req.body.email, USN: req.body.USN, active :"false",randomurl : randurl , Year : year , Department : department , Rollno : rollNo }, req.body.password,(err,user)=>{
+        await  User.register({email : req.body.email, USN: req.body.USN.toLowerCase(), active :"false",randomurl : randurl , Year : year , Department : department , Rollno : rollNo }, req.body.password,(err,user)=>{
             if(err){   
                 console.log(err)
                 res.render('signup',{errormsg : "email already taken"})

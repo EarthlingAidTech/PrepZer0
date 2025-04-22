@@ -9,7 +9,7 @@ const ExamSchema = new mongoose.Schema({
     numTotalQuestions: { type: Number, default: 0 },
     numMCQs: { type: Number, default: 0 },
     numCoding: { type: Number, default: 0 },
-    mcqQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "MCQ" }],
+    mcqQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "MCQ" }], // change ref to MCQQuestion for CSV upload
     codingQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "CodingQuestion" }],
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     scheduledAt: { type: Date },
