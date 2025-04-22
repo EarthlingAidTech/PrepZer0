@@ -81,8 +81,11 @@ exports.postEditmcqQuestion = async (req, res) => {
 
 exports.deleteMCQ = async (req, res) => {
     try {
+        console.log(req.params.exaId)
         await MCQ.findByIdAndDelete(req.params.mcqId);
-        res.redirect(`/admin/exam/questions/${req.params.examId}`);
+
+        console.log("wow this is callle deleting")
+        res.redirect(`/admin/exam/questions/${req.params.exaId}`);
     } catch (error) {
         res.status(500).send("Error deleting MCQ question");
     }

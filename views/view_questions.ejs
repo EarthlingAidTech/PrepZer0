@@ -292,13 +292,15 @@
                     <% mcqQuestions.forEach((mcq, index) => { %>
                         <tr>
                             <td><%= index + 1 %></td>
+                          
                             <td><%= mcq.question %></td>
                             <td><%= mcq.options.join(", ") %></td>
                             <td><strong><%= mcq.correctAnswer %></strong></td>
                             <td class="actions">
                                 <a href="/admin/exam/<%= exam._id %>/edit/mcq/<%= mcq._id %>" class="edit-btn">✏️ Edit</a>
+
                                 <form action="/admin/exam/<%= exam._id %>/delete/mcq/<%= mcq._id %>" method="POST" style="display:inline;">
-                                    <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
+                                    <button type="submit" class="delete-btn" >🗑 Delete</button>
                                 </form>
                             </td>
                         </tr>
@@ -343,9 +345,11 @@
                             <td><pre><%= coding.outputFormat %></pre></td>
                             <td><pre><%= coding.sampleInput %></pre></td>
                             <td><pre><%= coding.sampleOutput %></pre></td>
+                            
                             <td class="actions">
                                 <div style="display: flex; gap: 8px;">
                                     <a href="/admin/exam/<%= exam._id %>/edit/coding/<%= coding._id %>" class="edit-btn">✏️ Edit</a>
+                                    
                                     <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST">
                                         <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
                                     </form>
