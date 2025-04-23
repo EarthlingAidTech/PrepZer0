@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
-    <title><%= exam.name %> - Test</title>
+    
     <style>
         video, canvas {
             display: none;
@@ -189,6 +189,7 @@
             }
         }
     </style>
+    <title><%= exam.name %> - Test</title>
 </head>
 <body>
     <div class="container py-4">
@@ -383,477 +384,800 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <script>
-      
-        let tabChangeCount = 0;
-        let mouseOutCount = 0;
-        let fullscreenExitCount = 0;
-        let copyAttemptCount = 0;
-        let pasteAttemptCount = 0;
-        let focusChangeCount = 0;
-        let isFullscreenActive = false;
-        let totalViolations = 0;
-        let lastTabFocusTime = 0;
-        const TAB_FOCUS_COOLDOWN = 1000; 
+
+<script>
+    // Integrity monitoring variables
+    let tabChangeCount = 0;
+let mouseOutCount = 0;
+let fullscreenExitCount = 0;
+let copyAttemptCount = 0;
+let pasteAttemptCount = 0;
+let focusChangeCount = 0;
+let refreshViolationCount = 0; // Add this new variable
+let isFullscreenActive = false;
+let totalViolations = 0;
+let lastTabFocusTime = 0;
+const TAB_FOCUS_COOLDOWN = 1000;
+const MAX_ALLOWED_REFRESHES = 2; // Make this a constant at the top level
+
+// Add refreshViolationCount to the updateUI function
+function updateUI() {
+    document.getElementById('tabChangeCount').textContent = tabChangeCount;
+    document.getElementById('mouseOutCount').textContent = mouseOutCount;
+    document.getElementById('fullscreenExitCount').textContent = fullscreenExitCount;
+    document.getElementById('copyAttemptCount').textContent = copyAttemptCount;
+    document.getElementById('pasteAttemptCount').textContent = pasteAttemptCount;
+    document.getElementById('focusChangeCount').textContent = focusChangeCount;
+    document.getElementById('refreshViolationCount').textContent = refreshViolationCount; // Add this line
+    document.getElementById('totalViolations').textContent = totalViolations;
+}
+
+// Create a function to handle refresh detection
+function handleRefreshDetection() {
+    // Check if there's a saved refresh count
+    let refreshCount = parseInt(localStorage.getItem('examRefreshCount') || '0');
+    refreshCount++;
+    localStorage.setItem('examRefreshCount', refreshCount.toString());
+    
+    // Count this as a violation if it's not the first load
+    if (refreshCount > 1) {
+        refreshViolationCount = refreshCount - 1; // Don't count the initial load
+        totalViolations += 1; // Increment total violations by 1 for this refresh
         
-      
-        let currentQuestionType = "mcq";
-        let currentQuestionIndex = 0;
-        let startTime = null;
-        let examTimerInterval = null;
+        // Send refresh event to server for logging
+        sendIntegrityUpdate("pageRefresh");
+        updateStatus("Page refresh detected");
+        updateUI();
         
-       
-        let answeredQuestions = {
-            mcq: Array(<%= exam.mcqQuestions.length %>).fill(false),
-            coding: Array(<%= exam.codingQuestions.length %>).fill(false)
-        };
-
-       
-        function sendIntegrityUpdate(eventType) {
-            const data = {
-                examId: "<%= exam._id %>", 
-                userId: "<%= user._id %>", 
-                eventType: eventType
-            };
-
-            fetch('/update-integrity', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => console.log('Integrity event logged:', data))
-            .catch(error => console.error('Error sending integrity update:', error));
+        // Check if exceeded maximum allowed refreshes
+        if (refreshCount > MAX_ALLOWED_REFRESHES) {
+            alert(`Maximum page refreshes (${MAX_ALLOWED_REFRESHES}) exceeded. Your exam is being submitted.`);
+            submitExam("excessive_refreshes");
+            return false;
         }
+    }
+    
+    return true;
+}
 
-        function updateUI() {
-            document.getElementById('tabChangeCount').textContent = tabChangeCount;
-            document.getElementById('mouseOutCount').textContent = mouseOutCount;
-            document.getElementById('fullscreenExitCount').textContent = fullscreenExitCount;
-            document.getElementById('copyAttemptCount').textContent = copyAttemptCount;
-            document.getElementById('pasteAttemptCount').textContent = pasteAttemptCount;
-            document.getElementById('focusChangeCount').textContent = focusChangeCount;
-            document.getElementById('totalViolations').textContent = totalViolations;
-        }
-
-        function updateStatus(message) {
-            document.getElementById('lastEvent').textContent = message;
-        }
-
-        function checkAndSubmitTest() {
-            if (totalViolations >= 3) {
-                updateStatus("Auto-submitting test due to integrity violations");
-                console.log("Auto-submitting test due to 3 or more integrity violations");
-                
-                // Get the form and submit it
-                document.getElementById('examForm').submit();
-            }
-        }
-
-        function handleTabChange() {
-            if (document.hidden) {
-                // Only count tab change if it's not immediately after a focus change
-                const currentTime = Date.now();
-                if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
-                    tabChangeCount++;
-                    totalViolations++;
-                    sendIntegrityUpdate("tabChanges");
-                    updateStatus("Tab change detected");
-                    updateUI();
-                    checkAndSubmitTest();
-                }
-            }
-        }
-
-        function handleMouseOut(event) {
-            if (event.clientX < 0 || event.clientX > window.innerWidth - 1 || event.clientY < 0 || event.clientY > window.innerHeight - 1) {
-                mouseOutCount++;
-                totalViolations++;
-                sendIntegrityUpdate("mouseOuts");
-                updateStatus("Mouse left workspace");
-                updateUI();
-                checkAndSubmitTest();
-            }
-        }
-
-        function handleFocusChange(event) {
-            if (event.type === 'blur') {
-                // Only count focus change if it's not immediately after a tab change
-                const currentTime = Date.now();
-                if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
-                    focusChangeCount++;
-                    lastTabFocusTime = currentTime;
-                    
-                    // Check if this is coming from a tab change or standalone focus change
-                    if (!document.hidden) {
-                        // If document is not hidden, this is a standalone focus change
-                        totalViolations++;
-                        sendIntegrityUpdate("focusChanges");
-                        updateStatus("Focus change detected");
-                        updateUI();
-                        checkAndSubmitTest();
-                    }
-                }
-            }
-        }
-
-        function enterFullscreen() {
-            const elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            }
-            else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) {
-                elem.msRequestFullscreen();
-            }
+// Modify the DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if exam has started
+    const examStarted = localStorage.getItem('examStarted');
+    
+    if (examStarted === 'true') {
+        // Add refresh violation elements to the integrity panel
+        const integrityCols = document.querySelectorAll('#examin .col-md-6');
+        if (integrityCols.length > 1) {
+            const refreshViolationItem = document.createElement('div');
+            refreshViolationItem.className = 'integrity-item';
+            refreshViolationItem.innerHTML = '<strong>Refresh Violations:</strong> <span id="refreshViolationCount" class="badge badge-secondary">0</span>';
+            integrityCols[1].appendChild(refreshViolationItem);
         }
         
-        // Exam timer functions
-        function startExamTimer() {
-            startTime = new Date().getTime();
-            examTimerInterval = setInterval(updateExamTimer, 1000);
+        // Handle refresh detection
+        if (!handleRefreshDetection()) {
+            return; // Stop if refresh limit exceeded
         }
         
-        function updateExamTimer() {
-            const currentTime = new Date().getTime();
-            const elapsedTime = currentTime - startTime;
-            
-            // Convert elapsed time to hours, minutes, seconds
-            const hours = Math.floor(elapsedTime / (1000 * 60 * 60));
-            const minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-            
-            // Format time as HH:MM:SS
-            const formattedTime = 
-                (hours < 10 ? "0" + hours : hours) + ":" +
-                (minutes < 10 ? "0" + minutes : minutes) + ":" +
-                (seconds < 10 ? "0" + seconds : seconds);
-                
-            document.getElementById('timeDisplay').textContent = formattedTime;
-        }
+        // Continue with normal exam loading
+        document.getElementById("startExamBtn").style.display = "none";
+        document.getElementById("examContent").style.display = "block";
+        document.getElementById("examin").style.display = "block"; // Make sure the integrity panel is visible
         
-        // Navigation functions
-        function showQuestion(type, index) {
-            // Hide all question cards
-            document.querySelectorAll('.question-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            
-            // Show the selected question card
-            document.getElementById(`${type}-question-${index}`).classList.add('active');
-            
-            // Update navigation sidebar
-            document.querySelectorAll('.question-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Find and activate the correct nav item
-            document.querySelectorAll('.question-nav-item').forEach(item => {
-                if (item.getAttribute('data-question-type') === type && 
-                    parseInt(item.getAttribute('data-question-index')) === index) {
-                    item.classList.add('active');
-                }
-            });
-            
-            // Update current question tracking
-            currentQuestionType = type;
-            currentQuestionIndex = index;
-        }
-        
-        function nextQuestion() {
-            if (currentQuestionType === "mcq" && currentQuestionIndex < <%= exam.mcqQuestions.length - 1 %>) {
-                // Go to next MCQ
-                showQuestion("mcq", currentQuestionIndex + 1);
-            } else if (currentQuestionType === "mcq" && currentQuestionIndex === <%= exam.mcqQuestions.length - 1 %>) {
-                // Switch from MCQ to coding if available
-                if (<%= exam.codingQuestions.length %> > 0) {
-                    showQuestion("coding", 0);
-                }
-            } else if (currentQuestionType === "coding" && currentQuestionIndex < <%= exam.codingQuestions.length - 1 %>) {
-                // Go to next coding question
-                showQuestion("coding", currentQuestionIndex + 1);
-            }
-        }
-        
-        function prevQuestion() {
-            if (currentQuestionType === "coding" && currentQuestionIndex > 0) {
-                // Go to previous coding question
-                showQuestion("coding", currentQuestionIndex - 1);
-            } else if (currentQuestionType === "coding" && currentQuestionIndex === 0) {
-                // Switch from coding to last MCQ
-                showQuestion("mcq", <%= exam.mcqQuestions.length - 1 %>);
-            } else if (currentQuestionType === "mcq" && currentQuestionIndex > 0) {
-                // Go to previous MCQ
-                showQuestion("mcq", currentQuestionIndex - 1);
-            }
-        }
-        
-        function updateAnsweredStatus() {
-            // Count MCQ answers
-            document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
-                const questionId = radio.name.split('-')[1];
-                const mcqIndex = Array.from(document.querySelectorAll('.question-card')).findIndex(
-                    card => card.querySelector(`input[name="mcq-${questionId}"]`)
-                );
-                
-                if (mcqIndex !== -1) {
-                    answeredQuestions.mcq[mcqIndex] = true;
-                    
-                    // Update nav item
-                    document.querySelectorAll('.question-nav-item').forEach(item => {
-                        if (item.getAttribute('data-question-type') === 'mcq' && 
-                            parseInt(item.getAttribute('data-question-index')) === mcqIndex) {
-                            item.classList.add('answered');
-                        }
-                    });
-                }
-            });
-            
-            // Count coding answers
-            document.querySelectorAll('textarea').forEach((textarea, index) => {
-                if (textarea.value.trim() !== '') {
-                    answeredQuestions.coding[index] = true;
-                    
-                    // Update nav item
-                    document.querySelectorAll('.question-nav-item').forEach(item => {
-                        if (item.getAttribute('data-question-type') === 'coding' && 
-                            parseInt(item.getAttribute('data-question-index')) === index) {
-                            item.classList.add('answered');
-                        }
-                    });
-                }
-            });
-            
-            // Update review modal
-            updateReviewModal();
-        }
-        
-        function updateReviewModal() {
-            const answeredCount = answeredQuestions.mcq.filter(Boolean).length + 
-                                 answeredQuestions.coding.filter(Boolean).length;
-            
-            document.getElementById('answeredCount').textContent = answeredCount;
-            
-            // Update MCQ status in review modal
-            answeredQuestions.mcq.forEach((isAnswered, index) => {
-                const listItem = document.querySelector(`.review-list li[data-question-type="mcq"][data-question-index="${index}"]`);
-                const statusBadge = listItem.querySelector('.status-badge');
-                
-                if (isAnswered) {
-                    statusBadge.textContent = "Answered";
-                    statusBadge.classList.remove('badge-secondary');
-                    statusBadge.classList.add('badge-success');
-                } else {
-                    statusBadge.textContent = "Not answered";
-                    statusBadge.classList.remove('badge-success');
-                    statusBadge.classList.add('badge-secondary');
-                }
-            });
-            
-            // Update coding status in review modal
-            answeredQuestions.coding.forEach((isAnswered, index) => {
-                const listItem = document.querySelector(`.review-list li[data-question-type="coding"][data-question-index="${index}"]`);
-                const statusBadge = listItem.querySelector('.status-badge');
-                
-                if (isAnswered) {
-                    statusBadge.textContent = "Answered";
-                    statusBadge.classList.remove('badge-secondary');
-                    statusBadge.classList.add('badge-success');
-                } else {
-                    statusBadge.textContent = "Not answered";
-                    statusBadge.classList.remove('badge-success');
-                    statusBadge.classList.add('badge-secondary');
-                }
-            });
-        }
-        
-        function startWebcamCapture() {
-            const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
-
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then((stream) => {
-                    const video = document.createElement('video');
-                    video.srcObject = stream;
-                    video.play();
-
-                    setInterval(() => {
-                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                        canvas.toBlob((blob) => {
-                            if (!blob) return;
-
-                            const formData = new FormData();
-                            formData.append('image', blob, `capture-${Date.now()}.png`);
-                            formData.append('userId', "<%= user._id %>");
-                            formData.append('examId', "<%= exam._id %>");
-
-                            fetch('/save-image', { 
-                                method: 'POST',
-                                body: formData,
-                            })
-                            
-                            .then(response => response.json())
-                            .then(data => console.log('Image saved:', data))
-                            .catch(error => console.error('Error saving image:', error));
-
-                        }, 'image/png');
-
-                    }, 5000);
-                })
-                .catch((error) => {
-                    console.error("Error accessing webcam:", error);
-                    alert("Unable to access the webcam. Please allow access.");
-                });
-        }
-
-        function preventBackButton() {
-            window.history.pushState(null, "", window.location.href);
-            window.onpopstate = function() {
-                window.history.pushState(null, "", window.location.href);
-            };
-        }
-
-        // Set up event listeners
-        document.addEventListener('visibilitychange', handleTabChange);
-        window.addEventListener('blur', handleFocusChange);
-        window.addEventListener('focus', handleFocusChange);
-        
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) {
-                fullscreenExitCount++;
-                totalViolations++;
-                enterFullscreen();
-                sendIntegrityUpdate("fullscreenExits");
-                updateStatus("Fullscreen exited");
-                updateUI();
-                checkAndSubmitTest();
-            } else {
-                if (!isFullscreenActive) {
-                    document.addEventListener('mouseout', handleMouseOut);
-                    isFullscreenActive = true;
-                    enterFullscreen();
-                }
-                updateStatus("Fullscreen entered");
-            }
-        });
-
-        document.addEventListener('copy', (e) => {
-            e.preventDefault();
-            copyAttemptCount++;
-            sendIntegrityUpdate("copyAttempts");
-            updateStatus("Copy attempt detected");
-            updateUI();
-        });
-
-        document.addEventListener('paste', (e) => {
-            e.preventDefault();
-            pasteAttemptCount++;
-            sendIntegrityUpdate("pasteAttempts");
-            updateStatus("Paste attempt detected");
-            updateUI();
-        });
-        
-        // Question navigation event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Next question buttons
-            document.querySelectorAll('.next-question-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    nextQuestion();
-                });
-            });
-            
-            // Previous question buttons
-            document.querySelectorAll('.prev-question-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    prevQuestion();
-                });
-            });
-            
-            // Question nav sidebar items
-            document.querySelectorAll('.question-nav-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const type = this.getAttribute('data-question-type');
-                    const index = parseInt(this.getAttribute('data-question-index'));
-                    showQuestion(type, index);
-                });
-            });
-            
-            // MCQ option selection
-            document.querySelectorAll('.option-label').forEach(label => {
-                label.addEventListener('click', function() {
-                    // Clear selected state for all options in the same question
-                    const questionCard = this.closest('.question-card');
-                    questionCard.querySelectorAll('.option-label').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    
-                    // Apply selected state to this option
-                    this.classList.add('selected');
-                    
-                    // Update answered status
-                    updateAnsweredStatus();
-                });
-            });
-            
-            // Coding textarea input
-            document.querySelectorAll('.coding-textarea').forEach(textarea => {
-                textarea.addEventListener('input', function() {
-                    updateAnsweredStatus();
-                });
-            });
-            
-            // Review button
-            document.getElementById('reviewBtn').addEventListener('click', function() {
-                updateAnsweredStatus();
-                $('#reviewModal').modal('show');
-            });
-            
-            // Submit from review modal
-            document.getElementById('submitFromReview').addEventListener('click', function() {
-                $('#reviewModal').modal('hide');
-                document.getElementById('examForm').submit();
-            });
-            
-            // Review modal question navigation
-            document.querySelectorAll('.review-list li').forEach(item => {
-                item.addEventListener('click', function() {
-                    const type = this.getAttribute('data-question-type');
-                    const index = parseInt(this.getAttribute('data-question-index'));
-                    $('#reviewModal').modal('hide');
-                    showQuestion(type, index);
-                });
-            });
-        });
-        
-        // Start exam button
-        document.getElementById("startExamBtn").addEventListener("click", function() {
+        if (initializeExamTimer()) {
+            loadExamState();
             enterFullscreen();
-            document.getElementById("examin").style.display = "none"
-            document.getElementById("examContent").style.display = "block"; 
-            this.style.display = "none";
-            startExamTimer();
             preventBackButton();
             startWebcamCapture();
-        });
+        } else {
+            // If initialization failed, clear localStorage
+            localStorage.removeItem('examStarted');
+            localStorage.removeItem('examEndTime');
+            localStorage.removeItem('examMcqAnswers');
+            localStorage.removeItem('examCodingAnswers');
+            localStorage.removeItem('examRefreshCount');
+        }
+    } else {
+        // Add refresh violation element to the integrity panel for when exam starts
+        const integrityCols = document.querySelectorAll('#examin .col-md-6');
+        if (integrityCols.length > 1) {
+            const refreshViolationItem = document.createElement('div');
+            refreshViolationItem.className = 'integrity-item';
+            refreshViolationItem.innerHTML = '<strong>Refresh Violations:</strong> <span id="refreshViolationCount" class="badge badge-secondary">0</span>';
+            integrityCols[1].appendChild(refreshViolationItem);
+        }
         
-        // For clicks anywhere - ensure fullscreen
-        document.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                enterFullscreen();
-                updateStatus("Fullscreen mode ensured after click");
+        // Reset refresh count when exam starts
+        document.getElementById("startExamBtn").addEventListener("click", function() {
+            enterFullscreen()
+            localStorage.setItem('examRefreshCount', '0');
+            // Rest of your existing start exam code...
+        });
+    }
+    
+    // Rest of your existing DOMContentLoaded code...
+}); 
+
+// Exam navigation variables
+let currentQuestionType = "mcq";
+let currentQuestionIndex = 0;
+let examTimerInterval = null;
+
+// Variables for timer functionality
+let endTime = null;
+let examDuration = parseInt("<%= exam.duration %>") * 60 * 1000; // Convert minutes to milliseconds
+let scheduledAt = new Date("<%=exam.scheduledAt %>").getTime();
+let scheduleTill = new Date("<%= exam.scheduleTill %>").getTime();
+let timeRemaining = examDuration;
+
+// Question tracking
+let answeredQuestions = {
+    mcq: Array(<%= exam.mcqQuestions.length %>).fill(false),
+    coding: Array(<%= exam.codingQuestions.length %>).fill(false)
+};
+let maxAllowedRefreshes = 2; // Set your desired threshold
+// Prevent F5 (refresh) and F11 (fullscreen toggle) keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  // F5 key
+  if (e.key === 'F5' || e.keyCode === 116) {
+    e.preventDefault();
+    e.stopPropagation();
+    handleRefreshDetection()
+    alert("Page refresh is not allowed during the exam.");
+    return false;
+  }
+  
+  // F11 key
+  if (e.key === 'F11' || e.keyCode === 122) {
+    e.preventDefault();
+    e.stopPropagation();
+    sendIntegrityUpdate("f");
+    updateStatus("Tab change detected");
+    alert("Exiting fullscreen is not allowed during the exam.");
+
+    enterFullscreen(); // Force back to fullscreen
+    return false;
+  }
+  
+  // Also prevent Alt+F4
+  if (e.key === 'F4' && e.altKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    alert("Closing the window is not allowed during the exam.");
+    return false;
+  }
+  
+  // Prevent Ctrl+R (refresh)
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.keyCode === 82)) {
+    e.preventDefault();
+    e.stopPropagation();
+    alert("Page refresh is not allowed during the exam.");
+    return false;
+  }
+});
+// Add this to the DOMContentLoaded event listener
+
+// Send integrity updates to server
+function sendIntegrityUpdate(eventType) {
+    const data = {
+        examId: "<%= exam._id %>", 
+        userId: "<%= user._id %>", 
+        eventType: eventType
+    };
+
+    fetch('/update-integrity', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => console.log('Integrity event logged:', data))
+    .catch(error => console.error('Error sending integrity update:', error));
+}
+
+// Update UI elements for integrity monitoring
+
+// Update status message
+function updateStatus(message) {
+    document.getElementById('lastEvent').textContent = message;
+}
+
+// Auto-submit test if too many violations
+function checkAndSubmitTest() {
+
+    if (totalViolations >= 3) {
+        updateStatus("Auto-submitting test due to integrity violations");
+        console.log("Auto-submitting test due to 3 or more integrity violations");
+        submitExam("violations");
+    }
+}
+
+// Submit exam with reason
+function submitExam(reason = "normal") {
+    clearInterval(examTimerInterval);
+    console.log(`Submitting exam: ${reason}`);
+    document.getElementById('examForm').submit();
+    localStorage.removeItem('examStarted');
+    localStorage.removeItem('examEndTime');
+    localStorage.removeItem('examMcqAnswers');
+    localStorage.removeItem('examCodingAnswers');
+    localStorage.removeItem('examRefreshCount');
+    setTimeout(() => {
+        window.location.href = '/dashboard';
+    }, 1000);
+
+}
+
+// Handle tab change events
+function handleTabChange() {
+    if (document.hidden) {
+        // Only count tab change if it's not immediately after a focus change
+        const currentTime = Date.now();
+        if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
+            tabChangeCount++;
+            totalViolations++;
+            sendIntegrityUpdate("tabChanges");
+            updateStatus("Tab change detected");
+            updateUI();
+            checkAndSubmitTest();
+        }
+    }
+}
+
+// Handle mouse leaving the window
+function handleMouseOut(event) {
+    if (event.clientX < 0 || event.clientX > window.innerWidth - 1 || event.clientY < 0 || event.clientY > window.innerHeight - 1) {
+        mouseOutCount++;
+        totalViolations++;
+        sendIntegrityUpdate("mouseOuts");
+        updateStatus("Mouse left workspace");
+        updateUI();
+        checkAndSubmitTest();
+    }
+}
+
+// Handle window focus changes
+function handleFocusChange(event) {
+    if (event.type === 'blur') {
+        // Only count focus change if it's not immediately after a tab change
+        const currentTime = Date.now();
+        if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
+            focusChangeCount++;
+            lastTabFocusTime = currentTime;
+            
+            // Check if this is coming from a tab change or standalone focus change
+            if (!document.hidden) {
+                // If document is not hidden, this is a standalone focus change
+                totalViolations++;
+                sendIntegrityUpdate("focusChanges");
+                updateStatus("Focus change detected");
+                updateUI();
+                checkAndSubmitTest();
+            }
+        }
+    }
+}
+
+// Enter fullscreen mode
+function enterFullscreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    }
+    else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+    }
+}
+
+
+function initializeExamTimer() {
+    // Check if there's a saved timer state
+    const savedEndTime = localStorage.getItem('examEndTime');
+    
+    if (savedEndTime) {
+        // Resume timer if already started
+        endTime = parseInt(savedEndTime);
+        
+        // Check if the saved end time is in the past
+        if (Date.now() > endTime) {
+            // Clear the saved time and start fresh
+            localStorage.removeItem('examEndTime');
+            endTime = Date.now() + examDuration;
+            localStorage.setItem('examEndTime', endTime);
+        }
+    } else {
+        // Set end time based on exam duration
+        endTime = Date.now() + examDuration;
+        localStorage.setItem('examEndTime', endTime);
+    }
+    
+    // Check if we're within the exam schedule window
+    const now = Date.now();
+    if (now < scheduledAt) {
+        alert("The exam has not started yet. Please come back at the scheduled time.");
+        return false;
+    }
+    
+    if (now > scheduleTill) {
+        alert("The exam period has ended.");
+        return false;
+    }
+    
+    // Start the timer interval
+    examTimerInterval = setInterval(updateExamTimer, 1000);
+    return true;
+}
+
+function updateExamTimer() {
+    const currentTime = Date.now();
+    timeRemaining = endTime - currentTime;
+    
+    if (timeRemaining <= 0) {
+        // Time's up!
+        clearInterval(examTimerInterval);
+        document.getElementById('timeDisplay').textContent = "00:00:00";
+        alert("Time's up! Your exam is being submitted.");
+        submitExam("timeout");
+        return;
+    }
+
+    // Convert remaining time to hours, minutes, seconds
+    const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+    
+    // Format time as HH:MM:SS
+    const formattedTime = 
+        (hours < 10 ? "0" + hours : hours) + ":" +
+        (minutes < 10 ? "0" + minutes : minutes) + ":" +
+        (seconds < 10 ? "0" + seconds : seconds);
+        
+    document.getElementById('timeDisplay').textContent = formattedTime;
+    
+    // Create warning if less than 5 minutes remaining
+    if (timeRemaining < 5 * 60 * 1000 && timeRemaining > 4.9 * 60 * 1000) {
+        alert("Warning: Less than 5 minutes remaining!");
+    }
+    
+    // Create warning if less than 1 minute remaining
+    if (timeRemaining < 60 * 1000 && timeRemaining > 59 * 1000) {
+        alert("Warning: Less than 1 minute remaining!");
+    }
+}
+
+// Navigation functions
+function showQuestion(type, index) {
+    // Hide all question cards
+    document.querySelectorAll('.question-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Show the selected question card
+    document.getElementById(`${type}-question-${index}`).classList.add('active');
+    
+    // Update navigation sidebar
+    document.querySelectorAll('.question-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Find and activate the correct nav item
+    document.querySelectorAll('.question-nav-item').forEach(item => {
+        if (item.getAttribute('data-question-type') === type && 
+            parseInt(item.getAttribute('data-question-index')) === index) {
+            item.classList.add('active');
+        }
+    });
+    
+    // Update current question tracking
+    currentQuestionType = type;
+    currentQuestionIndex = index;
+}
+
+function nextQuestion() {
+    if (currentQuestionType === "mcq" && currentQuestionIndex < <%= exam.mcqQuestions.length - 1 %>) {
+        // Go to next MCQ
+        showQuestion("mcq", currentQuestionIndex + 1);
+    } else if (currentQuestionType === "mcq" && currentQuestionIndex === <%= exam.mcqQuestions.length - 1 %>) {
+        // Switch from MCQ to coding if available
+        if (<%= exam.codingQuestions.length %> > 0) {
+            showQuestion("coding", 0);
+        }
+    } else if (currentQuestionType === "coding" && currentQuestionIndex < <%= exam.codingQuestions.length - 1 %>) {
+        // Go to next coding question
+        showQuestion("coding", currentQuestionIndex + 1);
+    }
+}
+
+function prevQuestion() {
+    if (currentQuestionType === "coding" && currentQuestionIndex > 0) {
+        // Go to previous coding question
+        showQuestion("coding", currentQuestionIndex - 1);
+    } else if (currentQuestionType === "coding" && currentQuestionIndex === 0) {
+        // Switch from coding to last MCQ
+        showQuestion("mcq", <%= exam.mcqQuestions.length - 1 %>);
+    } else if (currentQuestionType === "mcq" && currentQuestionIndex > 0) {
+        // Go to previous MCQ
+        showQuestion("mcq", currentQuestionIndex - 1);
+    }
+}
+
+function updateAnsweredStatus() {
+    // Count MCQ answers
+    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+        const questionId = radio.name.split('-')[1];
+        const mcqIndex = Array.from(document.querySelectorAll('.question-card')).findIndex(
+            card => card.querySelector(`input[name="mcq-${questionId}"]`)
+        );
+        
+        if (mcqIndex !== -1) {
+            answeredQuestions.mcq[mcqIndex] = true;
+            
+            // Update nav item
+            document.querySelectorAll('.question-nav-item').forEach(item => {
+                if (item.getAttribute('data-question-type') === 'mcq' && 
+                    parseInt(item.getAttribute('data-question-index')) === mcqIndex) {
+                    item.classList.add('answered');
+                }
+            });
+        }
+    });
+    
+    // Count coding answers
+    document.querySelectorAll('textarea').forEach((textarea, index) => {
+        if (textarea.value.trim() !== '') {
+            answeredQuestions.coding[index] = true;
+            
+            // Update nav item
+            document.querySelectorAll('.question-nav-item').forEach(item => {
+                if (item.getAttribute('data-question-type') === 'coding' && 
+                    parseInt(item.getAttribute('data-question-index')) === index) {
+                    item.classList.add('answered');
+                }
+            });
+        }
+    });
+    
+    // Update review modal
+    updateReviewModal();
+    
+    // Save answers state to localStorage
+    saveExamState();
+}
+
+function updateReviewModal() {
+    const answeredCount = answeredQuestions.mcq.filter(Boolean).length + 
+                         answeredQuestions.coding.filter(Boolean).length;
+    
+    document.getElementById('answeredCount').textContent = answeredCount;
+    
+    // Update MCQ status in review modal
+    answeredQuestions.mcq.forEach((isAnswered, index) => {
+        const listItem = document.querySelector(`.review-list li[data-question-type="mcq"][data-question-index="${index}"]`);
+        const statusBadge = listItem.querySelector('.status-badge');
+        
+        if (isAnswered) {
+            statusBadge.textContent = "Answered";
+            statusBadge.classList.remove('badge-secondary');
+            statusBadge.classList.add('badge-success');
+        } else {
+            statusBadge.textContent = "Not answered";
+            statusBadge.classList.remove('badge-success');
+            statusBadge.classList.add('badge-secondary');
+        }
+    });
+    
+    // Update coding status in review modal
+    answeredQuestions.coding.forEach((isAnswered, index) => {
+        const listItem = document.querySelector(`.review-list li[data-question-type="coding"][data-question-index="${index}"]`);
+        const statusBadge = listItem.querySelector('.status-badge');
+        
+        if (isAnswered) {
+            statusBadge.textContent = "Answered";
+            statusBadge.classList.remove('badge-secondary');
+            statusBadge.classList.add('badge-success');
+        } else {
+            statusBadge.textContent = "Not answered";
+            statusBadge.classList.remove('badge-success');
+            statusBadge.classList.add('badge-secondary');
+        }
+    });
+}
+
+// Save exam state to localStorage (for page refresh handling)
+function saveExamState() {
+    // Save answers
+    const mcqAnswers = {};
+    document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+        mcqAnswers[radio.name] = radio.value;
+    });
+    
+    const codingAnswers = {};
+    document.querySelectorAll('textarea').forEach(textarea => {
+        codingAnswers[textarea.name] = textarea.value;
+    });
+    
+    localStorage.setItem('examMcqAnswers', JSON.stringify(mcqAnswers));
+    localStorage.setItem('examCodingAnswers', JSON.stringify(codingAnswers));
+}
+
+// Load exam state from localStorage (after page refresh)
+function loadExamState() {
+    // Load MCQ answers
+    try {
+        const mcqAnswers = JSON.parse(localStorage.getItem('examMcqAnswers')) || {};
+        Object.entries(mcqAnswers).forEach(([name, value]) => {
+            const radioInput = document.querySelector(`input[name="${name}"][value="${value}"]`);
+            if (radioInput) {
+                radioInput.checked = true;
+                radioInput.closest('.option-label').classList.add('selected');
             }
         });
         
-        window.onload = () => {
+        // Load coding answers
+        const codingAnswers = JSON.parse(localStorage.getItem('examCodingAnswers')) || {};
+        Object.entries(codingAnswers).forEach(([name, value]) => {
+            const textarea = document.querySelector(`textarea[name="${name}"]`);
+            if (textarea) {
+                textarea.value = value;
+            }
+        });
+        
+        updateAnsweredStatus();
+    } catch (e) {
+        console.error("Error loading saved exam state:", e);
+    }
+}
+
+function startWebcamCapture() {
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.play();
+
+            setInterval(() => {
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob((blob) => {
+                    if (!blob) return;
+
+                    const formData = new FormData();
+                    formData.append('image', blob, `capture-${Date.now()}.png`);
+                    formData.append('userId', "<%= user._id %>");
+                    formData.append('examId', "<%= exam._id %>");
+
+                    fetch('/save-image', { 
+                        method: 'POST',
+                        body: formData,
+                    })
+                    
+                    .then(response => response.json())
+                    .then(data => console.log('Image saved:', data))
+                    .catch(error => console.error('Error saving image:', error));
+
+                }, 'image/png');
+
+            }, 5000);
+        })
+        .catch((error) => {
+            console.error("Error accessing webcam:", error);
+            alert("Unable to access the webcam. Please allow access.");
+        });
+}
+
+function preventBackButton() {
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = function() {
+        window.history.pushState(null, "", window.location.href);
+    };
+}
+
+// Handle page refresh or close attempt
+window.addEventListener('beforeunload', function(e) {
+    // Only set the returnValue to show a generic browser warning
+    if (examTimerInterval) {
+        // This triggers the browser's "Leave site?" dialog with a generic message
+        e.preventDefault();
+        e.returnValue = '';
+        alert("fuck you")
+        // Flag that we're about to refresh
+        sessionStorage.setItem('attemptedRefresh', 'true');
+        
+        // Save current state
+        saveExamState();
+        
+        return '';
+    }
+});
+
+
+// Set up event listeners
+document.addEventListener('visibilitychange', handleTabChange);
+window.addEventListener('blur', handleFocusChange);
+window.addEventListener('focus', handleFocusChange);
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+        fullscreenExitCount++;
+        totalViolations++;
+        enterFullscreen();
+        sendIntegrityUpdate("fullscreenExits");
+        updateStatus("Fullscreen exited");
+        updateUI();
+        checkAndSubmitTest();
+    } else {
+        if (!isFullscreenActive) {
+            document.addEventListener('mouseout', handleMouseOut);
+            isFullscreenActive = true;
+            enterFullscreen();
+        }
+        updateStatus("Fullscreen entered");
+    }
+});
+
+document.addEventListener('copy', (e) => {
+    e.preventDefault();
+    copyAttemptCount++;
+    sendIntegrityUpdate("copyAttempts");
+    updateStatus("Copy attempt detected");
+    updateUI();
+});
+
+document.addEventListener('paste', (e) => {
+    e.preventDefault();
+    pasteAttemptCount++;
+    sendIntegrityUpdate("pasteAttempts");
+    updateStatus("Paste attempt detected");
+    updateUI();
+});
+
+// Question navigation event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if already started
+    const examStarted = localStorage.getItem('examStarted');
+    if (examStarted === 'true') {
+        document.getElementById("startExamBtn").style.display = "none";
+        document.getElementById("examin").style.display = "none";
+        document.getElementById("examContent").style.display = "block";
+        
+        // Initialize exam timer and load previous state
+        if (initializeExamTimer()) {
+            loadExamState();
+            enterFullscreen();
             preventBackButton();
-            document.getElementById('screenConfig').textContent = 
-                `${window.innerWidth}x${window.innerHeight}`;
-        };
-    </script>
+            startWebcamCapture();
+        } else {
+            // If initialization failed, clear localStorage
+            localStorage.removeItem('examStarted');
+            localStorage.removeItem('examEndTime');
+            localStorage.removeItem('examMcqAnswers');
+            localStorage.removeItem('examCodingAnswers');
+        }
+    }
+
+    // Next question buttons
+    document.querySelectorAll('.next-question-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            nextQuestion();
+        });
+    });
+    
+    // Previous question buttons
+    document.querySelectorAll('.prev-question-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            prevQuestion();
+        });
+    });
+    
+    // Question nav sidebar items
+    document.querySelectorAll('.question-nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const type = this.getAttribute('data-question-type');
+            const index = parseInt(this.getAttribute('data-question-index'));
+            showQuestion(type, index);
+        });
+    });
+    
+    // MCQ option selection
+    document.querySelectorAll('.option-label').forEach(label => {
+        label.addEventListener('click', function() {
+            // Clear selected state for all options in the same question
+            const questionCard = this.closest('.question-card');
+            questionCard.querySelectorAll('.option-label').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Apply selected state to this option
+            this.classList.add('selected');
+            
+            // Update answered status
+            updateAnsweredStatus();
+        });
+    });
+    
+    // Coding textarea input
+    document.querySelectorAll('.coding-textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            updateAnsweredStatus();
+        });
+    });
+    
+    // Review button
+    document.getElementById('reviewBtn').addEventListener('click', function() {
+        updateAnsweredStatus();
+        $('#reviewModal').modal('show');
+    });
+    
+    // Submit from review modal
+    document.getElementById('submitFromReview').addEventListener('click', function() {
+        $('#reviewModal').modal('hide');
+        submitExam("manual");
+    });
+    
+    // Submit test button
+    document.getElementById('submitTestBtn').addEventListener('click', function() {
+        submitExam("manual");
+    });
+    
+    // Review modal question navigation
+    document.querySelectorAll('.review-list li').forEach(item => {
+        item.addEventListener('click', function() {
+            const type = this.getAttribute('data-question-type');
+            const index = parseInt(this.getAttribute('data-question-index'));
+            $('#reviewModal').modal('hide');
+            showQuestion(type, index);
+        });
+    });
+});
+
+// Start exam button
+document.getElementById("startExamBtn").addEventListener("click", function() {
+    // Store exam started state
+    localStorage.setItem('examStarted', 'true');
+    
+    enterFullscreen();
+    document.getElementById("examin").style.display = "none";
+    document.getElementById("examContent").style.display = "block"; 
+    this.style.display = "none";
+    
+    if (initializeExamTimer()) {
+        preventBackButton();
+        startWebcamCapture();
+    } else {
+        // Revert if initialization failed
+        document.getElementById("startExamBtn").style.display = "block";
+        document.getElementById("examContent").style.display = "none";
+        localStorage.removeItem('examStarted');
+    }
+});
+
+// For clicks anywhere - ensure fullscreen
+document.addEventListener('click', () => {
+    if (!document.fullscreenElement && examTimerInterval) {
+        enterFullscreen();
+        updateStatus("Fullscreen mode ensured after click");
+    }
+});
+
+window.onload = () => {
+    preventBackButton();
+    document.getElementById('screenConfig').textContent = 
+        `${window.innerWidth}x${window.innerHeight}`;
+    
+    // Handle if the page is loaded after exam end time
+    const savedEndTime = localStorage.getItem('examEndTime');
+
+
+};
+</script>
 </body>
 </html>
