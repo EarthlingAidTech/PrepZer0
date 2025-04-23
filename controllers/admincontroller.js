@@ -2,7 +2,8 @@ const Exam = require("../models/Exam");
 const sendEmails = require('./../utils/email')
 const User = require('./../models/usermodel')
 const { v4: uuidv4 } = require('uuid');
-const passport =  require('passport')
+const passport =  require('passport');
+const Submission = require('../models/SubmissionSchema');
 
 
 
@@ -253,7 +254,55 @@ exports.signuppostcontrol = async(req,res)=>{
     };
 
 
-
+    exports.examCandidates = async(req, res) => {
+        try {
+            const examId = req.params.examId;
+            
+            // Fetch the exam details
+            const exam = await Exam.findById(examId);
+            
+            if (!exam) {
+                return res.status(404).render('error', { 
+                    message: 'Exam not found',
+                    error: { status: 404, stack: '' } 
+                });
+            }
+            
+            // Fetch all submissions related to this exam
+            const submissions = await Submission.find({ exam: examId })
+                .populate('student', 'USN email Department Semester Rollno') // Adjust fields as needed based on your User model
+                .sort({ submittedAt: -1 }); // Most recent submissions first
+            
+            // Create a list of unique students (in case of multiple submissions)
+            const studentMap = new Map();
+            submissions.forEach(submission => {
+                if (!studentMap.has(submission.student._id.toString())) {
+                    studentMap.set(submission.student._id.toString(), {
+                        student: submission.student,
+                        submission: submission,
+                        score: submission.score || 'N/A',
+                        submittedAt: submission.submittedAt
+                    });
+                }
+            });
+            
+            const candidates = Array.from(studentMap.values());
+            
+            // Render the candidates view
+            res.render('exam_candidates', {
+                title: `Candidates for ${exam.name}`,
+                exam: exam,
+                candidates: candidates
+            });
+            
+        } catch (error) {
+            console.error('Error fetching exam candidates:', error);
+            res.status(500).render('error', { 
+                message: 'Error fetching exam candidates',
+                error: { status: 500, stack: process.env.NODE_ENV === 'development' ? error.stack : '' } 
+            });
+        }
+    }
 
 
 

@@ -42,6 +42,8 @@ router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
 
 router.route("/profile/students").get(admincontroller.allStudents)
 
+router.route("/exam/candidates/:examId").get(admincontroller.examCandidates)
+
 
 
 

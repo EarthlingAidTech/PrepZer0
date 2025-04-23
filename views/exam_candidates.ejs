@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - PrepZer0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --dark-bg: #111827;
+            --card-bg: #1f2937;
+            --light-text: #f9fafb;
+            --secondary-text: #9ca3af;
+            --border-color: #374151;
+            --row-hover: #2d3748;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --success: #10b981;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background-color: var(--card-bg);
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .subhead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .profile {
+            text-decoration: none;
+            color: white;
+            margin-right: 2rem;
+        }
+        
+        .report {
+            text-decoration: none;
+            color: white;
+            margin: 0 2rem;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-section img {
+            width: 36px;
+            height: 36px;
+            margin-right: 0.75rem;
+        }
+        
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            background: linear-gradient(to right, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .container {
+            padding: 0 1.5rem;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: #fff;
+        }
+        
+        .btn {
+            border-radius: 0.375rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .btn i {
+            margin-right: 0.5rem;
+        }
+        
+        .table-container {
+            padding: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            color: #f9fafb;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            font-weight: 600;
+            color: var(--secondary-text);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        
+        tbody tr {
+            transition: background-color 0.2s;
+        }
+        
+        tbody tr:hover {
+            background-color: var(--row-hover);
+        }
+        
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        
+        .badge-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+        
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: var(--secondary-text);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .exam-info {
+            background-color: rgba(79, 70, 229, 0.1);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .exam-info h3 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .exam-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .exam-detail-item {
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-detail-label {
+            font-size: 0.875rem;
+            color: var(--secondary-text);
+            margin-bottom: 0.25rem;
+        }
+        
+        .exam-detail-value {
+            font-weight: 500;
+        }
+        
+        /* Action buttons */
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: #000;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-text);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #6b7280;
+        }
+        
+        /* Search input */
+        .search-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--light-text);
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        
+        .search-input::placeholder {
+            color: var(--secondary-text);
+        }
+        
+        /* Department badges */
+        .department-badge {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .card-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+            
+            .exam-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="/api/placeholder/36/36" alt="Logo">
+            <h1>PrepZer0</h1>
+        </div>
+        <div class="subhead">
+            <a href="/admin" class="report">
+                <i class="fas fa-arrow-left"></i> Back to Exams
+            </a>
+            <a href="/admin/profile/students" class="profile">Profile</a>
+            <button class="btn btn-sm" style="background:transparent; border:1px solid var(--border-color); color:var(--secondary-text);"
+                onclick="location.href='/profile'">
+                <i class="fas fa-user"></i> Admin
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Exam Info -->
+        <div class="exam-info">
+            <h3>Exam Information</h3>
+            <div class="exam-details">
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Name</div>
+                    <div class="exam-detail-value"><%= exam.name %></div>
+                </div>
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Departments</div>
+                    <div class="exam-detail-value">
+                        <% exam.departments.forEach(dept => { %>
+                            <span class="department-badge"><%= dept %></span>
+                        <% }) %>
+                    </div>
+                </div>
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Semester</div>
+                    <div class="exam-detail-value"><%= exam.semester %></div>
+                </div>
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Schedule</div>
+                    <div class="exam-detail-value">
+                        <%= new Date(exam.scheduledAt).toLocaleDateString() %> 
+                        <%= new Date(exam.scheduledAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %> - 
+                        <%= new Date(exam.scheduleTill).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                    </div>
+                </div>
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Duration</div>
+                    <div class="exam-detail-value"><%= exam.duration %> minutes</div>
+                </div>
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Total Questions</div>
+                    <div class="exam-detail-value"><%= exam.numMCQs + exam.numCoding %> (MCQ: <%= exam.numMCQs %>, Coding: <%= exam.numCoding %>)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Candidates List -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Exam Candidates</h2>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search candidates..." oninput="searchCandidates()">
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student USN</th>
+                            <th>Roll No.</th>
+                            <th>Department</th>
+                            <th>Semester</th>
+                            <th>Score</th>
+                            <th>Submitted At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidatesTable">
+                        <% if (candidates && candidates.length > 0) { %>
+                            <% candidates.forEach(candidate => { %>
+                                <tr class="candidate-row">
+                                    <td><strong><%= candidate.student.USN %></strong></td>
+                                    <td><%= candidate.student.Rollno || 'N/A' %></td>
+                                    <td><span class="department-badge"><%= candidate.student.Department || 'N/A' %></span></td>
+                                    <td><%= candidate.student.Semester || 'N/A' %></td>
+                                    <td>
+                                        <% if (typeof candidate.score === 'number') { %>
+                                            <span class="badge <%= candidate.score >= 70 ? 'badge-success' : 'badge-warning' %>">
+                                                <%= candidate.score %>%
+                                            </span>
+                                        <% } else { %>
+                                            <span class="badge">N/A</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (candidate.submittedAt) { %>
+                                            <%= new Date(candidate.submittedAt).toLocaleDateString() %> 
+                                            <%= new Date(candidate.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                        <% } else { %>
+                                            N/A
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <a href="/admin/exam/submission/<%= candidate.submission._id %>" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr id="no-candidates">
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <i class="fas fa-users"></i>
+                                        <h3>No Candidates Found</h3>
+                                        <p>No students have taken this exam yet</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                <!-- Empty search results state (hidden by default) -->
+                <div class="empty-state" id="no-search-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h3>No matching candidates</h3>
+                    <p>No candidates match your search criteria</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Search functionality
+        function searchCandidates() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.candidate-row');
+            let visibleRows = 0;
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchInput)) {
+                    row.style.display = '';
+                    visibleRows++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show/hide empty search results message
+            const noSearchResults = document.getElementById('no-search-results');
+            const noCandidates = document.getElementById('no-candidates');
+            
+            if (visibleRows === 0 && rows.length > 0) {
+                noSearchResults.style.display = 'block';
+                if (noCandidates) noCandidates.style.display = 'none';
+            } else {
+                noSearchResults.style.display = 'none';
+                if (noCandidates && rows.length === 0) noCandidates.style.display = '';
+            }
+        }
+    </script>
+</body>
+</html>

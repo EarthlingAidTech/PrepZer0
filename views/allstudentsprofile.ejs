@@ -88,32 +88,6 @@
 </head>
 <body>
 
-  <!-- <header>
-    <select id="semesterSelect">
-      <option value="">Select Semester</option>
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-    </select>
-
-    <select id="departmentSelect">
-      <option value="">Select Department</option>
-      <option value="CS">CS</option>
-      <option value="ISE">ISE</option>
-      <option value="Mech">Mech</option>
-      <option value="Civil">Civil</option>
-      <option value="ECE">ECE</option>
-      <option value="EEE">EEE</option>
-    </select>
-
-    <input type="text" id="usnSearch" placeholder="Enter USN" />
-    <button onclick="filterStudents()">Search</button>
-  </header> -->
 
   <form action="" method="GET">
     <header>
@@ -161,49 +135,6 @@
       </div>
     <% } %>
   </div>
-
-  <!-- <script>
-    const students = <% if(students && students.length > 0) { %><%- JSON.stringify(students) %><% } else { %>[]<% } %>;
-
-    function renderStudents(list) {
-      const container = document.getElementById("studentList");
-      container.innerHTML = "";
-      if (list.length === 0) {
-        container.innerHTML = '<div class="no-students"><p>No matching students found</p></div>';
-        return;
-      }
-      
-      list.forEach(student => {
-        container.innerHTML += `
-          <div class="student-card">
-            <img src="${student.imageurl || 'https://randomuser.me/api/portraits/men/1.jpg'}" alt="${student.USN}" />
-            <div class="student-info">
-              <span>USN: ${student.USN || 'N/A'}</span>
-              <span>Dept: ${student.Department || 'N/A'} | Sem: ${student.Semester || 'N/A'}</span>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    function filterStudents() {
-      const sem = document.getElementById("semesterSelect").value;
-      const dept = document.getElementById("departmentSelect").value.toLowerCase();
-      const usn = document.getElementById("usnSearch").value.toLowerCase();
-
-      const filtered = students.filter(s => {
-        return (
-          (sem === "" || (s.Semester && s.Semester.toString() === sem)) &&
-          (dept === "" || (s.Department && s.Department.toLowerCase() === dept)) &&
-          (usn === "" || (s.USN && s.USN.toLowerCase().includes(usn)))
-        );
-      });
-
-      renderStudents(filtered);
-    }
-
-    
-  </script> -->
 
 </body>
 </html>

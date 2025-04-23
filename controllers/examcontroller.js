@@ -35,7 +35,7 @@ exports.getExam = async (req, res) => {
 exports.createExam = async (req, res) => {
     try {
         let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill , draft } = req.body;
-        console.log(draft)
+        console.log(req.body);
         if(!scheduleTill || !scheduledAt){
             console.log("what the fuck")
             const newExamss = new Exam({

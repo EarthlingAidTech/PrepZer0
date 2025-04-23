@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -515,14 +518,14 @@
                                     status = 'Active';
                                     statusClass = 'status-active';
                                     statusType = 'active';
-                                } else if(now > endDate){
+                                } else {
                                     status = 'Completed';
                                     statusClass = 'status-completed';
                                     statusType = 'completed';
                                 }
                                 
                                 // Draft status (this is an example, you may need to adjust based on your actual data model)
-                                else {
+                                if (exam.isDraft) {
                                     status = 'Draft';
                                     statusClass = 'status-draft';
                                     statusType = 'draft';
@@ -549,15 +552,10 @@
                                     <td>
                                         <div class="actions">
                                             <% if (statusType === 'completed') { %>
-                                                <!-- Modified: Added Delete button for completed exams -->
+                                                <!-- Show only "View Candidates" button for completed exams -->
                                                 <a href="/admin/exam/candidates/<%= exam._id %>" class="btn btn-sm btn-secondary">
                                                     <i class="fas fa-users"></i> View Candidates
                                                 </a>
-                                                <form action="/admin/exam/delete/<%= exam._id %>" method="POST" style="display:inline">
-                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this exam?')">
-                                                        <i class="fas fa-trash"></i> Delete
-                                                    </button>
-                                                </form>
                                             <% } else { %>
                                                 <!-- Show normal action buttons for other exam statuses -->
                                                 <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">
