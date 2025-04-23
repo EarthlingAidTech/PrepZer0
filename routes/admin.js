@@ -8,6 +8,7 @@ const authenticatecontroller =  require('./../controllers/authenticatecontroller
 const examController = require("../controllers/examcontroller");
 const questionController = require("../controllers/questioncontroller");
 const mcqquestions = require("../controllers/allmcqcontroller");
+const reportController = require("../controllers/reportController");
 
 router.route("/").get(admincontroller.getcontrol).post(admincontroller.postcontrol)
 
@@ -43,6 +44,8 @@ router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
 router.route("/profile/students").get(admincontroller.allStudents)
 
 router.route("/exam/candidates/:examId").get(admincontroller.examCandidates)
+
+router.route("/exam/submission/:submissionId").get(reportController.viewAssessmentReport)
 
 
 

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary-color: #f97316;
+      --text-color: #1e293b;
+      --light-bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --success-color: #10b981;
+      --error-color: #ef4444;
+      --warning-color: #f59e0b;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--primary-color);
+    }
+    
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo span {
+      color: var(--secondary-color);
+    }
+    
+    .report-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+    
+    .student-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .info-item {
+      margin-bottom: 0.5rem;
+    }
+    
+    .info-label {
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    
+    .info-value {
+      font-weight: 400;
+      color: var(--text-color);
+    }
+    
+    .score-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 2rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border-radius: 0.5rem;
+    }
+    
+    .score-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .score-value {
+      font-size: 3rem;
+      font-weight: 700;
+    }
+    
+    .score-max {
+      font-size: 1.5rem;
+      opacity: 0.8;
+    }
+    
+    .time-analysis, .integrity-report {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    
+    .integrity-status {
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 1rem;
+    }
+    
+    .status-acceptable {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: var(--success-color);
+    }
+    
+    .status-unacceptable {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: var(--error-color);
+    }
+    
+    .questions-list {
+      margin-top: 2rem;
+    }
+    
+    .question-item {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .question-text {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+    
+    .options-list {
+      list-style-type: none;
+      margin-bottom: 1rem;
+    }
+    
+    .option-item {
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid var(--border-color);
+    }
+    
+    .option-correct {
+      background-color: rgba(16, 185, 129, 0.1);
+      border-color: var(--success-color);
+    }
+    
+    .option-incorrect {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-color: var(--error-color);
+    }
+    
+    .answer-info {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .answer-label {
+      font-weight: 500;
+    }
+    
+    .answer-value {
+      font-weight: 600;
+    }
+    
+    .answer-correct {
+      color: var(--success-color);
+    }
+    
+    .answer-incorrect {
+      color: var(--error-color);
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .score-card {
+        padding: 1.5rem;
+      }
+      
+      .score-value {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">PrepZer<span>0</span> <div class="report-title">Assessment Report</div></div>
+    </header>
+    
+    <section class="card">
+      <h2 class="card-title">Candidate Details</h2>
+      <div class="student-info">
+        <div class="info-item">
+          <span class="info-label">Name:</span>
+          <span class="info-value"><%= report.student.fname %> <%= report.student.lname %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">USN:</span>
+          <span class="info-value"><%= report.student.USN %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Department:</span>
+          <span class="info-value"><%= report.student.Department %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Semester:</span>
+          <span class="info-value"><%= report.student.Semester %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Email:</span>
+          <span class="info-value"><%= report.student.email %></span>
+        </div>
+      </div>
+    </section>
+    
+    <section class="card score-card">
+      <div class="score-title">Assessment Score</div>
+      <div class="score-value"><%= report.score.obtained %><span class="score-max">/<%= report.score.total %></span></div>
+    </section>
+    
+    <section class="card">
+      <h2 class="card-title">Test Time Analysis</h2>
+      <div class="time-analysis">
+        <div class="info-item">
+          <span class="info-label">Test Start Time:</span>
+          <span class="info-value"><%= report.timeAnalysis.startTime.toLocaleString() %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Test End Time:</span>
+          <span class="info-value"><%= report.timeAnalysis.endTime.toLocaleString() %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Test Duration:</span>
+          <span class="info-value"><%= report.timeAnalysis.duration %></span>
+        </div>
+      </div>
+    </section>
+    
+    <section class="card">
+      <h2 class="card-title">Integrity Report</h2>
+      <div class="integrity-report">
+        <div class="info-item">
+          <span class="info-label">Copy Attempts:</span>
+          <span class="info-value"><%= report.integrity.data.copyAttempts || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Focus Changes:</span>
+          <span class="info-value"><%= report.integrity.data.focusChanges || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Full Screen Exits:</span>
+          <span class="info-value"><%= report.integrity.data.fullscreenExits || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Last Event:</span>
+          <span class="info-value"><%= report.integrity.data.lastEvent || 'N/A' %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Mouse Outs:</span>
+          <span class="info-value"><%= report.integrity.data.mouseOuts || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Paste Attempts:</span>
+          <span class="info-value"><%= report.integrity.data.pasteAttempts || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Screen Configuration:</span>
+          <span class="info-value"><%= report.integrity.data.screenConfiguration || 'Unknown' %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Tab Changes:</span>
+          <span class="info-value"><%= report.integrity.data.tabChanges || 0 %></span>
+        </div>
+      </div>
+      <div class="integrity-status <%= report.integrity.status === 'Acceptable' ? 'status-acceptable' : 'status-unacceptable' %>">
+        Integrity Index: <%= report.integrity.status %>
+      </div>
+    </section>
+    
+    <section class="card">
+      <h2 class="card-title">Assessment Questions</h2>
+      <div class="questions-list">
+        <% report.questions.forEach((question, index) => { %>
+          <div class="question-item">
+            <div class="question-text"><%= index + 1 %>. <%= question.question %></div>
+            <ul class="options-list">
+              <% question.options.forEach((option, optIndex) => { %>
+                <li class="option-item <%= option === question.correctAnswer ? 'option-correct' : (option === question.submittedAnswer && option !== question.correctAnswer ? 'option-incorrect' : '') %>">
+                  <%= String.fromCharCode(65 + optIndex) %>. <%= option %>
+                </li>
+              <% }); %>
+            </ul>
+            <div class="answer-info">
+              <div>
+                <span class="answer-label">Correct Answer:</span>
+                <span class="answer-value answer-correct">
+                  <%= question.options.findIndex(opt => opt === question.correctAnswer) !== -1 ? 
+                      String.fromCharCode(65 + question.options.findIndex(opt => opt === question.correctAnswer)) : 'N/A' %>.
+                  <%= question.correctAnswer %>
+                </span>
+              </div>
+              <div>
+                <span class="answer-label">Submitted Answer:</span>
+                <span class="answer-value <%= question.isCorrect ? 'answer-correct' : 'answer-incorrect' %>">
+                  <%= question.submittedAnswer === 'Not answered' ? 'Not answered' : 
+                      (question.options.findIndex(opt => opt === question.submittedAnswer) !== -1 ? 
+                      String.fromCharCode(65 + question.options.findIndex(opt => opt === question.submittedAnswer)) + '. ' + 
+                      question.submittedAnswer : 'Invalid') %>
+                </span>
+              </div>
+              <div>
+                <span class="answer-label">Marks:</span>
+                <span class="answer-value <%= question.isCorrect ? 'answer-correct' : 'answer-incorrect' %>">
+                  <%= question.isCorrect ? question.marks : 0 %>/<%= question.marks %>
+                </span>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
