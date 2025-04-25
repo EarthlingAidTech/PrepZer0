@@ -175,6 +175,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const Integrity = require('./models/Integrity');
 app.post('/update-integrity', async (req, res) => {
+  console.log("came to the page intrigrity upadte:    ---------------------------")
   
   const { examId, userId, eventType } = req.body;
   const eventFieldMap = {
