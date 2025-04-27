@@ -51,14 +51,37 @@ exports.getlogincontrol = (req,res)=>{
    
     try {
         if(req.body.password == req.body.passcode){
-            const existingUSN = await User.findOne({ USN: req.body.USN.toLowerCase() });
+            const existingUSN = await User.findOne({ USN: req.body.USN.toLowerCase() , userallowed: true });
             if (existingUSN) {
                 return res.send("USN already exists");
             }
+            const existingUSNwithoutall = await User.findOne({ USN: req.body.USN.toLowerCase() , userallowed: false });
+            if (existingUSNwithoutall) {
+                await User.deleteOne({ _id: existingUSN._id });
+            }
+            const usn = req.body.USN.toLowerCase();
+            const regex = /^(\d{0,2})by(\d{2})([a-zA-Z]{2})(\d{3})$/;
+            const match = usn.match(regex);
+
+            let year = "", department = "", rollNo = "";
+
+            if (match) {
+                year = "20" + match[2];
+                department = match[3];
+                rollNo = match[4];
+
+                console.log("Year:", year);
+                console.log("Department:", department);
+                console.log("Roll Number:", rollNo);
+            } else {
+                console.error("Invalid USN format");
+                return res.render('signup', { errormsg: "Invalid USN format" });
+            }
+
             randurl = uuidv4()
             
           
-           badhttp = "http://51.20.78.42/authenticate/verify/"+randurl
+           badhttp = "https://prepzer0.co.in/authenticate/verify/"+randurl
             try{
                 await sendEmails({
                     email  : req.body.email ,
@@ -94,7 +117,7 @@ exports.getlogincontrol = (req,res)=>{
 
 `
                 })
-                console.log("the email was sent tried to sent to be specific")
+                console.log("the email was sent")
 
                }catch(error){
                    console.log(error)
@@ -104,24 +127,7 @@ exports.getlogincontrol = (req,res)=>{
 
                //dividing the usn into year , department and roll number
 
-               const usn = req.body.USN.toLowerCase();
-               const regex = /^(\d{0,2})by(\d{2})([a-zA-Z]{2})(\d{3})$/;
-               const match = usn.match(regex);
    
-               let year = "", department = "", rollNo = "";
-   
-               if (match) {
-                   year = "20" + match[2];
-                   department = match[3];
-                   rollNo = match[4];
-   
-                   console.log("Year:", year);
-                   console.log("Department:", department);
-                   console.log("Roll Number:", rollNo);
-               } else {
-                   console.error("Invalid USN format");
-                   return res.render('signup', { errormsg: "Invalid USN format" });
-               }
 
 
     
@@ -137,7 +143,7 @@ exports.getlogincontrol = (req,res)=>{
                     req.session.lau = req.body.email
                     console.log(req.lau)
                     console.log("sessions")
-                    res.redirect('/authenticate/login')
+                    res.render('signup',{errormsg : "checkemail"})
                 }else{
                     passport.authenticate('local')(req,res,function(){
                         res.redirect('/')
