@@ -358,41 +358,6 @@
     </style>
 </head>
 <body>
-    <% if (!locals.isStudentPage) { %>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="https://salty-lowlands-81889.herokuapp.com/images/eat.png" width="30" height="30" alt=""> 
-                Earthling Aid Tech
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="fas fa-home"></i> Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item dropdown active">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-sign-in-alt"></i> Sign In
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <li><a class="dropdown-item" href="/authenticate/login">Login</a></li>
-                            <li><a class="dropdown-item" href="#">Signup</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <% } %>
 
     <!-- Floating Elements - Educational Icons -->
     <div class="floating-elements">
@@ -557,10 +522,49 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        if(<%=errormsg%> ==  "checkemail"){
-            console.log("fuck you")
-        }
-    </script>
+<!-- Add this modal HTML right before your closing body tag -->
+<div class="modal fade" id="emailCheckModal" tabindex="-1" aria-labelledby="emailCheckModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="emailCheckModalLabel"><i class="fas fa-envelope me-2"></i>Verification Email Sent</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mb-4">
+            <i class="fas fa-envelope-circle-check text-primary" style="font-size: 4rem;"></i>
+          </div>
+          <p>Thank you for signing up with PrepZer0! We've sent a verification link to your email address.</p>
+          <p>Please check your inbox and click the verification link to activate your account.</p>
+          <p class="small text-muted">If you don't see the email, please check your spam folder.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal"onclick="window.location.href='/authenticate/login'">Got it!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Update your script section -->
+  <script>
+    // Function to get URL parameters
+    function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    
+    // Check if email was sent
+    const emailSent = getUrlParameter('emailSent');
+    if(emailSent === 'true') {
+        // Show your email verification popup/modal
+        const emailModal = new bootstrap.Modal(document.getElementById('emailCheckModal'));
+        emailModal.show();
+        
+        // Clean up the URL to prevent showing the modal on page refresh
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+</script>
 </body>
 </html>

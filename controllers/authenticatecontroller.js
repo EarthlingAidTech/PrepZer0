@@ -138,16 +138,22 @@ exports.getlogincontrol = (req,res)=>{
             }
             else{
 
-                if(User.findOne({email : req.body.email , active : false}) != null ){
-                    req.session.lau = req.body.email
-                    console.log(req.lau)
-                    console.log("sessions")
-                    res.render('signup',{errormsg : "checkemail"})
-                }else{
-                    passport.authenticate('local')(req,res,function(){
-                        res.redirect('/')
+
+
+                User.findOne({email : req.body.email , active : false}).then(user => {
+                    if(user != null) {
+                        req.session.lau = req.body.email
+                        return res.redirect('/authenticate/signup?emailSent=true');
+                    } else {
+                        passport.authenticate('local')(req, res, function(){
+                            res.redirect('/')
                         })
-                }
+                    }
+                }).catch(err => {
+                    console.log(err)
+                    return res.redirect('/authenticate/signup?emailSent=checking');
+                })
+  
             }
             console.log(user)
         })
