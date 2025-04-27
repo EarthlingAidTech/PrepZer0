@@ -3,7 +3,6 @@ const User = require('./../models/usermodel')
 const passport =  require('passport')
 const { random } = require('lodash')
 const { v4: uuidv4 } = require('uuid');
-randurl = ""
 exports.getlogincontrol = (req,res)=>{
     try {
         if(req.isAuthenticated()){
@@ -81,7 +80,7 @@ exports.getlogincontrol = (req,res)=>{
             randurl = uuidv4()
             
           
-           badhttp = "https://prepzer0.co.in/authenticate/verify/"+randurl
+            badhttp = "https://prepzer0.co.in/authenticate/verify/"+randurl
             try{
                 await sendEmails({
                     email  : req.body.email ,
@@ -162,26 +161,40 @@ exports.getlogincontrol = (req,res)=>{
          res.redirect('/')
      }
 }
-exports.getVerified = (req,res)=>{
-    if(req.params.id == randurl){
-        res.render('verify' , {
-            check : req.params.id
-        })
+exports.getVerified = async (req, res) => {
+    try {
+      const user = await User.findOne({ randomurl: req.params.id });
+      console.log(user)
+      if (user) {
+        res.render('verify', { check: req.params.id });
+      } else {
+        res.render('error', { message: 'Invalid verification link' });
+      }
+    } catch (error) {
+      console.log(error);
+      res.render('error', { message: 'Verification failed' });
     }
-}
-exports.postVerified = (req,res)=>{   
-    otp = req.body.otp 
-    User.findOneAndUpdate({randomurl : otp} , {userallowed: true} ,  (err,doc)=>{
-            if(err){
-                console.log(err)
-            }else{
-                res.redirect('/')
-            }
-        })    
-
-
-
-}
+  }
+  
+exports.postVerified = async (req, res) => {
+    try {
+      const otp = req.body.otp;
+      const updatedUser = await User.findOneAndUpdate(
+        { randomurl: otp },
+        { userallowed: true },
+        { new: true }
+      );
+      
+      if (updatedUser) {
+        res.redirect('/authenticate/login');
+      } else {
+        res.render('error', { message: 'Verification failed' });
+      }
+    } catch (error) {
+      console.log(error);
+      res.render('error', { message: 'Server error during verification' });
+    }
+  }
 
 
  
