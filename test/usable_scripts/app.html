@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Delete Collections</title>
+</head>
+<body>
+  <button onclick="deleteCollections()">Delete Collections</button>
+
+  <script>
+    async function deleteCollections() {
+      const response = await fetch("http://localhost:3000/delete-collections", {
+        method: "DELETE"
+      });
+
+      const text = await response.text();
+      alert(text);
+    }
+  </script>
+</body>
+</html>
