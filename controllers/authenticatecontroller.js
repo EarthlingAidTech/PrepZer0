@@ -14,7 +14,7 @@ exports.getlogincontrol = (req,res)=>{
         console.log(error)
     }   
  }
- exports.logincontrol =async (req,res)=>{
+ exports.logincontrol = async (req,res,next)=>{
      
     try {
         const user =new User({
@@ -40,7 +40,51 @@ exports.getlogincontrol = (req,res)=>{
     }
      
 }
-
+exports.logincontrol = async (req, res, next) => {
+  console.log('Login attempt for:', req.body.email);
+  
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      console.error('Authentication error:', err);
+      return res.status(500).render('login', { 
+        errormsg: "An error occurred during login. Please try again.", 
+        isStudentPage: true 
+      });
+    }
+    
+    if (!user) {
+      console.log('Authentication failed:', info?.message || 'Invalid credentials');
+      return res.render('login', { 
+        errormsg: info?.message || "Invalid email or password", 
+        isStudentPage: true 
+      });
+    }
+    
+    // Successful authentication, now log in
+    req.login(user, (loginErr) => {
+      if (loginErr) {
+        console.error('Login error after authentication:', loginErr);
+        return res.status(500).render('login', { 
+          errormsg: "Error during login. Please try again.", 
+          isStudentPage: true 
+        });
+      }
+      
+      // Set important session data
+      req.session.userId = user._id;
+      req.session.userEmail = user.email;
+      
+      // Save the session before redirecting
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.error('Session save error:', saveErr);
+        }
+        console.log('Login successful for:', user.email);
+        return res.redirect('/');
+      });
+    });
+  })(req, res, next);
+};
 
  exports.getsignupcontrol = (req,res)=>{
     res.render('signup' , {errormsg : "", isStudentPage: true})

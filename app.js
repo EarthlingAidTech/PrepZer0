@@ -27,6 +27,7 @@ app.set('view engine', 'ejs')
 
 //database configure ("monodb/mongoose")
 const mongoose = require('mongoose')
+const MongoStore = require('connect-mongo');
 const dbname = "codingplatform"
 const dburl = "mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
@@ -65,7 +66,11 @@ app.use(session({
     resave : false,
     saveUninitialized: false ,
     secure : false , 
-    httpOnly : true
+
+    store: MongoStore.create({
+      mongoUrl: dburl,
+      touchAfter: 24 * 3600 // Only update once in 24 hours
+  }),
 }))
 
 app.use(flash());
@@ -136,11 +141,14 @@ passport.serializeUser(function(user, done) {
     done(null, user.id);
   });
 
-  passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
-      done(err, user);
-    });
-  });
+  passport.deserializeUser(async function(id, done) {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
 
 
 
