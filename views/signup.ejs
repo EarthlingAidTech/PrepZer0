@@ -355,7 +355,27 @@
             background-color: rgba(63, 142, 252, 0.1);
             color: var(--primary-color);
         }
+    </style>    <style>
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .password-requirements {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .usn-format {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
     </style>
+
 </head>
 <body>
 
@@ -470,57 +490,101 @@
             </div>
             
             <!-- Signup Form -->
-            <form action="/authenticate/signup" method="POST">
-                <div class="form-group position-relative">
-                    <label for="usn" class="form-label">
-                        <i class="fas fa-id-card"></i> USN
-                    </label>
-                    <input type="text" id="usn" name="USN" class="form-control" required placeholder="Enter your USN">
-                </div>
-
-                <div class="form-group position-relative">
-                    <label for="email" class="form-label">
-                        <i class="fas fa-envelope"></i> Email Address
-                    </label>
-                    <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email">
-                </div>
-
-                <div class="form-group position-relative">
-                    <label for="password" class="form-label">
-                        <i class="fas fa-lock"></i> Password
-                    </label>
-                    <input type="password" id="password" name="password" class="form-control" required placeholder="Create a strong password">
-                </div>
-
-                <div class="form-group position-relative">
-                    <label for="confirm_password" class="form-label">
-                        <i class="fas fa-check-circle"></i> Confirm Password
-                    </label>
-                    <input type="password" id="confirm_password" name="passcode" class="form-control" required placeholder="Confirm your password">
-                </div>
-
-                <div class="form-group d-flex justify-content-center">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" required id="termsCheck">
-                        <label class="form-check-label" for="termsCheck">
-                            I agree to all statements in <a href="#!" class="text-primary"><u>Terms of service</u></a>
-                        </label>
+            <div class="container">
+                <!-- Display error message if exists -->
+                <% if (typeof errormsg !== 'undefined' && errormsg) { %>
+                    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                        <i class="fas fa-exclamation-circle me-2"></i> <%= errormsg %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
+                <% } %>
+        
+                <form action="/authenticate/signup" method="POST" id="signupForm" novalidate>
+                    <div class="form-group position-relative mb-3">
+                        <label for="usn" class="form-label">
+                            <i class="fas fa-id-card"></i> USN
+                        </label>
+                        <input type="text" id="usn" name="USN" class="form-control" required 
+                            placeholder="Enter your USN (e.g., 01BY20CS001)" value="<%= locals.USN || '' %>">
+                        <div class="usn-format">Format: [college code]BY[year][department][roll no] (e.g., 01BY20CS001)</div>
+                        <div class="invalid-feedback" id="usn-feedback"></div>
+                    </div>
+        
+                    <div class="form-group position-relative mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        <input type="email" id="email" name="email" class="form-control" required 
+                            placeholder="Enter your email" value="<%= locals.email || '' %>">
+                        <div class="invalid-feedback" id="email-feedback"></div>
+                    </div>
+        
+                    <div class="form-group position-relative mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" id="password" name="password" class="form-control" required 
+                            placeholder="Create a strong password">
+                        <div class="password-requirements">Password must be at least 8 characters long</div>
+                        <div class="invalid-feedback" id="password-feedback"></div>
+                    </div>
+        
+                    <div class="form-group position-relative mb-3">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fas fa-check-circle"></i> Confirm Password
+                        </label>
+                        <input type="password" id="confirm_password" name="passcode" class="form-control" required 
+                            placeholder="Confirm your password">
+                        <div class="invalid-feedback" id="confirm-password-feedback"></div>
+                    </div>
+        
+                    <div class="form-group d-flex justify-content-center mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" required id="termsCheck">
+                            <label class="form-check-label" for="termsCheck">
+                                I agree to all statements in <a href="#!" class="text-primary"><u>Terms of service</u></a>
+                            </label>
+                            <div class="invalid-feedback">You must agree to the terms of service</div>
+                        </div>
+                    </div>
+        
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="fas fa-user-plus me-2"></i> Create Account
+                    </button>
+                </form>
+        
+                <div class="text-center">
+                    <a href="/authenticate/login">
+                        <i class="fas fa-arrow-left-long me-1"></i> Already have an account? Login
+                    </a>
                 </div>
+            </div>
+        
+            <!-- Email verification modal -->
 
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-user-plus me-2"></i> Create Account
-                </button>
-            </form>
-
-            <div class="text-center">
-                <a href="/authenticate/login">
-                    <i class="fas fa-arrow-left-long"></i> Already have an account? Login
-                </a>
+        </div>
+    </div>
+    <div class="modal fade" id="emailCheckModal" tabindex="-1" aria-labelledby="emailCheckModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="emailCheckModalLabel"><i class="fas fa-envelope me-2"></i>Verification Email Sent</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-envelope-circle-check text-primary" style="font-size: 4rem;"></i>
+                    </div>
+                    <p>Thank you for signing up with PrepZer0! We've sent a verification link to <strong id="emailAddress"></strong>.</p>
+                    <p>Please check your inbox and click the verification link to activate your account.</p>
+                    <p class="small text-muted">If you don't see the email, please check your spam folder.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="window.location.href='/authenticate/login'">Got it!</button>
+                </div>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Add this modal HTML right before your closing body tag -->
 <div class="modal fade" id="emailCheckModal" tabindex="-1" aria-labelledby="emailCheckModalLabel" aria-hidden="true">
@@ -546,7 +610,7 @@
   </div>
   
   <!-- Update your script section -->
-  <script>
+  <!-- <script>
     // Function to get URL parameters
     function getUrlParameter(name) {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -565,6 +629,161 @@
         // Clean up the URL to prevent showing the modal on page refresh
         window.history.replaceState({}, document.title, window.location.pathname);
     }
+</script> -->
+<!-- Scripts -->
+<script>
+    // Client-side validation
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('signupForm');
+        const usn = document.getElementById('usn');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirm_password');
+        const termsCheck = document.getElementById('termsCheck');
+
+        // Function to validate USN
+        function validateUSN() {
+            const usnValue = usn.value.trim().toLowerCase();
+            // Updated regex to handle various college codes (not just BY)
+            const regex = /^(\d{0,2})([a-z]{2})(\d{2})([a-z]{2})(\d{3})$/;
+            
+            if (!usnValue) {
+                showError(usn, 'USN is required');
+                return false;
+            } else if (!regex.test(usnValue)) {
+                showError(usn, 'Invalid USN format (e.g., 1BY20CS001, 1TD19IS045)');
+                return false;
+            } else {
+                clearError(usn);
+                return true;
+            }
+        }
+
+        // Function to validate email
+        function validateEmail() {
+            const emailValue = email.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailValue) {
+                showError(email, 'Email is required');
+                return false;
+            } else if (!emailRegex.test(emailValue)) {
+                showError(email, 'Please enter a valid email address');
+                return false;
+            } else {
+                clearError(email);
+                return true;
+            }
+        }
+
+        // Function to validate password
+        function validatePassword() {
+            const passwordValue = password.value;
+            
+            if (!passwordValue) {
+                showError(password, 'Password is required');
+                return false;
+            } else if (passwordValue.length < 8) {
+                showError(password, 'Password must be at least 8 characters long');
+                return false;
+            } else {
+                clearError(password);
+                return true;
+            }
+        }
+
+        // Function to validate confirm password
+        function validateConfirmPassword() {
+            const confirmValue = confirmPassword.value;
+            const passwordValue = password.value;
+            
+            if (!confirmValue) {
+                showError(confirmPassword, 'Please confirm your password');
+                return false;
+            } else if (confirmValue !== passwordValue) {
+                showError(confirmPassword, 'Passwords do not match');
+                return false;
+            } else {
+                clearError(confirmPassword);
+                return true;
+            }
+        }
+
+        // Helper functions for error display
+        function showError(input, message) {
+            input.classList.add('is-invalid');
+            const feedbackId = input.id + '-feedback';
+            const feedbackElement = document.getElementById(feedbackId);
+            if (feedbackElement) {
+                feedbackElement.textContent = message;
+            }
+        }
+
+        function clearError(input) {
+            input.classList.remove('is-invalid');
+            const feedbackId = input.id + '-feedback';
+            const feedbackElement = document.getElementById(feedbackId);
+            if (feedbackElement) {
+                feedbackElement.textContent = '';
+            }
+        }
+
+        // Attach input event listeners
+        usn.addEventListener('input', validateUSN);
+        email.addEventListener('input', validateEmail);
+        password.addEventListener('input', validatePassword);
+        confirmPassword.addEventListener('input', validateConfirmPassword);
+
+        // Form submission handler
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+            
+            // Validate all fields
+            if (!validateUSN()) isValid = false;
+            if (!validateEmail()) isValid = false;
+            if (!validatePassword()) isValid = false;
+            if (!validateConfirmPassword()) isValid = false;
+            
+            // Check terms agreement
+            if (!termsCheck.checked) {
+                termsCheck.nextElementSibling.nextElementSibling.style.display = 'block';
+                isValid = false;
+            } else {
+                termsCheck.nextElementSibling.nextElementSibling.style.display = 'none';
+            }
+            
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+
+        // Function to get URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        
+        // Check if email was sent successfully
+        const emailSent = getUrlParameter('emailSent');
+        if (emailSent === 'true') {
+            // Get the email from session if available
+            const emailElement = document.getElementById('emailAddress');
+            if (emailElement) {
+                // If you have a way to access session data in frontend
+                // For now, just show a generic message
+                emailElement.textContent = "your email address";
+            }
+            
+            // Show the email verification modal
+            const emailModal = new bootstrap.Modal(document.getElementById('emailCheckModal'));
+            emailModal.show();
+            
+            // Clean up the URL to prevent showing the modal on page refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
 </script>
 </body>
 </html>
