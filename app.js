@@ -64,7 +64,7 @@ app.use(session({
     secret: 'this is my secretenviroment file',
     resave : false,
     saveUninitialized: false ,
-    secure : true , 
+    secure : false , 
     httpOnly : true
 }))
 
