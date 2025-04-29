@@ -127,11 +127,11 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
 
 //using limiter to limit usages
 
-const limiter = rateLimit({
-  max : 100 ,
-  windows : 60*60*1000,
-  message : "crossed the limit"
-})
+// const limiter = rateLimit({
+//   max : 100 ,
+//   windows : 60*60*1000,
+//   message : "crossed the limit"
+// })
 app.use('/',limiter)
 
 //serializing and deserializing passport
