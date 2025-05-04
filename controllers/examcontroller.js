@@ -172,7 +172,7 @@ const User = require("./../models/usermodel");
 const { v4: uuidv4 } = require("uuid");
 const passport = require("passport");
 const moment = require("moment-timezone");
-const { scheduleExamReminder, cancelExamReminder } = require("../utils/examReminder");
+const { scheduleExamReminder, cancelExamReminder } = require("../utils/examreminder");
 
 function ensureAdmin(req, res, next) {
     if (req.isAuthenticated() && req.user.role === "admin") {
