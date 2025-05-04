@@ -132,7 +132,7 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
 //   windows : 60*60*1000,
 //   message : "crossed the limit"
 // })
-app.use('/',limiter)
+// app.use('/',limiter)
 
 //serializing and deserializing passport
 
