@@ -14,8 +14,17 @@ const _ = require("lodash");
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
 const path = require('path')
-
-
+// configuring s3 bucket
+const { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand } = require("@aws-sdk/client-s3");
+const s3Client = new S3Client({
+  region: "us-east-1",
+  credentials: {
+    accessKeyId: "AKIAQWBA6OZVSXZFN3VB",
+    secretAccessKey: "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"
+  }
+});
+const BUCKET_NAME = "prepzer0testbucket";
+//adding rate-linits and other security mechanism
 const rateLimit = require('express-rate-limit')
 const mongoSanitize = require('express-mongo-sanitize')
 const hpp = require('hpp')
@@ -37,44 +46,28 @@ mongoose.connect(dburl,
     console.log("connected to database")
 })
 app.use('/uploads', express.static('uploads'));
-
-
 const multer = require('multer')
-
-
 //using middlewares
 //app.use(helmet())
-
 app.use(mongoSanitize())
 app.use(hpp())
 app.use(xss())
 app.use(express.static("public"));
 app.use(express.json())
-
 app.use(bodyParser.json({ limit: '100mb', parameterLimit: 100000  })); // Adjust the limit as needed
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 100000 }));
-/*
-
-
-
-*/
-
-
 //configuring sessions
 app.use(session({
     secret: 'this is my secretenviroment file',
     resave : false,
     saveUninitialized: false ,
     secure : false , 
-
     store: MongoStore.create({
       mongoUrl: dburl,
       touchAfter: 24 * 3600 // Only update once in 24 hours
   }),
 }))
-
 app.use(flash());
-
 app.use((req, res, next) => {
     res.locals.successMessage = req.flash('success');
     next();
@@ -94,18 +87,12 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
   try {
      
       const user = await User.findOne({ email: email });
-
-     
       if (!user) {
           return done(null, false, { message: 'No user found with this email' });
       }
-
-   
       if (!user.userallowed) {
           return done(null, false, { message: 'Verify your account to log in' });
       }
-
-     
       user.authenticate(password, (err, user, msg) => {
           if (err) {
               return done(err);
@@ -123,24 +110,10 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
   }
 }));
 
-
-
-//using limiter to limit usages
-
-// const limiter = rateLimit({
-//   max : 100 ,
-//   windows : 60*60*1000,
-//   message : "crossed the limit"
-// })
-// app.use('/',limiter)
-
 //serializing and deserializing passport
-
-
 passport.serializeUser(function(user, done) {
     done(null, user.id);
   });
-
   passport.deserializeUser(async function(id, done) {
     try {
         const user = await User.findById(id);
@@ -149,9 +122,6 @@ passport.serializeUser(function(user, done) {
         done(err, null);
     }
 });
-
-
-
 //Routes handler
 const home = require('./routes/home')
 const dashboard = require('./routes/dashboard');
@@ -160,12 +130,10 @@ const authenticateing = require('./routes/authenticate')
 const profile = require('./routes/profile')
 const userauth = require('./routes/userauth')
 
-
 app.get('/logout', async (req, res, next) => {
   req.logout((err) => {
     if (err) { 
-      return next(err); 
-    }
+      return next(err); }
     req.session.destroy(() => {
       res.redirect('/');
     });
@@ -176,15 +144,10 @@ app.get("/check", async (req,res)=>{
   console.log(user)
 })
 
-
-
-
 const upload = multer({ storage: multer.memoryStorage() });
-
 const Integrity = require('./models/Integrity');
 app.post('/update-integrity', async (req, res) => {
   console.log("came to the page intrigrity upadte:    ---------------------------")
-  
   const { examId, userId, eventType } = req.body;
   const eventFieldMap = {
     tabChanges: "tabChanges",
@@ -210,7 +173,6 @@ try {
         },
         { upsert: true }  
     );
-
     res.json({ success: true, message: `Integrity event '${eventType}' updated.` });
 } catch (error) {
     console.error("Error updating integrity event:", error);
@@ -218,24 +180,43 @@ try {
 }
 });
 
-app.post('/save-image', upload.single('image'),async (req, res) => {
+// app.post('/save-image', upload.single('image'),async (req, res) => {
+//   try {
+//     const { userId, examId } = req.body;
+//     const user = await User.findById(userId);
+//     const usn = user.USN;
+//     const dir = path.join(__dirname, 'integrity', usn, examId);
+//     fs.mkdirSync(dir, { recursive: true });
+//     const fileName = `captured-${Date.now()}.jpg`;
+//     const fullPath = path.join(dir, fileName);
+//     fs.writeFileSync(fullPath, req.file.buffer);
+//     res.json({ message: 'Image saved!', path: fullPath });
+//   } catch (err) {
+//     console.error('Error saving image:', err);
+//     res.status(500).send('Server error');
+//   }
+// });
 
+app.post('/save-image', upload.single('image'), async (req, res) => {
   try {
     const { userId, examId } = req.body;
     const user = await User.findById(userId);
     const usn = user.USN;
-
-    const dir = path.join(__dirname, 'integrity', usn, examId);
-    fs.mkdirSync(dir, { recursive: true });
-
     const fileName = `captured-${Date.now()}.jpg`;
-    const fullPath = path.join(dir, fileName);
+    const s3Key = `integrity/${usn}/${examId}/${fileName}`;
 
-    fs.writeFileSync(fullPath, req.file.buffer);
+    const uploadParams = {
+      Bucket: BUCKET_NAME,
+      Key: s3Key,
+      Body: req.file.buffer,
+      ContentType: "image/jpeg"
+    };
 
-    res.json({ message: 'Image saved!', path: fullPath });
+    await s3Client.send(new PutObjectCommand(uploadParams));
+
+    res.json({ message: 'Image uploaded to S3!', path: s3Key });
   } catch (err) {
-    console.error('Error saving image:', err);
+    console.error('Error uploading image to S3:', err);
     res.status(500).send('Server error');
   }
 });
@@ -246,17 +227,8 @@ app.use('/admin' ,admin)
 app.use('/authenticate',authenticateing)
 app.use('/profile',profile)
 app.use('/user' , userauth)
-
-
 app.all('*', async (req,res,next)=>{
-
     res.render('pagenotfound')
     next();
 })
-
-
 module.exports = app
-
-module
-
-
