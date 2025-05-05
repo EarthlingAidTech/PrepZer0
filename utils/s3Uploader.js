@@ -17,8 +17,7 @@ async function uploadProfileImage(localFilePath, filename) {
     Bucket: 'prepzer0testbucket',
     Key: `profile/${filename}`,
     Body: fileStream,
-    ContentType: 'image/jpeg', // or infer type dynamically
-    
+    ContentType: 'image/jpeg' // or infer type dynamically
   };
 
   await s3.send(new PutObjectCommand(uploadParams));
