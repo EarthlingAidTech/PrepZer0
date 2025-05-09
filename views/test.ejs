@@ -592,7 +592,7 @@ function showNotification(message, type = 'warning') {
         // Check if total violations are too high
         checkAndSubmitTest();
     }
-});
+
 
 window.addEventListener('resize', () => {
     if (localStorage.getItem('examStarted') == "true") {
@@ -783,7 +783,7 @@ document.addEventListener('keydown', function(e) {
 //     showNotification("Closing the window is not allowed during the exam.");
 //     return false;
 //   }
-if (e.key === 'F5' || e.keyCode === 116 || 
+       if (e.key === 'F5' || e.keyCode === 116 || 
             ((e.metaKey || e.ctrlKey) && e.key === 'r')) {
             e.preventDefault();
             e.stopPropagation();
@@ -1582,11 +1582,68 @@ document.addEventListener('click', () => {
         updateStatus("Fullscreen mode ensured after click");
     }
 });
+function updateScreenConfiguration() {
+  // Get the screen configuration element
+  const screenConfigElement = document.getElementById('screenConfig');
+  
+  // If the element doesn't exist, return
+  if (!screenConfigElement) {
+    console.error('Screen configuration element not found');
+    return;
+  }
+  
+  // Set a loading message
+  screenConfigElement.textContent = 'Detecting screen configuration...';
+  
+  // Setup timeout to handle case where configuration can't be detected
+  const timeout = setTimeout(() => {
+    screenConfigElement.textContent = 'Screen configuration unavailable';
+  }, 2000);
+  
+  // Get and display the screen configuration
+  try {
+    // Get window dimensions
+    const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    
+    // Get screen dimensions
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    
+    // Get device pixel ratio for detecting high-DPI displays
+    const pixelRatio = window.devicePixelRatio || 1;
+    
+    // Get color depth
+    const colorDepth = window.screen.colorDepth;
+    
+    // Clear the timeout since we got the data
+    clearTimeout(timeout);
+    
+    // Format and display the configuration
+    const configText = `${width}x${height} (Window), ${screenWidth}x${screenHeight} (Screen), ${pixelRatio}x (Pixel Ratio), ${colorDepth}-bit color`;
+    screenConfigElement.textContent = configText;
+    
+    // Log the configuration for debugging
+    console.log('Screen configuration:', configText);
+    
+    // Return the configuration in case it's needed elsewhere
+    return {
+      window: { width, height },
+      screen: { width: screenWidth, height: screenHeight },
+      pixelRatio,
+      colorDepth
+    };
+  } catch (error) {
+    // Clear the timeout and show error
+    clearTimeout(timeout);
+    console.error('Error detecting screen configuration:', error);
+    screenConfigElement.textContent = 'Error detecting screen configuration';
+  }
+}
 
 window.onload = () => {
     preventBackButton();
-    document.getElementById('screenConfig').textContent = 
-        `${window.innerWidth}x${window.innerHeight}`;
+    updateScreenConfiguration();
     
     // Handle if the page is loaded after exam end time
     const savedEndTime = localStorage.getItem('examEndTime');
