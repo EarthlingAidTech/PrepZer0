@@ -33,12 +33,13 @@ exports.deleteSubmission = async (req, res) => {
     
     // Send success response even if integrity record wasn't found
     // (since the main goal was to delete the submission)
-    return res.status(200).json({
-      success: true,
-      message: 'Records deleted successfully',
-      deletedSubmission: deletedSubmission._id,
-      deletedIntegrity: deletedIntegrity ? deletedIntegrity._id : 'Not found'
-    });
+    // return res.status(200).json({
+    //   success: true,
+    //   message: 'Records deleted successfully',
+    //   deletedSubmission: deletedSubmission._id,
+    //   deletedIntegrity: deletedIntegrity ? deletedIntegrity._id : 'Not found'
+    // });
+    res.redirect("/admin")
     
   } catch (error) {
     console.error('Error deleting submission:', error);
