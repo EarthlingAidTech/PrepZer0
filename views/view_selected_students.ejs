@@ -62,36 +62,36 @@
             window.print();
         }
 
-        // function exportToCSV() {
-        //     const table = document.querySelector('table');
-        //     let csv = [];
-        //     const rows = table.querySelectorAll('tr');
+        function exportToCSV() {
+            const table = document.querySelector('table');
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
             
-        //     for (let i = 0; i < rows.length; i++) {
-        //         const row = [], cols = rows[i].querySelectorAll('td, th');
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
                 
-        //         for (let j = 0; j < cols.length; j++) {
-        //             // Replace any commas in the cell to avoid CSV parsing issues
-        //             let data = cols[j].innerText.replace(/,/g, ' ');
-        //             // Add quotes around the data
-        //             row.push('"' + data + '"');
-        //         }
+                for (let j = 0; j < cols.length; j++) {
+                    // Replace any commas in the cell to avoid CSV parsing issues
+                    let data = cols[j].innerText.replace(/,/g, ' ');
+                    // Add quotes around the data
+                    row.push('"' + data + '"');
+                }
                 
-        //         csv.push(row.join(','));
-        //     }
+                csv.push(row.join(','));
+            }
             
-        //     // Create CSV file
-        //     const csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
+            // Create CSV file
+            const csvFile = new Blob([csv.join('\n')], {type: 'text/csv'});
             
-        //     // Download link
-        //     const downloadLink = document.createElement('a');
-        //     downloadLink.download = 'eligible_students.csv';
-        //     downloadLink.href = window.URL.createObjectURL(csvFile);
-        //     downloadLink.style.display = 'none';
-        //     document.body.appendChild(downloadLink);
-        //     downloadLink.click();
-        //     document.body.removeChild(downloadLink);
-        // }
+            // Download link
+            const downloadLink = document.createElement('a');
+            downloadLink.download = 'eligible_students.csv';
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.style.display = 'none';
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
     </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>

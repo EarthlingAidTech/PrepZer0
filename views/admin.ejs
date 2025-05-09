@@ -546,10 +546,10 @@
                                         <span class="status-pill <%= statusClass %>"></span>
                                         <%= status %>
                                     </td>
-                                    <td>
-                                        <div class="actions">
-                                            <% if (statusType === 'completed') { %>
-                                                <!-- Modified: Added Delete button for completed exams -->
+                                    <!-- <td> -->
+                                        <!-- <div class="actions">
+                                            <% if (statusType === 'completed' || statusType === 'active') { %>
+                                             
                                                 <a href="/admin/exam/candidates/<%= exam._id %>" class="btn btn-sm btn-secondary">
                                                     <i class="fas fa-users"></i> View Candidates
                                                 </a>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mouse Move to Fullscreen</title>
+</head>
+<body>
+
+<div id="fullscreenTarget" style="width:100%; height:100vh; background: lightblue;">
+  <h1>Move the mouse to go fullscreen!</h1>
+  <button id="fullscreenBtn" onclick="goFullscreen()">Go Fullscreen</button>
+</div>
+
+<script>
+  function goFullscreen() {
+    const elem = document.getElementById('fullscreenTarget');
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    }
+  }
+
+  // Listen for mouse movement and trigger fullscreen when the mouse moves
+  window.addEventListener('mousemove', () => {
+    goFullscreen(); // Trigger fullscreen on any mouse movement
+  });
+
+  // Optional: You can also disable the button to ensure users use the mouse movement.
+  document.getElementById('fullscreenBtn').style.display = 'none';
+</script>
+
+</body>
+</html>

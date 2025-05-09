@@ -46,7 +46,7 @@ router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
 router.route("/profile/students").get(admincontroller.allStudents)
 
 router.route("/exam/candidates/:examId").get(admincontroller.examCandidates)
-
+router.post('/api/submission/delete', reportController.deleteSubmission);
 router.route("/exam/submission/:submissionId").get(reportController.viewAssessmentReport)
 
 router.route("/search_student").get(examController.searchStudent)

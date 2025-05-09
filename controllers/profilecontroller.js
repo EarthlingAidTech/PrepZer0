@@ -42,46 +42,82 @@ exports.getprofile_editcontrol = async(req,res)=>{
 
 
 
+// exports.profile_editcontrol = async (req, res) => {
+//     console.log("Profile edit control testing");
+
+//     if (!req.isAuthenticated()) {
+//         return res.redirect('/');
+//     }
+//     console.log(req.body);
+//     let updateFields = {
+//         fname: req.body.name,
+//         phone: req.body.number,
+//         location: req.body.location
+//     };
+
+//     if (req.user.usertype === "student") {
+//         updateFields.Semester = req.body.sem;
+//     } else if (req.user.usertype === "teacher") {
+//         updateFields.department = req.body.department;
+//     }
+
+//     if (req.file) {
+//         updateFields.imageurl = '/uploads/' + req.file.filename;
+//     }
+
+//     try {
+//         const updatedProfile = await User.findByIdAndUpdate(req.user.id, updateFields, { new: true });
+
+//         if (!updatedProfile) {
+//             console.log("Profile not updated");
+//         } else {
+//             console.log(updatedProfile);
+//         }
+
+//         res.redirect('/profile');
+//     } catch (error) {
+//         console.error("Error updating profile:", error);
+//         res.status(500).send("Internal Server Error");
+//     }
+// };
+
 exports.profile_editcontrol = async (req, res) => {
-    console.log("Profile edit control testing");
-
+    console.log('Profile edit control triggered');
+  
     if (!req.isAuthenticated()) {
-        return res.redirect('/');
+      return res.redirect('/');
     }
-    console.log(req.body);
-    let updateFields = {
-        fname: req.body.name,
-        phone: req.body.number,
-        location: req.body.location
+  
+    const updateFields = {
+      fname: req.body.name,
+      phone: req.body.number,
+      location: req.body.location,
     };
-
-    if (req.user.usertype === "student") {
-        updateFields.Semester = req.body.sem;
-    } else if (req.user.usertype === "teacher") {
-        updateFields.department = req.body.department;
+  
+    if (req.user.usertype === 'student') {
+      updateFields.Semester = req.body.sem;
+    } else if (req.user.usertype === 'teacher') {
+      updateFields.department = req.body.department;
     }
-
-    if (req.file) {
-        updateFields.imageurl = '/uploads/' + req.file.filename;
+  
+    if (req.body.profileImageUrl) {
+      updateFields.imageurl = req.body.profileImageUrl;
     }
-
+  
     try {
-        const updatedProfile = await User.findByIdAndUpdate(req.user.id, updateFields, { new: true });
-
-        if (!updatedProfile) {
-            console.log("Profile not updated");
-        } else {
-            console.log(updatedProfile);
-        }
-
-        res.redirect('/profile');
+      const updatedUser = await User.findByIdAndUpdate(req.user.id, updateFields, { new: true });
+      if (!updatedUser) {
+        console.log('No user updated');
+      } else {
+        console.log('User updated:', updatedUser);
+      }
+      res.redirect('/profile');
     } catch (error) {
-        console.error("Error updating profile:", error);
-        res.status(500).send("Internal Server Error");
+      console.error('Error updating profile:', error);
+      res.status(500).send('Internal Server Error');
     }
-};
-
-
+  };
+  
 
 
 
