@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -159,5 +159,410 @@
         toggleQuestionFields();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> -->
+
+
+
+
+
+<!-- views/admin/create_exam.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #141D2F;
+        }
+        .container {
+            margin-top: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
+            padding: 25px;
+            border: 3px solid #1D4ED8;
+            width: 48rem;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-control {
+            width: 100%;
+            border-color: #b3d1ff;
+        }
+        .form-control:focus {
+            border-color: #4d94ff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        .form-check-inline {
+            margin-right: 10px;
+        }
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        h2 {
+            font-size: 1.5rem;
+            color: #0056b3;
+        }
+        label {
+            color: #0056b3;
+            font-weight: 500;
+        }
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        select.form-control {
+            background-color: #fff;
+        }
+        .student-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        .student-card.selected {
+            border-color: #0d6efd;
+            background-color: #f0f7ff;
+        }
+        .student-card .btn-select {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .selected-candidates-container {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .candidate-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 3px;
+            background-color: #e7f3ff;
+            border: 1px solid #b3d7ff;
+            border-radius: 15px;
+            font-size: 0.85rem;
+        }
+        .candidate-badge .remove-btn {
+            margin-left: 5px;
+            color: #dc3545;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+
+        <h2 class="text-center mb-4">Create Exam</h2>
+        <form id="createExamForm" action="/admin/create_exam" method="POST">
+            <div class="form-group">
+                <label for="examName">Exam Name:</label>
+                <input type="text" id="examName" name="name" class="form-control form-control-sm" required>
+            </div>
+
+            <div class="form-group">
+                <label>Departments:</label><br>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="mc" class="form-check-input">
+                    <label class="form-check-label">MCA</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="is" class="form-check-input">
+                    <label class="form-check-label">ISE</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="cs" class="form-check-input">
+                    <label class="form-check-label">CSE</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="et" class="form-check-input">
+                    <label class="form-check-label">ETE</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="ec" class="form-check-input">
+                    <label class="form-check-label">ECE</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="ai" class="form-check-input">
+                    <label class="form-check-label">AI</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="checkbox" name="departments" value="cv" class="form-check-input">
+                    <label class="form-check-label">Civil</label>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#selectCandidatesModal">
+                        <i class="bi bi-person-plus"></i> Select Additional Candidates
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Selected candidates display section -->
+            <div id="selectedCandidatesSection" class="selected-candidates-container" style="display: none;">
+                <label>Selected Additional Candidates:</label>
+                <div id="selectedCandidatesList" class="mt-2"></div>
+                <!-- Hidden input to store selected candidates USNs -->
+                <input type="hidden" id="selectedCandidatesInput" name="additionalCandidates">
+            </div>
+
+            <div class="form-group">
+                <label for="semester">Semester:</label>
+                <input type="number" id="semester" name="semester" class="form-control form-control-sm" min="1" max="8" required>
+            </div>
+
+            <div class="form-group">
+                <label for="questionType">Question Type:</label>
+                <select id="questionType" name="questionType" class="form-control form-control-sm" onchange="toggleQuestionFields()" required>
+                    <option value="mcq">MCQ</option>
+                    <option value="coding">Coding</option>
+                    <option value="mcq&coding">MCQ + Coding</option>
+                </select>
+            </div>
+
+            <div id="mcqFields" class="form-group" style="display: none;">
+                <label for="numMCQs">Number of MCQ Questions:</label>
+                <input type="number" id="numMCQs" name="numMCQs" class="form-control form-control-sm">
+            </div>
+
+            <div id="codingFields" class="form-group" style="display: none;">
+                <label for="numCoding">Number of Coding Questions:</label>
+                <input type="number" id="numCoding" name="numCoding" class="form-control form-control-sm">
+            </div>
+
+            <div id="totalQuestionFields" class="form-group" style="display: none;">
+                <label for="numTotalQuestions">Total Questions:</label>
+                <input type="number" id="numTotalQuestions" name="numTotalQuestions" class="form-control form-control-sm">
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Duration (minutes):</label>
+                <input type="number" id="duration" name="Duration" class="form-control form-control-sm">
+            </div>
+
+            <div class="form-group">
+                <label for="scheduledAt">Scheduled At:</label>
+                <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control form-control-sm">
+            </div>
+
+            <div class="form-group">
+                <label for="scheduleTill">Scheduled Till:</label>
+                <input type="datetime-local" id="scheduleTill" name="scheduleTill" class="form-control form-control-sm">
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" name="draft" value="draft" class="btn btn-secondary btn-sm ms-2">Save to Draft</button>
+                <button type="submit" name="action" value="create" class="btn btn-primary btn-sm">Create Exam</button>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- Select Candidates Modal -->
+    <div class="modal fade" id="selectCandidatesModal" tabindex="-1" aria-labelledby="selectCandidatesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectCandidatesModalLabel">Select Additional Candidates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="usnInput" class="form-control" placeholder="Enter student USN">
+                        <button class="btn btn-primary" type="button" id="searchUsnBtn">Search</button>
+                    </div>
+                    
+                    <div id="studentSearchResults" class="mt-3">
+                        <!-- Student cards will be dynamically added here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSelectedCandidates">Save Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Initialize the selected candidates array
+        let selectedCandidates = [];
+        
+        function toggleQuestionFields() {
+            const type = document.getElementById("questionType").value;
+            document.getElementById("mcqFields").style.display = type === "mcq" || type === "mcq&coding" ? "block" : "none";
+            document.getElementById("codingFields").style.display = type === "coding" || type === "mcq&coding" ? "block" : "none";
+            document.getElementById("totalQuestionFields").style.display = type === "mcq&coding" ? "block" : "none";
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleQuestionFields();
+            
+            // Search button click handler
+            document.getElementById('searchUsnBtn').addEventListener('click', function() {
+                const usn = document.getElementById('usnInput').value.trim();
+                if (usn) {
+                    searchStudent(usn);
+                }
+            });
+            
+            // USN input enter key handler
+            document.getElementById('usnInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('searchUsnBtn').click();
+                }
+            });
+            
+            // Save selected candidates button handler
+            document.getElementById('saveSelectedCandidates').addEventListener('click', function() {
+                updateSelectedCandidatesDisplay();
+                // Close the modal
+                bootstrap.Modal.getInstance(document.getElementById('selectCandidatesModal')).hide();
+            });
+            
+            // Form submission handler
+            document.getElementById('createExamForm').addEventListener('submit', function(e) {
+                // Prepare selected candidates for form submission
+                document.getElementById('selectedCandidatesInput').value = JSON.stringify(selectedCandidates);
+            });
+        });
+        
+        // Function to search for a student by USN
+        function searchStudent(usn) {
+            // Show loading indicator
+            document.getElementById('studentSearchResults').innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            // Make AJAX request to backend
+            fetch(`/admin/search_student?usn=${encodeURIComponent(usn)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayStudentCard(data.student);
+                    } else {
+                        document.getElementById('studentSearchResults').innerHTML = 
+                            `<div class="alert alert-warning">No student found with USN: ${usn}</div>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('studentSearchResults').innerHTML = 
+                        `<div class="alert alert-danger">Error searching for student: ${error.message}</div>`;
+                });
+        }
+        
+        // Function to display student card
+        function displayStudentCard(student) {
+            const resultsContainer = document.getElementById('studentSearchResults');
+            
+            // Check if student is already selected
+            const isSelected = selectedCandidates.some(c => c.usn === student.usn);
+            
+            const cardHtml = `
+                <div class="student-card ${isSelected ? 'selected' : ''}" data-usn="${student.usn}">
+                    <button type="button" class="btn ${isSelected ? 'btn-success' : 'btn-outline-primary'} btn-sm btn-select" 
+                            onclick="toggleStudentSelection('${student.usn}', '${student.name}', '${student.department}')">
+                        ${isSelected ? '<i class="bi bi-check"></i> Selected' : 'Select'}
+                    </button>
+                    <h5>${student.name}</h5>
+                    <p><strong>USN:</strong> ${student.usn}</p>
+                    <p><strong>Department:</strong> ${student.department}</p>
+                    <p><strong>Semester:</strong> ${student.semester}</p>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = cardHtml;
+        }
+        
+        // Function to toggle student selection
+        function toggleStudentSelection(usn, name, department) {
+            const index = selectedCandidates.findIndex(c => c.usn === usn);
+            const studentCard = document.querySelector(`.student-card[data-usn="${usn}"]`);
+            const selectBtn = studentCard.querySelector('.btn-select');
+            
+            if (index === -1) {
+                // Add student to selected candidates
+                selectedCandidates.push({ usn, name, department });
+                studentCard.classList.add('selected');
+                selectBtn.classList.remove('btn-outline-primary');
+                selectBtn.classList.add('btn-success');
+                selectBtn.innerHTML = '<i class="bi bi-check"></i> Selected';
+            } else {
+                // Remove student from selected candidates
+                selectedCandidates.splice(index, 1);
+                studentCard.classList.remove('selected');
+                selectBtn.classList.remove('btn-success');
+                selectBtn.classList.add('btn-outline-primary');
+                selectBtn.innerHTML = 'Select';
+            }
+        }
+        
+        // Function to update the selected candidates display in the main form
+        function updateSelectedCandidatesDisplay() {
+            const container = document.getElementById('selectedCandidatesSection');
+            const list = document.getElementById('selectedCandidatesList');
+            
+            if (selectedCandidates.length > 0) {
+                let html = '';
+                selectedCandidates.forEach(candidate => {
+                    html += `
+                        <div class="candidate-badge">
+                            ${candidate.name} (${candidate.usn})
+                            <span class="remove-btn" onclick="removeCandidate('${candidate.usn}')">&times;</span>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+        
+        // Function to remove a candidate
+        function removeCandidate(usn) {
+            const index = selectedCandidates.findIndex(c => c.usn === usn);
+            if (index !== -1) {
+                selectedCandidates.splice(index, 1);
+                updateSelectedCandidatesDisplay();
+            }
+        }
+
+        
+        function viewCandidates(examId) {
+            fetch(`/exam/${examId}/eligible-students`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayStudentCard(data.student);
+                    } else {
+                        document.getElementById('studentSearchResults').innerHTML = 
+                            `<div class="alert alert-warning">No student found with USN: ${usn}</div>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('studentSearchResults').innerHTML = 
+                        `<div class="alert alert-danger">Error searching for student: ${error.message}</div>`;
+                });
+        }
+    </script>
 </body>
 </html>

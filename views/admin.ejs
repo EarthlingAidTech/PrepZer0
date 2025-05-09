@@ -560,6 +560,9 @@
                                                 </form>
                                             <% } else { %>
                                                 <!-- Show normal action buttons for other exam statuses -->
+                                                <a href="admin/exam/<%= exam._id %>/eligible-students" class="btn btn-sm btn-secondary">
+                                                    <i class="fas fa-users"></i> View Invited Candidates
+                                                </a>
                                                 <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>

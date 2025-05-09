@@ -1,5 +1,6 @@
 // controllers/examController.js
 const Exam = require("../models/Exam");
+const ExamCandidate = require('../models/ExamCandidate');
 const User = require("./../models/usermodel");
 const { v4: uuidv4 } = require("uuid");
 const passport = require("passport");
@@ -32,10 +33,50 @@ exports.getExam = async (req, res) => {
     }
 };
 
+
+
+exports.searchStudent = async (req, res) => {
+    try {
+      const { usn } = req.query;
+      
+      const student = await User.findOne({ USN : usn });
+      
+      if (student) {
+        return res.json({
+          success: true,
+          student: {
+            usn: student.USN,
+            name: student.name,
+            department: student.Department,
+            semester: student.Semester,
+            _id: student._id
+          }
+        });
+      } else {
+        return res.json({
+          success: false,
+          message: 'Student not found'
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error'
+      });
+    }
+  };
+
+
+
+
+
+
+
+
 exports.createExam = async (req, res) => {
     try {
-        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill , draft } = req.body;
-        console.log(req.body);
+        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill,additionalCandidates, draft } = req.body;
         if(!scheduleTill || !scheduledAt){
             console.log("what the fuck")
             const newExamss = new Exam({
@@ -94,13 +135,113 @@ exports.createExam = async (req, res) => {
             createdBy: req.user.id,
         });
 
-        await newExam.save();
+        const exam = await newExam.save();
+         // Process additional candidates if any
+        if (additionalCandidates) {
+        const candidates = JSON.parse(additionalCandidates);
+        
+        if (candidates.length > 0) {
+          const candidatesData = candidates.map(candidate => ({
+            exam: exam._id,
+            usn: candidate.usn,
+            isAdditional: true
+        }));
+          
+          await ExamCandidate.insertMany(candidatesData);
+        }
+        }
+        req.flash('success', draft ? 'Exam saved as draft successfully' : 'Exam created successfully');
         res.redirect("/admin");
     }
     } catch (error) {
         res.status(400).send(error.message);
     }
 };
+
+
+
+
+// Get eligible students for an exam
+exports.getEligibleStudents = async (req, res) => {
+    try {
+      const { examId } = req.params;
+      
+      const exam = await Exam.findById(examId);
+      if (!exam) {
+        return res.status(404).json({
+          success: false,
+          message: 'Exam not found'
+        });
+      }
+      
+      // Get students from eligible departments and semester
+      const departmentStudents = await User.find({
+        Department: { $in: exam.departments },
+        Semester: exam.semester
+      });
+      
+      // Get additional candidates from ExamCandidate model
+      const additionalCandidates = await ExamCandidate.find({
+        exam: examId,
+        isAdditional: true
+      });
+      
+      console.log("Additional candidates found:", additionalCandidates);
+      
+      const allStudents = [...departmentStudents];
+      
+      // For each additional candidate, find the student in the User model by USN
+      for (const candidate of additionalCandidates) {
+        // Check if the student is already included based on USN
+        const isAlreadyIncluded = allStudents.some(student => 
+          student.usn === candidate.usn
+        );
+        
+        if (!isAlreadyIncluded && candidate.usn) {
+          try {
+            // Find the student by USN in the User model (not by ID)
+            const studentData = await User.findOne({ USN: candidate.usn });
+            
+            if (studentData) {
+              // Student found in User model, add to the list
+              allStudents.push(studentData);
+            } else {
+              // Student not found in User model, add basic info
+              allStudents.push({
+                usn: candidate.usn,
+                name: 'Unknown Student',
+                Department: 'Additional',
+                Semester: exam.semester
+              });
+            }
+          } catch (err) {
+            console.error("Error finding student by USN:", err);
+            // Fall back to basic info on error
+            allStudents.push({
+              usn: candidate.usn,
+              name: 'Unknown Student',
+              Department: 'Additional',
+              Semester: exam.semester
+            });
+          }
+        }
+      }
+      
+      return res.render("view_selected_students", {
+        students: allStudents
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        success: false,
+        message: 'Server error'
+      });
+    }
+  };
+
+
+
+
 
 exports.getEditExam = async (req, res) => {
     if (req.isAuthenticated()) {

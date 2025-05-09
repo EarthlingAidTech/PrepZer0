@@ -32,6 +32,8 @@ router.route("/exam/:examId/delete/coding/:codingId").post(questionController.de
 
 
 
+
+
 router.route("/create_exam").get(examController.getExam).post( examController.createExam);
 router.route("/login").get(admincontroller.logingetcontrol).post(admincontroller.loginpostcontrol)
 router.route("/signup").get(admincontroller.signupgetcontrol).post(admincontroller.signuppostcontrol)
@@ -47,7 +49,10 @@ router.route("/exam/candidates/:examId").get(admincontroller.examCandidates)
 
 router.route("/exam/submission/:submissionId").get(reportController.viewAssessmentReport)
 
+router.route("/search_student").get(examController.searchStudent)
 
+// Get eligible students for an exam
+router.route('/exam/:examId/eligible-students').get(examController.getEligibleStudents);
 
 
 
