@@ -58,13 +58,22 @@ app.use(bodyParser.json({ limit: '100mb', parameterLimit: 100000  })); // Adjust
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 100000 }));
 //configuring sessions
 app.use(session({
-    secret: 'this is my secretenviroment file',
-    resave : false,
-    saveUninitialized: false ,
-    secure : false , 
-    store: MongoStore.create({
+  secret: 'this is my secretenviroment file',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true, // Required for secure cookies behind load balancers
+  cookie: {
+      secure: process.env.NODE_ENV === 'production', // Only use secure in production
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  },
+  store: MongoStore.create({
       mongoUrl: dburl,
-      touchAfter: 24 * 3600 // Only update once in 24 hours
+      touchAfter: 24 * 3600, // Only update once in 24 hours
+      crypto: {
+          secret: 'squirrel' // Add an encryption key for the session data
+      }
   }),
 }))
 app.use(flash());
@@ -129,12 +138,21 @@ const admin = require('./routes/admin')
 const authenticateing = require('./routes/authenticate')
 const profile = require('./routes/profile')
 const userauth = require('./routes/userauth')
-
-app.get('/logout', async (req, res, next) => {
+app.get('/logout', (req, res, next) => {
+  // Clear both the session and authentication
   req.logout((err) => {
     if (err) { 
-      return next(err); }
-    req.session.destroy(() => {
+      console.error("Logout error:", err);
+      return next(err); 
+    }
+    
+    // Force session regeneration to ensure complete cleanup
+    req.session.regenerate((regenerateErr) => {
+      if (regenerateErr) {
+        console.error("Session regeneration error:", regenerateErr);
+        return next(regenerateErr);
+      }
+      
       res.redirect('/');
     });
   });
@@ -180,22 +198,6 @@ try {
 }
 });
 
-// app.post('/save-image', upload.single('image'),async (req, res) => {
-//   try {
-//     const { userId, examId } = req.body;
-//     const user = await User.findById(userId);
-//     const usn = user.USN;
-//     const dir = path.join(__dirname, 'integrity', usn, examId);
-//     fs.mkdirSync(dir, { recursive: true });
-//     const fileName = `captured-${Date.now()}.jpg`;
-//     const fullPath = path.join(dir, fileName);
-//     fs.writeFileSync(fullPath, req.file.buffer);
-//     res.json({ message: 'Image saved!', path: fullPath });
-//   } catch (err) {
-//     console.error('Error saving image:', err);
-//     res.status(500).send('Server error');
-//   }
-// });
 
 app.post('/save-image', upload.single('image'), async (req, res) => {
   try {
