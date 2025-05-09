@@ -546,10 +546,10 @@
                                         <span class="status-pill <%= statusClass %>"></span>
                                         <%= status %>
                                     </td>
-                                    <td>
-                                        <div class="actions">
+                                    <!-- <td> -->
+                                        <!-- <div class="actions">
                                             <% if (statusType === 'completed') { %>
-                                                <!-- Modified: Added Delete button for completed exams -->
+                                             
                                                 <a href="/admin/exam/candidates/<%= exam._id %>" class="btn btn-sm btn-secondary">
                                                     <i class="fas fa-users"></i> View Candidates
                                                 </a>
@@ -559,7 +559,35 @@
                                                     </button>
                                                 </form>
                                             <% } else { %>
-                                                <!-- Show normal action buttons for other exam statuses -->
+                                             
+                                                <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="/admin/exam/questions/<%= exam._id %>" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-list-check"></i> Questions
+                                                </a>
+                                                <form action="/admin/exam/delete/<%= exam._id %>" method="POST" style="display:inline">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this exam?')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            <% } %>
+                                        </div> -->
+                                    <!-- </td> -->
+                                    <td>
+                                        <div class="actions">
+                                            <% if (statusType === 'completed' || statusType === 'active') { %>
+                                                <!-- Show View Candidates and Delete for both completed and active exams -->
+                                                <a href="/admin/exam/candidates/<%= exam._id %>" class="btn btn-sm btn-secondary">
+                                                    <i class="fas fa-users"></i> View Candidates
+                                                </a>
+                                                <form action="/admin/exam/delete/<%= exam._id %>" method="POST" style="display:inline">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this exam?')">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            <% } else { %>
+                                                <!-- Show normal action buttons for upcoming and draft exams -->
                                                 <a href="/admin/exam/<%= exam._id %>" class="btn btn-sm btn-warning">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
