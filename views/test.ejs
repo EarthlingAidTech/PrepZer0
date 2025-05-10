@@ -680,7 +680,37 @@ function handleRefreshDetection() {
 document.addEventListener('DOMContentLoaded', function() {
     // Check if exam has started
     const examStarted = localStorage.getItem('examStarted');
+    function sendActivityPing() {
+        
+        fetch('/dashboard/see-active', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                examId: "<%= exam._id %>",  // Use the template variable
+                userId: "<%= user._id %>",  // Use the template variable
+                timestamp: new Date().toISOString()
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Failed to send activity ping');
+                
+            }else{
+                
+            }
+        })
+        .catch(error => {
+           
+           
+        });
+    }
     
+    // Send first ping immediately
+    sendActivityPing();
+    const pingInterval = setInterval(sendActivityPing, 20000);
+
     if (examStarted === 'true') {
         // Add refresh violation elements to the integrity panel
         const integrityCols = document.querySelectorAll('#examin .col-md-6');
@@ -1275,46 +1305,6 @@ function loadExamState() {
     }
 }
 
-// function startWebcamCapture() {
-    
-//     const canvas = document.getElementById('canvas');
-//     const context = canvas.getContext('2d');
-
-//     navigator.mediaDevices.getUserMedia({ video: true })
-//         .then((stream) => {
-//             const video = document.createElement('video');
-//             video.srcObject = stream;
-//             video.play();
-
-//             setInterval(() => {
-//                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-//                 canvas.toBlob((blob) => {
-//                     if (!blob) return;
-
-//                     const formData = new FormData();
-//                     formData.append('image', blob, `capture-${Date.now()}.png`);
-//                     formData.append('userId', "<%= user._id %>");
-//                     formData.append('examId', "<%= exam._id %>");
-
-//                     fetch('/save-image', { 
-//                         method: 'POST',
-//                         body: formData,
-//                     })
-                    
-//                     .then(response => response.json())
-//                     .then(data => console.log('Image saved:', data))
-//                     .catch(error => console.error('Error saving image:', error));
-
-//                 }, 'image/png');
-
-//             }, 5000);
-//         })
-//         .catch((error) => {
-//             console.error("Error accessing webcam:", error);
-//             alert("Unable to access the webcam. Please allow access.");
-//         });
-// }
 function startWebcamCapture() {
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
@@ -1382,6 +1372,23 @@ function preventBackButton() {
 // Handle page refresh or close attempt
 window.addEventListener('beforeunload', function(e) {
     if (localStorage.getItem('examStarted')=="true"){
+        clearInterval(pingInterval);
+        
+        // Send final ping with status=inactive
+        fetch('/dashboard/see-active', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                examId: "<%= exam._id %>",
+                userId: "<%= user._id %>",
+                timestamp: new Date().toISOString(),
+                status: 'inactive' // Optional: indicate user is leaving
+            }),
+            // Use keepalive to ensure the request completes even when page is unloading
+            keepalive: true
+        });
     if (localStorage.getItem('examSubmitting') === 'true') {
         return;
     }
@@ -1456,6 +1463,9 @@ document.addEventListener('paste', (e) => {
 // Question navigation event listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Check if already started
+
+
+
     const examStarted = localStorage.getItem('examStarted');
     if (examStarted === 'true') {
         document.getElementById("startExamBtn").style.display = "none";

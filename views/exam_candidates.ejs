@@ -391,6 +391,7 @@
                             <th>Roll No.</th>
                             <th>Department</th>
                             <th>Semester</th>
+                            <th>Activity Status</th>
                             <th>Score</th>
                             <th>Submitted At</th>
                             <th>Actions</th>
@@ -405,10 +406,29 @@
                                     <td><span class="department-badge"><%= candidate.student.Department || 'N/A' %></span></td>
                                     <td><%= candidate.student.Semester || 'N/A' %></td>
                                     <td>
+                                        <% if (candidate.activityStatus) { %>
+                                            <% let statusClass = candidate.activityStatus === 'active' ? 'badge-success' : 
+                                                (candidate.activityStatus === 'inactive' ? 'badge-warning' : 'badge-secondary') %>
+                                            <span class="badge <%= statusClass %>">
+                                                <%= candidate.activityStatus %>
+                                            </span>
+                                            <% if (candidate.lastActive) { %>
+                                                <br>
+                                                <small class="text-muted">
+                                                    Last seen: <%= new Date(candidate.lastActive).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                                </small>
+                                            <% } %>
+                                        <% } else { %>
+                                            <span class="badge badge-secondary">offline</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
                                         <% if (typeof candidate.score === 'number') { %>
                                             <span class="badge <%= candidate.score >= 70 ? 'badge-success' : 'badge-warning' %>">
                                                 <%= candidate.score %>%
                                             </span>
+                                        <% } else if (candidate.score === 'In progress') { %>
+                                            <span class="badge badge-info">In progress</span>
                                         <% } else { %>
                                             <span class="badge">N/A</span>
                                         <% } %>
@@ -417,24 +437,32 @@
                                         <% if (candidate.submittedAt) { %>
                                             <%= new Date(candidate.submittedAt).toLocaleDateString() %> 
                                             <%= new Date(candidate.submittedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                        <% } else if (candidate.activityStatus === 'active') { %>
+                                            <span class="badge badge-info">Exam in progress</span>
                                         <% } else { %>
                                             N/A
                                         <% } %>
                                     </td>
                                     <td>
-                                        <a href="/admin/exam/submission/<%= candidate.submission._id %>" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> View Details
-                                        </a>
+                                        <% if (candidate.submission && candidate.submission._id) { %>
+                                            <a href="/admin/exam/submission/<%= candidate.submission._id %>" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                        <% } else { %>
+                                            <button class="btn btn-sm btn-secondary" disabled>
+                                                <i class="fas fa-clock"></i> Pending
+                                            </button>
+                                        <% } %>
                                     </td>
                                 </tr>
                             <% }) %>
                         <% } else { %>
                             <tr id="no-candidates">
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="empty-state">
                                         <i class="fas fa-users"></i>
                                         <h3>No Candidates Found</h3>
-                                        <p>No students have taken this exam yet</p>
+                                        <p>No students have taken or started this exam yet</p>
                                     </div>
                                 </td>
                             </tr>
@@ -480,6 +508,57 @@
                 if (noCandidates && rows.length === 0) noCandidates.style.display = '';
             }
         }
+
+        // Auto-refresh the page every 30 seconds to update activity status
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
     </script>
+
+    <style>
+        /* Additional styles for activity status */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .badge-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: #FFC107;
+            color: #333;
+        }
+        
+        .badge-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .badge-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .text-muted {
+            color: #6c757d;
+            font-size: 11px;
+        }
+
+        /* Highlight for active students who haven't submitted */
+        tr.candidate-row:has(.badge-info) {
+            background-color: rgba(23, 162, 184, 0.05);
+        }
+        
+        /* Active student highlight */
+        tr.candidate-row:has(.badge-success) {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+    </style>
 </body>
 </html>
