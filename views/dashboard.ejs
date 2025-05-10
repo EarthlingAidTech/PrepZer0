@@ -21,7 +21,7 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         .dashboard-header {
-            background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+            background: #1F2937;
             color: white;
             padding: 30px 0;
             margin-bottom: 30px;
@@ -86,11 +86,22 @@
             background-color: #007bff;
         }
         .nav-tabs .nav-link.active {
-            border-bottom: 3px solid #007bff;
-            font-weight: bold;
+            color: white;
+            background-color: #1F2937;
+            border-color: #4F46E5;
+        }
+        .nav-tabs .nav-link {
+            color: white;
+            background-color: #1F2937;
         }
         .navbar {
             background-color: #121827 !important;
+        }
+        .bg-white {
+            background-color: #1F2937 !important;
+        }
+        .bg-dark {
+            background-color: #1F2937 !important;
         }
     </style>
 </head>
@@ -168,7 +179,7 @@
         </div>
 
         <div class="row">
-            <!-- <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card stats-card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Academic Progress</h5>
@@ -179,8 +190,8 @@
                         <p class="card-text text-muted">Overall performance across all subjects</p>
                     </div>
                 </div>
-            </div> -->
-            <!-- <div class="col-lg-4 col-md-6 mb-4">
+            </div>
+            <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card stats-card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Upcoming Exams</h5>
@@ -190,8 +201,8 @@
                         <a href="#upcoming" class="btn btn-sm btn-outline-primary">View All</a>
                     </div>
                 </div>
-            </div> -->
-            <!-- <div class="col-lg-4 col-md-12 mb-4">
+            </div>
+            <div class="col-lg-4 col-md-12 mb-4">
                 <div class="card stats-card h-100">
                     <div class="card-body">
                         <h5 class="card-title">Recent Activity</h5>
@@ -241,21 +252,23 @@
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
 
         <div class="row mt-4">
             <div class="col-md-12">
                 <ul class="nav nav-tabs" id="examTabs" role="tablist">
-                    <li class="nav-item">
+                    <li class="nav-item mr-2">
                         <a class="nav-link active" id="upcoming-tab" data-toggle="tab" href="#upcoming" role="tab" aria-controls="upcoming" aria-selected="true">Upcoming Exams</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mr-2">
                         <a class="nav-link" id="completed-tab" data-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">Completed Exams</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item mr-2">
                         <a class="nav-link" id="performance-tab" data-toggle="tab" href="#performance" role="tab" aria-controls="performance" aria-selected="false">Performance</a>
                     </li>
+                    
+                    
                 </ul>
                 
                 <div class="tab-content p-3 bg-white border border-top-0 rounded-bottom" id="examTabsContent">
