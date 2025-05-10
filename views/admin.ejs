@@ -539,7 +539,10 @@
                                     </td>
                                     <td>
                                         <div><i class="far fa-calendar-alt"></i> <%= startDate.toLocaleDateString() %></div>
-                                        <div><i class="far fa-clock"></i> <%= startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %> - <%= endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %></div>
+                                        <div>
+                                            <i class="far fa-clock"></i> 
+                                            <%= startDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Kolkata'}) %> - <%= endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Kolkata'}) %>
+                                        </div>
                                     </td>
                                     <td><%= exam.duration %> mins</td>
                                     <td>
