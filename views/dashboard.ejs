@@ -89,10 +89,14 @@
             color: white;
             background-color: #1F2937;
             border-color: #4F46E5;
+            border-width: 2px;
         }
         .nav-tabs .nav-link {
             color: white;
             background-color: #1F2937;
+        }
+        .nav-tabs{
+            border-bottom: none;
         }
         .navbar {
             background-color: #121827 !important;
@@ -103,6 +107,17 @@
         .bg-dark {
             background-color: #1F2937 !important;
         }
+        .tab-content{
+            margin-top: 1rem;
+        }
+        .card-body{
+            background-color: #1F2937;
+            color: #fff;
+        }
+        .text-muted {
+            color: #fff !important;
+        }
+
     </style>
 </head>
 <body>
@@ -271,7 +286,7 @@
                     
                 </ul>
                 
-                <div class="tab-content p-3 bg-white border border-top-0 rounded-bottom" id="examTabsContent">
+                <div class="tab-content p-3 bg-white border border-top-1 rounded-bottom" id="examTabsContent">
                     <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
                         <% exams.forEach(exam => { 
                             if (!exam.alreadyGiven) { %>
