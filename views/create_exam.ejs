@@ -1,5 +1,3 @@
-
-<!-- views/admin/create_exam.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +6,8 @@
     <title>Create Exam</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Add Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
         body {
             background-color: #141D2F;
@@ -99,12 +99,47 @@
         .alert {
             margin-bottom: 20px;
         }
+        /* Date picker styles */
+        .date-time-group {
+            position: relative;
+        }
+        .date-time-group .icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0d6efd;
+            pointer-events: none;
+        }
+        /* Flatpickr custom styles */
+        .flatpickr-calendar {
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        .flatpickr-day.selected {
+            background: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .flatpickr-time input:hover,
+        .flatpickr-time .flatpickr-am-pm:hover,
+        .flatpickr-time input:focus,
+        .flatpickr-time .flatpickr-am-pm:focus {
+            background: #e9ecef;
+        }
+        /* Quick duration buttons */
+        .duration-quick-select {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .duration-quick-select button {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        
-
         <h2 class="text-center mb-4">Create Exam</h2>
         <form id="createExamForm" action="/admin/create_exam" method="POST">
             <div class="form-group">
@@ -159,9 +194,18 @@
 
             <div class="form-group">
                 <label for="semester">Semester:</label>
-                <input type="number" id="semester" name="semester" class="form-control form-control-sm" min="1" max="8" required>
+                <select id="semester" name="semester" class="form-control form-control-sm" required>
+                    <option value="" disabled selected>Select semester</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                    <option value="7">Semester 7</option>
+                    <option value="8">Semester 8</option>
+                </select>
             </div>
-
             <div class="form-group">
                 <label for="questionType">Question Type:</label>
                 <select id="questionType" name="questionType" class="form-control form-control-sm" onchange="toggleQuestionFields()" required>
@@ -189,22 +233,41 @@
             <div class="form-group">
                 <label for="duration">Duration (minutes):</label>
                 <input type="number" id="duration" name="Duration" class="form-control form-control-sm">
+                <!-- Quick duration buttons -->
+                <div class="duration-quick-select">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(30)">30 min</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(60)">1 hour</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(90)">1.5 hours</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(120)">2 hours</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(180)">3 hours</button>
+                </div>
+            </div>
+
+            <!-- Improved date-time picker fields -->
+            <div class="form-group">
+                <label for="scheduledAt">Exam Start Time:</label>
+                <div class="date-time-group">
+                    <input type="text" id="scheduledAt" name="scheduledAt" class="form-control form-control-sm" placeholder="Select date and time" readonly>
+                    <span class="icon"><i class="bi bi-calendar-event"></i></span>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="scheduledAt">Scheduled At:</label>
-                <input type="datetime-local" id="scheduledAt" name="scheduledAt" class="form-control form-control-sm">
+                <label for="scheduleTill">Exam End Time:</label>
+                <div class="date-time-group">
+                    <input type="text" id="scheduleTill" name="scheduleTill" class="form-control form-control-sm" placeholder="Select date and time" readonly>
+                    <span class="icon"><i class="bi bi-calendar-event"></i></span>
+                </div>
+                <div class="text-muted small mt-1" id="durationDisplay"></div>
             </div>
 
-            <div class="form-group">
-                <label for="scheduleTill">Scheduled Till:</label>
-                <input type="datetime-local" id="scheduleTill" name="scheduleTill" class="form-control form-control-sm">
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-outline-primary btn-sm" id="calculateEndTime">Calculate End Time From Duration</button>
             </div>
 
             <div class="text-center mt-4">
                 <button type="submit" name="draft" value="draft" class="btn btn-secondary btn-sm ms-2">Save to Draft</button>
                 <button type="submit" name="action" value="create" class="btn btn-primary btn-sm">Create Exam</button>
-
             </div>
         </form>
     </div>
@@ -235,10 +298,13 @@
         </div>
     </div>
 
+    <!-- Add Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Initialize the selected candidates array
         let selectedCandidates = [];
+        let startDatePicker, endDatePicker;
         
         function toggleQuestionFields() {
             const type = document.getElementById("questionType").value;
@@ -247,8 +313,63 @@
             document.getElementById("totalQuestionFields").style.display = type === "mcq&coding" ? "block" : "none";
         }
         
+        // Function to set duration quickly
+        function setDuration(minutes) {
+            document.getElementById('duration').value = minutes;
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             toggleQuestionFields();
+            
+            // Initialize Flatpickr date pickers
+            const commonConfig = {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                minuteIncrement: 5,
+                allowInput: true
+            };
+            
+            // Start date picker
+            startDatePicker = flatpickr("#scheduledAt", {
+                ...commonConfig,
+                minDate: "today",
+                onChange: function(selectedDates, dateStr) {
+                    // Update the minimum date of the end date picker
+                    endDatePicker.set('minDate', dateStr);
+                    
+                    // If end date is before start date, update it
+                    if (endDatePicker.selectedDates[0] < selectedDates[0]) {
+                        endDatePicker.setDate(selectedDates[0]);
+                    }
+                    
+                    updateDurationDisplay();
+                }
+            });
+            
+            // End date picker
+            endDatePicker = flatpickr("#scheduleTill", {
+                ...commonConfig,
+                minDate: "today",
+                onChange: function() {
+                    updateDurationDisplay();
+                }
+            });
+            
+            // Calculate end time button
+            document.getElementById('calculateEndTime').addEventListener('click', function() {
+                const duration = parseInt(document.getElementById('duration').value);
+                const startDate = startDatePicker.selectedDates[0];
+                
+                if (isNaN(duration) || !startDate) {
+                    alert('Please enter a valid duration and start time first');
+                    return;
+                }
+                
+                // Calculate end time
+                const endDate = new Date(startDate.getTime() + duration * 60000);
+                endDatePicker.setDate(endDate);
+            });
             
             // Search button click handler
             document.getElementById('searchUsnBtn').addEventListener('click', function() {
@@ -277,8 +398,87 @@
             document.getElementById('createExamForm').addEventListener('submit', function(e) {
                 // Prepare selected candidates for form submission
                 document.getElementById('selectedCandidatesInput').value = JSON.stringify(selectedCandidates);
+                
+                // Validate form
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return false;
+                }
             });
         });
+        
+        // Function to update the duration display
+        function updateDurationDisplay() {
+            const startDate = startDatePicker.selectedDates[0];
+            const endDate = endDatePicker.selectedDates[0];
+            
+            if (startDate && endDate) {
+                if (endDate < startDate) {
+                    document.getElementById('durationDisplay').innerHTML = 
+                        '<span class="text-danger">End time must be after start time</span>';
+                    return;
+                }
+                
+                const diffMs = endDate - startDate;
+                const diffMins = Math.round(diffMs / 60000);
+                const hours = Math.floor(diffMins / 60);
+                const mins = diffMins % 60;
+                
+                let durationText = '';
+                if (hours > 0) {
+                    durationText += hours + ' hour' + (hours > 1 ? 's' : '');
+                }
+                if (mins > 0) {
+                    if (durationText) durationText += ' and ';
+                    durationText += mins + ' minute' + (mins > 1 ? 's' : '');
+                }
+                
+                document.getElementById('durationDisplay').innerHTML = 
+                    `Exam duration: <strong>${durationText}</strong>`;
+                
+                // Update the duration input if it's empty
+                if (!document.getElementById('duration').value) {
+                    document.getElementById('duration').value = diffMins;
+                }
+            } else {
+                document.getElementById('durationDisplay').innerHTML = '';
+            }
+        }
+        
+        // Form validation function
+        function validateForm() {
+            const startDate = startDatePicker.selectedDates[0];
+            const endDate = endDatePicker.selectedDates[0];
+            const duration = document.getElementById('duration').value;
+            const examName = document.getElementById('examName').value;
+            
+            if (!examName.trim()) {
+                alert('Please enter an exam name');
+                return false;
+            }
+            
+            if (!startDate) {
+                alert('Please select a start time for the exam');
+                return false;
+            }
+            
+            if (!endDate) {
+                alert('Please select an end time for the exam');
+                return false;
+            }
+            
+            if (endDate <= startDate) {
+                alert('End time must be after start time');
+                return false;
+            }
+            
+            if (!duration || isNaN(duration) || duration <= 0) {
+                alert('Please enter a valid duration');
+                return false;
+            }
+            
+            return true;
+        }
         
         // Function to search for a student by USN
         function searchStudent(usn) {
@@ -377,24 +577,6 @@
                 selectedCandidates.splice(index, 1);
                 updateSelectedCandidatesDisplay();
             }
-        }
-
-        
-        function viewCandidates(examId) {
-            fetch(`/exam/${examId}/eligible-students`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        displayStudentCard(data.student);
-                    } else {
-                        document.getElementById('studentSearchResults').innerHTML = 
-                            `<div class="alert alert-warning">No student found with USN: ${usn}</div>`;
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('studentSearchResults').innerHTML = 
-                        `<div class="alert alert-danger">Error searching for student: ${error.message}</div>`;
-                });
         }
     </script>
 </body>
