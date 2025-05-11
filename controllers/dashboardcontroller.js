@@ -2,6 +2,7 @@ const User = require("./../models/usermodel");
 const Exam = require("../models/Exam");
 const Submission = require("./../models/SubmissionSchema");
 const { redirect } = require("express/lib/response");
+const MCQQuestion = require("./../models/MCQQuestion")
 // exports.getcontrol = async (req, res) => {
 //     if (req.isAuthenticated()) {
 //         try {
@@ -161,11 +162,83 @@ exports.postStartExam = async(req,res)=>{
             }
         }
 
+
+
+        // Calculate scores
+        let totalScore = 0;
+        let maxPossibleScore = 0;
+        
+        // Score MCQ questions
+        if (mcqAnswers.length > 0) {
+            // Get all question IDs from MCQ answers
+            const mcqQuestionIds = mcqAnswers.map(answer => answer.questionId);
+            
+            // Fetch questions from database
+            const mcqQuestions = await MCQQuestion.find({
+                _id: { $in: mcqQuestionIds },
+            });
+            
+            // Calculate MCQ scores
+            for (const answer of mcqAnswers) {
+                const question = mcqQuestions.find(q => q._id.toString() === answer.questionId);
+                if (question) {
+                    const pointsPerQuestion = question.marks || 1; // Default 1 point if not specified
+                    maxPossibleScore += pointsPerQuestion;
+                    
+                    if (answer.selectedOption === question.correctAnswer) {
+                        totalScore += pointsPerQuestion;
+                        answer.isCorrect = true;
+                        answer.points = pointsPerQuestion;
+                    } else {
+                        answer.isCorrect = false;
+                        answer.points = 0;
+                    }
+                }
+            }
+        }
+        
+        // // Score coding questions
+        // if (codingAnswers.length > 0) {
+        //     // Get all question IDs from coding answers
+        //     const codingQuestionIds = codingAnswers.map(answer => answer.questionId);
+            
+        //     // Fetch questions from database
+        //     const codingQuestions = await Question.find({
+        //         _id: { $in: codingQuestionIds },
+        //         type: "coding" // Assuming you have a type field to identify coding questions
+        //     });
+            
+        //     // For coding questions, we might need to run tests or compare with expected output
+        //     // This is a simplified version that assumes there's some way to automatically grade the code
+        //     // You might need to replace this with a more sophisticated grading system
+        //     for (const answer of codingAnswers) {
+        //         const question = codingQuestions.find(q => q._id.toString() === answer.questionId);
+        //         if (question) {
+        //             const pointsPerQuestion = question.points || 5; // Default 5 points for coding questions
+        //             maxPossibleScore += pointsPerQuestion;
+                    
+        //             // This is a placeholder - you'd need to implement actual code evaluation here
+        //             // For now, we're just marking all coding answers as "pending review"
+        //             answer.status = "pending_review";
+        //             answer.points = 0; // Will be updated after review
+        //         }
+        //     }
+        // }
+        
+        // Calculate percentage score
+        // const percentageScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
+
+
+
+
+
+
         const submission = new Submission({
             exam: exam._id,
             student: student._id,
             mcqAnswers,
             codingAnswers,
+            score:totalScore,
             submittedAt: new Date(),
         });
 
