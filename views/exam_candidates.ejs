@@ -378,7 +378,7 @@
         <!-- Candidates List -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Exam Candidates</h2>
+                <h2 class="card-title">Exam Candidates 74</h2>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search candidates..." oninput="searchCandidates()">
                 </div>
@@ -424,8 +424,8 @@
                                     </td>
                                     <td>
                                         <% if (typeof candidate.score === 'number') { %>
-                                            <span class="badge <%= candidate.score >= 70 ? 'badge-success' : 'badge-warning' %>">
-                                                <%= candidate.score %>%
+                                            <span class="badge <%= candidate.score >= 0 ? 'badge-success' : 'badge-warning' %>">
+                                                <%= candidate.score %>
                                             </span>
                                         <% } else if (candidate.score === 'In progress') { %>
                                             <span class="badge badge-info">In progress</span>
