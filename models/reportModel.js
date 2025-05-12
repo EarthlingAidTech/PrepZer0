@@ -248,7 +248,7 @@ class ReportModel {
         ranking: {
           rank: studentRank,
           totalStudents: totalStudents,
-          topPerformers: submissionsWithScores.slice(0, 33) // Get top 5 students
+          topPerformers: submissionsWithScores.slice(0, 3) // Get top 5 students
         }
       };
     } catch (error) {
