@@ -64,7 +64,7 @@ exports.viewAssessmentReport = async(req,res) => {
       }
       
       const reportData = await reportModel.getAssessmentReport(submissionId);
-      
+      console.log(reportData)
       // Render the EJS template with the report data
       res.render('assessment_report', { 
         title: 'PrepZer0 Assessment Report',
