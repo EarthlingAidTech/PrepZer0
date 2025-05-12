@@ -48,7 +48,14 @@ exports.deleteSubmission = async (req, res) => {
       message: 'Server error',
     });
   }
-};exports.viewAssessmentReport = async(req,res) => {
+};
+
+
+
+
+
+
+exports.viewAssessmentReport = async(req,res) => {
   try {
       const submissionId = req.params.submissionId;
       
