@@ -363,6 +363,130 @@ exports.signuppostcontrol = async(req,res)=>{
 // };
 
 
+// exports.examCandidates = async(req, res) => {
+//     try {
+//         const examId = req.params.examId;
+        
+//         // Fetch the exam details
+//         const exam = await Exam.findById(examId);
+        
+//         if (!exam) {
+//             return res.status(404).render('error', { 
+//                 message: 'Exam not found',
+//                 error: { status: 404, stack: '' } 
+//             });
+//         }
+        
+//         // Fetch all submissions related to this exam
+//         const submissions = await Submission.find({ exam: examId })
+//             .populate('student', 'USN email Department Semester Rollno _id') 
+//             .sort({ submittedAt: -1 }); // Most recent submissions first
+        
+//         // Fetch active sessions for this exam
+//         const activeSessions = await ActivityTracker.find({ examId: examId })
+//             .populate('userId', 'USN email Department Semester Rollno _id')
+//             .select('userId status lastPingTimestamp')
+//             .sort({ lastPingTimestamp: -1 });
+        
+//         // Convert active sessions to a map for easy lookup
+//         const activeSessionsMap = new Map();
+//         activeSessions.forEach(session => {
+//             // Skip if userId is not properly populated
+//             if (!session.userId || !session.userId._id) return;
+            
+//             const userId = session.userId._id.toString();
+//             activeSessionsMap.set(userId, {
+//                 status: session.status,
+//                 lastPing: session.lastPingTimestamp,
+//                 studentInfo: session.userId
+//             });
+//         });
+        
+//         // Create a set of student IDs who have submitted
+//         const submittedStudentIds = new Set();
+//         submissions.forEach(submission => {
+//             if (submission.student && submission.student._id) {
+//                 submittedStudentIds.add(submission.student._id.toString());
+//             }
+//         });
+        
+//         // First, process all submissions
+//         const studentMap = new Map();
+//         submissions.forEach(submission => {
+//             if (submission.student && submission.student._id && !studentMap.has(submission.student._id.toString())) {
+//                 const studentId = submission.student._id.toString();
+//                 const activeSession = activeSessionsMap.get(studentId);
+                
+//                 studentMap.set(studentId, {
+//                     student: submission.student,
+//                     submission: submission,
+//                     score: submission.score || 'N/A',
+//                     submittedAt: submission.submittedAt,
+//                     activityStatus: activeSession ? activeSession.status : 'offline',
+//                     lastActive: activeSession ? activeSession.lastPing : null,
+//                     hasSubmitted: true
+//                 });
+                
+//                 // Remove from active sessions map to avoid duplicates
+//                 activeSessionsMap.delete(studentId);
+//             }
+//         });
+        
+//         // Then, process active sessions of students who haven't submitted
+//         activeSessionsMap.forEach((session, studentId) => {
+//             if (!submittedStudentIds.has(studentId)) {
+//                 studentMap.set(studentId, {
+//                     student: session.studentInfo,
+//                     submission: null,
+//                     score: 'In progress',
+//                     submittedAt: null,
+//                     activityStatus: session.status,
+//                     lastActive: session.lastPing,
+//                     hasSubmitted: false
+//                 });
+//             }
+//         });
+        
+//         const candidates = Array.from(studentMap.values());
+        
+//         // Sort candidates: active students first, then by submission status and time
+//         candidates.sort((a, b) => {
+//             // First prioritize active status
+//             if (a.activityStatus === 'active' && b.activityStatus !== 'active') return -1;
+//             if (a.activityStatus !== 'active' && b.activityStatus === 'active') return 1;
+            
+//             // Then by submission status (submitted after non-submitted)
+//             if (a.hasSubmitted && !b.hasSubmitted) return -1;
+//             if (!a.hasSubmitted && b.hasSubmitted) return 1;
+            
+//             // Then by submission time (most recent first)
+//             if (a.submittedAt && b.submittedAt) {
+//                 return new Date(b.submittedAt) - new Date(a.submittedAt);
+//             }
+            
+//             // Finally by last active time
+//             if (a.lastActive && b.lastActive) {
+//                 return new Date(b.lastActive) - new Date(a.lastActive);
+//             }
+            
+//             return 0;
+//         });
+        
+//         // Render the candidates view
+//         res.render('exam_candidates', {
+//             title: `Candidates for ${exam.name}`,
+//             exam: exam,
+//             candidates: candidates
+//         });
+        
+//     } catch (error) {
+//         console.error('Error fetching exam candidates:', error);
+//         res.status(500).render('error', { 
+//             message: 'Error fetching exam candidates',
+//             error: { status: 500, stack: process.env.NODE_ENV === 'development' ? error.stack : '' } 
+//         });
+//     }
+// }
 exports.examCandidates = async(req, res) => {
     try {
         const examId = req.params.examId;
@@ -382,11 +506,53 @@ exports.examCandidates = async(req, res) => {
             .populate('student', 'USN email Department Semester Rollno _id') 
             .sort({ submittedAt: -1 }); // Most recent submissions first
         
+        // Create a set of student IDs who have submitted
+        const submittedStudentIds = new Set();
+        submissions.forEach(submission => {
+            if (submission.student && submission.student._id) {
+                submittedStudentIds.add(submission.student._id.toString());
+            }
+        });
+        
         // Fetch active sessions for this exam
         const activeSessions = await ActivityTracker.find({ examId: examId })
             .populate('userId', 'USN email Department Semester Rollno _id')
             .select('userId status lastPingTimestamp')
             .sort({ lastPingTimestamp: -1 });
+            
+        // Update status to offline for students who have submitted
+        const updatePromises = [];
+        activeSessions.forEach(session => {
+            if (session.userId && session.userId._id) {
+                const studentId = session.userId._id.toString();
+                
+                // If student has submitted, update their status to offline
+                if (submittedStudentIds.has(studentId) && session.status !== 'offline') {
+                    updatePromises.push(
+                        ActivityTracker.findByIdAndUpdate(
+                            session._id,
+                            { 
+                                status: 'offline',
+                                $push: { 
+                                    pingHistory: { 
+                                        timestamp: new Date(), 
+                                        status: 'offline' 
+                                    } 
+                                }
+                            }
+                        )
+                    );
+                    
+                    // Update the session object to reflect the new status
+                    session.status = 'offline';
+                }
+            }
+        });
+        
+        // Execute all update promises
+        if (updatePromises.length > 0) {
+            await Promise.all(updatePromises);
+        }
         
         // Convert active sessions to a map for easy lookup
         const activeSessionsMap = new Map();
@@ -396,18 +562,10 @@ exports.examCandidates = async(req, res) => {
             
             const userId = session.userId._id.toString();
             activeSessionsMap.set(userId, {
-                status: session.status,
+                status: session.status, // This now reflects the updated status
                 lastPing: session.lastPingTimestamp,
                 studentInfo: session.userId
             });
-        });
-        
-        // Create a set of student IDs who have submitted
-        const submittedStudentIds = new Set();
-        submissions.forEach(submission => {
-            if (submission.student && submission.student._id) {
-                submittedStudentIds.add(submission.student._id.toString());
-            }
         });
         
         // First, process all submissions
@@ -422,7 +580,7 @@ exports.examCandidates = async(req, res) => {
                     submission: submission,
                     score: submission.score || 'N/A',
                     submittedAt: submission.submittedAt,
-                    activityStatus: activeSession ? activeSession.status : 'offline',
+                    activityStatus: activeSession ? activeSession.status : 'offline', // Will be 'offline' based on our updates
                     lastActive: activeSession ? activeSession.lastPing : null,
                     hasSubmitted: true
                 });
