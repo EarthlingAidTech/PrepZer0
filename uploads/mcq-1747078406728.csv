@@ -1,0 +1,4 @@
+classification,question,option1,option2,option3,option4,correctAnswer,level,marks,createdBy
+"Data Structures","What is the time complexity of searching for an element in a balanced binary search tree?","O(1)","O(log n)","O(n)","O(n log n)","O(log n)","medium",2,"AdminUser"
+"Algorithms","Which sorting algorithm has the best average-case time complexity?","Bubble Sort","Quick Sort","Selection Sort","Insertion Sort","Quick Sort","hard",3,"AdminUser"
+"Databases","Which of the following is NOT a type of SQL join?","INNER JOIN","LEFT JOIN","PARALLEL JOIN","CROSS JOIN","PARALLEL JOIN","easy",1,"AdminUser"
