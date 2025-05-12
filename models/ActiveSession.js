@@ -14,7 +14,7 @@ const ActivityTrackerSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ["active", "inactive", "offline"],
-        default: "active"
+        default: "inactive"
     },
     lastPingTimestamp: {
         type: Date,
