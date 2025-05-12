@@ -1,173 +1,7 @@
-// // controllers/examController.js
-// const Exam = require("../models/Exam");
-// const User = require("./../models/usermodel");
-// const { v4: uuidv4 } = require("uuid");
-// const passport = require("passport");
-// const moment = require("moment-timezone");
-// function ensureAdmin(req, res, next) {
-//     if (req.isAuthenticated() && req.user.role === "admin") {
-//         return next();
-//     }
-//     res.status(401).send("Unauthorized: Admin access only.");
-// }
-
-// function ensureTeacher(req, res, next) {
-//     if (req.isAuthenticated() && req.user.role === "teacher") {
-//         return next();
-//     }
-//     res.status(401).send("Unauthorized: Teacher access only.");
-// }
-
-// exports.getExam = async (req, res) => {
-//     if (req.isAuthenticated()) {
-//         console.log("authenticated");
-//         const Userprofile = await User.findById({ _id: req.user.id });
-//         if (Userprofile.usertype === "admin" || Userprofile.usertype === "teacher") {
-//             res.render("create_exam", { pic: Userprofile.imageurl, logged_in: "true" });
-//         } else {
-//             res.redirect("/admin/login");
-//         }
-//     } else {
-//         res.redirect("/admin/login");
-//     }
-// };
-
-// exports.createExam = async (req, res) => {
-//     try {
-//         let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill , draft } = req.body;
-//         console.log(req.body);
-//         if(!scheduleTill || !scheduledAt){
-//             console.log("what the fuck")
-//             const newExamss = new Exam({
-//                 name,
-//                 departments: Array.isArray(departments) ? departments : [departments], 
-//                 semester,
-//                 questionType,
-//                 duration: Duration,
-//                 numMCQs: parseInt(numMCQs) || 0,
-//                 numCoding: parseInt(numCoding) || 0,
-//                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
-//                 createdBy: req.user.id,
-//                 testStatus:"draft"
-
-//             });
-//             await newExamss.save();
-//             res.redirect("/admin");
-//         }
-        
-//         else if(draft){
-//             const newExams = new Exam({
-//                 name,
-//                 departments: Array.isArray(departments) ? departments : [departments], 
-//                 semester,
-//                 questionType,
-//                 duration: Duration,
-//                 numMCQs: parseInt(numMCQs) || 0,
-//                 numCoding: parseInt(numCoding) || 0,
-//                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
-//                 createdBy: req.user.id,
-//                 testStatus:"draft"
-//             });
-//             await newExams.save();
-//             res.redirect("/admin");
-//         }
-//         else{
-
-    
-//         try{
-//             scheduledAt = moment.tz(scheduledAt, "Asia/Kolkata").toDate();
-//             scheduleTill = moment.tz(scheduleTill, "Asia/Kolkata").toDate();
-//         }catch(err){
-//             console.error("what an errror")
-//         }
-//         const newExam = new Exam({
-//             name,
-//             departments: Array.isArray(departments) ? departments : [departments], 
-//             semester,
-//             questionType,
-//             scheduledAt,
-//             scheduleTill,
-//             duration: Duration,
-//             numMCQs: parseInt(numMCQs) || 0,
-//             numCoding: parseInt(numCoding) || 0,
-//             numTotalQuestions: parseInt(numTotalQuestions) || 0,
-//             createdBy: req.user.id,
-//         });
-
-//         await newExam.save();
-//         res.redirect("/admin");
-//     }
-//     } catch (error) {
-//         res.status(400).send(error.message);
-//     }
-// };
-
-// exports.getEditExam = async (req, res) => {
-//     if (req.isAuthenticated()) {
-//         console.log("authenticated");
-//         const Userprofile = await User.findById({ _id: req.user.id });
-//         if (Userprofile.usertype === "admin" || Userprofile.usertype === "teacher") {
-//             try {
-//                 const exam = await Exam.findById(req.params.examId);
-//                 if (!exam) return res.status(404).send("Exam not found.");
-//                 res.render("edit_exam", { pic: Userprofile.imageurl, logged_in: "true", exam });
-//             } catch (error) {
-//                 console.error(error);
-//                 res.status(500).send("Server error");
-//             }
-//         } else {
-//             res.redirect("/admin/login");
-//         }
-//     } else {
-//         res.redirect("/admin/login");
-//     }
-// };
-
-// exports.postEditExam = async (req, res) => {
-//     try {
-//         let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, scheduleTill, duration } = req.body;
-        
-//         scheduledAt = moment.tz(scheduledAt, "Asia/Kolkata").toDate();
-//         scheduleTill = moment.tz(scheduleTill, "Asia/Kolkata").toDate();
-        
-//         const updatedExam = await Exam.findByIdAndUpdate(
-//             req.params.examId,
-//             {
-//                 name,
-//                 departments: Array.isArray(departments) ? departments : [departments],
-//                 semester,
-//                 questionType,
-//                 numMCQs: questionType.includes("mcq") ? parseInt(numMCQs) || 0 : 0,
-//                 numCoding: questionType.includes("coding") ? parseInt(numCoding) || 0 : 0,
-//                 numTotalQuestions: questionType === "mcq&coding" ? (parseInt(numMCQs) || 0) + (parseInt(numCoding) || 0) : 0,
-//                 scheduledAt,
-//                 scheduleTill,
-//                 duration: parseInt(duration) || 60
-//             },
-//             { new: true }
-//         );
-
-//         if (!updatedExam) return res.status(404).send("Exam not found.");
-
-//         res.redirect("/admin");
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send("Server error");
-//     }
-// };
-
-// exports.deleteExam = async (req, res) => {
-//     try {
-//         const deletedExam = await Exam.findByIdAndDelete(req.params.examId);
-//         if (!deletedExam) return res.status(404).send("Exam not found.");
-//         res.redirect("/admin");
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send("Server error");
-//     }
-// };
-// controllers/examController.js
 const Exam = require("../models/Exam");
+const Submission = require("../models/SubmissionSchema");
+const ActivityTracker = require("../models/ActiveSession");
+const ReportModel = require('../models/reportModel');
 const ExamCandidate = require('../models/ExamCandidate');
 const User = require("./../models/usermodel");
 const { v4: uuidv4 } = require("uuid");
@@ -499,5 +333,199 @@ exports.deleteExam = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Server error");
+    }
+};
+
+
+
+
+
+
+
+exports.exportExamReport = async (req, res) => {
+    try {
+        const examId = req.params.examId;
+        
+        // Fetch the exam details
+        const exam = await Exam.findById(examId);
+        
+        if (!exam) {
+            return res.status(404).send('Exam not found');
+        }
+        
+        // Fetch all submissions related to this exam
+        const submissions = await Submission.find({ exam: examId })
+            .populate('student', 'USN fname email Department Semester Rollno _id')
+            .sort({ submittedAt: -1 });
+        
+        // Fetch active sessions for this exam
+        const activeSessions = await ActivityTracker.find({ examId: examId })
+            .populate('userId', 'USN name email Department Semester Rollno _id')
+            .select('userId status lastPingTimestamp startTimestamp');
+        
+        // Create a map of active sessions for lookup
+        const activeSessionsMap = new Map();
+        activeSessions.forEach(session => {
+            if (session.userId && session.userId._id) {
+                activeSessionsMap.set(session.userId._id.toString(), {
+                    status: session.status,
+                    startedAt: session.startTimestamp || null
+                });
+            }
+        });
+        
+        // Prepare data for the spreadsheet
+        const reportData = [];
+        let serialNumber = 1;
+        
+        // Process each submission
+        for (const submission of submissions) {
+            if (submission.student && submission.student._id) {
+                try {
+                    // Get detailed report data if available
+                    let detailedReport = null;
+                    try {
+                        detailedReport = await ReportModel.getAssessmentReport(submission._id);
+                    } catch (reportError) {
+                        console.log(`Could not fetch detailed report for submission ${submission._id}: ${reportError.message}`);
+                        // Continue with basic data if detailed report fails
+                    }
+                    
+                    const studentId = submission.student._id.toString();
+                    const sessionInfo = activeSessionsMap.get(studentId) || {};
+                    
+                    // Determine the student name - handle different student schema formats
+                    let studentName = 'N/A';
+                    if (submission.student.name) {
+                        studentName = submission.student.name;
+                    } else if (submission.student.fname && submission.student.lname) {
+                        studentName = `${submission.student.fname} ${submission.student.lname}`;
+                    }
+                    
+                    // Calculate maximum possible score and obtained score
+                    let maxScore = 100; // Default fallback
+                    let obtainedScore = submission.score;
+                    
+                    // Use detailed report data if available
+                    if (detailedReport && detailedReport.score) {
+                        maxScore = detailedReport.score.total;
+                        obtainedScore = detailedReport.score.obtained;
+                    } else {
+                        // Fallback to exam total marks or calculate from submission
+                        maxScore = exam.totalMarks || 
+                            (submission.mcqAnswers?.length + (submission.codingAnswers?.length || 0)) * 10 || 
+                            100;
+                    }
+                    
+                    // Calculate percentage
+                    const percentage = obtainedScore !== undefined && maxScore > 0 ? 
+                        ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
+                    
+                    // Get integrity score - either from detailed report or submission
+                    let integrityScore = submission.integrityScore || 'N/A';
+                    if (detailedReport && detailedReport.integrity) {
+                        integrityScore = detailedReport.integrity.status || integrityScore;
+                    }
+                    
+                    // Get time information
+                    let startedAt = sessionInfo.startedAt ? 
+                        new Date(sessionInfo.startedAt).toLocaleString() : 'N/A';
+                    let submittedAt = submission.submittedAt ? 
+                        new Date(submission.submittedAt).toLocaleString() : 'N/A';
+                    
+                    // Use detailed report time data if available
+                    if (detailedReport && detailedReport.timeAnalysis) {
+                        if (detailedReport.timeAnalysis.startTime) {
+                            startedAt = new Date(detailedReport.timeAnalysis.startTime).toLocaleString();
+                        }
+                        if (detailedReport.timeAnalysis.endTime) {
+                            submittedAt = new Date(detailedReport.timeAnalysis.endTime).toLocaleString();
+                        }
+                    }
+                    
+                    // Add this student's data to the report
+                    reportData.push({
+                        'SN': serialNumber++,
+                        'USN': submission.student.USN || 'N/A',
+                        'Name': submission.student.fname,
+                        'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
+                        'Maximum Score': maxScore,
+                        'Total Percentage': percentage,
+                        'Started At': startedAt,
+                        'Submitted At': submittedAt,
+                        'Integrity Score': integrityScore
+                    });
+                } catch (submissionError) {
+                    console.error(`Error processing submission ${submission._id}:`, submissionError);
+                    // Continue with next submission
+                }
+            }
+        }
+        
+        // Create Excel workbook using ExcelJS
+        const ExcelJS = require('exceljs');
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Exam Report');
+        
+        // Define columns
+        worksheet.columns = [
+            { header: 'SN', key: 'SN', width: 5 },
+            { header: 'USN', key: 'USN', width: 15 },
+            { header: 'Name', key: 'Name', width: 25 },
+            { header: 'Total Score', key: 'Total Score', width: 12 },
+            { header: 'Maximum Score', key: 'Maximum Score', width: 15 },
+            { header: 'Total Percentage', key: 'Total Percentage', width: 18 },
+            { header: 'Started At', key: 'Started At', width: 20 },
+            { header: 'Submitted At', key: 'Submitted At', width: 20 },
+            { header: 'Integrity Score', key: 'Integrity Score', width: 15 }
+        ];
+        
+        // Add header row styling
+        worksheet.getRow(1).font = { bold: true };
+        worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+        worksheet.getRow(1).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '4F46E5' } // Primary color from your theme
+        };
+        worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFF' } };
+        
+        // Add data rows
+        reportData.forEach(data => {
+            worksheet.addRow(data);
+        });
+        
+        // Apply border styling to all cells
+        worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+            row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+                
+                // Center align numeric cells - use column number instead of header
+                // Column numbers are 1-based in ExcelJS
+                if ([1, 4, 5, 9].includes(colNumber)) { // SN, Total Score, Maximum Score, Integrity Score
+                    cell.alignment = { horizontal: 'center' };
+                }
+            });
+        });
+        
+        // Set filename
+        const filename = `${exam.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report_${Date.now()}.xlsx`;
+        
+        // Set response headers
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        
+        // Write to response stream
+        await workbook.xlsx.write(res);
+        res.end();
+        
+    } catch (error) {
+        console.error('Error generating exam report:', error);
+        res.status(500).send('Error generating report: ' + error.message);
     }
 };

@@ -89,5 +89,9 @@ router.route("/exam/:examId/csv").get(mcqquestions.csvPage)
 router.route("/exam/:examId/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
 
 
+router.route("/exam/:examId/report").get(examController.exportExamReport);
+
+
+
 
 module.exports=router
