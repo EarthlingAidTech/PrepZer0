@@ -144,6 +144,7 @@
              <div class="button-group">
                  <a href="/admin/exam/<%= exam._id %>/add/mcq" class="add-btn">➕ Add MCQ</a>
                  <a href="/admin/exam/<%= exam._id %>/csv" class="add-btn">➕ Add MCQ using CSV File</a>
+                 <a href="/admin/exam/<%= exam._id %>/database" class="add-btn">➕ Add from Database</a>
              </div>
          <% } %>
          
@@ -167,7 +168,6 @@
                              <td><strong><%= mcq.correctAnswer %></strong></td>
                              <td class="actions">
                                  <a href="/admin/exam/<%= exam._id %>/edit/mcq/<%= mcq._id %>" class="edit-btn">✏️ Edit</a>
- 
                                  <form action="/admin/exam/<%= exam._id %>/delete/mcq/<%= mcq._id %>" method="POST" style="display:inline;">
                                      <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
                                  </form>
