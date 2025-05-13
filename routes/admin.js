@@ -9,6 +9,7 @@ const examController = require("../controllers/examcontroller");
 const questionController = require("../controllers/questioncontroller");
 const mcqquestions = require("../controllers/allmcqcontroller");
 const reportController = require("../controllers/reportController");
+const databaseController = require("../controllers/dbQuestionsController");
 
 router.route("/").get(admincontroller.getcontrol).post(admincontroller.postcontrol)
 
@@ -88,8 +89,29 @@ router.route("/exam/:examId/csv").get(mcqquestions.csvPage)
 // router.route("/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
 router.route("/exam/:examId/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
 
-
 router.route("/exam/:examId/report").get(examController.exportExamReport);
+
+
+
+
+
+
+
+
+
+// Show database questions page
+router.route('/exam/:examId/database').get(databaseController.showDatabaseQuestions);
+
+// Add manually selected questions
+router.route('/exam/:examId/database/add').post(databaseController.addSelectedQuestions);
+
+// Add randomly selected questions
+router.route('/exam/:examId/database/random').post(databaseController.addRandomQuestions);
+
+
+
+
+
 
 
 
