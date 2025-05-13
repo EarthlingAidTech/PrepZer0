@@ -49,7 +49,7 @@ const CodingQuestionSchema = new mongoose.Schema({
     questionTile: {
         type: String,
         required: true,
-        unique: true,
+
         trim: true
       },
       questiontext: {
@@ -89,6 +89,14 @@ const CodingQuestionSchema = new mongoose.Schema({
         required: true,
         min: 1
       },
+      sampleOutput: {
+        type: String,
+        trim: true
+      },
+      sampleInput: {
+        type: String,
+        trim: true
+      },
       testCases: {
         type: [testCaseSchema],
         required: true,
@@ -105,7 +113,7 @@ const CodingQuestionSchema = new mongoose.Schema({
       }
     
 });
-CodingQuestionSchema.index({ title: 1 }, { unique: true });
+
 CodingQuestionSchema.index({ level: 1 });
 CodingQuestionSchema.index({ classification: 1 });
 module.exports = mongoose.model('CodingQuestion', CodingQuestionSchema);

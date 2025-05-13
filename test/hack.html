@@ -476,7 +476,7 @@ class Program {
             };
             
             try {
-                const response = await fetch('http://10.250.20.204:2358/submissions', {
+                const response = await fetch('http://10.100.41.219:2358/submissions', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -500,7 +500,7 @@ class Program {
                 let result;
                 do {
                     await new Promise(resolve => setTimeout(resolve, 500));
-                    const statusResponse = await fetch(`http://10.250.20.204:2358/submissions/${submission.token}`);
+                    const statusResponse = await fetch(`http://10.100.41.219:2358/submissions/${submission.token}`);
                     result = await statusResponse.json();
                 } while (result.status.id <= 2); // 1: In Queue, 2: Processing
                 

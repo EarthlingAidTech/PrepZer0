@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Select Questions from Database</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #141D2F;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
+            border: 3px solid #1D4ED8;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+        .info-box {
+            background-color: #e6f0ff;
+            border: 1px solid #b3d1ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .category-section {
+            margin-bottom: 30px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .category-header {
+            background-color: #e6f0ff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 5px solid #1D4ED8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .question-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .question-card.selected {
+            border-color: #1D4ED8;
+            background-color: #f0f7ff;
+        }
+        .difficulty-easy {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .difficulty-medium {
+            color: #fd7e14;
+            font-weight: bold;
+        }
+        .difficulty-hard {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .filter-panel {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .submit-btn {
+            background: #0d6efd;
+            display: inline-block;
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+        }
+        .back-btn { 
+            background: #6c757d; 
+            display: inline-block; 
+            padding: 8px 16px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 class="text-center mb-4">Select Coding Questions from Database</h1>
+    
+    <div class="info-box">
+        <p class="mb-1"><strong>Exam:</strong> <%= exam.name %></p>
+        <p class="mb-1"><strong>Required Questions:</strong> <span id="requiredCount"><%= exam.numCoding - codingQuestions.length %></span></p>
+        <p class="mb-0"><strong>Currently Selected:</strong> <span id="selectedCount">0</span></p>
+    </div>
+    
+    <div class="filter-panel">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Filters</h3>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h5>Categories</h5>
+                        <div id="categoryFilters">
+                            <!-- Category checkboxes will be populated dynamically -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Difficulty</h5>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input difficulty-filter" type="checkbox" id="easyFilter" value="easy" checked>
+                            <label class="form-check-label difficulty-easy" for="easyFilter">Easy</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input difficulty-filter" type="checkbox" id="mediumFilter" value="medium" checked>
+                            <label class="form-check-label difficulty-medium" for="mediumFilter">Medium</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input difficulty-filter" type="checkbox" id="hardFilter" value="hard" checked>
+                            <label class="form-check-label difficulty-hard" for="hardFilter">Hard</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>Selection Tools</h5>
+                        <button id="autoSelectBtn" class="btn btn-success">Auto Select Required Questions from Filtered Categories</button>
+                        <button id="clearAllBtn" class="btn btn-outline-danger ms-2">Clear All Selections</button>
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="autoCompleteMode">
+                            <label class="form-check-label" for="autoCompleteMode">
+                                Auto Complete Mode (after selecting one question, auto-select the rest)
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form id="questionSelectionForm" action="/admin/<%= exam._id %>/add/coding/from-database" method="POST">
+        <div id="categorySections">
+            <!-- Dynamic category sections will be populated here -->
+            <% 
+            // Group questions by category
+            const questionsByCategory = {};
+            dbQuestions.forEach(question => {
+                if (!questionsByCategory[question.classification]) {
+                    questionsByCategory[question.classification] = [];
+                }
+                questionsByCategory[question.classification].push(question);
+            });
+            
+            // Display questions by category
+            Object.keys(questionsByCategory).sort().forEach(category => {
+                const questions = questionsByCategory[category];
+            %>
+                <div class="category-section" data-category="<%= category %>">
+                    <div class="category-header">
+                        <div>
+                            <h3 class="d-inline"><%= category %> (<%= questions.length %> questions)</h3>
+                            <button type="button" class="btn btn-sm btn-primary ms-2 select-all-category-btn" data-category="<%= category %>">Select All</button>
+                        </div>
+                        <div class="distribution">
+                            <span class="badge bg-success">Easy: <%= questions.filter(q => q.level === 'easy').length %></span>
+                            <span class="badge bg-warning">Medium: <%= questions.filter(q => q.level === 'medium').length %></span>
+                            <span class="badge bg-danger">Hard: <%= questions.filter(q => q.level === 'hard').length %></span>
+                        </div>
+                    </div>
+                    
+                    <div class="questions-container">
+                        <% questions.forEach(question => { %>
+                            <div class="question-card" data-difficulty="<%= question.level %>" data-category="<%= category %>">
+                                <div class="form-check">
+                                    <input class="form-check-input question-checkbox" type="checkbox" name="selectedQuestions" value="<%= question._id %>" id="question_<%= question._id %>">
+                                    <label class="form-check-label" for="question_<%= question._id %>">
+                                        <h4><%= question.questionTile %></h4>
+                                    </label>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <p><strong>Description:</strong> <%= question.questiontext.substring(0, 150) %><%= question.questiontext.length > 150 ? '...' : '' %></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p><strong>Difficulty:</strong> <span class="difficulty-<%= question.level %>"><%= question.level.charAt(0).toUpperCase() + question.level.slice(1) %></span></p>
+                                        <p><strong>Max Marks:</strong> <%= question.maxMarks %></p>
+                                        <p><strong>Test Cases:</strong> <%= question.testCases.length %></p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-primary preview-btn" data-bs-toggle="modal" data-bs-target="#previewModal" data-question-id="<%= question._id %>">Preview Question</button>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button type="submit" class="submit-btn" id="addSelectedQuestionsBtn">Add Selected Questions</button>
+            <a href="/admin/exam/<%= exam._id %>/questions" class="back-btn ms-3">⬅ Back</a>
+        </div>
+    </form>
+</div>
+
+<!-- Question Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="previewModalLabel">Question Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="previewModalBody">
+                <!-- Question details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="selectFromPreviewBtn">Select Question</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const requiredCount = parseInt(document.getElementById('requiredCount').textContent);
+        const selectedCountEl = document.getElementById('selectedCount');
+        const addSelectedBtn = document.getElementById('addSelectedQuestionsBtn');
+        const autoSelectBtn = document.getElementById('autoSelectBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const autoCompleteMode = document.getElementById('autoCompleteMode');
+        const questionCheckboxes = document.querySelectorAll('.question-checkbox');
+        const selectAllCategoryBtns = document.querySelectorAll('.select-all-category-btn');
+        const difficultyFilters = document.querySelectorAll('.difficulty-filter');
+        const categoryFiltersContainer = document.getElementById('categoryFilters');
+        const allQuestionCards = document.querySelectorAll('.question-card');
+        let currentPreviewQuestionId = null;
+        
+        // Populate category filters
+        const categories = Array.from(document.querySelectorAll('.category-section')).map(section => 
+            section.getAttribute('data-category')
+        );
+        
+        categories.forEach(category => {
+            const categoryFilter = document.createElement('div');
+            categoryFilter.className = 'form-check';
+            categoryFilter.innerHTML = `
+                <input class="form-check-input category-filter" type="checkbox" id="category_filter_${category.replace(/\s+/g, '_')}" value="${category}" checked>
+                <label class="form-check-label" for="category_filter_${category.replace(/\s+/g, '_')}">${category}</label>
+            `;
+            categoryFiltersContainer.appendChild(categoryFilter);
+        });
+        
+        const categoryFilters = document.querySelectorAll('.category-filter');
+        
+        // Initialize selection count
+        updateSelectionCount();
+        
+        // Question checkbox change handler
+        questionCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateQuestionCardStyle(this);
+                updateSelectionCount();
+                
+                // If auto-complete mode is enabled and this checkbox was just checked
+                if (autoCompleteMode.checked && this.checked) {
+                    const remainingToSelect = requiredCount - document.querySelectorAll('.question-checkbox:checked').length;
+                    
+                    if (remainingToSelect > 0) {
+                        // Get all visible questions that are not yet selected
+                        const visibleUnselectedQuestions = Array.from(document.querySelectorAll('.question-card:not(.hidden):not(.selected) .question-checkbox'));
+                        
+                        // Randomly select questions until we reach the required count
+                        if (visibleUnselectedQuestions.length >= remainingToSelect) {
+                            // Shuffle array to randomize selection
+                            const shuffled = visibleUnselectedQuestions.sort(() => 0.5 - Math.random());
+                            
+                            // Select the required number
+                            shuffled.slice(0, remainingToSelect).forEach(qCheckbox => {
+                                qCheckbox.checked = true;
+                                updateQuestionCardStyle(qCheckbox);
+                            });
+                            updateSelectionCount();
+                        } else if (visibleUnselectedQuestions.length > 0) {
+                            // Select all remaining visible questions
+                            visibleUnselectedQuestions.forEach(qCheckbox => {
+                                qCheckbox.checked = true;
+                                updateQuestionCardStyle(qCheckbox);
+                            });
+                            updateSelectionCount();
+                            alert(`Only selected ${visibleUnselectedQuestions.length} more questions from visible categories. Need ${remainingToSelect - visibleUnselectedQuestions.length} more to meet requirement.`);
+                        }
+                    }
+                }
+            });
+        });
+        
+        // Select All Category button handler
+        selectAllCategoryBtns.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                const categoryQuestionCheckboxes = document.querySelectorAll(`.question-card[data-category="${category}"]:not(.hidden) .question-checkbox`);
+                
+                // Check if any are currently checked
+                const anyChecked = Array.from(categoryQuestionCheckboxes).some(checkbox => checkbox.checked);
+                
+                // Toggle all checkboxes in this category
+                categoryQuestionCheckboxes.forEach(checkbox => {
+                    checkbox.checked = !anyChecked;
+                    updateQuestionCardStyle(checkbox);
+                });
+                
+                updateSelectionCount();
+            });
+        });
+        
+        // Auto-select button handler
+        autoSelectBtn.addEventListener('click', function() {
+            // First clear all selections
+            questionCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                updateQuestionCardStyle(checkbox);
+            });
+            
+            // Get all visible questions (respect filters)
+            const visibleQuestions = Array.from(allQuestionCards)
+                .filter(card => !card.classList.contains('hidden'))
+                .map(card => card.querySelector('.question-checkbox'));
+            
+            let remainingToSelect = requiredCount;
+            
+            // Randomly select questions until we reach the required count
+            if (visibleQuestions.length >= remainingToSelect) {
+                // Shuffle array to randomize selection
+                const shuffled = visibleQuestions.sort(() => 0.5 - Math.random());
+                
+                // Select the required number
+                shuffled.slice(0, remainingToSelect).forEach(checkbox => {
+                    checkbox.checked = true;
+                    updateQuestionCardStyle(checkbox);
+                });
+                
+                updateSelectionCount();
+            } else {
+                // If not enough visible questions, select all visible and alert user
+                visibleQuestions.forEach(checkbox => {
+                    checkbox.checked = true;
+                    updateQuestionCardStyle(checkbox);
+                });
+                
+                updateSelectionCount();
+                alert(`Only ${visibleQuestions.length} questions are available with current filters. Please adjust filters to select ${requiredCount} questions.`);
+            }
+        });
+        
+        // Clear all selections button handler
+        clearAllBtn.addEventListener('click', function() {
+            questionCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                updateQuestionCardStyle(checkbox);
+            });
+            
+            updateSelectionCount();
+        });
+        
+        // Category filter handler
+        categoryFilters.forEach(filter => {
+            filter.addEventListener('change', function() {
+                applyFilters();
+            });
+        });
+        
+        // Difficulty filter handler
+        difficultyFilters.forEach(filter => {
+            filter.addEventListener('change', function() {
+                applyFilters();
+            });
+        });
+        
+        // Preview button handler
+        document.querySelectorAll('.preview-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const questionId = this.getAttribute('data-question-id');
+                currentPreviewQuestionId = questionId;
+                
+                // Here you would normally fetch the question details from the server
+                // For this example, we'll simulate a response with the data we have
+                const questionCard = this.closest('.question-card');
+                const title = questionCard.querySelector('h4').textContent;
+                
+                // Populate modal with question details
+                document.getElementById('previewModalLabel').textContent = title;
+                document.getElementById('previewModalBody').innerHTML = `
+                    <div class="alert alert-info">This is a preview of the full question. In a real implementation, this would show all question details.</div>
+                    <h4>${title}</h4>
+                    <p><strong>Difficulty:</strong> ${questionCard.getAttribute('data-difficulty')}</p>
+                    <p><strong>Category:</strong> ${questionCard.getAttribute('data-category')}</p>
+                    <p><strong>Description:</strong> ${questionCard.querySelector('p').textContent.replace('Description: ', '')}</p>
+                `;
+                
+                // Update the select button state based on whether this question is already selected
+                const checkbox = document.getElementById(`question_${questionId}`);
+                const selectBtn = document.getElementById('selectFromPreviewBtn');
+                selectBtn.textContent = checkbox.checked ? 'Unselect Question' : 'Select Question';
+            });
+        });
+        
+        // Select from preview button handler
+        document.getElementById('selectFromPreviewBtn').addEventListener('click', function() {
+            if (currentPreviewQuestionId) {
+                const checkbox = document.getElementById(`question_${currentPreviewQuestionId}`);
+                
+                // Toggle selection
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+                
+                // Update button text
+                this.textContent = checkbox.checked ? 'Unselect Question' : 'Select Question';
+            }
+        });
+        
+        // Helper functions
+        function updateSelectionCount() {
+            const selectedCount = document.querySelectorAll('.question-checkbox:checked').length;
+            selectedCountEl.textContent = selectedCount;
+        }
+        
+        function updateQuestionCardStyle(checkbox) {
+            const card = checkbox.closest('.question-card');
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        }
+        
+        function applyFilters() {
+            // Get selected categories
+            const selectedCategories = Array.from(categoryFilters)
+                .filter(filter => filter.checked)
+                .map(filter => filter.value);
+            
+            // Get selected difficulty levels
+            const selectedDifficulties = Array.from(difficultyFilters)
+                .filter(filter => filter.checked)
+                .map(filter => filter.value);
+            
+            // Show/hide questions based on filters
+            allQuestionCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const difficulty = card.getAttribute('data-difficulty');
+                
+                if (selectedCategories.includes(category) && selectedDifficulties.includes(difficulty)) {
+                    card.classList.remove('hidden');
+                    card.style.display = '';
+                } else {
+                    card.classList.add('hidden');
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Show/hide category sections based on whether they have visible questions
+            document.querySelectorAll('.category-section').forEach(section => {
+                const category = section.getAttribute('data-category');
+                
+                if (selectedCategories.includes(category)) {
+                    const visibleQuestions = section.querySelectorAll('.question-card:not(.hidden)');
+                    if (visibleQuestions.length > 0) {
+                        section.style.display = '';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        }
+        
+        // Initial filter application
+        applyFilters();
+    });
+</script>
+
+</body>
+</html>
