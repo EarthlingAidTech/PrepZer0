@@ -742,29 +742,29 @@
           
           // Example API call (commented out)
 
-        //   fetch('/admin/exam/<%= examId %>/add/coding', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData)
-        //   })
-        //   .then(response => response.json())
-        //   .then(data => {
-        //     console.log('Success:', data);
-        //     successMessage.style.display = 'block';
-        //     setTimeout(() => {
-        //       successMessage.style.display = 'none';
-        //     }, 3000);
-        //     form.reset();
-        //     testCasesContainer.innerHTML = '';
-        //     testCaseCount = 0;
-        //     addTestCase();
-        //   })
-        //   .catch((error) => {
-        //     console.error('Error:', error);
-        //     alert('There was an error submitting the form. Please try again.');
-        //   });
+          fetch('/admin/exam/<%= examId %>/add/coding', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 3000);
+            form.reset();
+            testCasesContainer.innerHTML = '';
+            testCaseCount = 0;
+            addTestCase();
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('There was an error submitting the form. Please try again.');
+          });
         
           
           // For demo purposes, just show success message

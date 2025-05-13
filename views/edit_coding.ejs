@@ -126,12 +126,12 @@
 
             <div class="mb-3">
                 <label for="sampleInput" class="form-label">Sample Input:</label>
-                <input type="text" id="sampleInput" name="sampleInput" class="form-control" value="<%= codingQuestion.sampleInput %>" required>
+                <textarea id="sampleInput" name="sampleInput" class="form-control"  required> <%= codingQuestion.sampleInput %> </textarea>
             </div>
-
+            
             <div class="mb-3">
                 <label for="sampleOutput" class="form-label">Sample Output:</label>
-                <input type="text" id="sampleOutput" name="sampleOutput" class="form-control" value="<%= codingQuestion.sampleOutput %>" required>
+                <textarea id="sampleOutput" name="sampleOutput" class="form-control" required><%= codingQuestion.sampleOutput %></textarea>
             </div>
 
             <div class="mb-3">

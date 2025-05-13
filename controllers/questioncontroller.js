@@ -111,6 +111,20 @@ exports.getEditcodingQuestion = async (req, res) => {
 exports.postEditcodingQuestion = async (req, res) => {
     try {
         await CodingQuestion.findByIdAndUpdate(req.params.codingId, req.body);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
     } catch (error) {
         res.status(500).send("Error updating coding question");
@@ -127,22 +141,135 @@ exports.deleteCoding = async (req, res) => {
 }
 
 
-
-
-
-
-
-
-
 exports.getaddcodingQuestion = async (req, res) => {
 
     res.render("add_coding", { examId: req.params.examId });
 }
+
+
+
+
+exports.addcoding_from_db = async (req, res) => {
+    try {
+        // Get the exam ID from the request parameters
+        const examId = req.params.examId;
+        
+        // Find the exam by ID
+        const exam = await Exam.findById(examId)
+            .populate("codingQuestions");
+            
+        if (!exam) {
+            return res.status(404).send("Exam not found");
+        }
+        
+        // Get all coding questions from database
+        const dbQuestions = await DbCodingQuestion.find();
+        
+        // Render the template with the required data
+        res.render("sel_coding_db", { 
+            examId: examId,
+            exam: exam,
+            codingQuestions: exam.codingQuestions || [],
+            dbQuestions: dbQuestions
+        });
+    } catch (error) {
+        console.error("Error loading coding questions from database:", error);
+        res.status(500).send("Error loading coding questions from database.");
+    }
+}
+
+exports.postcoding_from_db = async (req, res) => {
+    try {
+        const examId = req.params.examId;
+        let selectedQuestionIds = req.body.selectedQuestions;
+        
+        // Convert to array if it's a single value
+        if (!Array.isArray(selectedQuestionIds)) {
+            selectedQuestionIds = selectedQuestionIds ? [selectedQuestionIds] : [];
+        }
+        
+        if (selectedQuestionIds.length === 0) {
+            return res.status(400).send("No questions selected");
+        }
+        
+        // Find the exam
+        const exam = await Exam.findById(examId);
+        if (!exam) {
+            return res.status(404).send("Exam not found");
+        }
+        
+        // Array to track the IDs to add to the exam
+        const questionIdsToAdd = [];
+        let questionCount = 0;
+        
+        // Process each selected question ID
+        for (const dbQuestionId of selectedQuestionIds) {
+            // Get the question from DbCodingQuestion
+            const dbQuestion = await DbCodingQuestion.findById(dbQuestionId);
+            if (!dbQuestion) continue;
+            
+            // Check if the question already exists in CodingQuestion by title and text
+            const existingQuestion = await CodingQuestion.findOne({
+                questionTile: dbQuestion.questionTile,
+                questiontext: dbQuestion.questiontext
+            });
+            
+            let questionIdToAdd;
+            
+            if (existingQuestion) {
+                // Use the existing question
+                questionIdToAdd = existingQuestion._id;
+            } else {
+                // Create a new question in CodingQuestion
+                const newCodingQuestion = new CodingQuestion({
+                    questionTile: dbQuestion.questionTile,
+                    questiontext: dbQuestion.questiontext,
+                    constraits: dbQuestion.constraits,
+                    inputFormat: dbQuestion.inputFormat,
+                    outputFormat: dbQuestion.outputFormat,
+                    solutionTemplate: dbQuestion.solutionTemplate,
+                    maxMarks: dbQuestion.maxMarks,
+                    testCases: dbQuestion.testCases,
+                    level: dbQuestion.level,
+                    classification: dbQuestion.classification,
+                    createdBy: req.user._id,
+                    sampleInput: dbQuestion.sampleInput,
+                    sampleOutput: dbQuestion.sampleOutput
+                });
+                
+                const savedQuestion = await newCodingQuestion.save();
+                questionIdToAdd = savedQuestion._id;
+            }
+            
+            // Check if this question is already added to the exam
+            if (!exam.codingQuestions.includes(questionIdToAdd)) {
+                questionIdsToAdd.push(questionIdToAdd);
+                questionCount++;
+            }
+        }
+        
+        // Add the questions to the exam
+        if (questionIdsToAdd.length > 0) {
+            exam.codingQuestions.push(...questionIdsToAdd);
+            exam.numCoding += questionCount;
+            exam.numTotalQuestions = exam.numMCQs + exam.numCoding;
+            await exam.save();
+        }
+        
+        // Redirect to the questions page
+        res.redirect(`/admin/exam/questions/${examId}`);
+    } catch (error) {
+        console.error("Error adding coding questions from database:", error);
+        res.status(500).send("Error adding coding questions from database.");
+    }
+};
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate,maxMarks,level ,classification,testCases } = req.body;
-        console.log(req.body)
-        //this one is for to be seen in exams so its connected to the exams it sayys this question belongs to this exam
+        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases } = req.body;
+        console.log(req.body);
+        
+        // This one is for to be seen in exams so it's connected to the exams
+        // It says this question belongs to this exam
         const newCodingQuestion = new CodingQuestion({
             questionTile,
             questiontext,
@@ -154,26 +281,42 @@ exports.postaddcodingQuestion = async (req, res) => {
             testCases,
             level,
             classification,
-            createdBy: req.user._id
+            createdBy: req.user._id,
+            sampleInput: req.body.sampleInput,
+            sampleOutput: req.body.sampleOutput,
         });
         
- 
         await newCodingQuestion.save();
-        //we have a database of questions so when we make 1 we push it into the database to so they can retrieve it later also and db increases
-        const addDBCodingQuestion = new DbCodingQuestion({
-            questionTile,
-            questiontext,
-            constraits,
-            inputFormat,
-            outputFormat,
-            solutionTemplate,
-            maxMarks,
-            testCases,
-            level,
-            classification,
-            createdBy: req.user._id
+        
+        // Check if a question with the same questiontext and questionTile already exists in DbCodingQuestion
+        const existingQuestion = await DbCodingQuestion.findOne({
+            questionTile: questionTile,
+            questiontext: questiontext
         });
-        await addDBCodingQuestion.save();
+        
+        // Only add to DbCodingQuestion if no matching question exists
+        if (!existingQuestion) {
+            const addDBCodingQuestion = new DbCodingQuestion({
+                questionTile,
+                questiontext,
+                constraits,
+                inputFormat,
+                outputFormat,
+                solutionTemplate,
+                maxMarks,
+                testCases,
+                level,
+                classification,
+                createdBy: req.user._id,
+                sampleInput: req.body.sampleInput,
+                sampleOutput: req.body.sampleOutput,
+            });
+            await addDBCodingQuestion.save();
+            console.log("Question added to database collection");
+        } else {
+            console.log("Question already exists in database collection. Not adding duplicate.");
+            return res.send("exam already exists");
+        }
 
         await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
 

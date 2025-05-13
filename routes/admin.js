@@ -20,8 +20,8 @@ router.route("/exam/delete/:examId").post(examController.deleteExam)
 router.route("/exam/questions/:examId").get(questionController.getQuestion)
 router.route("/exam/:examId/add/mcq").get(questionController.getaddmcqQuestion).post(questionController.postaddmcqQuestion)
 router.route('/exam/:examId/add/coding').get(questionController.getaddcodingQuestion).post(questionController.postaddcodingQuestion)
-
-
+router.route("/:examId/add/coding/from-database").post(questionController.postcoding_from_db)
+router.route("/exam/:examId/coding/database").get(questionController.addcoding_from_db)
 router.route("/exam/:examId/edit/mcq/:mcqId").get(questionController.getEditmcqQuestion).post(questionController.postEditmcqQuestion)
 router.route("/exam/:examId/delete/mcq/:mcqId").post(questionController.deleteMCQ)
 router.route("/exam/:examId/edit/coding/:codingId").get(questionController.getEditcodingQuestion).post(questionController.postEditcodingQuestion)
