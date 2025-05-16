@@ -1,7 +1,11 @@
 const Exam = require("../models/Exam");
 const DbCodingQuestion = require('./../models/Codingschema')
 const MCQ = require("./../models/MCQQuestion");
+
+
 const MCQQuestion = require("../models/MCQschema");///raj changed for testing the csv file
+
+
 const CodingQuestion = require("./../models/CodingQuestion");
 exports.getQuestion = async (req, res,) => {
     try {
@@ -24,9 +28,11 @@ exports.getaddmcqQuestion = async (req, res) => {
 }
 exports.postaddmcqQuestion = async (req, res) => {
     try {
-        const { question, options, correctAnswer, marks } = req.body;
+        const { question, options, correctAnswer, marks, classification, level} = req.body;
         const newMCQ = new MCQ({
             examId: req.params.examId,
+            classification,
+            level,
             question,
             options: options.split(","),
             correctAnswer,
@@ -35,6 +41,36 @@ exports.postaddmcqQuestion = async (req, res) => {
         await newMCQ.save();
 
         await Exam.findByIdAndUpdate(req.params.examId, { $push: { mcqQuestions: newMCQ._id } });
+
+
+         // Normalize the question text to handle minor differences
+        const normalizeText = (text) => {
+            return text
+                .toLowerCase()                         // Convert to lowercase
+                .replace(/\s+/g, ' ')                  // Normalize whitespace
+                .replace(/['",.?!;:()\[\]{}]/g, '')    // Remove punctuation
+                .trim();                               // Remove leading/trailing spaces
+        };
+        const normalizedQuestion = normalizeText(question);
+
+        // Get all questions from AllMCQ and check for similarity
+        const allQuestions = await AllMCQ.find({});
+        const questionExists = allQuestions.some(q => normalizeText(q.question) === normalizedQuestion);
+
+         // Save to the AllMCQ database as well
+        if (!questionExists) {
+            const allMCQEntry = new AllMCQ({
+                classification,
+                level,
+                question,
+                options: options.split(","),
+                correctAnswer,
+                marks
+            });
+            
+            await allMCQEntry.save();
+        }
+
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
     } catch (error) {
         console.error(error);
@@ -64,6 +100,14 @@ exports.deleteMCQ = async (req, res) => {
     // console.log("mcqId:", mcqId); 
     try {
         await MCQ.findByIdAndDelete(req.params.mcqId);
+
+         // Remove the MCQ ID from the exam's mcqQuestions array
+        await Exam.findByIdAndUpdate(
+            examId,
+            { $pull: { mcqQuestions: mcqId } },
+            { new: true }
+        );
+        
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
     } catch (error) {
         res.status(500).send("Error deleting MCQ question");

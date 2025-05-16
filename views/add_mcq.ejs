@@ -1,20 +1,3 @@
-<!-- <form action="/admin/exam/<%= examId %>/add/mcq" method="POST">
-    <label>Question:</label>
-    <input type="text" name="question" required><br>
-
-    <label>Options (comma-separated):</label>
-    <input type="text" name="options" required><br>
-
-    <label>Correct Answer:</label>
-    <input type="text" name="correctAnswer" required><br>
-
-    <label>Marks:</label>
-    <input type="number" name="marks" value="1" required><br>
-
-    <button type="submit">Add MCQ</button>
-</form> -->
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +51,20 @@
         }
         
         .form-control:focus {
+            border-color: #1D4ED8;
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
+        }
+        
+        /* Dropdown styling */
+        .form-select {
+            border: 2px solid #b3d1ff;
+            border-radius: 5px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-select:focus {
             border-color: #1D4ED8;
             box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
         }
@@ -145,6 +142,36 @@
                     <label for="correctAnswer" class="form-label">Correct Answer:</label>
                     <input type="text" id="correctAnswer" name="correctAnswer" class="form-control" required>
                     <small class="text-muted">Enter the exact text of the correct option</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="classification" class="form-label">Classification:</label>
+                    <select id="classification" name="classification" class="form-select" required>
+                        <option value="" selected disabled>Select a classification</option>
+                        <option value="Data Structures">Data Structures</option>
+                        <option value="Algorithms">Algorithms</option>
+                        <option value="Databases">Databases</option>
+                        <option value="Object-Oriented Programming">Object-Oriented Programming</option>
+                        <option value="Networking">Networking</option>
+                        <option value="Operating Systems">Operating Systems</option>
+                        <option value="Software Engineering">Software Engineering</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Artificial Intelligence">Artificial Intelligence</option>
+                        <option value="Machine Learning">Machine Learning</option>
+                        <option value="other">other</option>
+                    </select>
+                    <small class="text-muted">Select a category of the question</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="level" class="form-label">Level:</label>
+                    <select id="level" name="level" class="form-select" required>
+                        <option value="" selected disabled>Select a level: </option>
+                        <option value="easy">easy</option>
+                        <option value="medium">medium</option>
+                        <option value="hard">hard</option>
+                    </select>
+                    <small class="text-muted">Select a level for the question</small>
                 </div>
 
                 <div class="mb-3">

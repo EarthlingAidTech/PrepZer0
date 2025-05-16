@@ -13,7 +13,8 @@ const MCQSchema = new mongoose.Schema({
             'Software Engineering',
             'Mathematics',
             'Artificial Intelligence',
-            'Machine Learning'
+            'Machine Learning',
+            'other'
           ]
       },
     question: { type: String, required: true },
