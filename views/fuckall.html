@@ -1,0 +1,134 @@
+        <!-- Exam Content -->
+        <div id="examContent" style="display: none;" class="exam-content-wrapper">
+            <form id="examForm" action="/dashboard/submit-test" method="POST" class="exam-content-wrapper">
+                <input type="hidden" name="examId" value="<%= exam._id %>">
+                
+                <!-- Sidebar for question navigation -->
+                <div class="sidebar-container">
+                    <div class="exam-timer" id="examTimer">
+                        Time: <span id="timeDisplay">00:00:00</span>
+                    </div>
+                    <div class="question-sidebar">
+                        <h5 class="mb-3">Questions</h5>
+                        <div id="questionNavList">
+                            <% let totalQuestions = exam.mcqQuestions.length + exam.codingQuestions.length; %>
+                            <% for(let i = 0; i < exam.mcqQuestions.length; i++) { %>
+                                <a href="#" class="question-nav-item <%= i === 0 ? 'active' : '' %>" data-question-index="<%= i %>" data-question-type="mcq">
+                                    <div class="question-indicator"><%= i + 1 %></div>
+                                    <div>MCQ <%= i + 1 %></div>
+                                </a>
+                            <% } %>
+                            <% for(let i = 0; i < exam.codingQuestions.length; i++) { %>
+                                <a href="#" class="question-nav-item" data-question-index="<%= i %>" data-question-type="coding">
+                                    <div class="question-indicator"><%= i + 1 + exam.mcqQuestions.length %></div>
+                                    <div>Coding <%= i + 1 %></div>
+                                </a>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main content area -->
+                <div class="main-content">
+                    <div class="question-container">
+                        <!-- MCQ Questions -->
+                        <% exam.mcqQuestions.forEach((question, index) => { %>
+                            <div class="question-card <%= index === 0 ? 'active' : '' %>" id="mcq-question-<%= index %>">
+                                <div class="question-status">
+                                    <div>
+                                        <span class="question-type-badge mcq-badge">Multiple Choice</span>
+                                    </div>
+                                    <div>
+                                        Question <%= index + 1 %> of <%= totalQuestions %>
+                                    </div>
+                                </div>
+                                <h4 class="mb-4"><%= question.question %></h4>
+                                <div class="options mt-3">
+                                    <% question.options.forEach((option, idx) => { %>
+                                        <label class="option-label" data-option-index="<%= idx %>">
+                                            <input type="radio" name="mcq-<%= question._id %>" value="<%= option %>" class="mcq-option">
+                                            <span class="ml-2"><%= option %></span>
+                                        </label>
+                                    <% }); %>
+                                </div>
+                            </div>
+                        <% }); %>
+
+                        <!-- Coding Questions -->
+                        <% exam.codingQuestions.forEach((question, index) => { %>
+                            <div class="question-card" id="coding-question-<%= index %>">
+                                <div class="question-status">
+                                    <div>
+                                        <span class="question-type-badge coding-badge">Coding</span>
+                                    </div>
+                                    <div>
+                                        Question <%= index + 1 + exam.mcqQuestions.length %> of <%= totalQuestions %>
+                                    </div>
+                                </div>
+                                <h4 class="mb-4"><%= question.question %></h4>
+                                <textarea name="coding-<%= question._id %>" class="coding-textarea mt-3" rows="8" placeholder="Write your code here..."></textarea>
+                            </div>
+                        <% }); %>
+                    </div>
+                    
+                    <!-- Controls container -->
+                    <div class="controls-container">
+                        <div class="navigation-buttons">
+                            <button type="button" class="btn btn-outline-secondary prev-question-btn" id="prevQuestionBtn">Previous</button>
+                            <button type="button" class="btn btn-primary next-question-btn" id="nextQuestionBtn">Next</button>
+                        </div>
+                        <div class="submit-btn">
+                            <button type="button" id="reviewBtn" class="btn btn-info px-4">Review Answers</button>
+                            <button type="submit" id="submitTestBtn" class="btn btn-success px-4">Submit Test</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewModalLabel">Review Your Answers</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="review-summary mb-3">
+                        <div class="alert alert-info">
+                            <strong>Summary:</strong> <span id="answeredCount">0</span> of <span id="totalQuestionsCount"><%= totalQuestions %></span> questions answered
+                        </div>
+                    </div>
+                    <div class="review-list">
+                        <h6>MCQ Questions:</h6>
+                        <ul class="list-group mb-3">
+                            <% exam.mcqQuestions.forEach((question, index) => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center" data-question-type="mcq" data-question-index="<%= index %>">
+                                    <div>Q<%= index + 1 %>: <%= question.question %>...</div>
+                                    <span class="badge badge-secondary status-badge">Not answered</span>
+                                </li>
+                            <% }); %>
+                        </ul>
+                        
+                        <h6>Coding Questions:</h6>
+                        <ul class="list-group">
+                            <% exam.codingQuestions.forEach((question, index) => { %>
+                                <li class="list-group-item d-flex justify-content-between align-items-center" data-question-type="coding" data-question-index="<%= index %>">
+                                    <div>Q<%= index + 1 + exam.mcqQuestions.length %>: <%= question.question %>...</div>
+                                    <span class="badge badge-secondary status-badge">Not answered</span>
+                                </li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="submitFromReview">Submit Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
