@@ -137,11 +137,7 @@ exports.addSelectedQuestions = async (req, res) => {
         });
         
         // Render the view questions page with all questions
-        return res.render('view_questions', {
-            exam,
-            mcqQuestions: allMCQs,
-            codingQuestions: exam.codingQuestions || []
-        });
+        return res.redirect(`/admin/exam/questions/${examId}`);
 
     } catch (error) {
         console.error('Error adding selected questions:', error);
