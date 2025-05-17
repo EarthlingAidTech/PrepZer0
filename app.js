@@ -32,7 +32,8 @@ const xss = require('xss-clean')
 
 
 // setting view engine to ejs
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 //database configure ("monodb/mongoose")
 const mongoose = require('mongoose')
