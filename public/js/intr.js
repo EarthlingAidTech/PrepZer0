@@ -260,8 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                examId: "<%= exam._id %>",  // Use the template variable
-                userId: "<%= user._id %>",  // Use the template variable
+                examId: document.querySelector('input[name="examId"]').value,  // Use the template variable
+                userId: document.querySelector('input[name="userId"]').value,  // Use the template variable
                 timestamp: new Date().toISOString()
             })
         })
@@ -348,8 +348,8 @@ let maxAllowedRefreshes = 2; // Set your desired threshold
 function sendIntegrityUpdate(eventType) {
     if (localStorage.getItem('examStarted')=="true"){
         const data = {
-        examId: "<%= exam._id %>", 
-        userId: "<%= user._id %>", 
+        examId: document.querySelector('input[name="examId"]').value, 
+        userId:document.querySelector('input[name="userId"]').value, 
         eventType: eventType
     };
 
@@ -544,8 +544,8 @@ function startWebcamCapture() {
                         
                         const formData = new FormData();
                         formData.append('image', blob, `capture-${Date.now()}.png`);
-                        formData.append('userId', "<%= user._id %>");
-                        formData.append('examId', "<%= exam._id %>");
+                        formData.append('userId',document.querySelector('input[name="userId"]').value);
+                        formData.append('examId', document.querySelector('input[name="examId"]').value);
                         
                         fetch('/save-image', { 
                             method: 'POST',

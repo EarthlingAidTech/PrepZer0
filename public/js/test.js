@@ -114,9 +114,6 @@ function updateExamTimer() {
         showNotification("Warning: Less than 5 minutes remaining!");
     }
     
-    // // Create warning if less than 1 minute remaining
-    // if (timeRemaining < 60 * 1000 && timeRemaining > 59 * 1000) {
-    //     alert("Warning: Less than 1 minute remaining!");
-    // }
+
 }
 
