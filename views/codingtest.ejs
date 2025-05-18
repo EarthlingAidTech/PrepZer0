@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e8ecfd;
+            --primary-dark: #3344c7;
+            --secondary: #2b2d42;
+            --success: #2dc653;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --info: #00b4d8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #8d99ae;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --card-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--secondary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Hidden Elements */
+        video, canvas {
+            display: none;
+        }
+
+        /* Container Styles */
+        .custom-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header Styles */
+        .exam-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+        }
+
+        .exam-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .exam-header p {
+            font-weight: 300;
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        /* Start Button */
+        .start-button {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .btn-start {
+            background: var(--primary);
+            color: var(--white);
+            padding: 1rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-start:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        /* Timer Styles */
+        .exam-timer {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Integrity Panel Styles */
+        .integrity-panel {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .integrity-panel h4 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .integrity-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .integrity-item:last-child {
+            border-bottom: none;
+        }
+
+        .integrity-item strong {
+            display: flex;
+            align-items: center;
+        }
+
+        .integrity-item .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 500;
+        }
+
+        .total-violations {
+            background-color: rgba(239, 71, 111, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Submit Button Styles */
+        .submit-area {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .btn-submit {
+            padding: 0.75rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--success);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #26a645;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(45, 198, 83, 0.3);
+        }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--gray);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 3rem;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            background-color: var(--danger);
+            color: var(--white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.25rem 1.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        #notificationContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+        }
+
+        .notification {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 300px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .custom-container {
+                padding: 1rem;
+            }
+            
+            .integrity-panel {
+                padding: 1.5rem;
+            }
+            
+            .btn-start {
+                padding: 0.85rem 2rem;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+    <title>Exam Integrity Monitoring System</title>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="exam-header mt-4">
+            <h1>Online Exam Portal</h1>
+            <p>Academic Assessment Platform</p>
+        </div>
+
+        <!-- Start Button Area (initial view) -->
+        <div id="startButtonArea" class="start-button">
+            <button id="startExamBtn" class="btn-start">Start Exam</button>
+        </div>
+
+        <!-- Exam Content Area (hidden initially) -->
+        <div id="examContent" style="display: none;">
+            <form id="examForm" action="/dashboard/submit-test" method="POST">
+                <input type="hidden" name="examId" value="<%=%>">
+                <input type="hidden" name="userId" value="user456">
+
+                <!-- Timer Section -->
+                <div class="exam-timer" id="examTimer">
+                    Time Remaining: <span id="timeDisplay">00:00:00</span>
+                </div>
+
+                <!-- Placeholder for Exam Questions -->
+                <div class="text-center p-5 bg-light mb-4 rounded">
+                    <h3>Exam Questions Would Appear Here</h3>
+                    <p>This simplified version focuses on integrity monitoring features.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="submit-area">
+                    <button type="button" id="submitTestBtn" class="btn-submit">Submit Exam</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Integrity Monitoring Panel -->
+        <div id="integrityPanel" class="integrity-panel">
+            <h4>Exam Integrity Monitor</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="integrity-item">
+                        <strong>Tab Changes Detected:</strong> 
+                        <span id="tabChangeCount" class="badge badge-secondary">0</span>
+                    </div>
+                    <div class="integrity-item">
+                        <strong>Mouse Left Workspace:</strong> 
+                        <span id="mouseOutCount" class="badge badge-secondary">0</span>
+                    </div>
+                    <div class="integrity-item">
+                        <strong>Fullscreen Exit Attempts:</strong> 
+                        <span id="fullscreenExitCount" class="badge badge-secondary">0</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="integrity-item">
+                        <strong>Copy Attempts:</strong> 
+                        <span id="copyAttemptCount" class="badge badge-secondary">0</span>
+                    </div>
+                    <div class="integrity-item">
+                        <strong>Paste Attempts:</strong> 
+                        <span id="pasteAttemptCount" class="badge badge-secondary">0</span>
+                    </div>
+                    <div class="integrity-item">
+                        <strong>Focus Changes Detected:</strong> 
+                        <span id="focusChangeCount" class="badge badge-secondary">0</span>
+                    </div>
+                    <div class="integrity-item">
+                        <strong>Refresh Violations:</strong> 
+                        <span id="refreshViolationCount" class="badge badge-secondary">0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="integrity-item mt-3 total-violations">
+                <strong>Total Integrity Violations:</strong> 
+                <span id="totalViolations" class="badge badge-danger">0</span>
+            </div>
+            <div class="integrity-item">
+                <strong>Last Event:</strong> 
+                <span id="lastEvent" class="badge badge-info">N/A</span>
+            </div>
+            <div class="integrity-item">
+                <strong>Screen Configuration:</strong> 
+                <span id="screenConfig" class="badge badge-info">Checking...</span>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2025 Academic Assessment Platform</p>
+        </footer>
+    </div>
+
+    <!-- Hidden Canvas for Webcam Capture -->
+    <canvas id="canvas" width="320" height="240"></canvas>
+
+    <!-- Required Scripts -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        // Global Variables
+        let examTimerInterval = null;
+        let endTime = null;
+        let examDuration = 60 * 60 * 1000; // 60 minutes in milliseconds
+        let timeRemaining = examDuration;
+        let pingInterval = null;
+
+        // Integrity Monitoring Variables
+        let tabChangeCount = 0;
+        let mouseOutCount = 0;
+        let fullscreenExitCount = 0;
+        let copyAttemptCount = 0;
+        let pasteAttemptCount = 0;
+        let focusChangeCount = 0;
+        let refreshViolationCount = 0;
+        let isFullscreenActive = false;
+        let totalViolations = 0;
+        let lastTabFocusTime = 0;
+        const TAB_FOCUS_COOLDOWN = 1000;
+        const MAX_ALLOWED_REFRESHES = 2;
+        let resizeAttempts = 0;
+        let lastResizeTime = 0;
+        const RESIZE_COOLDOWN = 500;
+        const MAX_RESIZE_ATTEMPTS = 2;
+
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (localStorage.getItem('examStarted') === "true") {
+                // Prevent dev tools and refresh
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || 
+                    (e.ctrlKey && e.key === 'U') ||
+                    e.key === 'Escape' ||
+                    e.key === 'F5' || 
+                    ((e.metaKey || e.ctrlKey) && e.key === 'r') ||
+                    e.key === 'F11' || 
+                    (e.metaKey && e.shiftKey && e.key === 'f') ||
+                    (e.metaKey && e.key === 'w') || 
+                    (e.key === 'F4' && e.altKey)) {
+                        
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showNotification("This action is not allowed during the exam.");
+                    return false;
+                }
+            }
+        });
+
+        // Prevent right-click context menu
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Initialize exam timer
+        function initializeExamTimer() {
+            // Check if there's a saved timer state
+            const savedEndTime = localStorage.getItem('examEndTime');
+            
+            if (savedEndTime) {
+                // Resume timer if already started
+                endTime = parseInt(savedEndTime);
+                
+                // Check if the saved end time is in the past
+                if (Date.now() > endTime) {
+                    // Clear the saved time and start fresh
+                    localStorage.removeItem('examEndTime');
+                    endTime = Date.now() + examDuration;
+                    localStorage.setItem('examEndTime', endTime);
+                }
+            } else {
+                // Set end time based on exam duration
+                endTime = Date.now() + examDuration;
+                localStorage.setItem('examEndTime', endTime);
+            }
+            
+            // Start the timer interval
+            examTimerInterval = setInterval(updateExamTimer, 1000);
+            return true;
+        }
+
+        // Update the timer display
+        function updateExamTimer() {
+            const currentTime = Date.now();
+            timeRemaining = endTime - currentTime;
+            
+            if (timeRemaining <= 0) {
+                // Time's up!
+                clearInterval(examTimerInterval);
+                document.getElementById('timeDisplay').textContent = "00:00:00";
+                showNotification("Time's up! Your exam is being submitted.", 'error');
+                submitExam("timeout");
+                return;
+            }
+
+            // Convert remaining time to hours, minutes, seconds
+            const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Format time as HH:MM:SS
+            const formattedTime = 
+                (hours < 10 ? "0" + hours : hours) + ":" +
+                (minutes < 10 ? "0" + minutes : minutes) + ":" +
+                (seconds < 10 ? "0" + seconds : seconds);
+                
+            document.getElementById('timeDisplay').textContent = formattedTime;
+            
+            // Create warning if less than 5 minutes remaining
+            if (timeRemaining < 5 * 60 * 1000 && timeRemaining > 4.9 * 60 * 1000) {
+                showNotification("Warning: Less than 5 minutes remaining!");
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'warning') {
+            // Create notification container if it doesn't exist
+            let notificationContainer = document.getElementById('notificationContainer');
+            if (!notificationContainer) {
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notificationContainer';
+                notificationContainer.style.position = 'fixed';
+                notificationContainer.style.top = '10px';
+                notificationContainer.style.right = '10px';
+                notificationContainer.style.zIndex = '9999';
+                document.body.appendChild(notificationContainer);
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.backgroundColor = type === 'warning' ? '#fff3cd' : '#f8d7da';
+            notification.style.color = type === 'warning' ? '#856404' : '#721c24';
+            notification.style.padding = '10px 15px';
+            notification.style.marginBottom = '10px';
+            notification.style.borderRadius = '4px';
+            notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+            notification.style.width = '300px';
+            notification.style.animation = 'fadeIn 0.3s ease-out';
+            notification.innerHTML = message;
+            
+            // Add to container
+            notificationContainer.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+            
+            return notification;
+        }
+
+        // Violations modal
+        function showViolationModal() {
+            // Create modal container
+            const modalOverlay = document.createElement('div');
+            modalOverlay.style.position = 'fixed';
+            modalOverlay.style.top = '0';
+            modalOverlay.style.left = '0';
+            modalOverlay.style.width = '100%';
+            modalOverlay.style.height = '100%';
+            modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            modalOverlay.style.display = 'flex';
+            modalOverlay.style.justifyContent = 'center';
+            modalOverlay.style.alignItems = 'center';
+            modalOverlay.style.zIndex = '10000';
+            
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = '#fff';
+            modalContent.style.padding = '25px';
+            modalContent.style.borderRadius = '10px';
+            modalContent.style.maxWidth = '500px';
+            modalContent.style.width = '80%';
+            modalContent.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+            modalContent.style.textAlign = 'center';
+            
+            // Add warning icon
+            const warningIcon = document.createElement('div');
+            warningIcon.innerHTML = '⚠️';
+            warningIcon.style.fontSize = '4rem';
+            warningIcon.style.marginBottom = '15px';
+            modalContent.appendChild(warningIcon);
+            
+            // Add title
+            const title = document.createElement('h2');
+            title.textContent = 'Critical Violation Alert';
+            title.style.color = '#d9534f';
+            title.style.marginBottom = '15px';
+            modalContent.appendChild(title);
+            
+            // Add message
+            const message = document.createElement('p');
+            message.textContent = `You have committed 3 or more integrity violations. Your exam will be automatically submitted.`;
+            message.style.marginBottom = '20px';
+            message.style.fontSize = '1.1rem';
+            modalContent.appendChild(message);
+            
+            // Add violations list
+            const violationsList = document.createElement('div');
+            violationsList.style.textAlign = 'left';
+            violationsList.style.marginBottom = '20px';
+            violationsList.style.padding = '10px';
+            violationsList.style.backgroundColor = '#f8d7da';
+            violationsList.style.borderRadius = '5px';
+            
+            let violationsHTML = '<strong>Violations detected:</strong><ul style="margin-top: 10px;">';
+            
+            // Add each violation type with count
+            if (tabChangeCount > 0) violationsHTML += `<li>Tab changes: ${tabChangeCount}</li>`;
+            if (mouseOutCount > 0) violationsHTML += `<li>Mouse left window: ${mouseOutCount}</li>`;
+            if (fullscreenExitCount > 0) violationsHTML += `<li>Fullscreen exits: ${fullscreenExitCount}</li>`;
+            if (copyAttemptCount > 0) violationsHTML += `<li>Copy attempts: ${copyAttemptCount}</li>`;
+            if (pasteAttemptCount > 0) violationsHTML += `<li>Paste attempts: ${pasteAttemptCount}</li>`;
+            if (focusChangeCount > 0) violationsHTML += `<li>Focus changes: ${focusChangeCount}</li>`;
+            if (refreshViolationCount > 0) violationsHTML += `<li>Page refreshes: ${refreshViolationCount}</li>`;
+            
+            violationsHTML += '</ul>';
+            violationsList.innerHTML = violationsHTML;
+            modalContent.appendChild(violationsList);
+            
+            // Add countdown text
+            const countdown = document.createElement('p');
+            countdown.textContent = 'Submitting exam in 5 seconds...';
+            countdown.style.fontWeight = 'bold';
+            modalContent.appendChild(countdown);
+            
+            modalOverlay.appendChild(modalContent);
+            document.body.appendChild(modalOverlay);
+            
+            // Start countdown
+            let seconds = 5;
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdown.textContent = `Submitting exam in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+            
+            return modalOverlay;
+        }
+
+        // Update UI with current integrity values
+        function updateUI() {
+            if (localStorage.getItem('examStarted') == "true") {
+                document.getElementById('tabChangeCount').textContent = tabChangeCount;
+                document.getElementById('mouseOutCount').textContent = mouseOutCount;
+                document.getElementById('fullscreenExitCount').textContent = fullscreenExitCount;
+                document.getElementById('copyAttemptCount').textContent = copyAttemptCount;
+                document.getElementById('pasteAttemptCount').textContent = pasteAttemptCount;
+                document.getElementById('focusChangeCount').textContent = focusChangeCount;
+                document.getElementById('refreshViolationCount').textContent = refreshViolationCount;
+                document.getElementById('totalViolations').textContent = totalViolations;
+            }
+        }
+
+        // Send integrity updates to server
+        function sendIntegrityUpdate(eventType) {
+            if (localStorage.getItem('examStarted') == "true") {
+                const data = {
+                    examId: document.querySelector('input[name="examId"]').value,
+                    userId: document.querySelector('input[name="userId"]').value,
+                    eventType: eventType
+                };
+
+                fetch('/update-integrity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => console.log('Integrity event logged:', data))
+                .catch(error => console.error('Error sending integrity update:', error));
+            }
+        }
+
+        // Update status message
+        function updateStatus(message) {
+            if (localStorage.getItem('examStarted') == "true") {
+                document.getElementById('lastEvent').textContent = message;
+            }
+        }
+
+        // Handle tab change events
+        function handleTabChange() {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (document.hidden) {
+                    // Only count tab change if it's not immediately after a focus change
+                    const currentTime = Date.now();
+                    if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
+                        tabChangeCount++;
+                        totalViolations++;
+                        sendIntegrityUpdate("tabChanges");
+                        updateStatus("Tab change detected");
+                        updateUI();
+                        checkAndSubmitTest();
+                    }
+                }
+            }
+        }
+
+        // Handle mouse leaving the window
+        function handleMouseOut(event) {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (event.clientX < 0 || event.clientX > window.innerWidth - 1 || event.clientY < 0 || event.clientY > window.innerHeight - 1) {
+                    mouseOutCount++;
+                    totalViolations++;
+                    sendIntegrityUpdate("mouseOuts");
+                    updateStatus("Mouse left workspace");
+                    showNotification("Mouse Going Out is not allowed");
+                    updateUI();
+                    checkAndSubmitTest();
+                }
+            }
+        }
+
+        // Handle window focus changes
+        function handleFocusChange(event) {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (event.type === 'blur') {
+                    // Only count focus change if it's not immediately after a tab change
+                    const currentTime = Date.now();
+                    if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
+                        focusChangeCount++;
+                        lastTabFocusTime = currentTime;
+                        
+                        // Check if this is coming from a tab change or standalone focus change
+                        if (!document.hidden) {
+                            // If document is not hidden, this is a standalone focus change
+                            totalViolations++;
+                            sendIntegrityUpdate("focusChanges");
+                            updateStatus("Focus change detected");
+                            updateUI();
+                            checkAndSubmitTest();
+                        }
+                    }
+                }
+            }
+        }
+
+        // Enter fullscreen mode
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            
+            // Don't attempt to enter fullscreen if already in fullscreen mode
+            if (document.fullscreenElement || document.webkitFullscreenElement || 
+                document.mozFullScreenElement || document.msFullscreenElement) {
+                return;
+            }
+            
+            try {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { // Safari
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) { // Firefox
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) { // IE/Edge
+                    elem.msRequestFullscreen();
+                }
+            } catch (error) {
+                console.error("Fullscreen error:", error);
+                showNotification("Fullscreen mode failed. Please try again.");
+            }
+        }
+
+        // Handle fullscreen change events
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                fullscreenExitCount++;
+                totalViolations++;
+                showNotification("Exiting fullscreen is not allowed during the exam.");
+                
+                // Give a short delay before forcing back to fullscreen (helps with Mac transition)
+                setTimeout(enterFullscreen, 500);
+                
+                sendIntegrityUpdate("fullscreenExits");
+                updateStatus("Fullscreen exited");
+                updateUI();
+                checkAndSubmitTest();
+            } else {
+                if (!isFullscreenActive) {
+                    document.addEventListener('mouseout', handleMouseOut);
+                    isFullscreenActive = true;
+                }
+                updateStatus("Fullscreen entered");
+            }
+        }
+
+        // Start webcam capture
+        function startWebcamCapture() {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Check if media devices API is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error("MediaDevices API not supported");
+                showNotification("Your browser doesn't support webcam capture. Please use a modern browser.", 'error');
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 320 },
+                    height: { ideal: 240 },
+                    facingMode: "user"
+                } 
+            })
+            .then((stream) => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                
+                // Wait for video to be ready
+                video.onloadedmetadata = () => {
+                    // Set up snapshot interval
+                    setInterval(() => {
+                        try {
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            
+                            canvas.toBlob((blob) => {
+                                if (!blob) return;
+                                
+                                const formData = new FormData();
+                                formData.append('image', blob, `capture-${Date.now()}.png`);
+                                formData.append('userId', document.querySelector('input[name="userId"]').value);
+                                formData.append('examId', document.querySelector('input[name="examId"]').value);
+                                
+                                fetch('/save-image', { 
+                                    method: 'POST',
+                                    body: formData,
+                                })
+                                .then(response => response.json())
+                                .then(data => console.log('Image saved:', data))
+                                .catch(error => console.error('Error saving image:', error));
+                            }, 'image/png');
+                        } catch (err) {
+                            console.error("Error capturing webcam frame:", err);
+                        }
+                    }, 10000); // Capture every 10 seconds
+                };
+            })
+            .catch((error) => {
+                console.error("Error accessing webcam:", error);
+                showNotification("Unable to access the webcam. Please ensure your camera is connected and you've allowed permission.", 'error');
+            });
+        }
+
+        // Send activity ping to server
+        function sendActivityPing() {
+            if (localStorage.getItem('examStarted') == "true") {
+                fetch('/dashboard/see-active', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        examId: document.querySelector('input[name="examId"]').value,
+                        userId: document.querySelector('input[name="userId"]').value,
+                        timestamp: new Date().toISOString()
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Failed to send activity ping');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending activity ping:', error);
+                });
+            }
+        }
+
+        // Prevent back button
+        function preventBackButton() {
+            window.history.pushState(null, "", window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, "", window.location.href);
+            };
+        }
+
+        // Handle refresh detection
+        function handleRefreshDetection() {
+            // Check if there's a saved refresh count
+            let refreshCount = parseInt(localStorage.getItem('examRefreshCount') || '0');
+            if (localStorage.getItem('examStarted') == "true") {
+                refreshCount++;
+                localStorage.setItem('examRefreshCount', refreshCount.toString());
+            }
+            
+            // Count this as a violation if it's not the first load
+            if (refreshCount > 1) {
+                refreshViolationCount = refreshCount - 1; // Don't count the initial load
+                totalViolations += 1; // Increment total violations by 1 for this refresh
+                
+                // Send refresh event to server for logging
+                sendIntegrityUpdate("pageRefresh");
+                updateStatus("Page refresh detected");
+                updateUI();
+                
+                // Check if exceeded maximum allowed refreshes
+                if (refreshCount > MAX_ALLOWED_REFRESHES) {
+                    showNotification(`Maximum page refreshes (${MAX_ALLOWED_REFRESHES}) exceeded. Your exam is being submitted.`, 'error');
+                    submitExam("excessive_refreshes");
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Check and auto-submit test if violations are too high
+        function checkAndSubmitTest() {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (totalViolations >= 3) {
+                    updateStatus("Auto-submitting test due to integrity violations");
+                    const modalOverlay = showViolationModal();
+                    
+                    // Set timeout to submit after 5 seconds
+                    setTimeout(() => {
+                        submitExam("integrity_violations");
+                    }, 5000);
+                }
+            }
+        }
+
+        // Submit exam with reason
+        function submitExam(reason = "normal") {
+            // Set a flag to prevent refresh detection during submission
+            localStorage.setItem('examSubmitting', 'true');
+            
+            clearInterval(examTimerInterval);
+            console.log(`Submitting exam: ${reason}`);
+            
+            // Clear all localStorage items
+            localStorage.removeItem('examStarted');
+            localStorage.removeItem('examEndTime');
+            localStorage.removeItem('examRefreshCount');
+            
+            // Submit the form
+            document.getElementById('examForm').submit();
+            
+            // Use a small timeout before redirect to allow form submission to complete
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 1000);
+        }
+
+        // Update screen configuration
+        function updateScreenConfiguration() {
+            // Get the screen configuration element
+            const screenConfigElement = document.getElementById('screenConfig');
+            
+            // If the element doesn't exist, return
+            if (!screenConfigElement) {
+                console.error('Screen configuration element not found');
+                return;
+            }
+            
+            // Set a loading message
+            screenConfigElement.textContent = 'Detecting screen configuration...';
+            
+            // Setup timeout to handle case where configuration can't be detected
+            const timeout = setTimeout(() => {
+                screenConfigElement.textContent = 'Screen configuration unavailable';
+            }, 2000);
+            
+            // Get and display the screen configuration
+            try {
+                // Get window dimensions
+                const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+                const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                
+                // Get screen dimensions
+                const screenWidth = window.screen.width;
+                const screenHeight = window.screen.height;
+                
+                // Get device pixel ratio for detecting high-DPI displays
+                const pixelRatio = window.devicePixelRatio || 1;
+                
+                // Get color depth
+                const colorDepth = window.screen.colorDepth;
+                
+                // Clear the timeout since we got the data
+                clearTimeout(timeout);
+                
+                // Format and display the configuration
+                const configText = `${width}x${height} (Window), ${screenWidth}x${screenHeight} (Screen), ${pixelRatio}x (Pixel Ratio), ${colorDepth}-bit color`;
+                screenConfigElement.textContent = configText;
+                
+                return {
+                    window: { width, height },
+                    screen: { width: screenWidth, height: screenHeight },
+                    pixelRatio,
+                    colorDepth
+                };
+            } catch (error) {
+                // Clear the timeout and show error
+                clearTimeout(timeout);
+                console.error('Error detecting screen configuration:', error);
+                screenConfigElement.textContent = 'Error detecting screen configuration';
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if exam has started
+            const examStarted = localStorage.getItem('examStarted');
+            
+            // Update screen configuration
+            updateScreenConfiguration();
+            
+            if (examStarted === 'true') {
+                // Handle refresh detection
+                if (!handleRefreshDetection()) {
+                    return; // Stop if refresh limit exceeded
+                }
+                
+                // Continue with normal exam loading
+                document.getElementById("startButtonArea").style.display = "none";
+                document.getElementById("examContent").style.display = "block";
+                
+                if (initializeExamTimer()) {
+                    enterFullscreen();
+                    preventBackButton();
+                    startWebcamCapture();
+                    
+                    // Start sending activity pings
+                    pingInterval = setInterval(sendActivityPing, 20000); // Every 20 seconds
+                    sendActivityPing(); // Send initial ping
+                } else {
+                    // If initialization failed, clear localStorage
+                    localStorage.removeItem('examStarted');
+                    localStorage.removeItem('examEndTime');
+                    localStorage.removeItem('examRefreshCount');
+                }
+            } else {
+                // Reset refresh count when exam starts
+                document.getElementById("startExamBtn").addEventListener("click", function() {
+                    // Store exam started state
+                    localStorage.setItem('examStarted', 'true');
+                    localStorage.setItem('examRefreshCount', '0');
+                    
+                    enterFullscreen();
+                    document.getElementById("startButtonArea").style.display = "none";
+                    document.getElementById("examContent").style.display = "block";
+                    
+                    if (initializeExamTimer()) {
+                        preventBackButton();
+                        startWebcamCapture();
+                        
+                        // Start sending activity pings
+                        pingInterval = setInterval(sendActivityPing, 20000);
+                        sendActivityPing(); // Send initial ping
+                    } else {
+                        // Revert if initialization failed
+                        document.getElementById("startButtonArea").style.display = "block";
+                        document.getElementById("examContent").style.display = "none";
+                        localStorage.removeItem('examStarted');
+                    }
+                });
+            }
+            
+            // Submit button event listener
+            document.getElementById('submitTestBtn').addEventListener('click', function() {
+                submitExam("manual");
+            });
+        });
+
+        // Event listeners for integrity monitoring
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange); // Safari
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange); // Firefox
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange); // IE/Edge
+        document.addEventListener('visibilitychange', handleTabChange);
+        window.addEventListener('blur', handleFocusChange);
+        window.addEventListener('focus', handleFocusChange);
+        
+        // Prevent copy/paste
+        document.addEventListener('copy', (e) => {
+            if (localStorage.getItem('examStarted') == "true") {
+                e.preventDefault();
+                copyAttemptCount++;
+                totalViolations++;
+                sendIntegrityUpdate("copyAttempts");
+                updateStatus("Copy attempt detected");
+                updateUI();
+                checkAndSubmitTest();
+            }
+        });
+
+        document.addEventListener('paste', (e) => {
+            if (localStorage.getItem('examStarted') == "true") {
+                e.preventDefault();
+                pasteAttemptCount++;
+                totalViolations++;
+                sendIntegrityUpdate("pasteAttempts");
+                updateStatus("Paste attempt detected");
+                updateUI();
+                checkAndSubmitTest();
+            }
+        });
+
+        // Detect resize events (potential DevTools)
+        window.addEventListener('resize', () => {
+            if (localStorage.getItem('examStarted') == "true") {
+                const currentTime = Date.now();
+                // Check if we're within the cooldown period
+                if (currentTime - lastResizeTime < RESIZE_COOLDOWN) {
+                    // Count this as another attempt within the same period
+                    resizeAttempts++;
+                    
+                    // Check if max attempts exceeded
+                    if (resizeAttempts >= MAX_RESIZE_ATTEMPTS) {
+                        // Only show notification and count as violation if not due to Mac-specific events
+                        if (Math.abs(window.innerHeight - window.screen.height) > 100) {
+                            showNotification(`DevTools detected! Your exam is being monitored.`, 'error');
+                            
+                            // Show the violation modal and submit exam after delay
+                            const modalOverlay = showViolationModal();
+                            setTimeout(() => {
+                                submitExam("resize_violations");
+                            }, 5000);
+                        }
+                    }
+                } else {
+                    // First resize attempt in a new period
+                    resizeAttempts = 1;
+                    if(resizeAttempts > 1) {
+                        showNotification(`Window resize detected. This is being monitored.`);
+                    }
+                }
+                
+                // Update the timestamp
+                lastResizeTime = currentTime;
+                
+                // Check if total violations are too high
+                checkAndSubmitTest();
+            }
+        });
+
+        // Handle beforeunload event
+        window.addEventListener('beforeunload', function(e) {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (pingInterval) {
+                    clearInterval(pingInterval);
+                    
+                    // Send final ping with status=inactive
+                    fetch('/dashboard/see-active', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            examId: document.querySelector('input[name="examId"]').value,
+                            userId: document.querySelector('input[name="userId"]').value,
+                            timestamp: new Date().toISOString(),
+                            status: 'inactive'
+                        }),
+                        keepalive: true
+                    });
+                }
+                
+                if (localStorage.getItem('examSubmitting') === 'true') {
+                    return;
+                }
+                
+                // This triggers the browser's "Leave site?" dialog
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+
+        // Ensure fullscreen after clicks
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement && examTimerInterval) {
+                enterFullscreen();
+                updateStatus("Fullscreen mode ensured after click");
+            }
+        });
+    </script>
+</body>
+</html>

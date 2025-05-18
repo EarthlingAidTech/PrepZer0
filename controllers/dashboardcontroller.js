@@ -123,8 +123,16 @@ exports.getStartExam = async(req,res)=>{
         if (currentTime > exam.scheduleTill) {
             return res.status(403).send("This exam is no longer available.");
         }
-
-        res.render("coding_editor", { user: req.user, exam  });
+        console.log()
+        if (exam.questionType == "coding"){
+            res.render("codingtest", { user: req.user, exam  });
+        }
+       else if (exam.questionType == "mcq"){
+            res.render("test", { user: req.user, exam  });
+        }else{
+            res.render("test", { user: req.user, exam  });
+        }
+        
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
