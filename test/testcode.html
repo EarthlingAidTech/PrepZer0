@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Coding Exam</title>
+    <style>
+        /* Base Styles */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e8ecfd;
+            --primary-dark: #3344c7;
+            --secondary: #2b2d42;
+            --success: #2dc653;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --info: #00b4d8;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #8d99ae;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --card-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: var(--secondary);
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* Hidden Elements */
+        video, canvas {
+            display: none;
+        }
+
+        /* Container Styles */
+        .custom-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header Styles */
+        .exam-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exam-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .exam-header p {
+            font-weight: 300;
+            font-size: 1.25rem;
+            position: relative;
+            z-index: 5;
+            opacity: 0.9;
+        }
+
+        /* Start Button */
+        .start-button {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .btn-start {
+            background: var(--primary);
+            color: var(--white);
+            padding: 1rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-start:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        /* Timer Styles */
+        .exam-timer {
+            background: var(--secondary);
+            color: var(--white);
+            padding: 1.25rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .exam-timer i {
+            margin-right: 0.75rem;
+            color: var(--warning);
+        }
+
+        /* Sidebar Styles */
+        .sidebar-container {
+            position: sticky;
+            top: 1.5rem;
+        }
+
+        .question-sidebar {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray) var(--light);
+        }
+
+        .question-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-header h4 {
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .question-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+
+        .question-nav-item:hover {
+            background-color: var(--primary-light);
+            text-decoration: none;
+            color: var(--primary);
+        }
+
+        .question-nav-item.active {
+            background-color: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.25);
+        }
+
+        .question-nav-item.answered {
+            border-left: 4px solid var(--success);
+            background-color: rgba(45, 198, 83, 0.08);
+        }
+
+        .question-indicator {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .question-nav-item.active .question-indicator {
+            background-color: var(--white);
+            color: var(--primary);
+        }
+
+        .question-nav-item.answered .question-indicator {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        /* Question Card Styles */
+        .question-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            min-height: calc(100vh - 250px);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-card.active {
+            display: block;
+        }
+
+        .question-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .question-type-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            background-color: rgba(255, 209, 102, 0.15);
+            color: #ff9800;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        /* Coding Area Styles */
+        .coding-textarea {
+            width: 100%;
+            padding: 1.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: var(--border-radius);
+            resize: vertical;
+            min-height: 350px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: border 0.2s;
+        }
+
+        .coding-textarea:focus {
+            outline: none;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        /* Navigation Button Styles */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        .btn-nav {
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-prev {
+            background-color: var(--light);
+            color: var(--secondary);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-prev:hover {
+            background-color: var(--secondary);
+            color: var(--white);
+            border-color: var(--secondary);
+        }
+
+        .btn-next {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+        }
+
+        .btn-next:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Submit Button Styles */
+        .submit-area {
+            margin-top: 2rem;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+        }
+
+        .btn-review {
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--info);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-review:hover {
+            background-color: #0097b5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 180, 216, 0.3);
+        }
+
+        .btn-submit {
+            padding: 0.75rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--success);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #26a645;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(45, 198, 83, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .review-summary {
+            margin-bottom: 1.5rem;
+        }
+
+        .list-group-item {
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px !important;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+
+        .list-group-item:hover {
+            background-color: var(--light);
+            transform: translateX(5px);
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.75rem;
+            border-radius: 50px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .badge-not-answered {
+            background-color: var(--gray);
+            color: var(--white);
+        }
+
+        .badge-answered {
+            background-color: var(--success);
+            color: var(--white);
+        }
+
+        /* Integrity Panel Styles */
+        .integrity-panel {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin: 3rem 0;
+        }
+
+        .integrity-panel h4 {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .integrity-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .integrity-item:last-child {
+            border-bottom: none;
+        }
+
+        .integrity-item strong {
+            display: flex;
+            align-items: center;
+        }
+
+        .total-violations {
+            background-color: rgba(239, 71, 111, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            color: var(--danger);
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Footer Styles */
+        .footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--gray);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 3rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 991px) {
+            .custom-container {
+                padding: 1.5rem;
+            }
+            
+            .exam-header {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .question-sidebar {
+                height: auto;
+                max-height: 300px;
+                margin-bottom: 1.5rem;
+            }
+            
+            .btn-start {
+                padding: 0.85rem 2rem;
+                font-size: 1.1rem;
+            }
+            
+            .question-card {
+                padding: 1.5rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .navigation-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .navigation-buttons .btn {
+                margin: 0.25rem;
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .submit-area {
+                flex-direction: column;
+            }
+            
+            .btn-review {
+                margin-right: 0;
+                margin-bottom: 1rem;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .btn-submit {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        #notificationContainer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 9999;
+        }
+
+        .notification {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            width: 300px;
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div id="startScreen">
+            <div class="exam-header">
+                <h1>Coding Assessment</h1>
+                <p>Complete the programming challenges within the allotted time</p>
+            </div>
+
+            <div id="integrityPanel" class="integrity-panel">
+                <h4>Exam Integrity Monitor</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="integrity-item">
+                            <strong>Tab Changes Detected:</strong> <span id="tabChangeCount" class="badge badge-secondary">0</span>
+                        </div>
+                        <div class="integrity-item">
+                            <strong>Mouse Left Workspace:</strong> <span id="mouseOutCount" class="badge badge-secondary">0</span>
+                        </div>
+                        <div class="integrity-item">
+                            <strong>Fullscreen Exit Attempts:</strong> <span id="fullscreenExitCount" class="badge badge-secondary">0</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="integrity-item">
+                            <strong>Copy Attempts:</strong> <span id="copyAttemptCount" class="badge badge-secondary">0</span>
+                        </div>
+                        <div class="integrity-item">
+                            <strong>Paste Attempts:</strong> <span id="pasteAttemptCount" class="badge badge-secondary">0</span>
+                        </div>
+                        <div class="integrity-item">
+                            <strong>Focus Changes Detected:</strong> <span id="focusChangeCount" class="badge badge-secondary">0</span>
+                        </div>
+                        <div class="integrity-item">
+                            <strong>Refresh Violations:</strong> <span id="refreshViolationCount" class="badge badge-secondary">0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="integrity-item mt-3 total-violations">
+                    <strong>Total Integrity Violations:</strong> <span id="totalViolations" class="badge badge-danger">0</span>
+                </div>
+                <div class="integrity-item">
+                    <strong>Last Event:</strong> <span id="lastEvent" class="badge badge-info">N/A</span>
+                </div>
+                <div class="integrity-item">
+                    <strong>Screen Configuration:</strong> <span id="screenConfig" class="badge badge-info">Checking...</span>
+                </div>
+            </div>
+
+            <div class="start-button">
+                <button id="startExamBtn" class="btn-start">Start Exam</button>
+            </div>
+        </div>
+
+        <div id="examContent" style="display: none;">
+            <form id="examForm" action="/submit-coding-exam" method="POST">
+                <input type="hidden" name="examId" value="exam123">
+                <input type="hidden" name="userId" value="user456">
+                
+                <div class="row">
+                    <div class="col-md-3 col-lg-2">
+                        <div class="exam-timer" id="examTimer">
+                            Time: <span id="timeDisplay">00:00:00</span>
+                        </div>
+                        <div class="question-sidebar">
+                            <div class="sidebar-header">
+                                <h4>Coding Questions</h4>
+                            </div>
+                            <div id="questionNavList">
+                                <!-- Question navigation items will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-9 col-lg-10">
+                        <div id="questionContainer">
+                            <!-- Question cards will be populated dynamically -->
+                        </div>
+                        
+                        <div class="submit-area">
+                            <button type="button" id="reviewBtn" class="btn-review">Review Answers</button>
+                            <button type="submit" id="submitExamBtn" class="btn-submit">Submit Exam</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Review Modal -->
+        <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="reviewModalLabel">Review Your Answers</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="review-summary mb-4">
+                            <div class="alert alert-info">
+                                <strong>Summary:</strong> <span id="answeredCount">0</span> of <span id="totalQuestionsCount">0</span> questions answered
+                            </div>
+                        </div>
+                        <div class="review-list">
+                            <ul class="list-group" id="reviewList">
+                                <!-- Review items will be populated dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" id="submitFromReview">Submit Exam</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <canvas id="canvas" width="320" height="240"></canvas>
+
+        <footer class="footer">
+            <p>© 2025 Earthling Aid Tech | Academic Assessment Platform</p>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        // Sample coding questions data (in a real app, this would come from your backend)
+        const codingQuestions = [
+            {
+                id: "q1",
+                question: "Write a function that checks if a string is a palindrome.",
+                starterCode: "function isPalindrome(str) {\n  // Your code here\n}"
+            },
+            {
+                id: "q2",
+                question: "Create a function that finds the maximum value in an array of numbers.",
+                starterCode: "function findMax(arr) {\n  // Your code here\n}"
+            },
+            {
+                id: "q3",
+                question: "Implement a function that reverses a linked list.",
+                starterCode: "function reverseLinkedList(head) {\n  // Your code here\n}"
+            }
+        ];
+
+        // Global Variables
+        let currentQuestionIndex = 0;
+        let examTimerInterval = null;
+        let pingInterval = null;
+        
+        // Timer Variables
+        let endTime = null;
+        let examDuration = 60 * 60 * 1000; // 60 minutes in milliseconds
+        let timeRemaining = examDuration;
+        
+        // Integrity Monitoring Variables
+        let tabChangeCount = 0;
+        let mouseOutCount = 0;
+        let fullscreenExitCount = 0;
+        let copyAttemptCount = 0;
+        let pasteAttemptCount = 0;
+        let focusChangeCount = 0;
+        let refreshViolationCount = 0;
+        let totalViolations = 0;
+        let isFullscreenActive = false;
+        let lastTabFocusTime = 0;
+        let resizeAttempts = 0;
+        let lastResizeTime = 0;
+        
+        // Constants
+        const TAB_FOCUS_COOLDOWN = 1000;
+        const RESIZE_COOLDOWN = 500;
+        const MAX_RESIZE_ATTEMPTS = 2;
+        const MAX_ALLOWED_REFRESHES = 2;
+        
+        // Tracking Answered Questions
+        let answeredQuestions = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCodingQuestions();
+            updateScreenConfiguration();
+            
+            // Check if exam already started
+            const examStarted = localStorage.getItem('examStarted');
+            if (examStarted === 'true') {
+                showExamContent();
+                if (initializeExamTimer()) {
+                    loadExamState();
+                    enterFullscreen();
+                    preventBackButton();
+                    startWebcamCapture();
+                    startActivityPing();
+                }
+            }
+            
+            // Handle refresh detection
+            handleRefreshDetection();
+            
+            // Set up event listeners
+            document.getElementById('startExamBtn').addEventListener('click', startExam);
+            document.getElementById('reviewBtn').addEventListener('click', showReviewModal);
+            document.getElementById('submitExamBtn').addEventListener('click', function() {
+                submitExam('manual');
+            });
+            document.getElementById('submitFromReview').addEventListener('click', function() {
+                $('#reviewModal').modal('hide');
+                submitExam('manual');
+            });
+            
+            // Set up integrity monitoring
+            setupIntegrityMonitoring();
+        });
+
+        // Setup Coding Questions
+        function setupCodingQuestions() {
+            const questionContainer = document.getElementById('questionContainer');
+            const questionNavList = document.getElementById('questionNavList');
+            
+            // Initialize the answeredQuestions array
+            answeredQuestions = Array(codingQuestions.length).fill(false);
+            
+            // Create navigation items and question cards
+            codingQuestions.forEach((question, index) => {
+                // Create navigation item
+                const navItem = document.createElement('a');
+                navItem.href = '#';
+                navItem.className = 'question-nav-item ' + (index === 0 ? 'active' : '');
+                navItem.setAttribute('data-question-index', index);
+                navItem.innerHTML = `
+                    <div class="question-indicator">${index + 1}</div>
+                    <div>Question ${index + 1}</div>
+                `;
+                navItem.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showQuestion(parseInt(this.getAttribute('data-question-index')));
+                });
+                questionNavList.appendChild(navItem);
+                
+                // Create question card
+                const questionCard = document.createElement('div');
+                questionCard.className = 'question-card ' + (index === 0 ? 'active' : '');
+                questionCard.id = `question-${index}`;
+                questionCard.innerHTML = `
+                    <div class="question-status">
+                        <div>
+                            <span class="question-type-badge">Coding Question</span>
+                        </div>
+                        <div>
+                            Question ${index + 1} of ${codingQuestions.length}
+                        </div>
+                    </div>
+                    <h4 class="question-text">${question.question}</h4>
+                    <textarea class="coding-textarea" name="code-${question.id}" placeholder="Write your code here...">${question.starterCode}</textarea>
+                    <div class="navigation-buttons">
+                        <button type="button" class="btn btn-outline-secondary prev-question-btn" ${index === 0 ? 'disabled' : ''}>Previous</button>
+                        <button type="button" class="btn btn-primary next-question-btn" ${index === codingQuestions.length - 1 ? 'disabled' : ''}>Next</button>
+                    </div>
+                `;
+                questionContainer.appendChild(questionCard);
+                
+                // Add textarea input event listener
+                const textarea = questionCard.querySelector('.coding-textarea');
+                textarea.addEventListener('input', function() {
+                    updateAnsweredStatus();
+                });
+                
+                // Add navigation button event listeners
+                const prevBtn = questionCard.querySelector('.prev-question-btn');
+                prevBtn.addEventListener('click', function() {
+                    if (index > 0) {
+                        showQuestion(index - 1);
+                    }
+                });
+                
+                const nextBtn = questionCard.querySelector('.next-question-btn');
+                nextBtn.addEventListener('click', function() {
+                    if (index < codingQuestions.length - 1) {
+                        showQuestion(index + 1);
+                    }
+                });
+            });
+            
+            // Update the total questions count in the review modal
+            document.getElementById('totalQuestionsCount').textContent = codingQuestions.length;
+            
+            // Set up review list
+            const reviewList = document.getElementById('reviewList');
+            codingQuestions.forEach((question, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                listItem.setAttribute('data-question-index', index);
+                listItem.innerHTML = `
+                    <div>Q${index + 1}: ${question.question.substring(0, 50)}...</div>
+                    <span class="badge badge-secondary status-badge">Not answered</span>
+                `;
+                listItem.addEventListener('click', function() {
+                    $('#reviewModal').modal('hide');
+                    showQuestion(parseInt(this.getAttribute('data-question-index')));
+                });
+                reviewList.appendChild(listItem);
+            });
+        }
+
+        // Show Question
+        function showQuestion(index) {
+            // Hide all question cards
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            // Show the selected question card
+            document.getElementById(`question-${index}`).classList.add('active');
+            
+            // Update navigation sidebar
+            document.querySelectorAll('.question-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the correct nav item
+            document.querySelectorAll('.question-nav-item').forEach(item => {
+                if (parseInt(item.getAttribute('data-question-index')) === index) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current question index
+            currentQuestionIndex = index;
+        }
+
+        // Timer Functions
+        function initializeExamTimer() {
+            // Check if there's a saved timer state
+            const savedEndTime = localStorage.getItem('examEndTime');
+            
+            if (savedEndTime) {
+                // Resume timer if already started
+                endTime = parseInt(savedEndTime);
+                
+                // Check if the saved end time is in the past
+                if (Date.now() > endTime) {
+                    // Clear the saved time and start fresh
+                    localStorage.removeItem('examEndTime');
+                    endTime = Date.now() + examDuration;
+                    localStorage.setItem('examEndTime', endTime);
+                }
+            } else {
+                // Set end time based on exam duration
+                endTime = Date.now() + examDuration;
+                localStorage.setItem('examEndTime', endTime);
+            }
+            
+            // Start the timer interval
+            examTimerInterval = setInterval(updateExamTimer, 1000);
+            return true;
+        }
+
+        function updateExamTimer() {
+            const currentTime = Date.now();
+            timeRemaining = endTime - currentTime;
+            
+            if (timeRemaining <= 0) {
+                // Time's up!
+                clearInterval(examTimerInterval);
+                document.getElementById('timeDisplay').textContent = "00:00:00";
+                showNotification("Time's up! Your exam is being submitted.", 'error');
+                submitExam("timeout");
+                return;
+            }
+
+            // Convert remaining time to hours, minutes, seconds
+            const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+            const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+            
+            // Format time as HH:MM:SS
+            const formattedTime = 
+                (hours < 10 ? "0" + hours : hours) + ":" +
+                (minutes < 10 ? "0" + minutes : minutes) + ":" +
+                (seconds < 10 ? "0" + seconds : seconds);
+                
+            document.getElementById('timeDisplay').textContent = formattedTime;
+            
+            // Create warning if less than 5 minutes remaining
+            if (timeRemaining < 5 * 60 * 1000 && timeRemaining > 4.9 * 60 * 1000) {
+                showNotification("Warning: Less than 5 minutes remaining!");
+            }
+        }
+
+        // Start Exam
+        function startExam() {
+            // Store exam started state
+            localStorage.setItem('examStarted', 'true');
+            localStorage.setItem('examRefreshCount', '0');
+            
+            showExamContent();
+            
+            if (initializeExamTimer()) {
+                enterFullscreen();
+                preventBackButton();
+                startWebcamCapture();
+                startActivityPing();
+            } else {
+                // Revert if initialization failed
+                document.getElementById("startScreen").style.display = "block";
+                document.getElementById("examContent").style.display = "none";
+                localStorage.removeItem('examStarted');
+            }
+        }
+
+        function showExamContent() {
+            document.getElementById("startScreen").style.display = "none";
+            document.getElementById("examContent").style.display = "block";
+        }
+
+        // Integrity Monitoring Functions
+        function setupIntegrityMonitoring() {
+            document.addEventListener('visibilitychange', handleTabChange);
+            window.addEventListener('blur', handleFocusChange);
+            window.addEventListener('focus', handleFocusChange);
+            document.addEventListener('copy', handleCopyAttempt);
+            document.addEventListener('paste', handlePasteAttempt);
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('contextmenu', (event) => event.preventDefault());
+            
+            // Set up fullscreen change detection
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            
+            window.addEventListener('resize', handleWindowResize);
+            window.addEventListener('beforeunload', handleBeforeUnload);
+        }
+
+        function handleRefreshDetection() {
+            // Check if there's a saved refresh count
+            let refreshCount = parseInt(localStorage.getItem('examRefreshCount') || '0');
+            if (localStorage.getItem('examStarted') == "true") {
+                refreshCount++;
+                localStorage.setItem('examRefreshCount', refreshCount.toString());
+            }
+           
+            // Count this as a violation if it's not the first load
+            if (refreshCount > 1) {
+                refreshViolationCount = refreshCount - 1; // Don't count the initial load
+                totalViolations += 1; // Increment total violations by 1 for this refresh
+                
+                // Send refresh event to server for logging
+                sendIntegrityUpdate("pageRefresh");
+                updateStatus("Page refresh detected");
+                updateUI();
+                
+                // Check if exceeded maximum allowed refreshes
+                if (refreshCount > MAX_ALLOWED_REFRESHES) {
+                    showNotification(`Maximum page refreshes (${MAX_ALLOWED_REFRESHES}) exceeded. Your exam is being submitted.`, 'error');
+                    submitExam("excessive_refreshes");
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function handleTabChange() {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (document.hidden) {
+                    // Only count tab change if it's not immediately after a focus change
+                    const currentTime = Date.now();
+                    if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
+                        tabChangeCount++;
+                        totalViolations++;
+                        sendIntegrityUpdate("tabChanges");
+                        updateStatus("Tab change detected");
+                        updateUI();
+                        checkAndSubmitTest();
+                    }
+                }
+            }
+        }
+
+        function handleFocusChange(event) {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (event.type === 'blur') {
+                    // Only count focus change if it's not immediately after a tab change
+                    const currentTime = Date.now();
+                    if (currentTime - lastTabFocusTime > TAB_FOCUS_COOLDOWN) {
+                        focusChangeCount++;
+                        lastTabFocusTime = currentTime;
+                        
+                        // Check if this is coming from a tab change or standalone focus change
+                        if (!document.hidden) {
+                            // If document is not hidden, this is a standalone focus change
+                            totalViolations++;
+                            sendIntegrityUpdate("focusChanges");
+                            updateStatus("Focus change detected");
+                            updateUI();
+                            checkAndSubmitTest();
+                        }
+                    }
+                }
+            }
+        }
+
+        function handleMouseOut(event) {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (event.clientX < 0 || event.clientX > window.innerWidth - 1 || event.clientY < 0 || event.clientY > window.innerHeight - 1) {
+                    mouseOutCount++;
+                    totalViolations++;
+                    sendIntegrityUpdate("mouseOuts");
+                    updateStatus("Mouse left workspace");
+                    showNotification("Mouse Going Out is not allowed");
+                    updateUI();
+                    checkAndSubmitTest();
+                }
+            }
+        }
+
+        function handleCopyAttempt(e) {
+            if (localStorage.getItem('examStarted') == "true") {
+                e.preventDefault();
+                copyAttemptCount++;
+                totalViolations++;
+                sendIntegrityUpdate("copyAttempts");
+                updateStatus("Copy attempt detected");
+                showNotification("Copying is not allowed during the exam");
+                updateUI();
+                checkAndSubmitTest();
+            }
+        }
+
+        function handlePasteAttempt(e) {
+            if (localStorage.getItem('examStarted') == "true") {
+                e.preventDefault();
+                pasteAttemptCount++;
+                totalViolations++;
+                sendIntegrityUpdate("pasteAttempts");
+                updateStatus("Paste attempt detected");
+                showNotification("Pasting is not allowed during the exam");
+                updateUI();
+                checkAndSubmitTest();
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (localStorage.getItem('examStarted') == "true") {
+                // Prevent developer tools and various shortcut keys
+                if (
+                    e.key === 'F12' ||
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+                    (e.ctrlKey && e.key === 'U') ||
+                    e.key === 'Escape' ||
+                    (e.key === 'F5' || e.keyCode === 116 || ((e.metaKey || e.ctrlKey) && e.key === 'r')) ||
+                    (e.key === 'F11' || e.keyCode === 122 || (e.metaKey && e.shiftKey && e.key === 'f')) ||
+                    ((e.metaKey || e.altKey) && e.key === 'w')
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    sendIntegrityUpdate("keyboardShortcut");
+                    updateStatus(`Keyboard shortcut blocked: ${e.key}`);
+                    showNotification(`Keyboard shortcut ${e.key} is not allowed during the exam`);
+                    
+                    if (e.key === 'F11' || e.keyCode === 122) {
+                        // Force back to fullscreen if user tried to exit
+                        setTimeout(enterFullscreen, 100);
+                    }
+                    
+                    return false;
+                }
+            }
+        }
+
+        function handleWindowResize() {
+            if (localStorage.getItem('examStarted') == "true") {
+                const currentTime = Date.now();
+                if (currentTime - lastResizeTime < RESIZE_COOLDOWN) {
+                    resizeAttempts++;
+                    
+                    if (resizeAttempts >= MAX_RESIZE_ATTEMPTS) {
+                        if (Math.abs(window.innerHeight - window.screen.height) > 100) {
+                            showNotification(`DevTools detected! Your exam is being monitored.`, 'error');
+                            
+                            // Show the violation modal and submit exam after delay
+                            const modalOverlay = showViolationModal();
+                            setTimeout(() => {
+                                submitExam("resize_violations");
+                            }, 5000);
+                        }
+                    }
+                } else {
+                    resizeAttempts = 1;
+                    if (resizeAttempts > 1) {
+                        showNotification(`Window resize detected. This is being monitored.`);
+                    }
+                }
+                
+                lastResizeTime = currentTime;
+                checkAndSubmitTest();
+            }
+        }
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                fullscreenExitCount++;
+                totalViolations++;
+                showNotification("Exiting fullscreen is not allowed during the exam.");
+                
+                // Give a short delay before forcing back to fullscreen
+                setTimeout(enterFullscreen, 500);
+                
+                sendIntegrityUpdate("fullscreenExits");
+                updateStatus("Fullscreen exited");
+                updateUI();
+                checkAndSubmitTest();
+            } else {
+                if (!isFullscreenActive) {
+                    document.addEventListener('mouseout', handleMouseOut);
+                    isFullscreenActive = true;
+                }
+                updateStatus("Fullscreen entered");
+            }
+        }
+
+        function handleBeforeUnload(e) {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (localStorage.getItem('examSubmitting') === 'true') {
+                    return;
+                }
+                
+                e.preventDefault();
+                e.returnValue = '';
+                sessionStorage.setItem('attemptedRefresh', 'true');
+                saveExamState();
+                return '';
+            }
+        }
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            
+            // Don't attempt to enter fullscreen if already in fullscreen mode
+            if (document.fullscreenElement || document.webkitFullscreenElement || 
+                document.mozFullScreenElement || document.msFullscreenElement) {
+                return;
+            }
+            
+            try {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { // Safari
+                    elem.webkitRequestFullscreen();
+                } else if (elem.mozRequestFullScreen) { // Firefox
+                    elem.mozRequestFullScreen();
+                } else if (elem.msRequestFullscreen) { // IE/Edge
+                    elem.msRequestFullscreen();
+                }
+            } catch (error) {
+                console.error("Fullscreen error:", error);
+                showNotification("Fullscreen mode failed. Please try again.");
+            }
+        }
+
+        function preventBackButton() {
+            window.history.pushState(null, "", window.location.href);
+            window.onpopstate = function() {
+                window.history.pushState(null, "", window.location.href);
+            };
+        }
+
+        // Update UI functions
+        function updateUI() {
+            if (localStorage.getItem('examStarted') == "true") {
+                document.getElementById('tabChangeCount').textContent = tabChangeCount;
+                document.getElementById('mouseOutCount').textContent = mouseOutCount;
+                document.getElementById('fullscreenExitCount').textContent = fullscreenExitCount;
+                document.getElementById('copyAttemptCount').textContent = copyAttemptCount;
+                document.getElementById('pasteAttemptCount').textContent = pasteAttemptCount;
+                document.getElementById('focusChangeCount').textContent = focusChangeCount;
+                document.getElementById('refreshViolationCount').textContent = refreshViolationCount;
+                document.getElementById('totalViolations').textContent = totalViolations;
+            }
+        }
+
+        function updateStatus(message) {
+            if (localStorage.getItem('examStarted') == "true") {
+                document.getElementById('lastEvent').textContent = message;
+            }
+        }
+
+        function showNotification(message, type = 'warning') {
+            // Create notification container if it doesn't exist
+            let notificationContainer = document.getElementById('notificationContainer');
+            if (!notificationContainer) {
+                notificationContainer = document.createElement('div');
+                notificationContainer.id = 'notificationContainer';
+                document.body.appendChild(notificationContainer);
+            }
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.style.backgroundColor = type === 'warning' ? '#fff3cd' : '#f8d7da';
+            notification.style.color = type === 'warning' ? '#856404' : '#721c24';
+            notification.innerHTML = message;
+            
+            // Add to container
+            notificationContainer.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                notification.style.animation = 'fadeOut 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 5000);
+            
+            return notification;
+        }
+
+        function showViolationModal() {
+            // Create modal container
+            const modalOverlay = document.createElement('div');
+            modalOverlay.style.position = 'fixed';
+            modalOverlay.style.top = '0';
+            modalOverlay.style.left = '0';
+            modalOverlay.style.width = '100%';
+            modalOverlay.style.height = '100%';
+            modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            modalOverlay.style.display = 'flex';
+            modalOverlay.style.justifyContent = 'center';
+            modalOverlay.style.alignItems = 'center';
+            modalOverlay.style.zIndex = '10000';
+            
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = '#fff';
+            modalContent.style.padding = '25px';
+            modalContent.style.borderRadius = '10px';
+            modalContent.style.maxWidth = '500px';
+            modalContent.style.width = '80%';
+            modalContent.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+            modalContent.style.textAlign = 'center';
+            
+            // Add warning icon
+            const warningIcon = document.createElement('div');
+            warningIcon.innerHTML = '⚠️';
+            warningIcon.style.fontSize = '4rem';
+            warningIcon.style.marginBottom = '15px';
+            modalContent.appendChild(warningIcon);
+            
+            // Add title
+            const title = document.createElement('h2');
+            title.textContent = 'Critical Violation Alert';
+            title.style.color = '#d9534f';
+            title.style.marginBottom = '15px';
+            modalContent.appendChild(title);
+            
+            // Add message
+            const message = document.createElement('p');
+            message.textContent = `You have committed 3 or more integrity violations. Your exam will be automatically submitted.`;
+            message.style.marginBottom = '20px';
+            message.style.fontSize = '1.1rem';
+            modalContent.appendChild(message);
+            
+            // Add violations list
+            const violationsList = document.createElement('div');
+            violationsList.style.textAlign = 'left';
+            violationsList.style.marginBottom = '20px';
+            violationsList.style.padding = '10px';
+            violationsList.style.backgroundColor = '#f8d7da';
+            violationsList.style.borderRadius = '5px';
+            
+            let violationsHTML = '<strong>Violations detected:</strong><ul style="margin-top: 10px;">';
+            
+            // Add each violation type with count
+            if (tabChangeCount > 0) violationsHTML += `<li>Tab changes: ${tabChangeCount}</li>`;
+            if (mouseOutCount > 0) violationsHTML += `<li>Mouse left window: ${mouseOutCount}</li>`;
+            if (fullscreenExitCount > 0) violationsHTML += `<li>Fullscreen exits: ${fullscreenExitCount}</li>`;
+            if (copyAttemptCount > 0) violationsHTML += `<li>Copy attempts: ${copyAttemptCount}</li>`;
+            if (pasteAttemptCount > 0) violationsHTML += `<li>Paste attempts: ${pasteAttemptCount}</li>`;
+            if (focusChangeCount > 0) violationsHTML += `<li>Focus changes: ${focusChangeCount}</li>`;
+            if (refreshViolationCount > 0) violationsHTML += `<li>Page refreshes: ${refreshViolationCount}</li>`;
+            
+            violationsHTML += '</ul>';
+            violationsList.innerHTML = violationsHTML;
+            modalContent.appendChild(violationsList);
+            
+            // Add countdown text
+            const countdown = document.createElement('p');
+            countdown.textContent = 'Submitting exam in 5 seconds...';
+            countdown.style.fontWeight = 'bold';
+            modalContent.appendChild(countdown);
+            
+            modalOverlay.appendChild(modalContent);
+            document.body.appendChild(modalOverlay);
+            
+            // Start countdown
+            let seconds = 5;
+            const countdownInterval = setInterval(() => {
+                seconds--;
+                countdown.textContent = `Submitting exam in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+            
+            return modalOverlay;
+        }
+
+        // Check for violations and auto-submit if necessary
+        function checkAndSubmitTest() {
+            if (localStorage.getItem('examStarted') == "true") {
+                if (totalViolations >= 3) {
+                    updateStatus("Auto-submitting test due to integrity violations");
+                    const modalOverlay = showViolationModal();
+                    
+                    // Set timeout to submit after 5 seconds
+                    setTimeout(() => {
+                        submitExam("integrity_violations");
+                    }, 5000);
+                }
+            }
+        }
+
+        // Webcam capture for proctoring
+        function startWebcamCapture() {
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            
+            // Check if media devices API is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.error("MediaDevices API not supported");
+                showNotification("Your browser doesn't support webcam capture. Please use a modern browser.", 'error');
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 320 },
+                    height: { ideal: 240 },
+                    facingMode: "user"
+                } 
+            })
+            .then((stream) => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                
+                // Wait for video to be ready
+                video.onloadedmetadata = () => {
+                    // Set up snapshot interval
+                    setInterval(() => {
+                        try {
+                            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            
+                            canvas.toBlob((blob) => {
+                                if (!blob) return;
+                                
+                                const formData = new FormData();
+                                formData.append('image', blob, `capture-${Date.now()}.png`);
+                                formData.append('userId', document.querySelector('input[name="userId"]').value);
+                                formData.append('examId', document.querySelector('input[name="examId"]').value);
+                                
+                                fetch('/save-image', { 
+                                    method: 'POST',
+                                    body: formData,
+                                })
+                                .then(response => response.json())
+                                .then(data => console.log('Image saved:', data))
+                                .catch(error => console.error('Error saving image:', error));
+                            }, 'image/png');
+                        } catch (err) {
+                            console.error("Error capturing webcam frame:", err);
+                        }
+                    }, 10000); // Capture every 10 seconds
+                };
+            })
+            .catch((error) => {
+                console.error("Error accessing webcam:", error);
+                showNotification("Unable to access the webcam. Please ensure your camera is connected and you've allowed permission.", 'error');
+            });
+        }
+
+        // Activity ping to server
+        function startActivityPing() {
+            function sendActivityPing() {
+                fetch('/see-active', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        examId: document.querySelector('input[name="examId"]').value,
+                        userId: document.querySelector('input[name="userId"]').value,
+                        timestamp: new Date().toISOString()
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Failed to send activity ping');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending activity ping:', error);
+                });
+            }
+            
+            // Send first ping immediately
+            sendActivityPing();
+            
+            // Set up interval for regular pings
+            pingInterval = setInterval(sendActivityPing, 20000); // Every 20 seconds
+        }
+
+        // Send integrity updates to server
+        function sendIntegrityUpdate(eventType) {
+            if (localStorage.getItem('examStarted') == "true") {
+                const data = {
+                    examId: document.querySelector('input[name="examId"]').value,
+                    userId: document.querySelector('input[name="userId"]').value,
+                    eventType: eventType,
+                    timestamp: new Date().toISOString()
+                };
+
+                fetch('/update-integrity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => console.log('Integrity event logged:', data))
+                .catch(error => console.error('Error sending integrity update:', error));
+            }
+        }
+
+        // Screen configuration detection
+        function updateScreenConfiguration() {
+            const screenConfigElement = document.getElementById('screenConfig');
+            
+            if (!screenConfigElement) {
+                return;
+            }
+            
+            screenConfigElement.textContent = 'Detecting screen configuration...';
+            
+            const timeout = setTimeout(() => {
+                screenConfigElement.textContent = 'Screen configuration unavailable';
+            }, 2000);
+            
+            try {
+                const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+                const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                const screenWidth = window.screen.width;
+                const screenHeight = window.screen.height;
+                const pixelRatio = window.devicePixelRatio || 1;
+                const colorDepth = window.screen.colorDepth;
+                
+                clearTimeout(timeout);
+                
+                const configText = `${width}x${height} (Window), ${screenWidth}x${screenHeight} (Screen), ${pixelRatio}x (Pixel Ratio), ${colorDepth}-bit color`;
+                screenConfigElement.textContent = configText;
+                
+                return {
+                    window: { width, height },
+                    screen: { width: screenWidth, height: screenHeight },
+                    pixelRatio,
+                    colorDepth
+                };
+            } catch (error) {
+                clearTimeout(timeout);
+                console.error('Error detecting screen configuration:', error);
+                screenConfigElement.textContent = 'Error detecting screen configuration';
+            }
+        }
+
+        // Answer tracking functions
+        function updateAnsweredStatus() {
+            // Check each coding textarea
+            document.querySelectorAll('.coding-textarea').forEach((textarea, index) => {
+                // Check if content is more than just the starter code
+                const question = codingQuestions[index];
+                const starterCode = question.starterCode || '';
+                
+                // If the textarea content is different from starter code, mark as answered
+                if (textarea.value.trim() !== starterCode.trim()) {
+                    answeredQuestions[index] = true;
+                    
+                    // Update nav item to show as answered
+                    const navItem = document.querySelector(`.question-nav-item[data-question-index="${index}"]`);
+                    if (navItem) {
+                        navItem.classList.add('answered');
+                    }
+                } else {
+                    answeredQuestions[index] = false;
+                    
+                    // Update nav item to show as not answered
+                    const navItem = document.querySelector(`.question-nav-item[data-question-index="${index}"]`);
+                    if (navItem) {
+                        navItem.classList.remove('answered');
+                    }
+                }
+            });
+            
+            // Update review modal
+            updateReviewModal();
+            
+            // Save answers state to localStorage
+            saveExamState();
+        }
+
+        function showReviewModal() {
+            updateAnsweredStatus();
+            $('#reviewModal').modal('show');
+        }
+
+        function updateReviewModal() {
+            const answeredCount = answeredQuestions.filter(Boolean).length;
+            document.getElementById('answeredCount').textContent = answeredCount;
+            
+            // Update status in review modal
+            answeredQuestions.forEach((isAnswered, index) => {
+                const listItem = document.querySelector(`.list-group-item[data-question-index="${index}"]`);
+                if (listItem) {
+                    const statusBadge = listItem.querySelector('.status-badge');
+                    
+                    if (isAnswered) {
+                        statusBadge.textContent = "Answered";
+                        statusBadge.classList.remove('badge-secondary');
+                        statusBadge.classList.add('badge-success');
+                    } else {
+                        statusBadge.textContent = "Not answered";
+                        statusBadge.classList.remove('badge-success');
+                        statusBadge.classList.add('badge-secondary');
+                    }
+                }
+            });
+        }
+
+        // Save and load exam state
+        function saveExamState() {
+            const codingAnswers = {};
+            document.querySelectorAll('.coding-textarea').forEach((textarea, index) => {
+                codingAnswers[`code-${codingQuestions[index].id}`] = textarea.value;
+            });
+            
+            localStorage.setItem('examCodingAnswers', JSON.stringify(codingAnswers));
+        }
+
+        function loadExamState() {
+            try {
+                const codingAnswers = JSON.parse(localStorage.getItem('examCodingAnswers')) || {};
+                
+                Object.entries(codingAnswers).forEach(([name, value]) => {
+                    const textarea = document.querySelector(`textarea[name="${name}"]`);
+                    if (textarea) {
+                        textarea.value = value;
+                    }
+                });
+                
+                updateAnsweredStatus();
+            } catch (e) {
+                console.error("Error loading saved exam state:", e);
+            }
+        }
+
+        // Submit exam
+        function submitExam(reason = "normal") {
+            // Set a flag to prevent refresh detection during submission
+            localStorage.setItem('examSubmitting', 'true');
+            
+            // Stop timers and intervals
+            clearInterval(examTimerInterval);
+            if (pingInterval) clearInterval(pingInterval);
+            
+            console.log(`Submitting exam: ${reason}`);
+            
+            // Send final submission info to server with the reason
+            const formData = new FormData(document.getElementById('examForm'));
+            formData.append('submissionReason', reason);
+            formData.append('integrityViolations', JSON.stringify({
+                tabChangeCount,
+                mouseOutCount,
+                fullscreenExitCount,
+                copyAttemptCount,
+                pasteAttemptCount,
+                focusChangeCount,
+                refreshViolationCount,
+                totalViolations
+            }));
+            
+            // Use fetch for the form submission
+            fetch('/submit-coding-exam', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Clear all localStorage items
+                    localStorage.removeItem('examStarted');
+                    localStorage.removeItem('examEndTime');
+                    localStorage.removeItem('examCodingAnswers');
+                    localStorage.removeItem('examRefreshCount');
+                    localStorage.removeItem('examSubmitting');
+                    
+                    // Redirect to results page
+                    window.location.href = '/exam-submitted';
+                } else {
+                    throw new Error('Form submission failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting exam:', error);
+                showNotification('There was an error submitting your exam. Please try again.', 'error');
+                
+                // Remove submitting flag to allow retry
+                localStorage.removeItem('examSubmitting');
+            });
+        }
+    </script>
+</body>
+</html>
