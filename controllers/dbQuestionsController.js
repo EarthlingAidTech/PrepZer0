@@ -101,7 +101,6 @@ exports.addSelectedQuestions = async (req, res) => {
         });
 
 
-
         if (selectedQuestions.length === 0) {
             return res.redirect(`/admin/exam/${examId}/database?error=Selected questions not found`);
         }
@@ -110,8 +109,19 @@ exports.addSelectedQuestions = async (req, res) => {
         // Create new Question documents for each selected AllMCQ
         const newQuestions = [];
         for (const mcq of selectedQuestions) {
+            const originalQuestionId = mcq._id;
+            const existingQuestion = await Question.findOne({
+                examId: examId,
+                questionId: originalQuestionId
+            });
+
+            if (existingQuestion) {
+                console.log(`Question ${originalQuestionId} already exists in this exam, skipping`);
+                continue; // Skip this question as it's already in the exam
+            }
             const newQuestion = new Question({
                 examId: examId,
+                questionId: originalQuestionId, // Store the original ID
                 questionType: 'mcq',
                 classification: mcq.classification,
                 level: mcq.level,
@@ -127,7 +137,7 @@ exports.addSelectedQuestions = async (req, res) => {
             // Update the Exam to include this MCQ
             await Exam.updateOne(
                 { _id: examId },
-                { $push: { mcqQuestions: newQuestion._id } }
+                { $push: { mcqQuestions: newQuestion._id} }
             );
         }
         
@@ -178,22 +188,46 @@ exports.addRandomQuestions = async (req, res) => {
                 return res.redirect(`/admin/exam/${examId}/database?error=Requested more questions than needed`);
             }
             
-            // Get random questions that aren't already in this exam
-            const exam = await Exam.findById(examId);
+            // UPDATED LOGIC: Get the questionId values from Question collection for already added questions
+            const alreadyAddedQuestions = await Question.find({
+                examId: examId,
+                questionType: 'mcq'
+            }).select('questionId');
+            
+            // Extract the questionId values to use for filtering
+            const alreadyAddedQuestionIds = alreadyAddedQuestions.map(q => q.questionId);
 
-            const alreadyAddedMcqIds = exam.mcqQuestions || [];
-
+            // Query for questions NOT already in the exam by matching against questionId
             const availableQuestions = await AllQuestion.find({
                 questionType: 'mcq',
-                _id: { $nin: alreadyAddedMcqIds }
+                _id: { $nin: alreadyAddedQuestionIds }
             });
             
-            // Shuffle array
-            const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+            // Convert IDs to strings for comparison
+            const alreadyAddedQuestionIdStrings = alreadyAddedQuestionIds.map(id => id.toString());
+            
+            // Additional check to filter out any questions that might not be caught by the query
+            const filteredAvailableQuestions = availableQuestions.filter(question => 
+                !alreadyAddedQuestionIdStrings.includes(question._id.toString())
+            );
+            
+            if (filteredAvailableQuestions.length < totalRandom) {
+                return res.redirect(`/admin/exam/${examId}/database?error=Not enough available questions. Only ${filteredAvailableQuestions.length} unique questions available.`);
+            }
+            
+            // Make a copy of the array to avoid any reference issues
+            const questionsCopy = [...filteredAvailableQuestions];
+            
+            // Shuffle array - more reliable Fisher-Yates shuffle algorithm
+            for (let i = questionsCopy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [questionsCopy[i], questionsCopy[j]] = [questionsCopy[j], questionsCopy[i]];
+            }
             
             // Get first N elements
-            selectedQuestions = shuffled.slice(0, totalRandom);
+            selectedQuestions = questionsCopy.slice(0, totalRandom);
             
+      
         } else {
             // Classification-based selection
             const classifications = req.body.classifications || [];
@@ -213,32 +247,66 @@ exports.addRandomQuestions = async (req, res) => {
                 return res.redirect(`/admin/exam/${examId}/database?error=Requested more questions than needed`);
             }
             
+            // Get the questionId values from Question collection for already added questions (same as in totalRandom)
+            const alreadyAddedQuestions = await Question.find({
+                examId: examId,
+                questionType: 'mcq'
+            }).select('questionId');
+            
+            // Extract the questionId values to use for filtering
+            const alreadyAddedQuestionIds = alreadyAddedQuestions.map(q => q.questionId);
+            const alreadyAddedQuestionIdStrings = alreadyAddedQuestionIds.map(id => id.toString());
+            
+            console.log('Already added questionIds for classification-based selection:');
+            if (alreadyAddedQuestionIds.length > 0) {
+                alreadyAddedQuestionIds.forEach((id, index) => {
+                    console.log(`Already added ${index}: ${id}`);
+                });
+            } else {
+                console.log('No questions already added');
+            }
+            
             // Process each classification
             for (let i = 0; i < classifications.length; i++) {
                 const classification = classifications[i];
                 const count = parseInt(counts[i]) || 0;
                 
                 if (count > 0) {
-                    // Get questions of this classification that aren't in this exam
-                    const availableQuestions = await Question.find({
+                    // Query for questions NOT already in the exam and matching the current classification
+                    const availableQuestions = await AllQuestion.find({
                         questionType: 'mcq',
                         classification: classification,
-                        examId: { $ne: examId }
+                        _id: { $nin: alreadyAddedQuestionIds }
                     });
                     
+                    // Additional check to filter out any questions that might not be caught by the query
+                    const filteredAvailableQuestions = availableQuestions.filter(question => 
+                        !alreadyAddedQuestionIdStrings.includes(question._id.toString())
+                    );
+                    
+                    // console.log(`${classification} questions available: ${filteredAvailableQuestions.length}`);
+                    
                     // If we don't have enough questions of this classification
-                    if (availableQuestions.length < count) {
-                        return res.redirect(`/admin/exam/${examId}/database?error=Not enough ${classification} questions available`);
+                    if (filteredAvailableQuestions.length < count) {
+                        return res.redirect(`/admin/exam/${examId}/database?error=Not enough ${classification} questions available. Only ${filteredAvailableQuestions.length} unique questions available.`);
                     }
                     
-                    // Shuffle array
-                    const shuffled = availableQuestions.sort(() => 0.5 - Math.random());
+                    // Make a copy of the array to avoid any reference issues
+                    const questionsCopy = [...filteredAvailableQuestions];
+                    
+                    // Shuffle array - more reliable Fisher-Yates shuffle algorithm
+                    for (let i = questionsCopy.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [questionsCopy[i], questionsCopy[j]] = [questionsCopy[j], questionsCopy[i]];
+                    }
                     
                     // Get first N elements
-                    const selected = shuffled.slice(0, count);
+                    const selected = questionsCopy.slice(0, count);
                     
                     // Add to our selected questions array
                     selectedQuestions = [...selectedQuestions, ...selected];
+                    
+                    // console.log(`Selected ${selected.length} ${classification} questions`);
                 }
             }
         }
@@ -246,8 +314,19 @@ exports.addRandomQuestions = async (req, res) => {
 
         const newQuestions = [];
         for (const mcq of selectedQuestions) {
+            const originalQuestionId = mcq._id;
+            const existingQuestion = await Question.findOne({
+                examId: examId,
+                questionId: originalQuestionId
+            });
+
+            if (existingQuestion) {
+                console.log(`Question ${originalQuestionId} already exists in this exam, skipping`);
+                continue; // Skip this question as it's already in the exam
+            }
             const newQuestion = new Question({
                 examId: examId,
+                questionId: originalQuestionId, // Store the original ID
                 questionType: 'mcq',
                 classification: mcq.classification,
                 level: mcq.level,
@@ -274,12 +353,7 @@ exports.addRandomQuestions = async (req, res) => {
         });
         
         // Render the manage questions page with both existing and selected questions
-        return res.render('view_questions', {
-            exam,
-            mcqQuestions: allMCQs,
-            codingQuestions: exam.codingQuestions || []
-        });
-        
+        return res.redirect(`/admin/exam/questions/${examId}`);
     } catch (error) {
         console.error('Error adding random questions:', error);
         res.status(500).send('An error occurred while adding random questions');
