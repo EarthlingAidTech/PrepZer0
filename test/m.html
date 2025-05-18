@@ -1,482 +1,1196 @@
-const mongoose = require("mongoose");
-
-const ActivityTrackerSchema = new mongoose.Schema({
-    examId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "Exam", 
-        required: true 
-    },
-    userId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: "User", 
-        required: true 
-    },
-    status: {
-        type: String,
-        enum: ["active", "inactive", "offline"],
-        default: "inactive"
-    },
-    lastPingTimestamp: {
-        type: Date,
-        default: Date.now
-    },
-    pingHistory: [{
-        timestamp: {
-            type: Date,
-            default: Date.now
-        },
-        status: {
-            type: String,
-            enum: ["active", "inactive", "offline"],
-            default: "active"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Assessment Component</title>
+    <style>
+        /* Component Styles */
+        .coding-assessment {
+            --transition-speed: 0.3s;
+            --border-radius: 8px;
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --panel-bg: #ffffff;
+            --panel-shadow: rgba(0,0,0,0.08);
+            --border-color: #dee2e6;
+            --tab-bg: #f1f3f5;
+            --tab-active-border: #4CAF50;
+            --test-case-bg: #f8f9fa;
+            --test-io-bg: #f1f3f5;
+            --console-bg: #f8f9fa;
+            --console-text: #333;
+            --header-bg: #e9ecef;
+            --header-text: #212529;
+            --button-primary: #4CAF50;
+            --button-primary-hover: #45a049;
+            --button-secondary: #0d6efd;
+            --button-secondary-hover: #0b5ed7;
+            --button-submit: #fd7e14;
+            --button-submit-hover: #e67510;
+            --test-case-border: #eaecef;
+            --problem-header-bg: #f1f8e9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 10px var(--panel-shadow);
         }
-    }],
-    // Optional: Track browser/device info
-    clientInfo: {
-        browser: String,
-        device: String,
-        ip: String
-    },
-    // When the tracking began (exam started)
-    startedAt: {
-        type: Date,
-        default: Date.now
+        
+        /* Dark theme styles */
+        .coding-assessment.dark-theme {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --panel-bg: #2b3035;
+            --panel-shadow: rgba(0,0,0,0.3);
+            --border-color: #495057;
+            --tab-bg: #343a40;
+            --tab-active-border: #6eac56;
+            --test-case-bg: #343a40;
+            --test-io-bg: #495057;
+            --console-bg: #212529;
+            --console-text: #e9ecef;
+            --header-bg: #343a40;
+            --header-text: #f8f9fa;
+            --button-primary: #4CAF50;
+            --button-primary-hover: #3d8b40;
+            --button-secondary: #0d6efd;
+            --button-secondary-hover: #0a58ca;
+            --button-submit: #fd7e14;
+            --button-submit-hover: #e67510;
+            --test-case-border: #495057;
+            --problem-header-bg: #2c3c2e;
+        }
+        
+        .coding-assessment * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .coding-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .problem-panel {
+            width: 40%;
+            background-color: var(--panel-bg);
+            box-shadow: 2px 0 10px var(--panel-shadow);
+            overflow-y: auto;
+            transition: background-color var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .problem-header {
+            background-color: var(--problem-header-bg);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed);
+        }
+        
+        .problem-content {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        
+        .editor-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .editor-header {
+            padding: 12px 20px;
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+        
+        .editor-container {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ca-editor {
+            width: 100%;
+            height: 100%;
+            font-size: 14px;
+        }
+        
+        .ca-btn {
+            padding: 8px 16px;
+            background-color: var(--button-primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        
+        .ca-btn:hover {
+            background-color: var(--button-primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        .ca-btn:active {
+            transform: translateY(0);
+        }
+        
+        .ca-btn-secondary {
+            background-color: var(--button-secondary);
+        }
+        
+        .ca-btn-secondary:hover {
+            background-color: var(--button-secondary-hover);
+        }
+        
+        .ca-btn-submit {
+            background-color: var(--button-submit);
+        }
+        
+        .ca-btn-submit:hover {
+            background-color: var(--button-submit-hover);
+        }
+        
+        .ca-select, .theme-toggle {
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            outline: none;
+            transition: border-color 0.2s, background-color var(--transition-speed), color var(--transition-speed);
+        }
+        
+        .ca-select:focus {
+            border-color: var(--button-secondary);
+        }
+        
+        .test-case-container {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+        
+        .test-case {
+            margin-bottom: 16px;
+            padding: 16px;
+            background-color: var(--test-case-bg);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--test-case-border);
+            transition: background-color var(--transition-speed);
+        }
+        
+        .test-input, .test-output {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            white-space: pre-wrap;
+            background-color: var(--test-io-bg);
+            padding: 12px;
+            border-radius: calc(var(--border-radius) - 2px);
+            margin-top: 8px;
+            transition: background-color var(--transition-speed);
+            font-size: 14px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .custom-test-area {
+            width: 100%;
+            padding: 12px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+            resize: vertical;
+            background-color: var(--test-io-bg);
+            color: var(--text-color);
+            outline: none;
+            transition: border-color 0.2s, background-color var(--transition-speed), color var(--transition-speed);
+            font-size: 14px;
+        }
+        
+        .custom-test-area:focus {
+            border-color: var(--button-secondary);
+        }
+        
+        .passed {
+            color: var(--button-primary);
+            font-weight: bold;
+        }
+        
+        .failed {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .ca-h2 {
+            margin-bottom: 16px;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        
+        .ca-h3 {
+            margin: 20px 0 10px;
+            font-weight: 500;
+            color: var(--text-color);
+            font-size: 1.25rem;
+        }
+        
+        .ca-h4 {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+        
+        .ca-p {
+            margin-bottom: 12px;
+        }
+        
+        .tab-container {
+            display: flex;
+            background-color: var(--tab-bg);
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color var(--transition-speed);
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            color: var(--text-color);
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: background-color 0.2s, border-color 0.2s, color var(--transition-speed);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .tab:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .tab.active {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--tab-active-border);
+            position: relative;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            max-height: 0;
+            overflow: hidden;
+            background-color: var(--panel-bg);
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+            overflow-y: auto;
+        }
+        
+        .tab-content.active {
+            display: block;
+            max-height: 250px;
+            padding: 20px;
+        }
+        
+        .collapse-icon {
+            margin-left: 8px;
+            font-size: 12px;
+        }
+        
+        .console-container {
+            background-color: var(--console-bg);
+            color: var(--console-text);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            overflow-y: auto;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            height: 100%;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+        
+        .controls-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+        }
+        
+        .theme-toggle:hover {
+            border-color: var(--button-secondary);
+        }
+        
+        .theme-icon {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .custom-test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .run-custom-btn {
+            padding: 6px 12px;
+            background-color: var(--button-secondary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        
+        .run-custom-btn:hover {
+            background-color: var(--button-secondary-hover);
+            transform: translateY(-1px);
+        }
+        
+        .run-custom-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* Loading spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design for smaller screens */
+        @media (max-width: 1024px) {
+            .coding-container {
+                flex-direction: column;
+            }
+            
+            .problem-panel, .editor-panel {
+                width: 100%;
+                height: 50vh;
+            }
+            
+            .editor-container {
+                height: 30vh;
+            }
+            
+            .tab-content.active {
+                max-height: 200px;
+            }
+            
+            .tab-container {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background-color: var(--tab-bg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Example usage of the component -->
+    <div id="assessment-1" class="coding-assessment">
+        <!-- Content will be loaded via JavaScript -->
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script>
+        /**
+         * Coding Assessment Component
+         * A reusable component for coding assessments with customizable questions and tests
+         */
+        class CodingAssessment {
+            constructor(options) {
+                this.el = document.getElementById(options.elementId);
+                if (!this.el) {
+                    console.error(`Element with ID ${options.elementId} not found`);
+                    return;
+                }
+                
+                this.apiUrl = options.apiUrl || 'http://172.16.6.47:2358'; // Judge0 API URL
+                this.problem = options.problem || {
+                    title: "Example Problem",
+                    description: "Write a function that solves a problem.",
+                    inputFormat: "The input format description.",
+                    outputFormat: "The output format description.",
+                    constraints: "Any constraints on input or output.",
+                    sampleInput: "Sample input",
+                    sampleOutput: "Sample output"
+                };
+                
+                // Default test cases if none provided
+                this.testCases = options.testCases || [
+                    {
+                        input: "3\n5",
+                        expectedOutput: "8"
+                    }
+                ];
+                
+                // Default code templates
+                this.templates = options.templates || {
+                    python: `def solve_problem():\n    # Write your code here\n    pass\n\n# Read input\n\n# Call your function\n\n# Output result\n`,
+                    java: `public class Main {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}`,
+                    javascript: `function solveFunction() {\n    // Write your code here\n}\n\n// Read input\n\n// Call your function\n\n// Output result\n`
+                };
+                
+                // Language IDs for Judge0
+                this.languageIds = options.languageIds || {
+                    'python': 71,    // Python 3
+                    'java': 62,      // Java
+                    'javascript': 63, // Node.js
+                    'c': 50,         // C (GCC)
+                    'cpp': 54,       // C++ (GCC)
+                    'csharp': 51     // C#
+                };
+                
+                this.currentTheme = 'light-theme';
+                this.editor = null;
+                this.monaco = null;
+                
+                // Initialize the component
+                this.render();
+                this.initMonacoEditor();
+            }
+            
+            /**
+             * Render the HTML structure of the component
+             */
+            render() {
+                this.el.innerHTML = `
+                    <div class="coding-container">
+                        <div class="problem-panel">
+                            <div class="problem-header">
+                                <h2 class="ca-h2">Problem: ${this.problem.title}</h2>
+                                <p class="ca-p">${this.problem.description}</p>
+                            </div>
+                            
+                            <div class="problem-content">
+                                <h3 class="ca-h3">Input Format</h3>
+                                <p class="ca-p">${this.problem.inputFormat}</p>
+                                
+                                <h3 class="ca-h3">Output Format</h3>
+                                <p class="ca-p">${this.problem.outputFormat}</p>
+                                
+                                <h3 class="ca-h3">Constraints</h3>
+                                <p class="ca-p">${this.problem.constraints}</p>
+                                
+                                <h3 class="ca-h3">Sample Input</h3>
+                                <div class="test-input">${this.problem.sampleInput}</div>
+                                
+                                <h3 class="ca-h3">Sample Output</h3>
+                                <div class="test-output">${this.problem.sampleOutput}</div>
+                                
+                                <div class="test-case-container">
+                                    <h3 class="ca-h3">Test Cases</h3>
+                                    ${this.renderTestCases()}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="editor-panel">
+                            <div class="editor-header">
+                                <div class="controls-group">
+                                    <div class="theme-toggle">
+                                        <span class="theme-icon">🌙</span>
+                                        <span class="theme-text">Dark</span>
+                                    </div>
+                                    <div class="language-selector">
+                                        <label for="language-${this.el.id}">Language:</label>
+                                        <select id="language-${this.el.id}" class="ca-select">
+                                            <option value="python" selected>Python</option>
+                                            <option value="java">Java</option>
+                                            <option value="javascript">JavaScript</option>
+                                            <option value="c">C</option>
+                                            <option value="cpp">C++</option>
+                                            <option value="csharp">C#</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button class="ca-btn ca-btn-secondary" id="run-custom-${this.el.id}">Run Custom Test</button>
+                                    <button class="ca-btn" id="run-all-${this.el.id}">Run All Tests</button>
+                                    <button class="ca-btn ca-btn-submit" id="submit-${this.el.id}">Submit</button>
+                                </div>
+                            </div>
+                            <div class="editor-container">
+                                <div id="editor-${this.el.id}" class="ca-editor"></div>
+                            </div>
+                            <div class="tab-container">
+                                <div class="tab" data-tab="custom-test-${this.el.id}">
+                                    Custom Test
+                                    <span class="collapse-icon">▼</span>
+                                </div>
+                                <div class="tab" data-tab="results-${this.el.id}">
+                                    Test Results
+                                    <span class="collapse-icon">▼</span>
+                                </div>
+                            </div>
+                            
+                            <div id="custom-test-${this.el.id}" class="tab-content">
+                                <div class="custom-test-header">
+                                    <h4 class="ca-h4">Custom Test Input:</h4>
+                                    <button class="run-custom-btn" id="run-custom-tab-${this.el.id}">Run Test</button>
+                                </div>
+                                <textarea class="custom-test-area" id="custom-input-${this.el.id}" rows="5" placeholder="Enter your test input here...">${this.problem.sampleInput}</textarea>
+                                <h4 class="ca-h4">Custom Test Output:</h4>
+                                <div class="console-container" id="custom-output-${this.el.id}">
+                                    // Custom test output will appear here
+                                </div>
+                            </div>
+                            <div id="results-${this.el.id}" class="tab-content">
+                                <div class="console-container" id="test-results-${this.el.id}">
+                                    // Test results will appear here
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Set up event listeners
+                this.setupEventListeners();
+            }
+            
+            /**
+             * Render the test cases
+             */
+            renderTestCases() {
+                return this.testCases.map((testCase, index) => `
+                    <div class="test-case">
+                        <h4 class="ca-h4">Test Case ${index + 1}</h4>
+                        <p class="ca-p"><strong>Input:</strong></p>
+                        <div class="test-input">${testCase.input}</div>
+                        <p class="ca-p"><strong>Expected Output:</strong></p>
+                        <div class="test-output">${testCase.expectedOutput}</div>
+                    </div>
+                `).join('');
+            }
+            
+            /**
+             * Initialize the Monaco Editor
+             */
+            initMonacoEditor() {
+                require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+                
+                require(['vs/editor/editor.main'], () => {
+                    this.monaco = window.monaco;
+                    
+                    // Get selected language
+                    const languageSelect = document.getElementById(`language-${this.el.id}`);
+                    const initialLanguage = languageSelect.value;
+                    
+                    // Create editor instance
+                    this.editor = this.monaco.editor.create(document.getElementById(`editor-${this.el.id}`), {
+                        value: this.templates[initialLanguage],
+                        language: initialLanguage,
+                        theme: 'vs',
+                        automaticLayout: true,
+                        minimap: { enabled: true },
+                        scrollBeyondLastLine: false,
+                        fontSize: 14,
+                        tabSize: 4,
+                        insertSpaces: true,
+                        fontFamily: 'Consolas, "Courier New", monospace',
+                        scrollbar: {
+                            useShadows: false,
+                            verticalHasArrows: true,
+                            horizontalHasArrows: true,
+                            vertical: 'visible',
+                            horizontal: 'visible',
+                            verticalScrollbarSize: 12,
+                            horizontalScrollbarSize: 12
+                        }
+                    });
+                    
+                    // Set up language change handler
+                    languageSelect.addEventListener('change', () => this.changeLanguage());
+                    
+                    // Set up window resize handler
+                    window.addEventListener('resize', () => {
+                        if (this.editor) {
+                            this.editor.layout();
+                        }
+                    });
+                });
+            }
+            
+            /**
+             * Set up event listeners for the component
+             */
+            setupEventListeners() {
+                // Theme toggle
+                const themeToggle = this.el.querySelector('.theme-toggle');
+                themeToggle.addEventListener('click', () => this.toggleTheme());
+                
+                // Tab functionality
+                const tabs = this.el.querySelectorAll('.tab');
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabName = tab.getAttribute('data-tab');
+                        this.toggleTab(tabName, tab);
+                    });
+                });
+                
+                // Button handlers
+                document.getElementById(`run-custom-${this.el.id}`).addEventListener('click', () => this.runCustomTest());
+                document.getElementById(`run-custom-tab-${this.el.id}`).addEventListener('click', () => this.runCustomTest());
+                document.getElementById(`run-all-${this.el.id}`).addEventListener('click', () => this.runAllTests());
+                document.getElementById(`submit-${this.el.id}`).addEventListener('click', () => this.submitSolution());
+            }
+            
+            /**
+             * Toggle between light and dark theme
+             */
+            toggleTheme() {
+                if (this.currentTheme === 'light-theme') {
+                    this.el.classList.remove('light-theme');
+                    this.el.classList.add('dark-theme');
+                    this.currentTheme = 'dark-theme';
+                    if (this.monaco) {
+                        this.monaco.editor.setTheme('vs-dark');
+                    }
+                    this.el.querySelector('.theme-text').textContent = 'Light';
+                    this.el.querySelector('.theme-icon').textContent = '☀️';
+                } else {
+                    this.el.classList.remove('dark-theme');
+                    this.el.classList.add('light-theme');
+                    this.currentTheme = 'light-theme';
+                    if (this.monaco) {
+                        this.monaco.editor.setTheme('vs');
+                    }
+                    this.el.querySelector('.theme-text').textContent = 'Dark';
+                    this.el.querySelector('.theme-icon').textContent = '🌙';
+                }
+            }
+            
+            /**
+             * Change the programming language
+             */
+            changeLanguage() {
+                const language = document.getElementById(`language-${this.el.id}`).value;
+                if (this.editor && this.monaco) {
+                    this.monaco.editor.setModelLanguage(this.editor.getModel(), language === 'cpp' ? 'cpp' : language);
+                    this.editor.setValue(this.templates[language]);
+                }
+            }
+            
+            /**
+             * Toggle a tab's visibility
+             */
+            toggleTab(tabName, tabElement) {
+                const tabContent = document.getElementById(tabName);
+                
+                // If tab is already active, toggle its collapsed state
+                if (tabElement.classList.contains('active')) {
+                    tabElement.classList.remove('active');
+                    tabContent.classList.remove('active');
+                    tabElement.querySelector('.collapse-icon').textContent = '▼';
+                } else {
+                    // Close any open tabs
+                    this.el.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                        t.querySelector('.collapse-icon').textContent = '▼';
+                    });
+                    
+                    this.el.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Open the clicked tab
+                    tabElement.classList.add('active');
+                    tabContent.classList.add('active');
+                    tabElement.querySelector('.collapse-icon').textContent = '▲';
+                }
+            }
+            
+            /**
+             * Open a tab programmatically
+             */
+            openTab(tabName) {
+                const tab = this.el.querySelector(`.tab[data-tab="${tabName}"]`);
+                
+                if (tab) {
+                    this.toggleTab(tabName, tab);
+                }
+            }
+            
+            /**
+             * Run a test with custom input
+             */
+            async runCustomTest() {
+                if (!this.editor) return;
+                
+                // Get code, language, and input
+                const code = this.editor.getValue();
+                const language = document.getElementById(`language-${this.el.id}`).value;
+                const input = document.getElementById(`custom-input-${this.el.id}`).value;
+                
+                // Make sure the custom test tab is open
+                this.openTab(`custom-test-${this.el.id}`);
+                
+                // Show loading indicator
+                document.getElementById(`custom-output-${this.el.id}`).innerHTML = "<div class='loading'></div> Running...";
+                
+                try {
+                    // Execute code using Judge0
+                    const result = await this.executeCode(code, language, input);
+                    
+                    // Display result
+                    document.getElementById(`custom-output-${this.el.id}`).innerText = result.output || 'No output';
+                } catch (error) {
+                    // Display error
+                    document.getElementById(`custom-output-${this.el.id}`).innerText = `Error: ${error.message}`;
+                }
+            }
+            
+            /**
+             * Run all test cases
+             */
+            async runAllTests() {
+                if (!this.editor) return;
+                
+                // Get code and language
+                const code = this.editor.getValue();
+                const language = document.getElementById(`language-${this.el.id}`).value;
+                
+                // Make sure the results tab is open
+                this.openTab(`results-${this.el.id}`);
+                
+                // Show loading indicator
+                document.getElementById(`test-results-${this.el.id}`).innerHTML = "<div class='loading'></div> Running tests...";
+                
+                let allPassed = true;
+                let results = "";
+                
+                // Run each test case
+                for (let i = 0; i < this.testCases.length; i++) {
+                    try {
+                        results += `Running Test Case ${i+1}:\n`;
+                        
+                        // Execute code using Judge0
+                        const result = await this.executeCode(code, language, this.testCases[i].input);
+                        
+                        // Compare expected and actual output
+                        const expected = this.testCases[i].expectedOutput.trim();
+                        const actual = result.output.trim();
+                        
+                        if (actual === expected) {
+                            results += `✅ Test Case ${i+1} Passed\n\n`;
+                        } else {
+                            allPassed = false;
+                            results += `❌ Test Case ${i+1} Failed\n`;
+                            results += `Expected: ${expected}\n`;
+                            results += `Got: ${actual}\n\n`;
+                        }
+                    } catch (error) {
+                        allPassed = false;
+                        results += `❌ Test Case ${i+1} Error: ${error.message}\n\n`;
+                    }
+                }
+                
+                // Display final results
+                if (allPassed) {
+                    results += "🎉 All test cases passed!";
+                } else {
+                    results += "❌ Some test cases failed. Please review your code.";
+                }
+                
+                document.getElementById(`test-results-${this.el.id}`).innerText = results;
+            }
+            
+            /**
+             * Submit solution
+             */
+            async submitSolution() {
+                if (!this.editor) return;
+                
+                // Get the code and language
+                const code = this.editor.getValue();
+                const language = document.getElementById(`language-${this.el.id}`).value;
+                
+                // Show a loading message
+                const previousText = document.getElementById(`test-results-${this.el.id}`).innerText;
+                document.getElementById(`test-results-${this.el.id}`).innerHTML = "<div class='loading'></div> Validating solution...";
+                this.openTab(`results-${this.el.id}`);
+                
+                try {
+                    // Run all test cases first to validate
+                    let allPassed = true;
+                    let results = "Validating solution:\n\n";
+                    
+                    for (let i = 0; i < this.testCases.length; i++) {
+                        try {
+                            results += `Running Test Case ${i+1}... `;
+                            // Execute code using Judge0
+                            const result = await this.executeCode(code, language, this.testCases[i].input);
+                            
+                            // Compare expected and actual output
+                            const expected = this.testCases[i].expectedOutput.trim();
+                            const actual = result.output.trim();
+                            
+                            if (actual === expected) {
+                                results += `✅ Passed\n`;
+                            } else {
+                                allPassed = false;
+                                results += `❌ Failed\n`;
+                            }
+                        } catch (error) {
+                            allPassed = false;
+                            results += `❌ Error: ${error.message}\n`;
+                        }
+                    }
+                    
+                    document.getElementById(`test-results-${this.el.id}`).innerText = results;
+                    
+                    // Simulate submission to a backend server
+                    if (allPassed) {
+                        // In a real application, you would submit to a backend here
+                        // e.g., fetch('/api/submissions', { method: 'POST', body: JSON.stringify({...}) })
+                        
+                        // Wait a moment to simulate server processing
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        document.getElementById(`test-results-${this.el.id}`).innerText = results + "\n\n🎉 Solution submitted successfully! All tests passed.";
+                        
+                        // Fire a custom event that parent applications can listen for
+                        const submissionEvent = new CustomEvent('submissionComplete', {
+                            detail: {
+                                componentId: this.el.id,
+                                success: true,
+                                code: code,
+                                language: language
+                            }
+                        });
+                        this.el.dispatchEvent(submissionEvent);
+                        
+                        // Show success alert
+                        alert("Solution submitted successfully!");
+                    } else {
+                        document.getElementById(`test-results-${this.el.id}`).innerText = results + "\n\n❌ Cannot submit solution. Please fix the failing tests first.";
+                    }
+                } catch (error) {
+                    document.getElementById(`test-results-${this.el.id}`).innerText = `Error during submission: ${error.message}\n\nPrevious results:\n${previousText}`;
+                }
+            }
+            
+            /**
+             * Execute code using Judge0 API
+             */
+            async executeCode(code, language, input) {
+                try {
+                    // Create submission
+                    const createResponse = await fetch(`${this.apiUrl}/submissions`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            source_code: code,
+                            language_id: this.languageIds[language],
+                            stdin: input
+                        })
+                    });
+                    
+                    if (!createResponse.ok) {
+                        throw new Error(`Failed to create submission: ${createResponse.status} ${createResponse.statusText}`);
+                    }
+                    
+                    const submission = await createResponse.json();
+                    const token = submission.token;
+                    
+                    if (!token) {
+                        throw new Error('No token received from Judge0 API');
+                    }
+                    
+                    // Poll for result
+                    let result;
+                    let retries = 0;
+                    const maxRetries = 10;
+                    
+                    do {
+                        // Wait before checking status
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
+                        const statusResponse = await fetch(`${this.apiUrl}/submissions/${token}`);
+                        
+                        if (!statusResponse.ok) {
+                            throw new Error(`Failed to get submission status: ${statusResponse.status} ${statusResponse.statusText}`);
+                        }
+                        
+                        result = await statusResponse.json();
+                        retries++;
+                        
+                        // If still processing after max retries, return error
+                        if (retries >= maxRetries && result.status.id <= 2) {
+                            throw new Error('Execution timed out. Please try again.');
+                        }
+                    } while (result.status.id <= 2); // 1: In Queue, 2: Processing
+                    
+                    // Process result based on status
+                    if (result.status.id === 3) { // Accepted
+                        return {
+                            status: 'success',
+                            output: result.stdout || ''
+                        };
+                    } else if (result.status.id === 4) { // Wrong Answer
+                        return {
+                            status: 'wrong_answer',
+                            output: result.stdout || ''
+                        };
+                    } else if (result.status.id === 5) { // Time Limit Exceeded
+                        throw new Error('Time limit exceeded');
+                    } else if (result.status.id === 6) { // Compilation Error
+                        throw new Error(`Compilation error: ${result.compile_output}`);
+                    } else if (result.status.id === 7 || result.status.id === 14) { // Runtime Error
+                        throw new Error(`Runtime error: ${result.stderr || 'Unknown error'}`);
+                    } else if (result.status.id === 13) { // Internal Error
+                        throw new Error('Judge0 internal error');
+                    } else {
+                        // Other error
+                        throw new Error(`Execution failed: ${result.status.description}`);
+                    }
+                } catch (error) {
+                    console.error('Error executing code:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // Example usage - this demonstrates how to set up the component with a custom problem
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the coding assessment component
+            const assessment = new CodingAssessment({
+                elementId: 'assessment-1',
+                apiUrl: 'http://172.16.6.47:2358', // Replace with your Judge0 API URL
+                problem: {
+                    title: "Sum of Two Numbers",
+                    description: "Write a function that returns the sum of two integers.",
+                    inputFormat: "The first line contains an integer <strong>a</strong>.<br>The second line contains an integer <strong>b</strong>.",
+                    outputFormat: "Return the sum of the two integers.",
+                    constraints: "-1000 ≤ a, b ≤ 1000",
+                    sampleInput: "3\n5",
+                    sampleOutput: "8"
+                },
+                testCases: [
+                    {
+                        input: "3\n5",
+                        expectedOutput: "8"
+                    },
+                    {
+                        input: "-10\n10",
+                        expectedOutput: "0"
+                    },
+                    {
+                        input: "100\n-50",
+                        expectedOutput: "50"
+                    }
+                ],
+                templates: {
+                    python: `def sum_two_numbers(a, b):
+    # Write your code here
+    return a + b
+
+# Read input
+a = int(input())
+b = int(input())
+
+# Call the function and print result
+result = sum_two_numbers(a, b)
+print(result)`,
+                    java: `import java.util.Scanner;
+
+public class Main {
+    public static int sumTwoNumbers(int a, int b) {
+        // Write your code here
+        return a + b;
     }
-}, {
-    timestamps: true,
-    // This ensures the document will be automatically deleted after some time
-    // Useful if you want the activity records to expire after exams are completed
-    expires: '7d' // Optional: documents will be removed after 7 days
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int a = scanner.nextInt();
+        int b = scanner.nextInt();
+        
+        int result = sumTwoNumbers(a, b);
+        System.out.println(result);
+        
+        scanner.close();
+    }
+}`,
+                    javascript: `function sumTwoNumbers(a, b) {
+    // Write your code here
+    return a + b;
+}
+
+// Read input
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
 });
 
-// Compound index to ensure uniqueness and optimize queries
-ActivityTrackerSchema.index({ examId: 1, userId: 1 }, { unique: true });
-
-// Optional: Add a pre-save hook to track history
-ActivityTrackerSchema.pre('findOneAndUpdate', async function() {
-    const docToUpdate = await this.model.findOne(this.getQuery());
-    if (docToUpdate) {
-        const newStatus = this._update.status || 'active';
-        const newTimestamp = this._update.lastPingTimestamp || new Date();
+let inputLines = [];
+rl.on('line', (line) => {
+    inputLines.push(line);
+    if (inputLines.length === 2) {
+        const a = parseInt(inputLines[0]);
+        const b = parseInt(inputLines[1]);
         
-        // Only add to history if status or substantial time has changed
-        const lastHistoryEntry = docToUpdate.pingHistory && docToUpdate.pingHistory.length > 0 ? 
-            docToUpdate.pingHistory[docToUpdate.pingHistory.length - 1] : null;
+        const result = sumTwoNumbers(a, b);
+        console.log(result);
+        
+        rl.close();
+    }
+});`,
+                    c: `#include <stdio.h>
+
+int sumTwoNumbers(int a, int b) {
+    // Write your code here
+    return a + b;
+}
+
+int main() {
+    int a, b;
+    scanf("%d", &a);
+    scanf("%d", &b);
+    
+    int result = sumTwoNumbers(a, b);
+    printf("%d\\n", result);
+    
+    return 0;
+}`,
+                    cpp: `#include <iostream>
+using namespace std;
+
+int sumTwoNumbers(int a, int b) {
+    // Write your code here
+    return a + b;
+}
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    
+    int result = sumTwoNumbers(a, b);
+    cout << result << endl;
+    
+    return 0;
+}`,
+                    csharp: `using System;
+
+class Program {
+    static int SumTwoNumbers(int a, int b) {
+        // Write your code here
+        return a + b;
+    }
+    
+    static void Main() {
+        int a = int.Parse(Console.ReadLine());
+        int b = int.Parse(Console.ReadLine());
+        
+        int result = SumTwoNumbers(a, b);
+        Console.WriteLine(result);
+    }
+}`
+                }
+            });
             
-        if (!lastHistoryEntry || 
-            lastHistoryEntry.status !== newStatus || 
-            (new Date(newTimestamp) - new Date(lastHistoryEntry.timestamp)) > 30000) { // 30 seconds
+            // Listen for submission events
+            document.getElementById('assessment-1').addEventListener('submissionComplete', function(event) {
+                console.log('Submission completed:', event.detail);
+                // Here you can handle what happens after submission in your parent application
+            });
+        });
+        
+        // Function to create multiple coding assessments programmatically
+        function createMultipleAssessments(assessmentConfigs) {
+            // First, create the container elements
+            const container = document.createElement('div');
+            container.className = 'assessments-container';
+            document.body.appendChild(container);
             
-            // Add to history
-            this.update({}, { 
-                $push: { 
-                    pingHistory: { 
-                        timestamp: newTimestamp, 
-                        status: newStatus 
-                    } 
-                } 
+            // Create each assessment
+            assessmentConfigs.forEach((config, index) => {
+                // Create the element
+                const assessmentEl = document.createElement('div');
+                assessmentEl.id = `assessment-${index+1}`;
+                assessmentEl.className = 'coding-assessment';
+                container.appendChild(assessmentEl);
+                
+                // Initialize the component
+                new CodingAssessment({
+                    elementId: assessmentEl.id,
+                    ...config
+                });
             });
         }
-    }
-});
-
-module.exports = mongoose.model("ActivityTracker", ActivityTrackerSchema);
-
-
-const mongoose = require("mongoose");
-
-const ExamSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    departments: [{ type: String, enum: ["mc", "is", "cs", "et", "ec", "ai", "cv"], required: true }],
-    semester: { type: Number, min: 1, max: 8, required: true },
-    questionType: { type: String, enum: ["mcq", "coding", "mcq&coding"], required: true },
-    numTotalQuestions: { type: Number, default: 0 },
-    numMCQs: { type: Number, default: 0 },
-    numCoding: { type: Number, default: 0 },
-    mcqQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "MCQ" }], // change ref to MCQQuestion for CSV upload
-    codingQuestions: [{ type: mongoose.Schema.Types.ObjectId, ref: "CodingQuestion" }],
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    scheduledAt: { type: Date },
-    scheduleTill: { type: Date },
-    duration: { type: Number },
-    integrityCheck: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now },
-    testStatus: { type: String, enum: ["draft", "ongoing", "completed"], default: "ongoing" }
-});
-
-// Validation before saving the exam
-ExamSchema.pre("save", function (next) {
-    // Set status to "draft" if either scheduledAt or scheduleTill is missing
-    if (!this.scheduledAt || !this.scheduleTill) {
-        this.testStatus = "draft";
-    }
-
-    // Question type validation
-    if (this.questionType === "mcq" && this.numMCQs <= 0) {
-        return next(new Error("MCQ exams must have at least one MCQ question."));
-    }
-    if (this.questionType === "coding" && this.numCoding <= 0) {
-        return next(new Error("Coding exams must have at least one coding question."));
-    }
-    if (this.questionType === "mcq&coding") {
-        if (this.numTotalQuestions !== this.numMCQs + this.numCoding) {
-            return next(new Error("Total questions must equal MCQs + Coding questions."));
-        }
-    }
-    next();
-});
-
-module.exports = mongoose.model("Exam", ExamSchema);
-
-const mongoose = require('mongoose');
-
-const integritySchema = new mongoose.Schema({
-    examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true },
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    tabChanges: { type: Number, default: 0 },
-    mouseOuts: { type: Number, default: 0 },
-    fullscreenExits: { type: Number, default: 0 },
-    copyAttempts: { type: Number, default: 0 },
-    pasteAttempts: { type: Number, default: 0 },
-    focusChanges: { type: Number, default: 0 },
-    screenConfiguration: { type: String, default: "Unknown" },
-    lastEvent: { type: String, default: "N/A" },
-    timestamps: { type: Date, default: Date.now }
-});
-
-const Integrity = mongoose.model('Integrity', integritySchema);
-
-module.exports = Integrity;
-
-
-
-
-const mongoose = require("mongoose");
-
-const MCQSchema = new mongoose.Schema({
-    examId: { type: mongoose.Schema.Types.ObjectId, ref: "Exam", required: true }, // Links to Exam
-    classification: { type: String,  trim: true,
-        enum: [
-            'Data Structures',
-            'Algorithms',
-            'Databases',
-            'Object-Oriented Programming',
-            'Networking',
-            'Operating Systems',
-            'Software Engineering',
-            'Mathematics',
-            'Artificial Intelligence',
-            'Machine Learning'
-          ]
-      },
-    question: { type: String, required: true },
-    options: [{ type: String, required: true }], // Array of options
-    correctAnswer: { type: String, required: true }, // The correct option
-    level: {type: String, required: true, enum: ['easy', 'medium', 'hard'], default: 'easy'},
-    marks: { type: Number, default: 0 }, // Marks assigned to the question
-    createdAt: { type: Date, default: Date.now },
-    createdBy: { type: String }
-
-
-});
-
-module.exports = mongoose.model("MCQ", MCQSchema);
-
-
-
-
-const User = require('./usermodel');
-const Integrity = require('./Integrity');
-const Submission = require('./SubmissionSchema');
-const MCQ = require('./MCQQuestion');
-
-class ReportModel {
-  async getAssessmentReport(submissionId) {
-    try {
-      // Fetch submission with populated exam and student details
-      const submission = await Submission.findById(submissionId)
-        .populate('exam')
-        .populate('student')
-        .exec();
-
-      if (!submission) {
-        throw new Error('Submission not found');
-      }
-
-      // Fetch integrity data
-      const integrityData = await Integrity.findOne({
-        examId: submission.exam._id,
-        userId: submission.student._id
-      }).exec();
-
-      // Fetch all MCQ questions for this exam
-      const mcqQuestions = await MCQ.find({ examId: submission.exam._id }).exec();
-
-      // Map questions with answers
-      const questionsWithAnswers = mcqQuestions.map(question => {
-        const submittedAnswer = submission.mcqAnswers.find(
-          answer => answer.questionId.toString() === question._id.toString()
-        );
         
-        const isCorrect = submittedAnswer && submittedAnswer.selectedOption === question.correctAnswer;
-        
-        return {
-          _id: question._id,
-          question: question.question,
-          options: question.options,
-          correctAnswer: question.correctAnswer,
-          submittedAnswer: submittedAnswer ? submittedAnswer.selectedOption : 'Not answered',
-          isCorrect: isCorrect,
-          marks: isCorrect ? question.marks : 0
-        };
-      });
-
-      // Calculate total score and maximum possible score
-      const totalScore = questionsWithAnswers.reduce((sum, q) => sum + (q.isCorrect ? q.marks : 0), 0);
-      const maxScore = mcqQuestions.reduce((sum, q) => sum + q.marks, 0);
-
-      // Calculate integrity index
-      const integrityViolations = integrityData ? 
-        (integrityData.tabChanges + 
-         integrityData.mouseOuts + 
-         integrityData.fullscreenExits + 
-         integrityData.copyAttempts + 
-         integrityData.pasteAttempts + 
-         integrityData.focusChanges) : 0;
-      
-      const integrityStatus = integrityViolations >= 3 ? 'Unacceptable' : 'Acceptable';
-
-      // Format test duration
-      const startTime = new Date(submission.exam.startTime);
-      const endTime = new Date(submission.submittedAt);
-      const durationMs = endTime - startTime;
-      
-      const hours = Math.floor(durationMs / (1000 * 60 * 60));
-      const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((durationMs % (1000 * 60)) / 1000);
-      
-      const formattedDuration = `${hours} hr ${minutes} min ${seconds} sec`;
-      const allocatedTime = submission.exam.duration ? `${submission.exam.duration} min` : 'Not specified';
-      const usedTime = `${formattedDuration} of ${allocatedTime} used`;
-
-      // Fetch all submissions for this exam to calculate ranking
-      const allSubmissions = await Submission.find({ exam: submission.exam._id })
-        .populate('student')
-        .exec();
-      
-      // Calculate scores for all submissions
-      const submissionsWithScores = await Promise.all(allSubmissions.map(async (sub) => {
-        // For each submission, calculate the total score
-        const answers = sub.mcqAnswers || [];
-        
-        // Calculate total score for this submission
-        let score = 0;
-        for (const answer of answers) {
-          const question = mcqQuestions.find(q => q._id.toString() === answer.questionId.toString());
-          if (question && answer.selectedOption === question.correctAnswer) {
-            score += question.marks;
-          }
-        }
-        
-        return {
-          studentId: sub.student._id,
-          studentName: `${sub.student.fname} ${sub.student.lname}`,
-          score: score,
-          submittedAt: sub.submittedAt
-        };
-      }));
-      
-      // Sort submissions by score (descending) and then by submission time (ascending)
-      submissionsWithScores.sort((a, b) => {
-        if (b.score !== a.score) {
-          return b.score - a.score; // Higher score first
-        }
-        return new Date(a.submittedAt) - new Date(b.submittedAt); // Earlier submission first
-      });
-      
-      // Find the rank of the current student
-      const studentRank = submissionsWithScores.findIndex(s => 
-        s.studentId.toString() === submission.student._id.toString()
-      ) + 1; // Add 1 because array index is 0-based
-      
-      const totalStudents = submissionsWithScores.length;
-
-      return {
-        student: submission.student,
-        exam: submission.exam,
-        score: {
-          obtained: totalScore,
-          total: maxScore
-        },
-        timeAnalysis: {
-          startTime,
-          endTime,
-          duration: usedTime
-        },
-        integrity: {
-          data: integrityData || {},
-          status: integrityStatus,
-          violations: integrityViolations
-        },
-        questions: questionsWithAnswers,
-        ranking: {
-          rank: studentRank,
-          totalStudents: totalStudents,
-          topPerformers: submissionsWithScores.slice(0, 3) // Get top 5 students
-        }
-      };
-    } catch (error) {
-      console.error('Error fetching assessment report:', error);
-      throw error;
-    }
-  }
-}
-
-module.exports = new ReportModel();
-
-const mongoose = require("mongoose");
-
-const SubmissionSchema = new mongoose.Schema({
-
-    exam: { type: mongoose.Schema.Types.ObjectId, ref: "Exam", required: true },
-
-    student: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-
-    mcqAnswers: [{ questionId: mongoose.Schema.Types.ObjectId, selectedOption: String }],
-
-    codingAnswers: [{ questionId: mongoose.Schema.Types.ObjectId, code: String }],
-
-    score: { type: Number, default: 0 },
-
-    submittedAt: { type: Date, default: Date.now }
-
-});
-
-module.exports = mongoose.model("Submission", SubmissionSchema);
-
-
-
-const mongoose  = require("mongoose");
-const crypto = require('crypto')
-var validator = require('validator');
-const passportLocalMongoose = require('passport-local-mongoose')
-const findOrCreate = require('mongoose-findorcreate');
-const { random } = require("lodash");
-const UserSchema = new mongoose.Schema({
-        email : {
-           type : String ,
-            minlength : 4 , 
-            maxlength : 55 ,
-            trim : true , 
-            default : "N  /  A",
-            unique : true ,
-        }, 
-        active : {
-            type : Boolean,
-            default : false
-        },
-        USN : { //
-            type : String , 
-            unique : true , 
-            require : true ,
-        } ,
-        fname : {
-            type : String , 
-            minlength : 3  ,
-            maxlength  : 20 
-           
-        },
-        lname : {
-            type : String , 
-            minlength : 2  ,
-            maxlength  : 15 
-           
-        },
-        usertype: {
-            type : String ,
-            default: "student",
-            enum : ["student","admin","teacher"],required : true
-        },
-        userallowed : {
-            type : Boolean, 
-            default : false ,
-        },
-
-        dataid : {
-            type : String 
-        }
-        ,
-        Department :  { 
-            type: String,
-            enum: ["mc", "is", "cs", "et", "ec", "ai", "cv"] // enum: ["MCA", "ISE", "CSE", "ETE", "CIV", "COM", "AI"]
-             },
-      
-        Year : {
-            type : String ,
-            
-        }
-        ,
-        admin_access : {
-            default : false ,
-            type : Boolean,
+        // Example of how to use the component in a loop for multiple questions
+        /*
+        createMultipleAssessments([
+            {
+                problem: {
+                    title: "Problem 1: Sum of Two Numbers",
+                    description: "Write a function that returns the sum of two integers.",
+                    // ... other properties
+                },
+                testCases: [
+                    // ... test cases for problem 1
+                ]
             },
-        Rollno : {
-            type : String ,
-            
-        },  
-        Semester: { 
-            type: Number,
-             min: 1, max: 8 
-            }, 
-
-        password : String ,
-        phonecode :{
-            type : String ,
-            maxlength : 4
-        } ,
-        location :{
-            type : String
-        },
-        phone : {
-        type : Number ,
-        minlength : 10 ,
-        maxlength : 10
-        } ,
-            imageurl : {
-            type : String ,
-            default : "https://cdn-icons-png.flaticon.com/128/456/456212.png"
-        },
-        created : {
-            type : Date , 
-            default : Date.now()
-        },
-        randomurl : {
-            type : String ,
-        },
-        passwordresettoken : String ,
-        passwordresetdate : Date ,
-   
-  
-    //USN==> location + Year + Dept + Rollno
-    //1BY22CS001==> BY + 22 + CS + 001 
-   
-})
-
-UserSchema.plugin(passportLocalMongoose, { usernameField : 'email' })
-UserSchema.plugin(findOrCreate)
-UserSchema.methods.createpasswordresettoken = function(){
-const resetToken = crypto.randomBytes(32).toString('hex');
-this.passwordresettoken = crypto
-.createHash('sha256')
-.update(resetToken)
-.digest('hex')
-
-this.passwordresetdate = Date.now() + 10 *60*1000
-console.log(resetToken , this.passwordresettoken)
-
-
-return resetToken
-
-}
-const User =  mongoose.model('User', UserSchema)
-module.exports = User
+            {
+                problem: {
+                    title: "Problem 2: Find Maximum",
+                    description: "Write a function that finds the maximum value in an array.",
+                    // ... other properties
+                },
+                testCases: [
+                    // ... test cases for problem 2
+                ]
+            }
+            // Add more problems as needed
+        ]);
+        */
+    </script>
+</body>
+</html>

@@ -258,7 +258,7 @@
           <div class="student-card">
             <img class="student-avatar" src="<%= student.imageurl || 'https://randomuser.me/api/portraits/men/1.jpg' %>" alt="<%= student.name %>" />
             <div class="student-info">
-              <div class="student-name"><%= student.name || 'Student Name' %></div>
+              <div class="student-name"><%= student.fname || 'Student Name' %></div>
               <div class="student-usn"><%= student.USN || 'N/A' %></div>
               <div class="student-details">
                 <span class="detail-badge"><%= student.Department || 'N/A' %></span>

@@ -124,7 +124,7 @@ exports.getStartExam = async(req,res)=>{
             return res.status(403).send("This exam is no longer available.");
         }
 
-        res.render("test", { user: req.user, exam  });
+        res.render("coding_editor", { user: req.user, exam  });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
@@ -278,36 +278,3 @@ exports.postStartExam = async(req,res)=>{
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// exports.postcontrol = async (req,res)=>{
-//     try {
-//         const student = await User.findById(req.user._id);
-//         if (!student) return res.status(404).json({ error: "Student not found" });
-
-//         const exam = await Exam.findById(req.params.examId).populate("mcqQuestions codingQuestions");
-
-//         if (!exam) return res.status(404).json({ error: "Exam not found" });
-
-//         // Validate if student is eligible
-//         if (exam.semester !== student.Semester || !exam.departments.includes(student.Department)) {
-//             return res.status(403).json({ error: "You are not eligible for this exam." });
-//         }
-
-//         res.json({ exam });
-//     } catch (error) {
-//         res.status(500).json({ error: "Server Error" });
-//     }
-// }
