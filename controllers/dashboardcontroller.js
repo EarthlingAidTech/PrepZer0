@@ -124,7 +124,7 @@ exports.getStartExam = async(req,res)=>{
             return res.status(403).send("This exam is no longer available.");
         }
 
-        res.render("test", { user: req.user, exam ,  });
+        res.render("test", { user: req.user, exam  });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
