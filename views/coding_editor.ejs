@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simplified Coding Challenge Platform</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .challenges-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .challenge-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        
+        .challenge-header {
+            padding: 16px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .challenge-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #343a40;
+        }
+        
+        .challenge-difficulty {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .difficulty-easy {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .challenge-body {
+            display: flex;
+            height: 600px;
+        }
+        
+        .challenge-card.light-theme {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --panel-bg: #ffffff;
+            --panel-shadow: rgba(0,0,0,0.1);
+            --border-color: #ccc;
+            --tab-bg: #f0f0f0;
+            --tab-active-border: #4CAF50;
+            --test-case-bg: #f9f9f9;
+            --test-io-bg: #f0f0f0;
+            --console-bg: #f8f8f8;
+            --console-text: #333;
+            --header-bg: #e0e0e0;
+            --header-text: #333;
+        }
+        
+        .challenge-card.dark-theme {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --panel-bg: #252526;
+            --panel-shadow: rgba(0,0,0,0.3);
+            --border-color: #444;
+            --tab-bg: #2d2d2d;
+            --tab-active-border: #0e639c;
+            --test-case-bg: #333;
+            --test-io-bg: #3a3a3a;
+            --console-bg: #1e1e1e;
+            --console-text: #e0e0e0;
+            --header-bg: #333;
+            --header-text: #e0e0e0;
+        }
+        
+        .problem-panel {
+            width: 40%;
+            padding: 20px;
+            background-color: var(--panel-bg);
+            box-shadow: 2px 0 5px var(--panel-shadow);
+            overflow-y: auto;
+            color: var(--text-color);
+        }
+        
+        .problem-panel h3 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+        
+        .problem-panel p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .editor-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            padding: 10px 20px;
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .editor-container {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            position: relative; /* Added position relative */
+            min-height: 300px; /* Added minimum height */
+        }
+        
+        .editor {
+            width: 100%;
+            height: 100%;
+            position: absolute; /* Made editor absolute positioned */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        .console-container {
+            height: 150px;
+            background-color: var(--console-bg);
+            color: var(--console-text);
+            padding: 10px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+        
+        .btn-submit {
+            background-color: #ff9800;
+        }
+        
+        .controls-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        select, .theme-toggle {
+            padding: 8px;
+            border-radius: 4px;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        .theme-icon {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        
+        .test-case-container {
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        .test-case {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--test-case-bg);
+            border-radius: 4px;
+        }
+        
+        .test-input, .test-output {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: var(--test-io-bg);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+            color: var(--text-color);
+        }
+        
+        .custom-test-area {
+            width: 100%;
+            padding: 10px;
+            font-family: monospace;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-top: 10px;
+            resize: vertical;
+            background-color: var(--test-io-bg);
+            color: var(--text-color);
+        }
+        
+        .tab-container {
+            display: flex;
+            background-color: var(--tab-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .tab.active {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--tab-active-border);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 10px;
+            background-color: var(--panel-bg);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .challenge-toggle {
+            cursor: pointer;
+            user-select: none;
+            padding: 8px 16px;
+            display: inline-block;
+            margin-left: auto;
+            color: #007bff;
+        }
+        
+        .challenge-card.collapsed .challenge-body {
+            display: none;
+        }
+        
+        @media (max-width: 992px) {
+            .challenge-body {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .problem-panel, .editor-panel {
+                width: 100%;
+            }
+            
+            .editor-container {
+                height: 400px;
+                position: relative;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="challenges-container" id="challenges-container">
+        <!-- Challenge card will be added here -->
+    </div>
+    
+    <script>
+class CodingChallenge {
+    constructor(options) {
+        this.id = options.id || `challenge-${Math.random().toString(36).substring(2, 9)}`;
+        this.title = options.title || 'Coding Challenge';
+        this.description = options.description || 'Write a solution to the given problem.';
+        this.difficulty = options.difficulty || 'easy';
+        this.constraints = options.constraints || '';
+        this.inputFormat = options.inputFormat || '';
+        this.outputFormat = options.outputFormat || '';
+        this.sampleInput = options.sampleInput || '';
+        this.sampleOutput = options.sampleOutput || '';
+        this.testCases = options.testCases || [];
+        this.languages = options.languages || ['python', 'javascript', 'java', 'csharp', 'cpp'];
+        this.defaultLanguage = options.defaultLanguage || 'python';
+        this.theme = options.theme || 'light-theme';
+        
+        // Judge0 API constants
+        this.JUDGE0_API_URL = options.judge0ApiUrl || 'https://judge0-ce.p.rapidapi.com';
+        this.JUDGE0_API_KEY = options.judge0ApiKey || '99e7745723msh99268f9541d1ff4p184de9jsna444b89e5c05'; // Replace with your actual API key
+        
+        // Language IDs for Judge0 API
+        this.judgeLanguageIds = {
+            'python': 71,     // Python (3.8.1)
+            'javascript': 63, // JavaScript (Node.js 12.14.0)
+            'java': 62,       // Java (OpenJDK 13.0.1)
+            'csharp': 51,     // C# (Mono 6.6.0.161)
+            'cpp': 54,        // C++ (GCC 9.2.0)
+            'c': 50,          // C (GCC 9.2.0)
+            'php': 68,        // PHP (7.4.1)
+            'ruby': 72,       // Ruby (2.7.0)
+            'kotlin': 78,     // Kotlin (1.3.70)
+            'swift': 83,      // Swift (5.2.3)
+            'go': 60,         // Go (1.13.5)
+            'rust': 73,       // Rust (1.40.0)
+            'scala': 81       // Scala (2.13.2)
+        };
+        
+        // Default code templates for each language
+        this.templates = {
+            python: options.pythonTemplate || this.getDefaultTemplate('python'),
+            javascript: options.javascriptTemplate || this.getDefaultTemplate('javascript'),
+            java: options.javaTemplate || this.getDefaultTemplate('java'),
+            csharp: options.csharpTemplate || this.getDefaultTemplate('csharp'),
+            cpp: options.cppTemplate || this.getDefaultTemplate('cpp'),
+            c: options.cTemplate || this.getDefaultTemplate('c'),
+            php: options.phpTemplate || this.getDefaultTemplate('php'),
+            ruby: options.rubyTemplate || this.getDefaultTemplate('ruby'),
+            kotlin: options.kotlinTemplate || this.getDefaultTemplate('kotlin'),
+            swift: options.swiftTemplate || this.getDefaultTemplate('swift'),
+            go: options.goTemplate || this.getDefaultTemplate('go'),
+            rust: options.rustTemplate || this.getDefaultTemplate('rust'),
+            scala: options.scalaTemplate || this.getDefaultTemplate('scala')
+        };
+        
+        // Create the challenge card
+        this.createChallengeCard();
+        
+        // Editor instance
+        this.editor = null;
+        this.monaco = null;
+    }
+    
+    // Get default template for language
+    getDefaultTemplate(language) {
+        const templates = {
+            python: `def solve_problem(a, b):
+    # Write your solution here
+    return a + b
+
+# Read input
+a = int(input())
+b = int(input())
+
+# Call function and print result
+print(solve_problem(a, b))
+`,
+            javascript: `function solveProblem(a, b) {
+    // Write your solution here
+    return a + b;
+}
+
+// Read input
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+let lines = [];
+rl.on('line', (line) => {
+    lines.push(line);
+    if (lines.length === 2) {
+        const a = parseInt(lines[0]);
+        const b = parseInt(lines[1]);
+        console.log(solveProblem(a, b));
+        rl.close();
+    }
+});
+`,
+            java: `import java.util.Scanner;
+
+public class Main {
+    static int solveProblem(int a, int b) {
+        // Write your solution here
+        return a + b;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int a = scanner.nextInt();
+        int b = scanner.nextInt();
+        System.out.println(solveProblem(a, b));
+        scanner.close();
+    }
+}
+`,
+            csharp: `using System;
+
+class Solution {
+    static int SolveProblem(int a, int b) {
+        // Write your solution here
+        return a + b;
+    }
+    
+    static void Main() {
+        int a = int.Parse(Console.ReadLine());
+        int b = int.Parse(Console.ReadLine());
+        
+        Console.WriteLine(SolveProblem(a, b));
+    }
+}
+`,
+            cpp: `#include <iostream>
+using namespace std;
+
+int solveProblem(int a, int b) {
+    // Write your solution here
+    return a + b;
+}
+
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << solveProblem(a, b) << endl;
+    return 0;
+}
+`,
+            c: `#include <stdio.h>
+
+int solveProblem(int a, int b) {
+    // Write your solution here
+    return a + b;
+}
+
+int main() {
+    int a, b;
+    scanf("%d", &a);
+    scanf("%d", &b);
+    printf("%d\\n", solveProblem(a, b));
+    return 0;
+}
+`,
+            php: `<?php
+function solveProblem($a, $b) {
+    // Write your solution here
+    return $a + $b;
+}
+
+// Read input
+$a = (int)trim(fgets(STDIN));
+$b = (int)trim(fgets(STDIN));
+
+// Call function and print result
+echo solveProblem($a, $b) . "\\n";
+?>
+`,
+            ruby: `def solve_problem(a, b)
+    # Write your solution here
+    return a + b
+end
+
+# Read input
+a = gets.to_i
+b = gets.to_i
+
+# Call function and print result
+puts solve_problem(a, b)
+`,
+            kotlin: `fun solveProblem(a: Int, b: Int): Int {
+    // Write your solution here
+    return a + b
+}
+
+fun main() {
+    val a = readLine()!!.toInt()
+    val b = readLine()!!.toInt()
+    println(solveProblem(a, b))
+}
+`,
+            swift: `func solveProblem(a: Int, b: Int) -> Int {
+    // Write your solution here
+    return a + b
+}
+
+// Read input
+if let a = Int(readLine()!),
+   let b = Int(readLine()!) {
+    // Call function and print result
+    print(solveProblem(a: a, b: b))
+}
+`,
+            go: `package main
+
+import (
+    "fmt"
+)
+
+func solveProblem(a int, b int) int {
+    // Write your solution here
+    return a + b
+}
+
+func main() {
+    var a, b int
+    fmt.Scanln(&a)
+    fmt.Scanln(&b)
+    fmt.Println(solveProblem(a, b))
+}
+`,
+            rust: `fn solve_problem(a: i32, b: i32) -> i32 {
+    // Write your solution here
+    return a + b;
+}
+
+fn main() {
+    let mut input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
+    let a: i32 = input.trim().parse().unwrap();
+    
+    input = String::new();
+    std::io::stdin().read_line(&mut input).unwrap();
+    let b: i32 = input.trim().parse().unwrap();
+    
+    println!("{}", solve_problem(a, b));
+}
+`,
+            scala: `object Main extends App {
+  def solveProblem(a: Int, b: Int): Int = {
+    // Write your solution here
+    return a + b
+  }
+  
+  val a = scala.io.StdIn.readInt()
+  val b = scala.io.StdIn.readInt()
+  println(solveProblem(a, b))
+}
+`
+        };
+        
+        return templates[language] || '';
+    }
+    
+    // Create the challenge card
+    createChallengeCard() {
+        const container = document.getElementById('challenges-container');
+        const card = document.createElement('div');
+        card.id = this.id;
+        card.className = `challenge-card ${this.theme}`;
+        
+        // Create HTML structure
+        card.innerHTML = `
+            <div class="challenge-header">
+                <h2>${this.title}</h2>
+                <div class="challenge-difficulty difficulty-${this.difficulty}">${this.difficulty.toUpperCase()}</div>
+                <div class="challenge-toggle">▲ Collapse</div>
+            </div>
+            <div class="challenge-body">
+                <div class="problem-panel">
+                    <p>${this.description}</p>
+                    
+                    <h3>Input Format</h3>
+                    <p>${this.inputFormat}</p>
+                    
+                    <h3>Output Format</h3>
+                    <p>${this.outputFormat}</p>
+                    
+                    <h3>Constraints</h3>
+                    <p>${this.constraints}</p>
+                    
+                    <h3>Sample Input</h3>
+                    <div class="test-input">${this.sampleInput}</div>
+                    
+                    <h3>Sample Output</h3>
+                    <div class="test-output">${this.sampleOutput}</div>
+                    
+                    <div class="test-case-container">
+                        <h3>Test Cases</h3>
+                        ${this.createTestCasesHTML()}
+                    </div>
+                </div>
+                <div class="editor-panel">
+                    <div class="editor-header">
+                        <div class="controls-group">
+                            <div class="theme-toggle">
+                                <span class="theme-icon">🌓</span>
+                                <span class="theme-text">Theme</span>
+                            </div>
+                            <label for="language-${this.id}">Language:</label>
+                            <select id="language-${this.id}" class="language-select">
+                                ${this.createLanguageOptionsHTML()}
+                            </select>
+                        </div>
+                        <div>
+                            <button class="btn btn-secondary run-custom-btn">Run Custom Test</button>
+                            <button class="btn run-all-btn">Run All Tests</button>
+                            <button class="btn btn-submit submit-btn">Submit</button>
+                        </div>
+                    </div>
+                    <div class="editor-container">
+                        <div id="editor-${this.id}" class="editor"></div>
+                    </div>
+                    <div class="tab-container">
+                        <div class="tab custom-test-tab">Custom Test</div>
+                        <div class="tab results-tab">Test Results</div>
+                    </div>
+                    <div id="custom-test-${this.id}" class="tab-content custom-test-content">
+                        <h4>Custom Test Input:</h4>
+                        <textarea class="custom-test-area" rows="5" placeholder="Enter your test input here..."></textarea>
+                        <h4>Custom Test Output:</h4>
+                        <div class="console-container custom-output">
+                            // Custom test output will appear here
+                        </div>
+                    </div>
+                    <div id="results-${this.id}" class="tab-content results-content">
+                        <div class="console-container test-results">
+                            // Test results will appear here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+        
+        // Add event listeners
+        this.addEventListeners(card);
+        
+        // Initialize Monaco editor when script is loaded
+        this.initializeEditor();
+    }
+    
+    // Create HTML for test cases
+    createTestCasesHTML() {
+        return this.testCases.map((testCase, index) => `
+            <div class="test-case">
+                <h4>Test Case ${index + 1}</h4>
+                <p><strong>Input:</strong></p>
+                <div class="test-input">${testCase.input}</div>
+                <p><strong>Expected Output:</strong></p>
+                <div class="test-output">${testCase.expectedOutput}</div>
+            </div>
+        `).join('');
+    }
+    
+    // Create HTML for language options
+    createLanguageOptionsHTML() {
+        const options = {
+            'python': 'Python',
+            'javascript': 'JavaScript',
+            'java': 'Java',
+            'csharp': 'C#',
+            'cpp': 'C++',
+            'c': 'C',
+            'php': 'PHP',
+            'ruby': 'Ruby',
+            'kotlin': 'Kotlin',
+            'swift': 'Swift',
+            'go': 'Go',
+            'rust': 'Rust',
+            'scala': 'Scala'
+        };
+        
+        return this.languages.map(lang => 
+            `<option value="${lang}" ${lang === this.defaultLanguage ? 'selected' : ''}>${options[lang]}</option>`
+        ).join('');
+    }
+    
+    // Add event listeners to the challenge card
+    addEventListeners(card) {
+        // Theme toggle
+        const themeToggle = card.querySelector('.theme-toggle');
+        themeToggle.addEventListener('click', () => this.toggleTheme(card));
+        
+        // Language change
+        const languageSelect = card.querySelector('.language-select');
+        languageSelect.addEventListener('change', () => this.changeLanguage(languageSelect.value));
+        
+        // Run buttons
+        const runCustomBtn = card.querySelector('.run-custom-btn');
+        runCustomBtn.addEventListener('click', () => this.runCustomTest(card));
+        
+        const runAllBtn = card.querySelector('.run-all-btn');
+        runAllBtn.addEventListener('click', () => this.runAllTests(card));
+        
+        const submitBtn = card.querySelector('.submit-btn');
+        submitBtn.addEventListener('click', () => this.submitSolution(card));
+        
+        // Tab switching
+        const customTestTab = card.querySelector('.custom-test-tab');
+        customTestTab.addEventListener('click', () => this.openTab(card, 'custom-test'));
+        
+        const resultsTab = card.querySelector('.results-tab');
+        resultsTab.addEventListener('click', () => this.openTab(card, 'results'));
+        
+        // Collapse/expand toggle
+        const challengeToggle = card.querySelector('.challenge-toggle');
+        challengeToggle.addEventListener('click', () => this.toggleCollapse(card, challengeToggle));
+        
+        // Set active tab
+        customTestTab.classList.add('active');
+        card.querySelector('.custom-test-content').classList.add('active');
+    }
+    
+    // Initialize Monaco editor
+    initializeEditor() {
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        require(['vs/editor/editor.main'], () => {
+            this.monaco = window.monaco;
+            const editorElement = document.getElementById(`editor-${this.id}`);
+            
+            if (editorElement) {
+                this.editor = this.monaco.editor.create(editorElement, {
+                    value: this.templates[this.defaultLanguage],
+                    language: this.getMonacoLanguage(this.defaultLanguage),
+                    theme: this.theme === 'dark-theme' ? 'vs-dark' : 'vs',
+                    automaticLayout: true,
+                    minimap: { enabled: true },
+                    scrollBeyondLastLine: false,
+                    fontSize: 14,
+                    tabSize: 4,
+                    insertSpaces: true,
+                    fontFamily: 'Consolas, "Courier New", monospace'
+                });
+            }
+        });
+    }
+    
+    // Get Monaco language ID
+    getMonacoLanguage(language) {
+        const languageMap = {
+            'python': 'python',
+            'javascript': 'javascript',
+            'java': 'java',
+            'csharp': 'csharp',
+            'cpp': 'cpp',
+            'c': 'c',
+            'php': 'php',
+            'ruby': 'ruby',
+            'kotlin': 'kotlin',
+            'swift': 'swift',
+            'go': 'go',
+            'rust': 'rust',
+            'scala': 'scala'
+        };
+        
+        return languageMap[language] || language;
+    }
+    
+    // Toggle theme
+    toggleTheme(card) {
+        if (card.classList.contains('light-theme')) {
+            card.classList.remove('light-theme');
+            card.classList.add('dark-theme');
+            if (this.editor && this.monaco) {
+                this.monaco.editor.setTheme('vs-dark');
+            }
+            card.querySelector('.theme-text').textContent = 'Light Mode';
+            card.querySelector('.theme-icon').textContent = '☀️';
+        } else {
+            card.classList.remove('dark-theme');
+            card.classList.add('light-theme');
+            if (this.editor && this.monaco) {
+                this.monaco.editor.setTheme('vs');
+            }
+            card.querySelector('.theme-text').textContent = 'Dark Mode';
+            card.querySelector('.theme-icon').textContent = '🌙';
+        }
+    }
+    
+    // Change language
+    changeLanguage(language) {
+        if (this.editor && this.monaco) {
+            this.monaco.editor.setModelLanguage(this.editor.getModel(), this.getMonacoLanguage(language));
+            this.editor.setValue(this.templates[language]);
+        }
+    }
+    
+    // Submit code to Judge0 API
+    async submitToJudge0(code, languageId, stdin) {
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-RapidAPI-Key': this.JUDGE0_API_KEY,
+                'X-RapidAPI-Host': new URL(this.JUDGE0_API_URL).hostname
+            },
+            body: JSON.stringify({
+                source_code: code,
+                language_id: languageId,
+                stdin: stdin,
+                cpu_time_limit: 2,   // 2 seconds
+                memory_limit: 128000  // 128MB
+            })
+        };
+        
+        try {
+            // Step 1: Submit the code
+            const submitResponse = await fetch(`${this.JUDGE0_API_URL}/submissions`, options);
+            const submitData = await submitResponse.json();
+            const token = submitData.token;
+            
+            if (!token) {
+                throw new Error("Failed to submit code: " + JSON.stringify(submitData));
+            }
+            
+            // Step 2: Wait for the submission to be processed
+            let status = 'Processing';
+            let result = null;
+            
+            while (status === 'Processing' || status === 'In Queue') {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+                
+                const checkResponse = await fetch(`${this.JUDGE0_API_URL}/submissions/${token}?fields=stdout,stderr,status,compile_output,message,time,memory`, {
+                    headers: {
+                        'X-RapidAPI-Key': this.JUDGE0_API_KEY,
+                        'X-RapidAPI-Host': new URL(this.JUDGE0_API_URL).hostname
+                    }
+                });
+                
+                result = await checkResponse.json();
+                status = this.getStatusText(result.status.id);
+            }
+            
+            return {
+                status: status,
+                stdout: result.stdout || '',
+                stderr: result.stderr || '',
+                compile_output: result.compile_output || '',
+                message: result.message || '',
+                time: result.time,
+                memory: result.memory
+            };
+        } catch (error) {
+            console.error('Error submitting to Judge0:', error);
+            return {
+                status: 'Error',
+                stderr: error.message,
+                stdout: '',
+                compile_output: '',
+                message: 'Error connecting to Judge0 API'
+            };
+        }
+    }
+    
+    // Get status text from Judge0 status ID
+    getStatusText(statusId) {
+        const statusMap = {
+            1: 'In Queue',
+            2: 'Processing',
+            3: 'Accepted',
+            4: 'Wrong Answer',
+            5: 'Time Limit Exceeded',
+            6: 'Compilation Error',
+            7: 'Runtime Error (SIGSEGV)',
+            8: 'Runtime Error (SIGXFSZ)',
+            9: 'Runtime Error (SIGFPE)',
+            10: 'Runtime Error (SIGABRT)',
+            11: 'Runtime Error (NZEC)',
+            12: 'Runtime Error (Other)',
+            13: 'Internal Error',
+            14: 'Exec Format Error'
+        };
+        
+        return statusMap[statusId] || `Unknown Status (${statusId})`;
+    }
+    
+    // Format Judge0 output
+    formatJudge0Output(result, testCase = null) {
+        let output = '';
+        
+        if (result.status === 'Accepted') {
+            output += `Status: ✅ ${result.status}\n`;
+            
+            if (testCase && testCase.expectedOutput) {
+                if (result.stdout.trim() === testCase.expectedOutput.trim()) {
+                    output += `✅ Output matches expected result\n`;
+                } else {
+                    output += `❌ Output does not match expected result\n`;
+                    output += `Expected: ${testCase.expectedOutput}\n`;
+                    output += `Got: ${result.stdout}\n`;
+                }
+            } else {
+                output += `Output: ${result.stdout}\n`;
+            }
+            
+            output += `Execution Time: ${result.time} sec\n`;
+            output += `Memory Used: ${result.memory} KB\n`;
+        } else {
+            output += `Status: ❌ ${result.status}\n`;
+            
+            if (result.compile_output) {
+                output += `Compilation Error:\n${result.compile_output}\n`;
+            }
+            
+            if (result.stderr) {
+                output += `Error:\n${result.stderr}\n`;
+            }
+            
+            if (result.message) {
+                output += `Message: ${result.message}\n`;
+            }
+        }
+        
+        return output;
+    }
+    
+    // Run code with custom input
+    async runCustomTest(card) {
+        if (!this.editor) return;
+        
+        const code = this.editor.getValue();
+        const language = card.querySelector('.language-select').value;
+        const input = card.querySelector('.custom-test-area').value;
+        const outputElem = card.querySelector('.custom-output');
+        
+        outputElem.innerText = "Running code on Judge0...";
+        this.openTab(card, 'custom-test');
+        
+        try {
+            const languageId = this.judgeLanguageIds[language];
+            const result = await this.submitToJudge0(code, languageId, input);
+        
+            outputElem.innerText = this.formatJudge0Output(result);
+        } catch (error) {
+            outputElem.innerText = "Error: " + error.message;
+        }
+    }
+    
+    // Run all test cases
+    async runAllTests(card) {
+        if (!this.editor) return;
+        
+        const code = this.editor.getValue();
+        const language = card.querySelector('.language-select').value;
+        const resultsElem = card.querySelector('.test-results');
+        
+        resultsElem.innerText = "Running tests on Judge0...";
+        this.openTab(card, 'results');
+        
+        let allPassed = true;
+        let results = '';
+        
+        try {
+            const languageId = this.judgeLanguageIds[language];
+            
+            for (let i = 0; i < this.testCases.length; i++) {
+                results += `-- Test Case ${i+1} --\n`;
+                
+                const result = await this.submitToJudge0(code, languageId, this.testCases[i].input);
+                results += this.formatJudge0Output(result, this.testCases[i]);
+                
+                if (result.status !== 'Accepted' || result.stdout.trim() !== this.testCases[i].expectedOutput.trim()) {
+                    allPassed = false;
+                }
+                
+                results += '\n';
+            }
+            
+            if (allPassed) {
+                results += "🎉 All test cases passed!";
+            } else {
+                results += "❌ Some test cases failed. Please review your code.";
+            }
+            
+            resultsElem.innerText = results;
+        } catch (error) {
+            resultsElem.innerText = "Error: " + error.message;
+        }
+    }
+    
+    // Submit solution
+    async submitSolution(card) {
+        if (!this.editor) return;
+        
+        const code = this.editor.getValue();
+        const language = card.querySelector('.language-select').value;
+        const resultsElem = card.querySelector('.test-results');
+        
+        resultsElem.innerText = "Submitting solution to Judge0...";
+        this.openTab(card, 'results');
+        
+        try {
+            const languageId = this.judgeLanguageIds[language];
+            let allPassed = true;
+            let results = "--- Submission Results ---\n\n";
+            
+            for (let i = 0; i < this.testCases.length; i++) {
+                const result = await this.submitToJudge0(code, languageId, this.testCases[i].input);
+                
+                if (result.status !== 'Accepted' || result.stdout.trim() !== this.testCases[i].expectedOutput.trim()) {
+                    allPassed = false;
+                    results += `Test Case ${i+1}: ❌ Failed\n`;
+                } else {
+                    results += `Test Case ${i+1}: ✅ Passed\n`;
+                }
+            }
+            
+            results += "\n";
+            
+            if (allPassed) {
+                results += "🎉 Congratulations! Your solution passed all test cases.\n";
+                results += "Time Complexity: [System cannot accurately determine]\n";
+                results += "Space Complexity: [System cannot accurately determine]\n";
+            } else {
+                results += "❌ Your solution failed one or more test cases. Please try again.\n";
+            }
+            
+            resultsElem.innerText = results;
+        } catch (error) {
+            resultsElem.innerText = "Error: " + error.message;
+        }
+    }
+    
+    // Tab functionality
+    openTab(card, tabName) {
+        const tabContents = card.querySelectorAll('.tab-content');
+        tabContents.forEach(tab => tab.classList.remove('active'));
+        
+        const tabs = card.querySelectorAll('.tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Add active class to selected tab and content
+        if (tabName === 'custom-test') {
+            card.querySelector('.custom-test-content').classList.add('active');
+            card.querySelector('.custom-test-tab').classList.add('active');
+        } else if (tabName === 'results') {
+            card.querySelector('.results-content').classList.add('active');
+            card.querySelector('.results-tab').classList.add('active');
+        }
+    }
+    
+    // Toggle collapse/expand
+    toggleCollapse(card, toggleButton) {
+        if (card.classList.contains('collapsed')) {
+            card.classList.remove('collapsed');
+            toggleButton.textContent = '▲ Collapse';
+        } else {
+            card.classList.add('collapsed');
+            toggleButton.textContent = '▼ Expand';
+        }
+    }
+}
+
+// ChallengeManager class
+class ChallengeManager {
+    constructor() {
+        this.challenges = [];
+        this.commonTemplates = {
+            python: `def solve_problem(a, b):
+    # Write your solution here
+    return a + b
+
+# Read input
+a = int(input())
+b = int(input())
+
+# Call function and print result
+print(solve_problem(a, b))
+`,
+            javascript: `function solveProblem(a, b) {
+    // Write your solution here
+    return a + b;
+}
+
+// Read input
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+let lines = [];
+rl.on('line', (line) => {
+    lines.push(line);
+    if (lines.length === 2) {
+        const a = parseInt(lines[0]);
+        const b = parseInt(lines[1]);
+        console.log(solveProblem(a, b));
+        rl.close();
+    }
+});
+`,
+            java: `import java.util.Scanner;
+
+public class Main {
+    static int solveProblem(int a, int b) {
+        // Write your solution here
+        return a + b;
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int a = scanner.nextInt();
+        int b = scanner.nextInt();
+        System.out.println(solveProblem(a, b));
+        scanner.close();
+    }
+}
+`,
+            csharp: `using System;
+
+class Solution {
+    static int SolveProblem(int a, int b) {
+        // Write your solution here
+        return a + b;
+    }
+    
+    static void Main() {
+        int a = int.Parse(Console.ReadLine());
+        int b = int.Parse(Console.ReadLine());
+        
+        Console.WriteLine(SolveProblem(a, b));
+    }
+}
+`
+        };
+        
+        this.judge0ApiUrl = 'https://judge0-ce.p.rapidapi.com';
+        this.judge0ApiKey = '99e7745723msh99268f9541d1ff4p184de9jsna444b89e5c05'; // Replace with your actual RapidAPI key
+    }
+    
+addChallenge(options) {
+    const challenge = new CodingChallenge({
+        ...options,
+        judge0ApiUrl: this.judge0ApiUrl,
+        judge0ApiKey: this.judge0ApiKey
+    });
+    
+    this.challenges.push(challenge);
+    return challenge;
+}
+
+// Create predefined challenges
+createSampleChallenges() {
+    this.addChallenge({
+        title: 'Two Sum',
+        description: 'Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to target.',
+        difficulty: 'easy',
+        constraints: 'You may assume that each input would have exactly one solution, and you may not use the same element twice.',
+        inputFormat: 'First line: Array of integers separated by spaces.<br>Second line: Target integer.',
+        outputFormat: 'Two integers separated by a space representing the indices of the two numbers.',
+        sampleInput: '2 7 11 15\n9',
+        sampleOutput: '0 1',
+        testCases: [
+            { input: '2 7 11 15\n9', expectedOutput: '0 1' },
+            { input: '3 2 4\n6', expectedOutput: '1 2' },
+            { input: '3 3\n6', expectedOutput: '0 1' }
+        ]
+    });
+    
+    // Example challenge 2: Reverse String
+    this.addChallenge({
+        title: 'Reverse String',
+        description: 'Write a function that reverses a string.',
+        difficulty: 'easy',
+        constraints: 'Do not allocate extra space for another array. You must do this by modifying the input array in-place with O(1) extra memory.',
+        inputFormat: 'A single line containing the string to reverse.',
+        outputFormat: 'A single line containing the reversed string.',
+        sampleInput: 'hello',
+        sampleOutput: 'olleh',
+        testCases: [
+            { input: 'hello', expectedOutput: 'olleh' },
+            { input: 'Hannah', expectedOutput: 'hannaH' },
+            { input: 'A man, a plan, a canal: Panama', expectedOutput: 'amanaP :lanac a ,nalp a ,nam A' }
+        ]
+    });
+}
+
+// Initialize the manager
+initialize() {
+    this.createSampleChallenges();
+}
+}
+
+// Create and initialize the challenge manager
+document.addEventListener('DOMContentLoaded', () => {
+    const manager = new ChallengeManager();
+    manager.initialize();
+});
+    </script>
+</body>
+</html>

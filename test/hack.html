@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Assessment Platform</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Theme variables */
+        body.light-theme {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --panel-bg: #ffffff;
+            --panel-shadow: rgba(0,0,0,0.1);
+            --border-color: #ccc;
+            --tab-bg: #f0f0f0;
+            --tab-active-border: #4CAF50;
+            --test-case-bg: #f9f9f9;
+            --test-io-bg: #f0f0f0;
+            --console-bg: #f8f8f8;
+            --console-text: #333;
+            --header-bg: #e0e0e0;
+            --header-text: #333;
+        }
+        
+        body.dark-theme {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --panel-bg: #252526;
+            --panel-shadow: rgba(0,0,0,0.3);
+            --border-color: #444;
+            --tab-bg: #2d2d2d;
+            --tab-active-border: #0e639c;
+            --test-case-bg: #333;
+            --test-io-bg: #3a3a3a;
+            --console-bg: #1e1e1e;
+            --console-text: #e0e0e0;
+            --header-bg: #333;
+            --header-text: #e0e0e0;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .problem-panel {
+            width: 40%;
+            padding: 20px;
+            background-color: var(--panel-bg);
+            box-shadow: 2px 0 5px var(--panel-shadow);
+            overflow-y: auto;
+        }
+        
+        .editor-panel {
+            width: 60%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .editor-header {
+            padding: 10px 20px;
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .editor-container {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+        }
+        
+        #editor {
+            width: 100%;
+            height: 100%;
+            font-size: 14px;
+        }
+        
+        .console-container {
+            height: 40%;
+            background-color: var(--console-bg);
+            color: var(--console-text);
+            padding: 10px;
+            overflow-y: auto;
+            font-family: monospace;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        .btn:hover {
+            background-color: #45a049;
+        }
+        
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #0b7dda;
+        }
+        
+        .btn-submit {
+            background-color: #ff9800;
+        }
+        
+        .btn-submit:hover {
+            background-color: #e68a00;
+        }
+        
+        select, .theme-toggle {
+            padding: 8px;
+            border-radius: 4px;
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .test-case-container {
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        
+        .test-case {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: var(--test-case-bg);
+            border-radius: 4px;
+        }
+        
+        .test-input, .test-output {
+            font-family: monospace;
+            white-space: pre-wrap;
+            background-color: var(--test-io-bg);
+            padding: 8px;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .custom-test-area {
+            width: 100%;
+            padding: 10px;
+            font-family: monospace;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-top: 10px;
+            resize: vertical;
+            background-color: var(--test-io-bg);
+            color: var(--text-color);
+        }
+        
+        .passed {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .failed {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        h2 {
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        .tab-container {
+            display: flex;
+            background-color: var(--tab-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+        
+        .tab.active {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--tab-active-border);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 10px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .controls-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        .theme-icon {
+            margin-right: 5px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="container">
+        <div class="problem-panel">
+            <h2>Problem: Sum of Two Numbers</h2>
+            <p>Write a function that returns the sum of two integers.</p>
+            
+            <h3>Input Format</h3>
+            <p>The first line contains an integer <strong>a</strong>.<br>
+            The second line contains an integer <strong>b</strong>.</p>
+            
+            <h3>Output Format</h3>
+            <p>Return the sum of the two integers.</p>
+            
+            <h3>Constraints</h3>
+            <p>-1000 ≤ a, b ≤ 1000</p>
+            
+            <h3>Sample Input</h3>
+            <div class="test-input">3
+5</div>
+            
+            <h3>Sample Output</h3>
+            <div class="test-output">8</div>
+            
+            <div class="test-case-container">
+                <h3>Test Cases</h3>
+                <div class="test-case">
+                    <h4>Test Case 1</h4>
+                    <p><strong>Input:</strong></p>
+                    <div class="test-input">3
+5</div>
+                    <p><strong>Expected Output:</strong></p>
+                    <div class="test-output">8</div>
+                </div>
+                <div class="test-case">
+                    <h4>Test Case 2</h4>
+                    <p><strong>Input:</strong></p>
+                    <div class="test-input">-10
+10</div>
+                    <p><strong>Expected Output:</strong></p>
+                    <div class="test-output">0</div>
+                </div>
+                <div class="test-case">
+                    <h4>Test Case 3</h4>
+                    <p><strong>Input:</strong></p>
+                    <div class="test-input">100
+-50</div>
+                    <p><strong>Expected Output:</strong></p>
+                    <div class="test-output">50</div>
+                </div>
+            </div>
+        </div>
+        <div class="editor-panel">
+            <div class="editor-header">
+                <div class="controls-group">
+                    <div class="theme-toggle" onclick="toggleTheme()">
+                        <span class="theme-icon">🌓</span>
+                        <span class="theme-text">Theme</span>
+                    </div>
+                    <label for="language">Language:</label>
+                    <select id="language" onchange="changeLanguage()">
+                        <option value="python" selected>Python</option>
+                        <option value="java">Java</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="csharp">C</option>
+                        <option value="csharp">C++</option>
+                        <option value="csharp">C#</option>
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-secondary" onclick="runCustomTest()">Run Custom Test</button>
+                    <button class="btn" onclick="runAllTests()">Run All Tests</button>
+                    <button class="btn btn-submit" onclick="submitSolution()">Submit</button>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div id="editor"></div>
+            </div>
+            <div class="tab-container">
+               
+                <div class="tab" onclick="openTab(event, 'custom-test')">Custom Test</div>
+                <div class="tab" onclick="openTab(event, 'results')">Test Results</div>
+            </div>
+   
+            <div id="custom-test" class="tab-content">
+                <h4>Custom Test Input:</h4>
+                <textarea class="custom-test-area" id="custom-input" rows="5" placeholder="Enter your test input here..."></textarea>
+                <h4>Custom Test Output:</h4>
+                <div class="console-container" id="custom-output">
+                    // Custom test output will appear here
+                </div>
+            </div>
+            <div id="results" class="tab-content">
+                <div class="console-container" id="test-results">
+                    // Test results will appear here
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+    <script>
+        // Default code templates
+        const templates = {
+            python: `def sum_two_numbers(a, b):
+    # Write your code here
+    return a + b
+
+# Read input
+a = int(input())
+b = int(input())
+
+# Call function and print result
+print(sum_two_numbers(a, b))
+`,
+            java: `import java.util.Scanner;
+
+public class Main {
+  
+    
+    public static void main(String[] args) {
+        //write your code here
+    }
+}
+`,
+            javascript: `function sumTwoNumbers(a, b) {
+    // Write your code here
+    return a + b;
+}
+
+// Read input
+const readline = require('readline');
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+let lines = [];
+rl.on('line', (line) => {
+    lines.push(line);
+    if (lines.length === 2) {
+        const a = parseInt(lines[0]);
+        const b = parseInt(lines[1]);
+        console.log(sumTwoNumbers(a, b));
+        rl.close();
+    }
+});
+`,
+            csharp: `using System;
+
+class Program {
+    static int SumTwoNumbers(int a, int b) {
+        // Write your code here
+        return a + b;
+    }
+    
+    static void Main() {
+        int a = int.Parse(Console.ReadLine());
+        int b = int.Parse(Console.ReadLine());
+        
+        int result = SumTwoNumbers(a, b);
+        Console.WriteLine(result);
+    }
+}
+`
+        };
+
+        // Test cases --very very important
+        const testCases = [
+            { input: "1\n5", expectedOutput: "6" },
+            { input: "-10\n10", expectedOutput: "0" },
+            { input: "100\n-50", expectedOutput: "50" }
+        ];
+
+        let editor;
+        let currentTheme = 'light-theme';
+        let monaco;
+
+        // Initialize Monaco editor
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            monaco = window.monaco;
+            
+            editor = monaco.editor.create(document.getElementById('editor'), {
+                value: templates.python,
+                language: 'python',
+                theme: 'vs',
+                automaticLayout: true,
+                minimap: { enabled: true },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+                tabSize: 4,
+                insertSpaces: true,
+                fontFamily: 'Consolas, "Courier New", monospace',
+                scrollbar: {
+                    useShadows: false,
+                    verticalHasArrows: true,
+                    horizontalHasArrows: true,
+                    vertical: 'visible',
+                    horizontal: 'visible',
+                    verticalScrollbarSize: 12,
+                    horizontalScrollbarSize: 12
+                }
+            });
+        });
+
+        // Toggle between light and dark theme
+        function toggleTheme() {
+            const body = document.body;
+            
+            if (currentTheme === 'light-theme') {
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                currentTheme = 'dark-theme';
+                if (monaco) {
+                    monaco.editor.setTheme('vs-dark');
+                }
+                document.querySelector('.theme-text').textContent = 'Light Mode';
+                document.querySelector('.theme-icon').textContent = '☀️';
+            } else {
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+                currentTheme = 'light-theme';
+                if (monaco) {
+                    monaco.editor.setTheme('vs');
+                }
+                document.querySelector('.theme-text').textContent = 'Dark Mode';
+                document.querySelector('.theme-icon').textContent = '🌙';
+            }
+        }
+
+        // Change language
+        function changeLanguage() {
+            const language = document.getElementById("language").value;
+            monaco.editor.setModelLanguage(editor.getModel(), language);
+            editor.setValue(templates[language]);
+        }
+
+        // Function to simulate Judge0 API call (since we're running locally)
+        async function executeCode(code, language, input) {
+            // Judge0 language IDs
+            const languageIds = {
+                'python': 71,    // Python 3
+                'java': 62,      // Java
+                'javascript': 63, // Node.js
+                'csharp': 51,
+                "c" : 104,
+                "c++" : 76   
+            };
+            
+            try {
+                const response = await fetch('http://172.16.6.47:2358/submissions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        source_code: code,
+                        language_id: languageIds[language],
+                        stdin: input
+                    })
+                });
+                
+                if (!response.ok) {
+                    // For demo purposes, simulate execution
+                    console.log("Judge0 API not available, simulating execution...");
+                    return simulateExecution(code, language, input);
+                }
+                
+                const submission = await response.json();
+                
+                // Poll for result
+                let result;
+                do {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    const statusResponse = await fetch(`http://172.16.6.47:2358/submissions/${submission.token}`);
+                    result = await statusResponse.json();
+                } while (result.status.id <= 2); // 1: In Queue, 2: Processing
+                
+                if (result.status.id === 3) { // Completed
+                    return { status: 'success', output: result.stdout || '' };
+                } else {
+                    return { 
+                        status: 'error', 
+                        output: result.stderr || result.compile_output || 'Execution error'
+                    };
+                }
+            } catch (error) {
+                console.log("Error connecting to Judge0 API, simulating execution...", error);
+                return simulateExecution(code, language, input);
+            }
+        }
+        
+        // Function to simulate code execution for demo purposes
+        function simulateExecution(code, language, input) {
+            // Simple simulation for demo - sum numbers for any valid input
+            const inputLines = input.trim().split('\n');
+            if (inputLines.length >= 2) {
+                const a = parseInt(inputLines[0]);
+                const b = parseInt(inputLines[1]);
+                if (!isNaN(a) && !isNaN(b)) {
+                    return { status: 'success', output: (a + b).toString() };
+                }
+            }
+            return { status: 'error', output: "Invalid input format" };
+        }
+
+        // Run code with custom input
+        async function runCustomTest() {
+            const code = editor.getValue();
+            const language = document.getElementById("language").value;
+            const input = document.getElementById("custom-input").value;
+            
+            document.getElementById("custom-output").innerText = "Running...";
+            
+            try {
+                const result = await executeCode(code, language, input);
+                document.getElementById("custom-output").innerText = result.output;
+                openTab(null, 'custom-test');
+            } catch (error) {
+                document.getElementById("custom-output").innerText = "Error: " + error.message;
+            }
+        }
+
+        // Run all test cases
+        async function runAllTests() {
+            const code = editor.getValue();
+            const language = document.getElementById("language").value;
+            
+            document.getElementById("test-results").innerText = "Running tests...";
+            
+            let allPassed = true;
+            let results = "";
+            
+            for (let i = 0; i < testCases.length; i++) {
+                try {
+                    results += `Running Test Case ${i+1}:\n`;
+                    const result = await executeCode(code, language, testCases[i].input);
+                    
+                    if (result.output.trim() === testCases[i].expectedOutput.trim()) {
+                        results += `✅ Test Case ${i+1} Passed\n\n`;
+                    } else {
+                        allPassed = false;
+                        results += `❌ Test Case ${i+1} Failed\n`;
+                        results += `Expected: ${testCases[i].expectedOutput}\n`;
+                        results += `Got: ${result.output}\n\n`;
+                    }
+                } catch (error) {
+                    allPassed = false;
+                    results += `❌ Test Case ${i+1} Error: ${error.message}\n\n`;
+                }
+            }
+            
+            if (allPassed) {
+                results += "🎉 All test cases passed!";
+            } else {
+                results += "❌ Some test cases failed. Please review your code.";
+            }
+            
+            document.getElementById("test-results").innerText = results;
+            openTab(null, 'results');
+        }
+
+        // Submit solution
+        async function submitSolution() {
+            const code = editor.getValue();
+            const language = document.getElementById("language").value;
+            
+            document.getElementById("console-output").innerText = "Submitting solution...";
+            
+            try {
+                let allPassed = true;
+                let results = "Evaluating submission...\n\n";
+                
+                for (let i = 0; i < testCases.length; i++) {
+                    const result = await executeCode(code, language, testCases[i].input);
+                    
+                    if (result.output.trim() !== testCases[i].expectedOutput.trim()) {
+                        allPassed = false;
+                        break;
+                    }
+                }
+                
+                if (allPassed) {
+                    results += "🎉 Congratulations! Your solution passed all test cases.";
+                } else {
+                    results += "❌ Your solution failed one or more test cases. Please try again.";
+                }
+                
+                document.getElementById("console-output").innerText = results;
+                openTab(null, 'console');
+            } catch (error) {
+                document.getElementById("console-output").innerText = "Error: " + error.message;
+            }
+        }
+
+        // Tab functionality
+        function openTab(evt, tabName) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            
+            if (evt) {
+                evt.currentTarget.classList.add("active");
+            } else {
+                // Find the tab corresponding to the tabName and make it active
+                for (let i = 0; i < tabs.length; i++) {
+                    if (tabs[i].textContent.toLowerCase().includes(tabName.replace('-', ' '))) {
+                        tabs[i].classList.add("active");
+                        break;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
