@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color:#111827;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            background-color: #304878;
+            padding: 15px 20px;
+            color: white
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 40px;
+        }
+        
+        .logo-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #34a853, #4285f4);
+            border-radius: 6px;
+        }
+        
+        .navbar-menu {
+            display: flex;
+            gap: 25px;
+            margin-right: auto;
+        }
+        
+        .navbar-item {
+            color: white;
+            opacity: 0.75;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .navbar-item.active {
+            opacity: 1;
+            font-weight: 500;
+        }
+        
+        .navbar-item.active::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #4285f4;
+        }
+        
+        .navbar-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+        
+        .user-avatar-nav {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #f4f4f4;
+            overflow: hidden;
+        }
+        
+        .user-avatar-nav img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Secondary Navigation */
+        .sub-nav {
+            display: flex;
+            padding: 10px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background-color: white;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary {
+            background-color: #e7eaf4;
+            color: #333;
+        }
+        
+        .btn-primary {
+            background-color: #304878;
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .main-content {
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background-color: #1F2937;
+            padding: 20px 0;
+            border-right: 1px solid #f0f0f0;
+        }
+        
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            color: white;
+            gap: 10px;
+        }
+        
+        .sidebar-item.active {
+            background-color: #304878;
+            color: white;
+        }
+        
+        .sidebar-item:hover:not(.active) {
+            background-color: #2D3748;
+        }
+        
+        .sidebar-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            font-size: 16px;
+        }
+        
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .check-icon {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+        
+        .user-role {
+            font-weight: 500;
+        }
+        
+        .wide-card {
+            grid-column: 1 / -1;
+        }
+        
+        .security-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .security-list th, .security-list td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .security-list th {
+            color: #999;
+            font-weight: normal;
+            font-size: 14px;
+        }
+        
+        .security-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .badge-green {
+            background-color: #4CAF50;
+        }
+        
+        .badge-blue {
+            background-color: #2196F3;
+        }
+        
+        .badge-red {
+            background-color: #F44336;
+        }
+        
+        .badge-teal {
+            background-color: #009688;
+        }
+        
+        .user-icon {
+            background-color: #eee;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chart-area {
+            height: 120px;
+            background: linear-gradient(to right, #4CAF50, #2196F3, #F44336);
+            opacity: 0.3;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .legend-text {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-bars {
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .panel-footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        /* Dropdown menu for profile */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Notifications icon */
+        .notification-icon {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #F44336;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Navigation Bar -->
+        <div class="navbar">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                Dashboard
+            </div>
+            <div class="navbar-menu">
+                <div class="navbar-item">Home</div>
+                <div class="navbar-item">Dashboard</div>
+                <div class="navbar-item active">Instructor</div>
+                <div class="navbar-item">Admin</div>
+                <div class="navbar-item">Reports</div>
+                <div class="navbar-item">Settings</div>
+            </div>
+            <div class="notification-icon">
+                <span style="font-size: 18px;">🔔</span>
+                <div class="notification-badge">3</div>
+            </div>
+            <div class="navbar-user dropdown">
+                <div class="user-avatar-nav">
+                    <img src="/api/placeholder/40/40" alt="Profile">
+                </div>
+                <span>Admin</span>
+                <div class="dropdown-content">
+                    <a href="#">Profile</a>
+                    <a href="#">Account Settings</a>
+                    <a href="#">Preferences</a>
+                    <a href="#">Sign Out</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Secondary Navigation (Action buttons) -->
+        <div class="sub-nav">
+            <button class="btn btn-secondary">Survey</button>
+            <button class="btn btn-secondary">Scan</button>
+            <button class="btn btn-primary">Export</button>
+            <button class="btn btn-outline">Import</button>
+        </div>
+        
+        <div class="main-content">
+            <!-- Left Sidebar (now secondary navigation) -->
+            <div class="sidebar">
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">👤</div>
+                    <div>Profile</div>
+                </div>
+                <div class="sidebar-item active">
+                    <div class="sidebar-icon">📊</div>
+                    <div>Users</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">📝</div>
+                    <div>Exams</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">📄</div>
+                    <div>Reports</div>
+                </div>
+                <div class="sidebar-item">
+                    <div class="sidebar-icon">⚙️</div>
+                    <div>Settings</div>
+                </div>
+            </div>
+            
+            <!-- Main Content Area -->
+            <div class="content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">User Management</div>
+                        <button class="close-btn">×</button>
+                    </div>
+                    <div class="user-list">
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="/api/placeholder/40/40" alt="Student">
+                                <div class="check-icon">✓</div>
+                            </div>
+                            <div class="user-role">Student</div>
+                        </div>
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="/api/placeholder/40/40" alt="Instructor">
+                                <div class="check-icon">✓</div>
+                            </div>
+                            <div class="user-role">Instructor</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">User Groups</div>
+                        <button class="close-btn">×</button>
+                    </div>
+                    <div class="user-list">
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="/api/placeholder/40/40" alt="Instructor">
+                            </div>
+                            <div class="user-role">Instructor</div>
+                        </div>
+                        <div class="user-item">
+                            <div class="user-avatar">
+                                <img src="/api/placeholder/40/40" alt="Admin">
+                            </div>
+                            <div class="user-role">Admin</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Statistics</div>
+                        <button class="close-btn">×</button>
+                    </div>
+                    <div class="chart-area"></div>
+                    <div class="legend-text">Avg</div>
+                    <div class="stat-bars"></div>
+                    <div class="stat-bars"></div>
+                </div>
+                
+                <div class="card wide-card">
+                    <div class="card-header">
+                        <div class="card-title">Security Overview</div>
+                    </div>
+                    <div class="legend-text">☑️ System Security Monitoring</div>
+                    <table class="security-list">
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>User</th>
+                            <th>Action</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-icon">👤</div>
+                            </td>
+                            <td>Ongoing</td>
+                            <td></td>
+                            <td><span class="security-badge badge-green">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-icon">👤</div>
+                            </td>
+                            <td>Secured</td>
+                            <td></td>
+                            <td><span class="security-badge badge-green">Done</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-icon">👤</div>
+                            </td>
+                            <td>Approved</td>
+                            <td></td>
+                            <td><span class="security-badge badge-green">Pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-icon">👤</div>
+                            </td>
+                            <td>Completed</td>
+                            <td></td>
+                            <td><span class="security-badge badge-red">Done</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-icon">👤</div>
+                            </td>
+                            <td>Requiring</td>
+                            <td></td>
+                            <td><span class="security-badge badge-red">Editing</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="user-icon">👤</div>
+                            </td>
+                            <td>Completed</td>
+                            <td></td>
+                            <td><span class="security-badge badge-teal">Perfect</span></td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Reports</div>
+                        <button class="close-btn">×</button>
+                    </div>
+                    <div class="legend-text">Selected</div>
+                    <div class="stat-bars"></div>
+                    <div class="stat-bars"></div>
+                    <div class="stat-bars"></div>
+                    <div class="stat-bars"></div>
+                    <div class="panel-footer">
+                        <button class="btn btn-small" style="background-color: #4CAF50; color: white;">
+                            View Full Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add JavaScript interactions
+        document.querySelectorAll('.navbar-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.navbar-item').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.close-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const card = e.target.closest('.card');
+                card.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
