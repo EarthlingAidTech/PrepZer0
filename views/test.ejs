@@ -800,7 +800,7 @@
                         <!-- Coding Questions -->
                         <% exam.codingQuestions.forEach((question, index) => { %>
                             <div class="question-card" id="coding-question-<%= index %>">
-                                <div class="question-status">
+                                <!-- <div class="question-status">
                                     <div>
                                         <span class="question-type-badge coding-badge">Coding</span>
                                     </div>
@@ -813,9 +813,11 @@
                                 <div class="navigation-buttons">
                                     <button type="button" class="btn btn-outline-secondary prev-question-btn">Previous</button>
                                     <button type="button" class="btn btn-primary next-question-btn" <%= index === exam.codingQuestions.length - 1 ? 'disabled' : '' %>>Next</button>
-                                </div>
+                                </div> -->
+                                <%- include('partials/hack') %>
                             </div>
                         <% }); %>
+                        
 
                         <div class="submit-btn">
                             <button type="button" id="reviewBtn" class="btn btn-info btn-lg px-4 mr-2">Review Answers</button>
