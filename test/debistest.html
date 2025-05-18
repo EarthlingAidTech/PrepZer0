@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin Dashboard</title>
+    <title>Super Admin Dashboard - Dark Theme</title>
     <style>
         * {
+            color: #e2e8f0;
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -13,28 +14,28 @@
         }
         
         body {
-            background-color:#111827;
+            background-color: #0f172a;
+        }
+        
+        /* Full width navbar */
+        .navbar {
+            display: flex;
+            align-items: center;
+            background-color: #1e293b;
+            padding: 15px 20px;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            width: 100%;
         }
         
         .dashboard-container {
             max-width: 1200px;
-            margin: 20px auto;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-        }
-        
-        /* Navigation Bar */
-        .navbar {
-            display: flex;
-            align-items: center;
-            background-color: #304878;
-            padding: 15px 20px;
-            color: white
+            margin: 0 auto;
+            padding: 20px;
         }
         
         .logo {
+            color: #e2e8f0;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -57,7 +58,7 @@
         }
         
         .navbar-item {
-            color: white;
+            color: #e2e8f0;
             opacity: 0.75;
             cursor: pointer;
             position: relative;
@@ -95,7 +96,7 @@
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background-color: #f4f4f4;
+            background-color: #2d3748;
             overflow: hidden;
         }
         
@@ -109,8 +110,10 @@
         .sub-nav {
             display: flex;
             padding: 10px 20px;
-            border-bottom: 1px solid #f0f0f0;
-            background-color: white;
+            border-bottom: 1px solid #334155;
+            background-color: #1e293b;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         
         .btn {
@@ -124,30 +127,34 @@
         }
         
         .btn-secondary {
-            background-color: #e7eaf4;
-            color: #333;
+            background-color: #334155;
+            color: #e2e8f0;
         }
         
         .btn-primary {
             background-color: #304878;
-            color: white;
+            color: #e2e8f0;
         }
         
         .btn-outline {
-            background-color: white;
-            color: #333;
-            border: 1px solid #ddd;
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #475569;
         }
         
         .main-content {
             display: flex;
+            background-color: #1e293b;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
         
         .sidebar {
             width: 220px;
-            background-color: #1F2937;
+            background-color: #0f172a;
             padding: 20px 0;
-            border-right: 1px solid #f0f0f0;
+            border-right: 1px solid #334155;
         }
         
         .sidebar-item {
@@ -155,17 +162,17 @@
             align-items: center;
             padding: 12px 20px;
             cursor: pointer;
-            color: white;
+            color: #e2e8f0;
             gap: 10px;
         }
         
         .sidebar-item.active {
             background-color: #304878;
-            color: white;
+            color: #e2e8f0;
         }
         
         .sidebar-item:hover:not(.active) {
-            background-color: #2D3748;
+            background-color: #1e293b;
         }
         
         .sidebar-icon {
@@ -182,12 +189,13 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
+            background-color: #0f172a;
         }
         
         .card {
-            background-color: white;
+            background-color: #1e293b;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
             padding: 15px;
             margin-bottom: 20px;
         }
@@ -202,14 +210,14 @@
         .card-title {
             font-size: 16px;
             font-weight: 500;
-            color: #333;
+            color: #e2e8f0;
         }
         
         .close-btn {
             background: none;
             border: none;
             cursor: pointer;
-            color: #999;
+            color: #94a3b8;
             font-size: 16px;
         }
         
@@ -224,7 +232,7 @@
             align-items: center;
             padding: 10px;
             border-radius: 8px;
-            background-color: #f9f9f9;
+            background-color: #334155;
         }
         
         .user-avatar {
@@ -247,7 +255,7 @@
             top: -2px;
             left: -2px;
             background-color: #4CAF50;
-            color: white;
+            color: #e2e8f0;
             border-radius: 50%;
             width: 16px;
             height: 16px;
@@ -259,6 +267,7 @@
         
         .user-role {
             font-weight: 500;
+            color: #e2e8f0;
         }
         
         .wide-card {
@@ -273,11 +282,11 @@
         .security-list th, .security-list td {
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #334155;
         }
         
         .security-list th {
-            color: #999;
+            color: #94a3b8;
             font-weight: normal;
             font-size: 14px;
         }
@@ -287,7 +296,7 @@
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
-            color: white;
+            color: #e2e8f0;
         }
         
         .badge-green {
@@ -307,7 +316,7 @@
         }
         
         .user-icon {
-            background-color: #eee;
+            background-color: #334155;
             width: 30px;
             height: 30px;
             border-radius: 50%;
@@ -325,14 +334,14 @@
         }
         
         .legend-text {
-            color: #999;
+            color: #94a3b8;
             font-size: 14px;
             margin-bottom: 10px;
         }
         
         .stat-bars {
             height: 8px;
-            background-color: #eee;
+            background-color: #334155;
             border-radius: 4px;
             margin-bottom: 15px;
         }
@@ -357,16 +366,16 @@
             display: none;
             position: absolute;
             right: 0;
-            background-color: white;
+            background-color: #1e293b;
             min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
             z-index: 1;
             border-radius: 8px;
             overflow: hidden;
         }
         
         .dropdown-content a {
-            color: black;
+            color: #e2e8f0;
             padding: 12px 16px;
             text-decoration: none;
             display: block;
@@ -374,7 +383,7 @@
         }
         
         .dropdown-content a:hover {
-            background-color: #f1f1f1;
+            background-color: #334155;
         }
         
         .dropdown:hover .dropdown-content {
@@ -392,7 +401,7 @@
             top: -5px;
             right: -5px;
             background-color: #F44336;
-            color: white;
+            color: #e2e8f0;
             border-radius: 50%;
             width: 18px;
             height: 18px;
@@ -401,15 +410,29 @@
             align-items: center;
             justify-content: center;
         }
+        
+        /* Full-width navbar container */
+        .navbar-container {
+            width: 100%;
+            background-color: #1e293b;
+        }
+        
+        /* Center container for navbar content */
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Main Navigation Bar -->
-        <div class="navbar">
+    <!-- Full-width navbar container -->
+    <div class="navbar-container">
+        <div class="navbar-content">
             <div class="logo">
                 <div class="logo-icon"></div>
-                Dashboard
+                PrepZer0
             </div>
             <div class="navbar-menu">
                 <div class="navbar-item">Home</div>
@@ -436,7 +459,9 @@
                 </div>
             </div>
         </div>
-        
+    </div>
+    
+    <div class="dashboard-container">
         <!-- Secondary Navigation (Action buttons) -->
         <div class="sub-nav">
             <button class="btn btn-secondary">Survey</button>
@@ -601,7 +626,7 @@
                     <div class="stat-bars"></div>
                     <div class="stat-bars"></div>
                     <div class="panel-footer">
-                        <button class="btn btn-small" style="background-color: #4CAF50; color: white;">
+                        <button class="btn btn-small" style="background-color: #4CAF50; color: #e2e8f0;">
                             View Full Report
                         </button>
                     </div>
