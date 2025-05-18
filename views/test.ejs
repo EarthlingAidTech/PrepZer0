@@ -739,6 +739,8 @@
         <div id="examContent" style="display: none;">
             <form id="examForm" action="/dashboard/submit-test" method="POST">
                 <input type="hidden" name="examId" value="<%= exam._id %>">
+                <input type="hidden" name="userId" value="<%= user._id %>">
+
                 
                 <div class="row">
                
@@ -1139,7 +1141,7 @@ window.addEventListener('beforeunload', function(e) {
             },
             body: JSON.stringify({
                 examId: "<%= exam._id %>",
-                userId: "<%= user._id %>",
+                userId: document.querySelector('input[name="userId"]').value,
                 timestamp: new Date().toISOString(),
                 status: 'inactive' // Optional: indicate user is leaving
             }),
