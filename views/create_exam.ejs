@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE
+html >
+  <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,267 +10,586 @@
     <!-- Add Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
+        :root {
+            --primary-color: #1D4ED8;
+            --primary-hover: #1e40af;
+            --secondary-color: #64748b;
+            --background-color: #f0f4fa;
+            --card-background: #ffffff;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --input-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+        }
+        
         body {
-            background-color: #141D2F;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            padding: 20px 0;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
-        .container {
-            margin-top: 30px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
-            padding: 25px;
-            border: 3px solid #1D4ED8;
-            width: 48rem;
+        
+        .app-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-control {
-            width: 100%;
-            border-color: #b3d1ff;
-        }
-        .form-control:focus {
-            border-color: #4d94ff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-        .form-check-inline {
-            margin-right: 10px;
-        }
-        .form-check-input:checked {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-        h2 {
-            font-size: 1.5rem;
-            color: #0056b3;
-        }
-        label {
-            color: #0056b3;
-            font-weight: 500;
-        }
-        .btn-primary {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-        select.form-control {
-            background-color: #fff;
-        }
-        .student-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-        .student-card.selected {
-            border-color: #0d6efd;
-            background-color: #f0f7ff;
-        }
-        .student-card .btn-select {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-        .selected-candidates-container {
-            margin-top: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-        }
-        .candidate-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            margin: 3px;
-            background-color: #e7f3ff;
-            border: 1px solid #b3d7ff;
-            border-radius: 15px;
-            font-size: 0.85rem;
-        }
-        .candidate-badge .remove-btn {
-            margin-left: 5px;
-            color: #dc3545;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .alert {
+        
+        .page-header {
+            display: flex;
+            align-items: center;
             margin-bottom: 20px;
         }
-        /* Date picker styles */
+        
+        .back-button {
+            color: var(--secondary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            background-color: var(--card-background);
+            box-shadow: var(--input-shadow);
+            transition: all 0.2s ease;
+            margin-right: 15px;
+        }
+        
+        .back-button:hover {
+            background-color: #f8f9fa;
+            box-shadow: var(--box-shadow);
+            color: var(--primary-color);
+        }
+        
+        .form-card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: none;
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        .card-header {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 18px 25px;
+            font-size: 1.2rem;
+            border: none;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .form-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            box-shadow: var(--input-shadow);
+            transition: all 0.2s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+        }
+        
+        .form-check-input {
+            width: 1.1em;
+            height: 1.1em;
+            margin-top: 0.25em;
+        }
+        
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .form-check-label {
+            padding-left: 5px;
+            font-weight: 400;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
+        }
+        
+        .btn-secondary {
+            background-color: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #475569;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            color: #334155;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-secondary {
+            color: var(--secondary-color);
+            border-color: #cbd5e1;
+            background-color: white;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: #f1f5f9;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+        
+        .departments-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 5px;
+        }
+        
+        .section-divider {
+            width: 100%;
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 20px 0;
+            grid-column: 1 / -1;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
         .date-time-group {
             position: relative;
         }
+        
         .date-time-group .icon {
             position: absolute;
-            right: 10px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #0d6efd;
+            color: var(--primary-color);
             pointer-events: none;
         }
+        
+        .duration-quick-select {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        /* Selected candidates styling */
+        .selected-candidates-container {
+            background-color: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            margin-top: 15px;
+        }
+        
+        .candidate-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            margin: 4px;
+            background-color: #e0eaff;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            border: 1px solid #c7d7fe;
+        }
+        
+        .candidate-badge .remove-btn {
+            margin-left: 8px;
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+        
+        /* Modal styling */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 15px 20px;
+        }
+        
+        .modal-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e2e8f0;
+            padding: 15px 20px;
+        }
+        
+        .student-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            position: relative;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+        
+        .student-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .student-card.selected {
+            border-color: var(--primary-color);
+            background-color: #f0f7ff;
+        }
+        
+        .student-card h5 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+        
+        .student-card p {
+            margin-bottom: 5px;
+            color: #475569;
+        }
+        
+        .student-card .btn-select {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+        }
+        
+        #durationDisplay {
+            margin-top: 8px;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+        
         /* Flatpickr custom styles */
         .flatpickr-calendar {
-            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
-            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            border: none;
         }
+        
         .flatpickr-day.selected {
-            background: #0d6efd;
-            border-color: #0d6efd;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
         }
+        
+        .flatpickr-day:hover {
+            background: #e0eaff;
+        }
+        
         .flatpickr-time input:hover,
         .flatpickr-time .flatpickr-am-pm:hover,
         .flatpickr-time input:focus,
         .flatpickr-time .flatpickr-am-pm:focus {
-            background: #e9ecef;
+            background: #f8fafc;
         }
-        /* Quick duration buttons */
-        .duration-quick-select {
+        
+        /* Warning modal styles */
+        .warning-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .warning-modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .warning-modal-header {
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        .duration-quick-select button {
-            font-size: 0.75rem;
-            padding: 2px 8px;
+        
+        .warning-modal-header i {
+            color: #f59e0b;
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .warning-modal-header h4 {
+            margin: 0;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .warning-modal-body {
+            margin-bottom: 20px;
+            color: #475569;
+        }
+        
+        .warning-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .form-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .form-buttons button {
+                width: 100%;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .back-button {
+                margin-right: 0;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2 class="text-center mb-4">Create Exam</h2>
-        <form id="createExamForm" action="/admin/create_exam" method="POST">
-            <div class="form-group">
-                <label for="examName">Exam Name:</label>
-                <input type="text" id="examName" name="name" class="form-control form-control-sm" required>
+    <div class="app-container">
+        <div class="page-header">
+            <a href="/admin" class="back-button">
+                <i class="bi bi-arrow-left"></i> Back to Admin Dashboard
+            </a>
+            <h2 class="mb-0">Create New Exam</h2>
+        </div>
+        
+        <div class="card form-card">
+            <div class="card-header">
+                Exam Details
             </div>
+            <div class="card-body">
+                <form id="createExamForm" action="/admin/create_exam" method="POST">
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label for="examName" class="form-label">Exam Name</label>
+                            <input type="text" id="examName" name="name" class="form-control" placeholder="Enter exam name" required>
+                        </div>
 
-            <div class="form-group">
-                <label>Departments:</label><br>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="mc" class="form-check-input">
-                    <label class="form-check-label">MCA</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="is" class="form-check-input">
-                    <label class="form-check-label">ISE</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="cs" class="form-check-input">
-                    <label class="form-check-label">CSE</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="et" class="form-check-input">
-                    <label class="form-check-label">ETE</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="ec" class="form-check-input">
-                    <label class="form-check-label">ECE</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="ai" class="form-check-input">
-                    <label class="form-check-label">AI</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="checkbox" name="departments" value="cv" class="form-check-input">
-                    <label class="form-check-label">Civil</label>
-                </div>
-                <div class="mt-2">
-                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#selectCandidatesModal">
-                        <i class="bi bi-person-plus"></i> Select Additional Candidates
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Selected candidates display section -->
-            <div id="selectedCandidatesSection" class="selected-candidates-container" style="display: none;">
-                <label>Selected Additional Candidates:</label>
-                <div id="selectedCandidatesList" class="mt-2"></div>
-                <!-- Hidden input to store selected candidates USNs -->
-                <input type="hidden" id="selectedCandidatesInput" name="additionalCandidates">
-            </div>
+                        <div class="form-group">
+                            <label for="semester" class="form-label">Semester</label>
+                            <select id="semester" name="semester" class="form-select" required>
+                                <option value="" disabled selected>Select semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </div>
 
-            <div class="form-group">
-                <label for="semester">Semester:</label>
-                <select id="semester" name="semester" class="form-control form-control-sm" required>
-                    <option value="" disabled selected>Select semester</option>
-                    <option value="1">Semester 1</option>
-                    <option value="2">Semester 2</option>
-                    <option value="3">Semester 3</option>
-                    <option value="4">Semester 4</option>
-                    <option value="5">Semester 5</option>
-                    <option value="6">Semester 6</option>
-                    <option value="7">Semester 7</option>
-                    <option value="8">Semester 8</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="questionType">Question Type:</label>
-                <select id="questionType" name="questionType" class="form-control form-control-sm" onchange="toggleQuestionFields()" required>
-                    <option value="mcq">MCQ</option>
-                    <option value="coding">Coding</option>
-                    <option value="mcq&coding">MCQ + Coding</option>
-                </select>
-            </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Departments</label>
+                            <div class="departments-container">
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-mca" name="departments" value="mc" class="form-check-input">
+                                    <label class="form-check-label" for="dept-mca">MCA</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ise" name="departments" value="is" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ise">ISE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-cse" name="departments" value="cs" class="form-check-input">
+                                    <label class="form-check-label" for="dept-cse">CSE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ete" name="departments" value="et" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ete">ETE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ece" name="departments" value="ec" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ece">ECE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ai" name="departments" value="ai" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ai">AI</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-civil" name="departments" value="cv" class="form-check-input">
+                                    <label class="form-check-label" for="dept-civil">Civil</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#selectCandidatesModal">
+                                    <i class="bi bi-person-plus"></i> Select Additional Candidates
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Selected candidates display section -->
+                        <div id="selectedCandidatesSection" class="selected-candidates-container full-width" style="display: none;">
+                            <label class="form-label">Selected Additional Candidates</label>
+                            <div id="selectedCandidatesList" class="mt-2"></div>
+                            <!-- Hidden input to store selected candidates USNs -->
+                            <input type="hidden" id="selectedCandidatesInput" name="additionalCandidates">
+                        </div>
 
-            <div id="mcqFields" class="form-group" style="display: none;">
-                <label for="numMCQs">Number of MCQ Questions:</label>
-                <input type="number" id="numMCQs" name="numMCQs" class="form-control form-control-sm">
-            </div>
+                        <div class="section-divider"></div>
 
-            <div id="codingFields" class="form-group" style="display: none;">
-                <label for="numCoding">Number of Coding Questions:</label>
-                <input type="number" id="numCoding" name="numCoding" class="form-control form-control-sm">
-            </div>
+                        <div class="form-group">
+                            <label for="questionType" class="form-label">Question Type</label>
+                            <select id="questionType" name="questionType" class="form-select" onchange="toggleQuestionFields()" required>
+                                <option value="mcq">MCQ</option>
+                                <option value="coding">Coding</option>
+                                <option value="mcq&coding">MCQ + Coding</option>
+                            </select>
+                        </div>
 
-            <div id="totalQuestionFields" class="form-group" style="display: none;">
-                <label for="numTotalQuestions">Total Questions:</label>
-                <input type="number" id="numTotalQuestions" name="numTotalQuestions" class="form-control form-control-sm">
-            </div>
+                        <div class="form-group">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" id="duration" name="Duration" class="form-control" placeholder="Enter duration">
+                            <!-- Quick duration buttons -->
+                            <div class="duration-quick-select">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(30)">30m</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(60)">1h</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(90)">1.5h</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(120)">2h</button>
+                            </div>
+                        </div>
 
-            <div class="form-group">
-                <label for="duration">Duration (minutes):</label>
-                <input type="number" id="duration" name="Duration" class="form-control form-control-sm">
-                <!-- Quick duration buttons -->
-                <div class="duration-quick-select">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(30)">30 min</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(60)">1 hour</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(90)">1.5 hours</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(120)">2 hours</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(180)">3 hours</button>
-                </div>
-            </div>
+                        <div id="mcqFields" class="form-group" style="display: none;">
+                            <label for="numMCQs" class="form-label">Number of MCQ Questions</label>
+                            <input type="number" id="numMCQs" name="numMCQs" class="form-control" onchange="updateTotalQuestions()" placeholder="Enter MCQ count">
+                        </div>
 
-            <!-- Improved date-time picker fields -->
-            <div class="form-group">
-                <label for="scheduledAt">Exam Start Time:</label>
-                <div class="date-time-group">
-                    <input type="text" id="scheduledAt" name="scheduledAt" class="form-control form-control-sm" placeholder="Select date and time" readonly>
-                    <span class="icon"><i class="bi bi-calendar-event"></i></span>
-                </div>
-            </div>
+                        <div id="codingFields" class="form-group" style="display: none;">
+                            <label for="numCoding" class="form-label">Number of Coding Questions</label>
+                            <input type="number" id="numCoding" name="numCoding" class="form-control" onchange="updateTotalQuestions()" placeholder="Enter coding count">
+                        </div>
 
-            <div class="form-group">
-                <label for="scheduleTill">Exam End Time:</label>
-                <div class="date-time-group">
-                    <input type="text" id="scheduleTill" name="scheduleTill" class="form-control form-control-sm" placeholder="Select date and time" readonly>
-                    <span class="icon"><i class="bi bi-calendar-event"></i></span>
-                </div>
-                <div class="text-muted small mt-1" id="durationDisplay"></div>
-            </div>
+                        <div id="totalQuestionFields" class="form-group" style="display: none;">
+                            <label for="numTotalQuestions" class="form-label">Total Questions</label>
+                            <input type="number" id="numTotalQuestions" name="numTotalQuestions" class="form-control" readonly>
+                        </div>
 
-            <div class="text-center mt-4">
-                <button type="button" class="btn btn-outline-primary btn-sm" id="calculateEndTime">Calculate End Time From Duration</button>
-            </div>
+                        <div class="section-divider"></div>
 
-            <div class="text-center mt-4">
-                <button type="submit" name="draft" value="draft" class="btn btn-secondary btn-sm ms-2">Save to Draft</button>
-                <button type="submit" name="action" value="create" class="btn btn-primary btn-sm">Create Exam</button>
+                        <div class="form-group">
+                            <label for="scheduledAt" class="form-label">Exam Start Time</label>
+                            <div class="date-time-group">
+                                <input type="text" id="scheduledAt" name="scheduledAt" class="form-control" placeholder="Select date and time" readonly>
+                                <span class="icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scheduleTill" class="form-label">Exam End Time</label>
+                            <div class="date-time-group">
+                                <input type="text" id="scheduleTill" name="scheduleTill" class="form-control" placeholder="Select date and time" readonly>
+                                <span class="icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                            <div id="durationDisplay"></div>
+                        </div>
+
+                        <div class="text-center mt-3 full-width">
+                            <button type="button" class="btn btn-outline-primary" id="calculateEndTime">
+                                <i class="bi bi-calculator"></i> Calculate End Time From Duration
+                            </button>
+                        </div>
+
+                        <div class="form-buttons full-width">
+                            <button type="submit" name="draft" value="draft" class="btn btn-secondary">
+                                <i class="bi bi-save"></i> Save to Draft
+                            </button>
+                            <button type="submit" name="action" value="create" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Create Exam
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 
     <!-- Select Candidates Modal -->
@@ -283,7 +603,9 @@
                 <div class="modal-body">
                     <div class="input-group mb-3">
                         <input type="text" id="usnInput" class="form-control" placeholder="Enter student USN">
-                        <button class="btn btn-primary" type="button" id="searchUsnBtn">Search</button>
+                        <button class="btn btn-primary" type="button" id="searchUsnBtn">
+                            <i class="bi bi-search"></i> Search
+                        </button>
                     </div>
                     
                     <div id="studentSearchResults" class="mt-3">
@@ -294,6 +616,22 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary" id="saveSelectedCandidates">Save Selected</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Date Warning Modal -->
+    <div class="warning-modal" id="pastDateWarningModal">
+        <div class="warning-modal-content">
+            <div class="warning-modal-header">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <h4>Invalid Date Selection</h4>
+            </div>
+            <div class="warning-modal-body">
+                <p>You cannot schedule an exam in the past. Please select a future date and time.</p>
+            </div>
+            <div class="warning-modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closePastDateWarning()">OK</button>
             </div>
         </div>
     </div>
@@ -311,11 +649,49 @@
             document.getElementById("mcqFields").style.display = type === "mcq" || type === "mcq&coding" ? "block" : "none";
             document.getElementById("codingFields").style.display = type === "coding" || type === "mcq&coding" ? "block" : "none";
             document.getElementById("totalQuestionFields").style.display = type === "mcq&coding" ? "block" : "none";
+            
+            // Auto-update total questions when toggle happens
+            updateTotalQuestions();
+        }
+        
+        // Function to show past date warning modal
+        function showPastDateWarning() {
+            document.getElementById('pastDateWarningModal').style.display = 'flex';
+        }
+        
+        // Function to close past date warning modal
+        function closePastDateWarning() {
+            document.getElementById('pastDateWarningModal').style.display = 'none';
+        }
+        
+        // New function to automatically update total questions
+        function updateTotalQuestions() {
+            const type = document.getElementById("questionType").value;
+            if (type === "mcq&coding") {
+                const mcqCount = parseInt(document.getElementById("numMCQs").value) || 0;
+                const codingCount = parseInt(document.getElementById("numCoding").value) || 0;
+                document.getElementById("numTotalQuestions").value = mcqCount + codingCount;
+            }
         }
         
         // Function to set duration quickly
         function setDuration(minutes) {
             document.getElementById('duration').value = minutes;
+        }
+        
+        // Function to check if a date is in the past
+        function isDateInPast(date) {
+            const now = new Date();
+            // Add a small buffer (5 seconds) to prevent false positives during input
+            now.setSeconds(now.getSeconds() - 5);
+            return date < now;
+        }
+        
+        // Function to get a default future date (current time + 1 hour)
+        function getDefaultFutureDate() {
+            const defaultTime = new Date();
+            defaultTime.setHours(defaultTime.getHours() + 1);
+            return defaultTime;
         }
         
         document.addEventListener('DOMContentLoaded', function() {
@@ -334,7 +710,18 @@
             startDatePicker = flatpickr("#scheduledAt", {
                 ...commonConfig,
                 minDate: "today",
-                onChange: function(selectedDates, dateStr) {
+                onClose: function(selectedDates, dateStr) {
+                    // Check if selected date is in the past
+                    if (isDateInPast(selectedDates[0])) {
+                        showPastDateWarning();
+                        
+                        // Reset to a reasonable future time
+                        setTimeout(() => {
+                            startDatePicker.setDate(getDefaultFutureDate());
+                        }, 100);
+                        return;
+                    }
+                    
                     // Update the minimum date of the end date picker
                     endDatePicker.set('minDate', dateStr);
                     
@@ -344,6 +731,10 @@
                     }
                     
                     updateDurationDisplay();
+                },
+                onChange: function() {
+                    // Just update the display without validation
+                    updateDurationDisplay();
                 }
             });
             
@@ -351,7 +742,22 @@
             endDatePicker = flatpickr("#scheduleTill", {
                 ...commonConfig,
                 minDate: "today",
+                onClose: function(selectedDates) {
+                    // Check if selected date is in the past
+                    if (isDateInPast(selectedDates[0])) {
+                        showPastDateWarning();
+                        
+                        // Reset to a reasonable future time
+                        setTimeout(() => {
+                            endDatePicker.setDate(getDefaultFutureDate());
+                        }, 100);
+                        return;
+                    }
+                    
+                    updateDurationDisplay();
+                },
                 onChange: function() {
+                    // Just update the display without validation
                     updateDurationDisplay();
                 }
             });
@@ -405,6 +811,10 @@
                     return false;
                 }
             });
+            
+            // Add event listeners for MCQ and Coding inputs to update total
+            document.getElementById('numMCQs').addEventListener('input', updateTotalQuestions);
+            document.getElementById('numCoding').addEventListener('input', updateTotalQuestions);
         });
         
         // Function to update the duration display
@@ -451,6 +861,7 @@
             const endDate = endDatePicker.selectedDates[0];
             const duration = document.getElementById('duration').value;
             const examName = document.getElementById('examName').value;
+            const now = new Date();
             
             if (!examName.trim()) {
                 alert('Please enter an exam name');
@@ -459,6 +870,11 @@
             
             if (!startDate) {
                 alert('Please select a start time for the exam');
+                return false;
+            }
+            
+            if (isDateInPast(startDate)) {
+                showPastDateWarning();
                 return false;
             }
             
