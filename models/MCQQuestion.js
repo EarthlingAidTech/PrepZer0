@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const MCQSchema = new mongoose.Schema({
     examId: { type: mongoose.Schema.Types.ObjectId, ref: "Exam", required: true }, // Links to Exam
+    questionId: { type: mongoose.Schema.Types.ObjectId, ref: "MCQQuestion", index: true },
     classification: { type: String,  trim: true,
         enum: [
             'Data Structures',
@@ -13,7 +14,8 @@ const MCQSchema = new mongoose.Schema({
             'Software Engineering',
             'Mathematics',
             'Artificial Intelligence',
-            'Machine Learning'
+            'Machine Learning',
+            'other'
           ]
       },
     question: { type: String, required: true },

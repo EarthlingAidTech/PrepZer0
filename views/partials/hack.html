@@ -1,0 +1,1202 @@
+<div class="coding-exam-container">
+  <!-- Sidebar with question navigation -->
+  <div class="question-sidebar">
+    <div class="sidebar-header">
+      <h3>Questions</h3>
+    </div>
+    <div class="question-nav">
+      <% exam.codingQuestions.forEach((question, index) => { %>
+        <div class="nav-item <%= currentQuestion === index ? 'active' : '' %>" 
+             onclick="switchQuestion(<%= index %>)" 
+             id="nav-item-<%= index %>">
+          <span class="question-number"><%= index + 1 %></span>
+          <span class="question-difficulty <%= question.level %>">
+            <%= question.level.charAt(0).toUpperCase() + question.level.slice(1) %>
+          </span>
+          <span class="question-title"><%= question.questionTile %></span>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+
+  <!-- Main content area with coding questions -->
+  <div class="coding-content">
+    <% exam.codingQuestions.forEach((question, index) => { %>
+      <div class="question-card <%= currentQuestion === index ? 'active' : '' %>" id="coding-question-<%= index %>">
+        <div id="assessment-<%= index %>" class="coding-assessment">
+          <!-- Content will be loaded via JavaScript -->
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+<!-- Add styles for the layout -->
+<style>
+  /* Main layout styles */
+  .coding-exam-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Sidebar styles */
+  .question-sidebar {
+    width: 300px;
+    background-color: #f1f3f5;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .sidebar-header {
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #e9ecef;
+  }
+  
+  .sidebar-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  
+  .question-nav {
+    overflow-y: auto;
+    flex-grow: 1;
+  }
+  
+  .nav-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-item:hover {
+    background-color: #e9ecef;
+  }
+  
+  .nav-item.active {
+    background-color: #e2f0ff;
+    border-left: 4px solid #0d6efd;
+  }
+  
+  .question-number {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 50%;
+    margin-right: 10px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+  
+  .question-difficulty {
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .question-difficulty.easy {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .question-difficulty.medium {
+    background-color: #fff3cd;
+    color: #856404;
+  }
+  
+  .question-difficulty.hard {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .question-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+  }
+  
+  /* Content area styles */
+  .coding-content {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .question-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+  }
+  
+  .question-card.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 992px) {
+    .coding-exam-container {
+      flex-direction: column;
+    }
+    
+    .question-sidebar {
+      width: 100%;
+      height: auto;
+      max-height: 200px;
+      border-right: none;
+      border-bottom: 1px solid #dee2e6;
+    }
+    
+    .coding-content {
+      height: calc(100vh - 200px);
+    }
+  }
+</style>
+
+<!-- Add the modified component styles -->
+<style>
+/* Component Styles */
+.coding-assessment {
+    --transition-speed: 0.3s;
+    --border-radius: 8px;
+    --bg-color: #f8f9fa;
+    --text-color: #212529;
+    --panel-bg: #ffffff;
+    --panel-shadow: rgba(0,0,0,0.08);
+    --border-color: #dee2e6;
+    --tab-bg: #f1f3f5;
+    --tab-active-border: #4CAF50;
+    --test-case-bg: #f8f9fa;
+    --test-io-bg: #f1f3f5;
+    --console-bg: #f8f9fa;
+    --console-text: #333;
+    --header-bg: #e9ecef;
+    --header-text: #212529;
+    --button-primary: #4CAF50;
+    --button-primary-hover: #45a049;
+    --button-secondary: #0d6efd;
+    --button-secondary-hover: #0b5ed7;
+    --button-submit: #fd7e14;
+    --button-submit-hover: #e67510;
+    --test-case-border: #eaecef;
+    --problem-header-bg: #f1f8e9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 2px 10px var(--panel-shadow);
+    height: 100%; /* Full height of parent */
+}
+
+/* Dark theme styles */
+.coding-assessment.dark-theme {
+    --bg-color: #212529;
+    --text-color: #f8f9fa;
+    --panel-bg: #2b3035;
+    --panel-shadow: rgba(0,0,0,0.3);
+    --border-color: #495057;
+    --tab-bg: #343a40;
+    --tab-active-border: #6eac56;
+    --test-case-bg: #343a40;
+    --test-io-bg: #495057;
+    --console-bg: #212529;
+    --console-text: #e9ecef;
+    --header-bg: #343a40;
+    --header-text: #f8f9fa;
+    --button-primary: #4CAF50;
+    --button-primary-hover: #3d8b40;
+    --button-secondary: #0d6efd;
+    --button-secondary-hover: #0a58ca;
+    --button-submit: #fd7e14;
+    --button-submit-hover: #e67510;
+    --test-case-border: #495057;
+    --problem-header-bg: #2c3c2e;
+}
+
+.coding-assessment * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.coding-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: 100%; /* Full height of parent */
+}
+
+.problem-panel {
+    width: 40%;
+    background-color: var(--panel-bg);
+    box-shadow: 2px 0 10px var(--panel-shadow);
+    transition: background-color var(--transition-speed);
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Full height */
+    overflow: hidden; /* Hide overflow */
+}
+
+.problem-header {
+    background-color: var(--problem-header-bg);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-speed);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.problem-content {
+    padding: 20px;
+    overflow-y: auto; /* Make this section scrollable */
+    flex-grow: 1; /* Take remaining space */
+}
+
+.editor-panel {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%; /* Full height */
+}
+
+.editor-header {
+    padding: 12px 20px;
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.editor-container {
+    flex-grow: 1; /* Take remaining space */
+    position: relative;
+    overflow: hidden;
+    min-height: 300px; /* Ensure minimum height */
+}
+
+.ca-editor {
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+}
+
+.tab-controls-container {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0; /* Prevent this area from shrinking */
+    max-height: 300px; /* Set maximum height */
+    overflow: hidden; /* Hide overflow */
+}
+
+.ca-btn {
+    padding: 8px 16px;
+    background-color: var(--button-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    margin-left: 10px;
+    font-weight: 500;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.ca-btn:hover {
+    background-color: var(--button-primary-hover);
+    transform: translateY(-1px);
+}
+
+.ca-btn:active {
+    transform: translateY(0);
+}
+
+.ca-btn-secondary {
+    background-color: var(--button-secondary);
+}
+
+.ca-btn-secondary:hover {
+    background-color: var(--button-secondary-hover);
+}
+
+.ca-btn-submit {
+    background-color: var(--button-submit);
+}
+
+.ca-btn-submit:hover {
+    background-color: var(--button-submit-hover);
+}
+
+.ca-select, .theme-toggle {
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    background-color: var(--panel-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    outline: none;
+    transition: border-color 0.2s, background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.ca-select:focus {
+    border-color: var(--button-secondary);
+}
+
+.test-case-container {
+    margin-top: 20px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+.test-case {
+    margin-bottom: 16px;
+    padding: 16px;
+    background-color: var(--test-case-bg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--test-case-border);
+    transition: background-color var(--transition-speed);
+}
+
+.test-input, .test-output {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    white-space: pre-wrap;
+    background-color: var(--test-io-bg);
+    padding: 12px;
+    border-radius: calc(var(--border-radius) - 2px);
+    margin-top: 8px;
+    transition: background-color var(--transition-speed);
+    font-size: 14px;
+    border: 1px solid var(--border-color);
+}
+
+.custom-test-area {
+    width: 100%;
+    padding: 12px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    margin-top: 10px;
+    resize: vertical;
+    background-color: var(--test-io-bg);
+    color: var(--text-color);
+    outline: none;
+    transition: border-color 0.2s, background-color var(--transition-speed), color var(--transition-speed);
+    font-size: 14px;
+}
+
+.custom-test-area:focus {
+    border-color: var(--button-secondary);
+}
+
+.passed {
+    color: var(--button-primary);
+    font-weight: bold;
+}
+
+.failed {
+    color: #f44336;
+    font-weight: bold;
+}
+
+.ca-h2 {
+    margin-bottom: 16px;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.ca-h3 {
+    margin: 20px 0 10px;
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 1.25rem;
+}
+
+.ca-h4 {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.ca-p {
+    margin-bottom: 12px;
+}
+
+.tab-container {
+    display: flex;
+    background-color: var(--tab-bg);
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color var(--transition-speed);
+    flex-shrink: 0; /* Prevent shrinking */
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.tab {
+    padding: 12px 20px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: background-color 0.2s, border-color 0.2s, color var(--transition-speed);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tab:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.tab.active {
+    background-color: var(--panel-bg);
+    border-bottom: 2px solid var(--tab-active-border);
+    position: relative;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    max-height: 0;
+    overflow: hidden;
+    background-color: var(--panel-bg);
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: block;
+    max-height: 250px; /* Set a reasonable height */
+    padding: 20px;
+    flex: 1; /* Take remaining space */
+    overflow-y: auto; /* Make scrollable */
+}
+
+.collapse-icon {
+    margin-left: 8px;
+    font-size: 12px;
+}
+
+.console-container {
+    background-color: var(--console-bg);
+    color: var(--console-text);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    overflow-y: auto;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    height: 100%;
+    border: 1px solid var(--border-color);
+    font-size: 14px;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    min-height: 100px; /* Minimum height */
+}
+
+.controls-group {
+    display: flex;
+    align-items: center;
+}
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 15px;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+}
+
+.theme-toggle:hover {
+    border-color: var(--button-secondary);
+}
+
+.theme-icon {
+    margin-right: 5px;
+    font-size: 16px;
+}
+
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.run-custom-btn {
+    padding: 6px 12px;
+    background-color: var(--button-secondary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.run-custom-btn:hover {
+    background-color: var(--button-secondary-hover);
+    transform: translateY(-1px);
+}
+
+.run-custom-btn:active {
+    transform: translateY(0);
+}
+
+/* Loading spinner */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1024px) {
+    .coding-container {
+        flex-direction: column;
+    }
+    
+    .problem-panel, .editor-panel {
+        width: 100%;
+        height: auto;
+    }
+    
+    .problem-panel {
+        max-height: 50vh; /* Limit height on small screens */
+        overflow-y: auto;
+    }
+    
+    .editor-container {
+        height: 300px; /* Fixed height on small screens */
+    }
+    
+    .tab-content.active {
+        max-height: 200px;
+    }
+    
+    .tab-container {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: var(--tab-bg);
+    }
+    
+    .coding-assessment {
+        height: auto;
+        max-height: none;
+    }
+}
+</style>
+
+<!-- Add the JavaScript to handle the coding assessment -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs/loader.min.js"></script>
+<script>
+// Set up a current question tracker
+let currentQuestion = 0;
+
+// Function to switch between questions
+function switchQuestion(index) {
+    // Hide all questions
+    document.querySelectorAll('.question-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Show selected question
+    document.getElementById(`coding-question-${index}`).classList.add('active');
+    
+    // Update navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.getElementById(`nav-item-${index}`).classList.add('active');
+    
+    // Update current question
+    currentQuestion = index;
+    
+    // Resize editor if necessary
+    if (assessmentInstances[index] && assessmentInstances[index].editor) {
+        assessmentInstances[index].editor.layout();
+    }
+}
+
+/**
+ * Coding Assessment Component
+ * A reusable component for coding assessments with customizable questions and tests
+ */
+class CodingAssessment {
+    constructor(options) {
+        this.el = document.getElementById(options.elementId);
+        if (!this.el) {
+            console.error(`Element with ID ${options.elementId} not found`);
+            return;
+        }
+        
+        this.apiUrl = options.apiUrl || '/api/execute'; // API URL for code execution
+        this.problem = options.problem || {
+            title: "Example Problem",
+            description: "Write a function that solves a problem.",
+            inputFormat: "The input format description.",
+            outputFormat: "The output format description.",
+            constraints: "Any constraints on input or output.",
+            sampleInput: "Sample input",
+            sampleOutput: "Sample output"
+        };
+        
+        // Default test cases if none provided
+        this.testCases = options.testCases || [
+            {
+                input: "Sample input",
+                expectedOutput: "Sample output"
+            }
+        ];
+        
+        // Default code templates
+        this.templates = options.templates || {};
+        this.defaultCode = options.defaultCode || '';
+        
+        // Language IDs for backend
+        this.languageIds = options.languageIds || {
+            'python': 'python',
+            'java': 'java',
+            'javascript': 'javascript',
+            'c': 'c',
+            'cpp': 'cpp',
+            'csharp': 'csharp'
+        };
+        
+        this.currentTheme = 'light-theme';
+        this.editor = null;
+        this.monaco = null;
+        this.questionId = options.questionId;
+        
+        // Initialize the component
+        this.render();
+        this.initMonacoEditor();
+    }
+    
+    /**
+     * Render the HTML structure of the component
+     */
+    render() {
+        this.el.innerHTML = `
+            <div class="coding-container">
+                <div class="problem-panel">
+                    <div class="problem-header">
+                        <h2 class="ca-h2">Problem: ${this.problem.title}</h2>
+                        <p class="ca-p">${this.problem.description}</p>
+                    </div>
+                    
+                    <div class="problem-content">
+                        <h3 class="ca-h3">Input Format</h3>
+                        <p class="ca-p">${this.problem.inputFormat || 'Not specified'}</p>
+                        
+                        <h3 class="ca-h3">Output Format</h3>
+                        <p class="ca-p">${this.problem.outputFormat || 'Not specified'}</p>
+                        
+                        <h3 class="ca-h3">Constraints</h3>
+                        <p class="ca-p">${this.problem.constraints || 'Not specified'}</p>
+                        
+                        <h3 class="ca-h3">Sample Input</h3>
+                        <div class="test-input">${this.problem.sampleInput || 'Not provided'}</div>
+                        
+                        <h3 class="ca-h3">Sample Output</h3>
+                        <div class="test-output">${this.problem.sampleOutput || 'Not provided'}</div>
+                        
+                        <div class="test-case-container">
+                            <h3 class="ca-h3">Test Cases</h3>
+                            ${this.renderTestCases()}
+                        </div>
+                    </div>
+                </div>
+                <div class="editor-panel">
+                    <div class="editor-header">
+                        <div class="controls-group">
+                            <div class="theme-toggle">
+                                <span class="theme-icon">🌙</span>
+                                <span class="theme-text">Dark</span>
+                            </div>
+                            <div class="language-selector">
+                                <label for="language-${this.el.id}">Language:</label>
+                                <select id="language-${this.el.id}" class="ca-select">
+                                    ${this.renderLanguageOptions()}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="ca-btn ca-btn-secondary" id="run-custom-${this.el.id}">Run Custom Test</button>
+                            <button type="button" class="ca-btn" id="run-all-${this.el.id}">Run All Tests</button>
+                            <button type="button" class="ca-btn ca-btn-submit" id="submit-${this.el.id}">Submit</button>
+                        </div>
+                    </div>
+                    <div class="editor-container">
+                        <div id="editor-${this.el.id}" class="ca-editor"></div>
+                    </div>
+                    <div class="tab-controls-container">
+                        <div class="tab-container">
+                            <div class="tab" data-tab="custom-test-${this.el.id}">
+                                Custom Test
+                                <span class="collapse-icon">▼</span>
+                            </div>
+                            <div class="tab" data-tab="results-${this.el.id}">
+                                Test Results
+                                <span class="collapse-icon">▼</span>
+                            </div>
+                        </div>
+                        
+                        <div id="custom-test-${this.el.id}" class="tab-content">
+                            <div class="custom-test-header">
+                                <h4 class="ca-h4">Custom Test Input:</h4>
+                                <button type="button" class="run-custom-btn" id="run-custom-tab-${this.el.id}">Run Test</button>
+                            </div>
+                            <textarea class="custom-test-area" id="custom-input-${this.el.id}" rows="5" placeholder="Enter your test input here...">${this.problem.sampleInput || ''}</textarea>
+                            <h4 class="ca-h4">Custom Test Output:</h4>
+                            <div class="console-container" id="custom-output-${this.el.id}">
+                                // Custom test output will appear here
+                            </div>
+                        </div>
+                        <div id="results-${this.el.id}" class="tab-content">
+                            <div class="console-container" id="test-results-${this.el.id}">
+                                // Test results will appear here
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Set up event listeners
+        this.setupEventListeners();
+    }
+    
+    /**
+     * Render language options based on available starter code
+     */
+    renderLanguageOptions() {
+        if (!this.problem.starterCode || this.problem.starterCode.length === 0) {
+            return `
+                <option value="python" selected>Python</option>
+                <option value="java">Java</option>
+                <option value="javascript">JavaScript</option>
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+                <option value="csharp">C#</option>
+            `;
+        }
+        
+        return this.problem.starterCode.map((template, index) => {
+            return `<option value="${template.language}" ${index === 0 ? 'selected' : ''}>${this.getLanguageDisplayName(template.language)}</option>`;
+        }).join('');
+    }
+    
+    /**
+     * Get display name for a language
+     */
+    getLanguageDisplayName(language) {
+        const displayNames = {
+            'python': 'Python',
+            'java': 'Java',
+            'javascript': 'JavaScript',
+            'c': 'C',
+            'cpp': 'C++',
+            'csharp': 'C#',
+            'sql': 'SQL'
+        };
+        return displayNames[language] || language;
+    }
+    
+    /**
+     * Render the test cases
+     */
+    renderTestCases() {
+        // Filter for public test cases only
+        const publicTestCases = this.testCases.filter(testCase => testCase.isPublic);
+        
+        if (publicTestCases.length === 0) {
+            return `
+                <div class="test-case">
+                    <p class="ca-p">No public test cases available. Your submission will be tested against hidden test cases.</p>
+                </div>
+            `;
+        }
+        
+        return publicTestCases.map((testCase, index) => `
+            <div class="test-case">
+                <h4 class="ca-h4">Test Case ${index + 1}</h4>
+                <p class="ca-p"><strong>Input:</strong></p>
+                <div class="test-input">${testCase.input}</div>
+                <p class="ca-p"><strong>Expected Output:</strong></p>
+                <div class="test-output">${testCase.expectedOutput}</div>
+            </div>
+        `).join('');
+    }
+    
+    /**
+     * Initialize the Monaco Editor
+     */
+    initMonacoEditor() {
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+        
+        require(['vs/editor/editor.main'], () => {
+            this.monaco = window.monaco;
+            
+            // Get selected language
+            const languageSelect = document.getElementById(`language-${this.el.id}`);
+            const initialLanguage = languageSelect.value;
+            
+            // Create editor instance
+            this.editor = this.monaco.editor.create(document.getElementById(`editor-${this.el.id}`), {
+                value: this.getStarterCodeForLanguage(initialLanguage),
+                language: this.getMonacoLanguage(initialLanguage),
+                theme: 'vs',
+                automaticLayout: true,
+                minimap: { enabled: true },
+                scrollBeyondLastLine: false,
+                fontSize: 14,
+                tabSize: 4,
+                insertSpaces: true,
+                fontFamily: 'Consolas, "Courier New", monospace',
+                scrollbar: {
+                    useShadows: false,
+                    verticalHasArrows: true,
+                    horizontalHasArrows: true,
+                    vertical: 'visible',
+                    horizontal: 'visible',
+                    verticalScrollbarSize: 12,
+                    horizontalScrollbarSize: 12
+                }
+            });
+            
+            // Set up language change handler
+            languageSelect.addEventListener('change', () => this.changeLanguage());
+            
+            // Set up window resize handler
+            window.addEventListener('resize', () => {
+                if (this.editor) {
+                    this.editor.layout();
+                }
+            });
+        });
+    }
+    
+    /**
+     * Get starter code for the selected language
+     */
+    getStarterCodeForLanguage(language) {
+        // Check if we have starter code for this language
+        if (this.problem.starterCode && this.problem.starterCode.length > 0) {
+            const starter = this.problem.starterCode.find(template => template.language === language);
+            if (starter) {
+                return starter.code;
+            }
+        }
+        
+        // Fallback to default templates
+        const defaultTemplates = {
+            python: `def solve_problem():\n    # Write your code here\n    pass\n\n# Read input\n\n# Call your function\n\n# Output result\n`,
+            java: `public class Main {\n    public static void main(String[] args) {\n        // Write your code here\n    }\n}`,
+            javascript: `function solveFunction() {\n    // Write your code here\n}\n\n// Read input\n\n// Call your function\n\n// Output result\n`,
+            c: `#include <stdio.h>\n\nint main() {\n    // Write your code here\n    return 0;\n}`,
+            cpp: `#include <iostream>\nusing namespace std;\n\nint main() {\n    // Write your code here\n    return 0;\n}`,
+            csharp: `using System;\n\nclass Program {\n    static void Main() {\n        // Write your code here\n    }\n}`,
+            sql: `-- Write your SQL query here\n`
+        };
+        
+        return defaultTemplates[language] || '// Write your code here';
+    }
+    
+    /**
+     * Get the Monaco editor language name from our language ID
+     */
+    getMonacoLanguage(language) {
+        const mapping = {
+            'python': 'python',
+            'java': 'java',
+            'javascript': 'javascript',
+            'c': 'c',
+            'cpp': 'cpp',
+            'csharp': 'csharp',
+            'sql': 'sql'
+        };
+        return mapping[language] || language;
+    }
+    
+    /**
+     * Set up event listeners for the component
+     */
+    setupEventListeners() {
+        // Theme toggle
+        const themeToggle = this.el.querySelector('.theme-toggle');
+        themeToggle.addEventListener('click', () => this.toggleTheme());
+        
+        // Tab functionality
+        const tabs = this.el.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                this.toggleTab(tabName, tab);
+            });
+        });
+        
+        // Button handlers
+        document.getElementById(`run-custom-${this.el.id}`).addEventListener('click', () => this.runCustomTest());
+        document.getElementById(`run-custom-tab-${this.el.id}`).addEventListener('click', () => this.runCustomTest());
+        document.getElementById(`run-all-${this.el.id}`).addEventListener('click', () => this.runAllTests());
+        document.getElementById(`submit-${this.el.id}`).addEventListener('click', () => this.submitSolution());
+    }
+    /**
+ * Submit solution
+ */
+async submitSolution() {
+    if (!this.editor) return;
+    
+    // Get the code and language
+    const code = this.editor.getValue();
+    const language = document.getElementById(`language-${this.el.id}`).value;
+    
+    // Show a loading message
+    const previousText = document.getElementById(`test-results-${this.el.id}`).innerText;
+    document.getElementById(`test-results-${this.el.id}`).innerHTML = "<div class='loading'></div> Validating solution...";
+    this.openTab(`results-${this.el.id}`);
+    
+    try {
+        // Run all test cases first to validate
+        let allPassed = true;
+        let results = "Validating solution:\n\n";
+        
+        for (let i = 0; i < this.testCases.length; i++) {
+            try {
+                results += `Running Test Case ${i+1}... `;
+                // Execute code using backend
+                const result = await this.executeCode(code, language, this.testCases[i].input);
+                
+                // Compare expected and actual output
+                const expected = this.testCases[i].expectedOutput.trim();
+                const actual = result.output.trim();
+                
+                if (actual === expected) {
+                    results += `✅ Passed\n`;
+                } else {
+                    allPassed = false;
+                    results += `❌ Failed\n`;
+                }
+            } catch (error) {
+                allPassed = false;
+                results += `❌ Error: ${error.message}\n`;
+            }
+        }
+        
+        document.getElementById(`test-results-${this.el.id}`).innerText = results;
+        
+        // Submit the solution
+        if (allPassed) {
+            try {
+                // Submit the solution to the backend
+                const result = await this.submitToBackend(code, language);
+                
+                document.getElementById(`test-results-${this.el.id}`).innerText = results + "\n\n🎉 Solution submitted successfully! All tests passed.";
+            } catch (error) {
+                document.getElementById(`test-results-${this.el.id}`).innerText = results + `\n\n❌ Error submitting solution: ${error.message}`;
+            }
+        } else {
+            document.getElementById(`test-results-${this.el.id}`).innerText = results + "\n\n❌ Cannot submit solution. Please fix the failing tests first.";
+        }
+    } catch (error) {
+        document.getElementById(`test-results-${this.el.id}`).innerText = `Error during submission: ${error.message}\n\nPrevious results:\n${previousText}`;
+    }
+}
+
+/**
+ * Submit the solution to the backend
+ */
+async submitToBackend(code, language) {
+    try {
+        const response = await fetch('/api/submissions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                questionId: this.questionId,
+                code: code,
+                language: language
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error submitting solution:', error);
+        throw error;
+    }
+}
+
+/**
+ * Execute code using backend API
+ */
+async executeCode(code, language, input) {
+    try {
+        const response = await fetch(this.apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                code: code,
+                language: language,
+                input: input,
+                questionId: this.questionId
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+        
+        return {
+            status: 'success',
+            output: result.output || ''
+        };
+    } catch (error) {
+        console.error('Error executing code:', error);
+        throw error;
+    }
+}
+}
+
+// Store assessment instances
+const assessmentInstances = [];
+
+// Initialize the coding assessments when the DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the exam data from the EJS template
+    const examData = <%- JSON.stringify(exam) %>;
+    
+    // Initialize current question from URL or default to 0
+    const urlParams = new URLSearchParams(window.location.search);
+    currentQuestion = parseInt(urlParams.get('question') || '0');
+    
+    // Initialize each coding question
+    examData.codingQuestions.forEach((question, index) => {
+        const assessment = new CodingAssessment({
+            elementId: `assessment-${index}`,
+            apiUrl: '/api/execute',
+            problem: {
+                title: question.questionTile || 'Coding Question',
+                description: question.questiontext || '',
+                inputFormat: question.inputFormat || '',
+                outputFormat: question.outputFormat || '',
+                constraints: question.constraits || '',
+                sampleInput: question.sampleInput || '',
+                sampleOutput: question.sampleOutput || '',
+                starterCode: question.starterCode || []
+            },
+            testCases: question.testCases || [],
+            questionId: question._id
+        });
+        
+        assessmentInstances.push(assessment);
+    });
+    
+    // Show the initial question
+    switchQuestion(currentQuestion);
+    
+    // Update URL when switching questions
+    window.addEventListener('popstate', function(event) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionParam = urlParams.get('question');
+        if (questionParam !== null) {
+            const questionIndex = parseInt(questionParam);
+            if (!isNaN(questionIndex) && questionIndex >= 0 && questionIndex < assessmentInstances.length) {
+                switchQuestion(questionIndex);
+            }
+        }
+    });
+});
+
+// Function to switch between questions and update URL
+function switchQuestion(index) {
+    // Validate index
+    if (index < 0 || index >= document.querySelectorAll('.question-card').length) {
+        return;
+    }
+    
+    // Hide all questions
+    document.querySelectorAll('.question-card').forEach(card => {
+        card.classList.remove('active');
+    });
+    
+    // Show selected question
+    document.getElementById(`coding-question-${index}`).classList.add('active');
+    
+    // Update navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.getElementById(`nav-item-${index}`).classList.add('active');
+    
+    // Update current question
+    currentQuestion = index;
+    
+    // Update URL without reloading page
+    const url = new URL(window.location);
+    url.searchParams.set('question', index);
+    window.history.pushState({}, '', url);
+    
+    // Resize editor if necessary
+    if (assessmentInstances[index] && assessmentInstances[index].editor) {
+        assessmentInstances[index].editor.layout();
+    }
+}

@@ -1,275 +1,4 @@
-<!-- <form action="/admin/exam/<%= examId %>/add/coding" method="POST">
-    <label>Title:</label>
-    <input type="text" name="questionTile" required><br>
 
-    <label>Question Text:</label>
-    <textarea name="questiontext" required></textarea><br>
-
-    <label>Constraints:</label>
-    <textarea name="constraits" required></textarea><br>
-
-    <label>Input Format:</label>
-    <textarea name="inputFormat" required></textarea><br>
-
-    <label>Output Format:</label>
-    <textarea name="outputFormat" required></textarea><br>
-
-    <label>Sample Input:</label>
-    <textarea name="sampleInput" required></textarea><br>
-
-    <label>Sample Output:</label>
-    <textarea name="sampleOutput" required></textarea><br>
-
-    <label>Solution Template:</label>
-    <textarea name="solutionTemplate" required></textarea><br>
-    <label>Marks:</label>
-    <input name="marks" required type="number"><br>
-
-
-    <button type="submit">Add Coding Question</button>
-</form> -->
-
-<!-- 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Coding Question</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #141D2F; /* Dark blue background */
-            font-family: Arial, sans-serif;
-            color: #333;
-            padding-bottom: 50px;
-        }
-        
-        .container {
-            margin-top: 50px;
-            margin-bottom: 50px;
-        }
-        
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 25px;
-            color: #ffffff;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        /* Card styling */
-        .card {
-            border: 3px solid #1D4ED8;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
-            background-color: #ffffff;
-            margin-bottom: 25px;
-            padding: 30px !important;
-        }
-        
-        /* Form elements */
-        .form-label {
-            font-weight: 600;
-            color: #0056b3;
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            border: 2px solid #b3d1ff;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            border-color: #1D4ED8;
-            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
-        }
-        
-        /* Textarea specific styling */
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-            font-family: 'Consolas', 'Monaco', monospace;
-            line-height: 1.5;
-        }
-        
-        /* Code-related textareas */
-        #solutionTemplate, #sampleInput, #sampleOutput {
-            font-family: 'Consolas', 'Monaco', monospace;
-            background-color: #f8f9fa;
-        }
-        
-        /* Button styling */
-        .btn-primary {
-            background-color: #1D4ED8;
-            border-color: #1D4ED8;
-            padding: 10px 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Back link */
-        .back-link {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .btn-link {
-            color: #b3d1ff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-link:hover {
-            color: #ffffff;
-            text-decoration: underline;
-        }
-        
-        /* Section dividers */
-        .section-divider {
-            margin: 30px 0;
-            border-top: 1px solid #b3d1ff;
-            position: relative;
-        }
-        
-        .section-divider span {
-            position: absolute;
-            top: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: white;
-            padding: 0 15px;
-            color: #0056b3;
-            font-weight: 500;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 767px) {
-            .container {
-                padding: 15px;
-                margin-top: 30px;
-            }
-            
-            .card {
-                padding: 20px !important;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            textarea.form-control {
-                min-height: 80px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Add Coding Question</h1>
-
-     
-        <div class="card">
-            <form action="/admin/exam/<%= examId %>/add/coding" method="POST">
-               
-                <div class="mb-4">
-                    <label for="questionTile" class="form-label">Title:</label>
-                    <input type="text" id="questionTile" name="questionTile" class="form-control" 
-                           placeholder="Enter a descriptive title for the question" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="questiontext" class="form-label">Question Text:</label>
-                    <textarea id="questiontext" name="questiontext" class="form-control" 
-                              placeholder="Describe the problem in detail" required></textarea>
-                </div>
-
-                <div class="section-divider">
-                    <span>Specifications</span>
-                </div>
-
-           
-                <div class="mb-4">
-                    <label for="constraints" class="form-label">Constraints:</label>
-                    <textarea id="constraints" name="constraits" class="form-control" 
-                              placeholder="List all constraints (e.g., 1 ≤ n ≤ 10^5)" required></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label for="inputFormat" class="form-label">Input Format:</label>
-                    <textarea id="inputFormat" name="inputFormat" class="form-control" 
-                              placeholder="Describe how the input will be formatted" required></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label for="outputFormat" class="form-label">Output Format:</label>
-                    <textarea id="outputFormat" name="outputFormat" class="form-control" 
-                              placeholder="Describe how the output should be formatted" required></textarea>
-                </div>
-
-                <div class="section-divider">
-                    <span>Examples</span>
-                </div>
-
-           
-                <div class="mb-4">
-                    <label for="sampleInput" class="form-label">Sample Input:</label>
-                    <textarea id="sampleInput" name="sampleInput" class="form-control" 
-                              placeholder="Provide sample input" required></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label for="sampleOutput" class="form-label">Sample Output:</label>
-                    <textarea id="sampleOutput" name="sampleOutput" class="form-control" 
-                              placeholder="Provide expected output for the sample input" required></textarea>
-                </div>
-
-                <div class="section-divider">
-                    <span>Code</span>
-                </div>
-
-             
-                <div class="mb-4">
-                    <label for="solutionTemplate" class="form-label">Solution Template:</label>
-                    <textarea id="solutionTemplate" name="solutionTemplate" class="form-control" rows="6"
-                              placeholder="Provide starter code for students (e.g., function signature)" required></textarea>
-                </div>
-
-                <div class="mb-4">
-                    <label for="marks" class="form-label">Marks:</label>
-                    <input type="number" id="marks" name="marks" class="form-control" min="1" value="10" required>
-                </div>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-primary">Add Coding Question</button>
-                </div>
-            </form>
-        </div>
-
-        <div class="back-link">
-            <a href="/admin/exam/questions/<%= examId %>" class="btn btn-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-2" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                </svg>
-                Back to Questions
-            </a>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -580,9 +309,105 @@
         </div>
       </div>
       
+      <!-- Starter Code Section -->
+      <div class="section-title">Starter Code</div>
+      
       <div class="form-group">
-        <label for="solutionTemplate">Solution Template*</label>
+        <label for="solutionTemplate">Default Solution Template* (Primary language)</label>
         <textarea id="solutionTemplate" name="solutionTemplate" required></textarea>
+      </div>
+      
+      <!-- Language-specific starter code accordion -->
+      <div class="accordion" id="starterCodeAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#cppCode">
+              C++ Starter Code
+            </button>
+          </h2>
+          <div id="cppCode" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-group">
+                <textarea id="cppStarterCode" name="starterCode[cpp]" placeholder="Enter C++ starter code here"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#cCode">
+              C Starter Code
+            </button>
+          </h2>
+          <div id="cCode" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-group">
+                <textarea id="cStarterCode" name="starterCode[c]" placeholder="Enter C starter code here"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#javaCode">
+              Java Starter Code
+            </button>
+          </h2>
+          <div id="javaCode" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-group">
+                <textarea id="javaStarterCode" name="starterCode[java]" placeholder="Enter Java starter code here"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#pythonCode">
+              Python Starter Code
+            </button>
+          </h2>
+          <div id="pythonCode" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-group">
+                <textarea id="pythonStarterCode" name="starterCode[python]" placeholder="Enter Python starter code here"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#csharpCode">
+              C# Starter Code
+            </button>
+          </h2>
+          <div id="csharpCode" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-group">
+                <textarea id="csharpStarterCode" name="starterCode[csharp]" placeholder="Enter C# starter code here"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#jsCode">
+              JavaScript Starter Code
+            </button>
+          </h2>
+          <div id="jsCode" class="accordion-collapse collapse">
+            <div class="accordion-body">
+              <div class="form-group">
+                <textarea id="jsStarterCode" name="starterCode[javascript]" placeholder="Enter JavaScript starter code here"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- Test Cases Section -->
@@ -638,7 +463,21 @@
               </div>
             </div>
           </div>
-
+          
+          <div class="form-row">
+            <div class="form-col">
+              <div class="form-group">
+                <label for="timeout${testCaseCount}">Timeout (seconds)</label>
+                <input type="number" id="timeout${testCaseCount}" name="timeout${testCaseCount}" value="2" min="1" max="30">
+              </div>
+            </div>
+            <div class="form-col">
+              <div class="form-group">
+                <label for="memoryLimit${testCaseCount}">Memory Limit (MB)</label>
+                <input type="number" id="memoryLimit${testCaseCount}" name="memoryLimit${testCaseCount}" value="256" min="64" max="1024">
+              </div>
+            </div>
+          </div>
           
           <div class="checkbox-group">
             <input type="checkbox" id="isPublic${testCaseCount}" name="isPublic${testCaseCount}">
@@ -671,6 +510,25 @@
           testCaseCount = 0;
           addTestCase(); // Add one default test case after clearing
         }
+      });
+      
+      // Handle accordion toggling manually if Bootstrap is not available
+      document.querySelectorAll('.accordion-button').forEach(button => {
+        button.addEventListener('click', function() {
+          // Toggle aria-expanded attribute
+          const expanded = this.getAttribute('aria-expanded') === 'true' || false;
+          this.setAttribute('aria-expanded', !expanded);
+          
+          // Toggle the collapse
+          const target = document.querySelector(this.getAttribute('data-bs-target'));
+          if (target) {
+            if (expanded) {
+              target.classList.remove('show');
+            } else {
+              target.classList.add('show');
+            }
+          }
+        });
       });
       
       // Form submission
@@ -722,8 +580,21 @@
             maxMarks: parseInt(document.getElementById('maxMarks').value),
             level: document.getElementById('level').value,
             classification: document.getElementById('classification').value,
+            starterCode: [],
             testCases: []
           };
+          
+          // Collect starter code for different languages
+          const languages = ['cpp', 'c', 'java', 'python', 'csharp', 'javascript'];
+          languages.forEach(lang => {
+            const codeField = document.getElementById(`${lang}StarterCode`);
+            if (codeField && codeField.value.trim()) {
+              formData.starterCode.push({
+                language: lang,
+                code: codeField.value.trim()
+              });
+            }
+          });
           
           // Collect test cases
           const testCases = testCasesContainer.querySelectorAll('.test-case');
@@ -733,39 +604,38 @@
               input: document.getElementById(`testInput${id}`).value,
               expectedOutput: document.getElementById(`expectedOutput${id}`).value,
               isPublic: document.getElementById(`isPublic${id}`).checked,
-            //   memoryLimit: parseInt(document.getElementById(`memoryLimit${id}`).value)
+              timeout: parseInt(document.getElementById(`timeout${id}`).value),
+              memoryLimit: parseInt(document.getElementById(`memoryLimit${id}`).value)
             });
           });
           
           // Here you would send this data to your backend
           console.log('Form data:', formData);
           
-          // Example API call (commented out)
-
-        //   fetch('/admin/exam/<%= examId %>/add/coding', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify(formData)
-        //   })
-        //   .then(response => response.json())
-        //   .then(data => {
-        //     console.log('Success:', data);
-        //     successMessage.style.display = 'block';
-        //     setTimeout(() => {
-        //       successMessage.style.display = 'none';
-        //     }, 3000);
-        //     form.reset();
-        //     testCasesContainer.innerHTML = '';
-        //     testCaseCount = 0;
-        //     addTestCase();
-        //   })
-        //   .catch((error) => {
-        //     console.error('Error:', error);
-        //     alert('There was an error submitting the form. Please try again.');
-        //   });
-        
+          // Example API call
+          fetch('/admin/exam/<%= examId %>/add/coding', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 3000);
+            form.reset();
+            testCasesContainer.innerHTML = '';
+            testCaseCount = 0;
+            addTestCase();
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            alert('There was an error submitting the form. Please try again.');
+          });
           
           // For demo purposes, just show success message
           successMessage.style.display = 'block';

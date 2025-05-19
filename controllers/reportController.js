@@ -1,6 +1,7 @@
 const reportModel = require('../models/reportModel');
 const Submission = require("./../models/SubmissionSchema")
-const Integrity = require("./../models/Integrity")
+const Integrity = require("./../models/Integrity");
+const { redirect } = require('express/lib/response');
 
 // Add this to your reportController.js file
 
@@ -33,13 +34,15 @@ exports.deleteSubmission = async (req, res) => {
     
     // Send success response even if integrity record wasn't found
     // (since the main goal was to delete the submission)
-    // return res.status(200).json({
-    //   success: true,
-    //   message: 'Records deleted successfully',
-    //   deletedSubmission: deletedSubmission._id,
-    //   deletedIntegrity: deletedIntegrity ? deletedIntegrity._id : 'Not found'
-    // });
-    res.redirect("/admin")
+    return res.status(200).json({
+      success: true,
+      message: 'Records deleted successfully',
+      deletedSubmission: deletedSubmission._id,
+      deletedIntegrity: deletedIntegrity ? deletedIntegrity._id : 'Not found',
+      redirectUrl: `/admin/exam/candidates/${examId}`
+      
+    });
+    
     
   } catch (error) {
     console.error('Error deleting submission:', error);
@@ -48,7 +51,14 @@ exports.deleteSubmission = async (req, res) => {
       message: 'Server error',
     });
   }
-};exports.viewAssessmentReport = async(req,res) => {
+};
+
+
+
+
+
+
+exports.viewAssessmentReport = async(req,res) => {
   try {
       const submissionId = req.params.submissionId;
       
@@ -57,7 +67,7 @@ exports.deleteSubmission = async (req, res) => {
       }
       
       const reportData = await reportModel.getAssessmentReport(submissionId);
-      
+      console.log(reportData)
       // Render the EJS template with the report data
       res.render('assessment_report', { 
         title: 'PrepZer0 Assessment Report',

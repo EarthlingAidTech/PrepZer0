@@ -17,6 +17,9 @@
       --success-color: #10b981;
       --error-color: #ef4444;
       --warning-color: #f59e0b;
+      --gold: #f59e0b;
+      --silver: #94a3b8;
+      --bronze: #d97706;
     }
     
     * {
@@ -252,6 +255,71 @@
     .answer-incorrect {
       color: var(--error-color);
     }
+
+    /* Ranking styles */
+    .rank-info {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    
+    .rank-badge {
+      background-color: var(--primary-dark);
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 700;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+    }
+
+    .rank-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .top-performers {
+      margin-top: 2rem;
+    }
+
+    .performer-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .performer-table th,
+    .performer-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .performer-table th {
+      background-color: rgba(99, 102, 241, 0.1);
+      font-weight: 600;
+    }
+
+    .rank-1, .rank-2, .rank-3 {
+      font-weight: 700;
+    }
+
+    .rank-1 {
+      color: var(--gold);
+    }
+
+    .rank-2 {
+      color: var(--silver);
+    }
+
+    .rank-3 {
+      color: var(--bronze);
+    }
     
     /* Modal styles */
     .modal {
@@ -333,6 +401,10 @@
         flex-direction: column;
         gap: 0.5rem;
       }
+
+      .performer-table {
+        font-size: 0.875rem;
+      }
     }
   </style>
 </head>
@@ -376,6 +448,36 @@
     <section class="card score-card">
       <div class="score-title">Assessment Score</div>
       <div class="score-value"><%= report.score.obtained %><span class="score-max">/<%= report.score.total %></span></div>
+      <div class="rank-info">
+        <div class="rank-badge">#<%= report.ranking.rank %></div>
+        <div class="rank-text">Rank <%= report.ranking.rank %> of <%= report.ranking.totalStudents %></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Top Performers</h2>
+      <div class="top-performers">
+        <table class="performer-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Name</th>
+              <th>Score</th>
+              <th>Submission Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% report.ranking.topPerformers.forEach((performer, index) => { %>
+              <tr class="<%= index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : '')) %>">
+                <td>#<%= index + 1 %></td>
+                <td><%= performer.studentName %></td>
+                <td><%= performer.score %>/<%= report.score.total %></td>
+                <td><%= new Date(performer.submittedAt).toLocaleString() %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
     </section>
     
     <section class="card">
@@ -540,7 +642,7 @@
         .then(data => {
           alert('Records successfully deleted. The candidate can now retake the test.');
           // Redirect to candidates list for this exam
-          window.location.href = '/admin' + examId;
+          window.location.href = '/admin/exam/candidates/' + examId;
         })
         .catch(error => {
           console.error('Error:', error);

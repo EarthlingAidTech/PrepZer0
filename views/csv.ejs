@@ -173,7 +173,7 @@
             <button id="showUploadFormBtn" class="btn btn-primary">Upload MCQ Questions</button>
             
             <div id="uploadFormContainer" style="display:none; margin-top: 20px;">
-              <form action="/admin/upload-mcq-csv" method="POST" enctype="multipart/form-data">
+              <form action="/admin/exam/<%= examId %>/upload-mcq-csv" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                   <label for="csvFile">Select CSV file containing MCQ questions:</label>
                   <input type="file" name="csvFile" id="csvFile" accept=".csv" required class="form-control">

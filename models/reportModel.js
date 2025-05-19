@@ -72,6 +72,48 @@ class ReportModel {
       const allocatedTime = submission.exam.duration ? `${submission.exam.duration} min` : 'Not specified';
       const usedTime = `${formattedDuration} of ${allocatedTime} used`;
 
+      // Fetch all submissions for this exam to calculate ranking
+      const allSubmissions = await Submission.find({ exam: submission.exam._id })
+        .populate('student')
+        .exec();
+      
+      // Calculate scores for all submissions
+      const submissionsWithScores = await Promise.all(allSubmissions.map(async (sub) => {
+        // For each submission, calculate the total score
+        const answers = sub.mcqAnswers || [];
+        
+        // Calculate total score for this submission
+        let score = 0;
+        for (const answer of answers) {
+          const question = mcqQuestions.find(q => q._id.toString() === answer.questionId.toString());
+          if (question && answer.selectedOption === question.correctAnswer) {
+            score += question.marks;
+          }
+        }
+        
+        return {
+          studentId: sub.student._id,
+          studentName: `${sub.student.fname} ${sub.student.lname}`,
+          score: score,
+          submittedAt: sub.submittedAt
+        };
+      }));
+      
+      // Sort submissions by score (descending) and then by submission time (ascending)
+      submissionsWithScores.sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score; // Higher score first
+        }
+        return new Date(a.submittedAt) - new Date(b.submittedAt); // Earlier submission first
+      });
+      
+      // Find the rank of the current student
+      const studentRank = submissionsWithScores.findIndex(s => 
+        s.studentId.toString() === submission.student._id.toString()
+      ) + 1; // Add 1 because array index is 0-based
+      
+      const totalStudents = submissionsWithScores.length;
+
       return {
         student: submission.student,
         exam: submission.exam,
@@ -89,7 +131,12 @@ class ReportModel {
           status: integrityStatus,
           violations: integrityViolations
         },
-        questions: questionsWithAnswers
+        questions: questionsWithAnswers,
+        ranking: {
+          rank: studentRank,
+          totalStudents: totalStudents,
+          topPerformers: submissionsWithScores.slice(0, 3) // Get top 5 students
+        }
       };
     } catch (error) {
       console.error('Error fetching assessment report:', error);

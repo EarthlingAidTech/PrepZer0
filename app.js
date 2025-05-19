@@ -32,7 +32,8 @@ const xss = require('xss-clean')
 
 
 // setting view engine to ejs
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 //database configure ("monodb/mongoose")
 const mongoose = require('mongoose')
@@ -52,7 +53,7 @@ const multer = require('multer')
 app.use(mongoSanitize())
 app.use(hpp())
 app.use(xss())
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json())
 app.use(bodyParser.json({ limit: '100mb', parameterLimit: 100000  })); // Adjust the limit as needed
 app.use(bodyParser.urlencoded({ limit: '100mb', extended: true, parameterLimit: 100000 }));

@@ -9,6 +9,7 @@ const examController = require("../controllers/examcontroller");
 const questionController = require("../controllers/questioncontroller");
 const mcqquestions = require("../controllers/allmcqcontroller");
 const reportController = require("../controllers/reportController");
+const databaseController = require("../controllers/dbQuestionsController");
 
 router.route("/").get(admincontroller.getcontrol).post(admincontroller.postcontrol)
 
@@ -20,8 +21,8 @@ router.route("/exam/delete/:examId").post(examController.deleteExam)
 router.route("/exam/questions/:examId").get(questionController.getQuestion)
 router.route("/exam/:examId/add/mcq").get(questionController.getaddmcqQuestion).post(questionController.postaddmcqQuestion)
 router.route('/exam/:examId/add/coding').get(questionController.getaddcodingQuestion).post(questionController.postaddcodingQuestion)
-
-
+router.route("/:examId/add/coding/from-database").post(questionController.postcoding_from_db)
+router.route("/exam/:examId/coding/database").get(questionController.addcoding_from_db)
 router.route("/exam/:examId/edit/mcq/:mcqId").get(questionController.getEditmcqQuestion).post(questionController.postEditmcqQuestion)
 router.route("/exam/:examId/delete/mcq/:mcqId").post(questionController.deleteMCQ)
 router.route("/exam/:examId/edit/coding/:codingId").get(questionController.getEditcodingQuestion).post(questionController.postEditcodingQuestion)
@@ -87,6 +88,31 @@ router.route("/exam/:examId/csv").get(mcqquestions.csvPage)
 
 // router.route("/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
 router.route("/exam/:examId/upload-mcq-csv").post(upload.single('csvFile'), mcqquestions.uploadMCQCSV)
+
+router.route("/exam/:examId/report").get(examController.exportExamReport);
+
+
+
+
+
+
+
+
+
+// Show database questions page
+router.route('/exam/:examId/database').get(databaseController.showDatabaseQuestions);
+
+// Add manually selected questions
+router.route('/exam/:examId/database/add').post(databaseController.addSelectedQuestions);
+
+// Add randomly selected questions
+router.route('/exam/:examId/database/random').post(databaseController.addRandomQuestions);
+
+
+
+
+
+
 
 
 

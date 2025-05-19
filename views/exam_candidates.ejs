@@ -372,13 +372,22 @@
                     <div class="exam-detail-label">Total Questions</div>
                     <div class="exam-detail-value"><%= exam.numMCQs + exam.numCoding %> (MCQ: <%= exam.numMCQs %>, Coding: <%= exam.numCoding %>)</div>
                 </div>
+
+
+                
+                <!-- Add this button in the subhead div, right after the "Back to Exams" link -->
+                <a href="/admin/exam/<%= exam._id %>/report" class="btn btn-sm btn-success" style="margin-left: 10px;">
+                    <i class="fas fa-file-excel"></i> Export Report
+                </a>
+
+
             </div>
         </div>
 
         <!-- Candidates List -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Exam Candidates 74</h2>
+                <h2 class="card-title">Exam Candidates</h2>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search candidates..." oninput="searchCandidates()">
                 </div>
@@ -546,7 +555,7 @@
         }
         
         .text-muted {
-            color: #6c757d;
+            color: #fff !important;
             font-size: 11px;
         }
 
