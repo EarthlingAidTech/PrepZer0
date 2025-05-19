@@ -181,6 +181,7 @@ exports.addRandomQuestions = async (req, res) => {
         
         // Determine if we're doing total random selection or by classification
         const totalRandom = parseInt(req.body.totalRandom) || 0;
+        const randomDifficulty = req.body.randomDifficulty || '';
         
         if (totalRandom > 0) {
             // Total random selection
@@ -188,7 +189,7 @@ exports.addRandomQuestions = async (req, res) => {
                 return res.redirect(`/admin/exam/${examId}/database?error=Requested more questions than needed`);
             }
             
-            // UPDATED LOGIC: Get the questionId values from Question collection for already added questions
+            // Get the questionId values from Question collection for already added questions
             const alreadyAddedQuestions = await Question.find({
                 examId: examId,
                 questionType: 'mcq'
@@ -197,11 +198,19 @@ exports.addRandomQuestions = async (req, res) => {
             // Extract the questionId values to use for filtering
             const alreadyAddedQuestionIds = alreadyAddedQuestions.map(q => q.questionId);
 
-            // Query for questions NOT already in the exam by matching against questionId
-            const availableQuestions = await AllQuestion.find({
+            // Prepare query for questions NOT already in the exam
+            let queryConditions = {
                 questionType: 'mcq',
                 _id: { $nin: alreadyAddedQuestionIds }
-            });
+            };
+
+            // Add difficulty filter if specified
+            if (randomDifficulty) {
+                queryConditions.level = randomDifficulty;
+            }
+
+            // Query with the conditions
+            const availableQuestions = await AllQuestion.find(queryConditions);
             
             // Convert IDs to strings for comparison
             const alreadyAddedQuestionIdStrings = alreadyAddedQuestionIds.map(id => id.toString());
@@ -212,7 +221,11 @@ exports.addRandomQuestions = async (req, res) => {
             );
             
             if (filteredAvailableQuestions.length < totalRandom) {
-                return res.redirect(`/admin/exam/${examId}/database?error=Not enough available questions. Only ${filteredAvailableQuestions.length} unique questions available.`);
+                let errorMessage = `Not enough available questions. Only ${filteredAvailableQuestions.length} unique questions available`;
+                if (randomDifficulty) {
+                    errorMessage += ` with '${randomDifficulty}' difficulty`;
+                }
+                return res.redirect(`/admin/exam/${examId}/database?error=${encodeURIComponent(errorMessage)}.`);
             }
             
             // Make a copy of the array to avoid any reference issues
@@ -227,11 +240,11 @@ exports.addRandomQuestions = async (req, res) => {
             // Get first N elements
             selectedQuestions = questionsCopy.slice(0, totalRandom);
             
-      
         } else {
             // Classification-based selection
             const classifications = req.body.classifications || [];
             const counts = req.body.counts || [];
+            const classificationDifficulties = req.body.classificationDifficulties || [];
             
             // Calculate total count requested
             let totalCount = 0;
@@ -247,7 +260,7 @@ exports.addRandomQuestions = async (req, res) => {
                 return res.redirect(`/admin/exam/${examId}/database?error=Requested more questions than needed`);
             }
             
-            // Get the questionId values from Question collection for already added questions (same as in totalRandom)
+            // Get the questionId values from Question collection for already added questions
             const alreadyAddedQuestions = await Question.find({
                 examId: examId,
                 questionType: 'mcq'
@@ -270,25 +283,37 @@ exports.addRandomQuestions = async (req, res) => {
             for (let i = 0; i < classifications.length; i++) {
                 const classification = classifications[i];
                 const count = parseInt(counts[i]) || 0;
+                const difficulty = classificationDifficulties[i] || '';
                 
                 if (count > 0) {
-                    // Query for questions NOT already in the exam and matching the current classification
-                    const availableQuestions = await AllQuestion.find({
+                    // Prepare query conditions
+                    let queryConditions = {
                         questionType: 'mcq',
                         classification: classification,
                         _id: { $nin: alreadyAddedQuestionIds }
-                    });
+                    };
+                    
+                    // Add difficulty filter if specified
+                    if (difficulty) {
+                        queryConditions.level = difficulty;
+                    }
+                    
+                    // Query for questions NOT already in the exam and matching conditions
+                    const availableQuestions = await AllQuestion.find(queryConditions);
                     
                     // Additional check to filter out any questions that might not be caught by the query
                     const filteredAvailableQuestions = availableQuestions.filter(question => 
                         !alreadyAddedQuestionIdStrings.includes(question._id.toString())
                     );
                     
-                    // console.log(`${classification} questions available: ${filteredAvailableQuestions.length}`);
-                    
-                    // If we don't have enough questions of this classification
+                    // If we don't have enough questions of this classification with the specified difficulty
                     if (filteredAvailableQuestions.length < count) {
-                        return res.redirect(`/admin/exam/${examId}/database?error=Not enough ${classification} questions available. Only ${filteredAvailableQuestions.length} unique questions available.`);
+                        let errorMessage = `Not enough ${classification} questions available`;
+                        if (difficulty) {
+                            errorMessage += ` with '${difficulty}' difficulty`;
+                        }
+                        errorMessage += `. Only ${filteredAvailableQuestions.length} unique questions available.`;
+                        return res.redirect(`/admin/exam/${examId}/database?error=${encodeURIComponent(errorMessage)}`);
                     }
                     
                     // Make a copy of the array to avoid any reference issues
@@ -305,12 +330,9 @@ exports.addRandomQuestions = async (req, res) => {
                     
                     // Add to our selected questions array
                     selectedQuestions = [...selectedQuestions, ...selected];
-                    
-                    // console.log(`Selected ${selected.length} ${classification} questions`);
                 }
             }
         }
-
 
         const newQuestions = [];
         for (const mcq of selectedQuestions) {
@@ -346,13 +368,7 @@ exports.addRandomQuestions = async (req, res) => {
             );
         }
         
-        // Get all existing MCQ questions for this exam
-        const allMCQs = await Question.find({
-            examId: examId,
-            questionType: 'mcq'
-        });
-        
-        // Render the manage questions page with both existing and selected questions
+        // Redirect to the manage questions page
         return res.redirect(`/admin/exam/questions/${examId}`);
     } catch (error) {
         console.error('Error adding random questions:', error);
