@@ -47,55 +47,7 @@
         }
 
         /* Header Styles */
-        .exam-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--white);
-            padding: 2.5rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .exam-header::before {
-            content: "";
-            position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .exam-header::after {
-            content: "";
-            position: absolute;
-            bottom: -30px;
-            left: -30px;
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .exam-header h1 {
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 5;
-        }
-
-        .exam-header p {
-            font-weight: 300;
-            font-size: 1.25rem;
-            position: relative;
-            z-index: 5;
-            opacity: 0.9;
-        }
-
+   
         /* Start Button */
         .start-button {
             text-align: center;
@@ -635,11 +587,8 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header Section -->
-        <div class="exam-header mt-4">
-            <h1>Online Exam Portal</h1>
-            <p>Academic Assessment Platform</p>
-        </div>
+
+
 
         <!-- Start Button Area (initial view) -->
         <div id="startButtonArea" class="start-button">
@@ -1294,9 +1243,11 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <button class="ca-btn ca-btn-secondary" id="run-custom-${this.el.id}">Run Custom Test</button>
-                                    <button class="ca-btn" id="run-all-${this.el.id}">Run All Tests</button>
-                                    <button class="ca-btn ca-btn-submit" id="submit-${this.el.id}">Submit</button>
+                                   <div>
+    <button type="button" class="ca-btn ca-btn-secondary" id="run-custom-${this.el.id}">Run Custom Test</button>
+    <button type="button" class="ca-btn" id="run-all-${this.el.id}">Run All Tests</button>
+    <button type="button" class="ca-btn ca-btn-submit" id="submit-${this.el.id}">Submit</button>
+</div>
                                 </div>
                             </div>
                             <div class="editor-container">
@@ -1315,10 +1266,10 @@
                                 </div>
                                 
                                 <div id="custom-test-${this.el.id}" class="tab-content">
-                                    <div class="custom-test-header">
-                                        <h4 class="ca-h4">Custom Test Input:</h4>
-                                        <button class="run-custom-btn" id="run-custom-tab-${this.el.id}">Run Test</button>
-                                    </div>
+<div class="custom-test-header">
+    <h4 class="ca-h4">Custom Test Input:</h4>
+    <button type="button" class="run-custom-btn" id="run-custom-tab-${this.el.id}">Run Test</button>
+</div>
                                     <textarea class="custom-test-area" id="custom-input-${this.el.id}" rows="5" placeholder="Enter your test input here...">${this.problem.sampleInput}</textarea>
                                     <h4 class="ca-h4">Custom Test Output:</h4>
                                     <div class="console-container" id="custom-output-${this.el.id}">
@@ -1522,7 +1473,7 @@
                 const code = this.editor.getValue();
                 const language = document.getElementById(`language-${this.el.id}`).value;
                 const input = document.getElementById(`custom-input-${this.el.id}`).value;
-                alert("codes running")
+              
                 // Make sure the custom test tab is open
                 this.openTab(`custom-test-${this.el.id}`);
                 
@@ -1756,146 +1707,38 @@
         // Example usage - this demonstrates how to set up the component with a custom problem
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the coding assessment component
-            const assessment = new CodingAssessment({
-                elementId: 'assessment-1',
-                apiUrl: 'http://172.16.6.47:2358', // Replace with your Judge0 API URL
-                problem: {
-                    title: "Sum of Two Numbers",
-                    description: "Write a function that returns the sum of two integers.",
-                    inputFormat: "The first line contains an integer <strong>a</strong>.<br>The second line contains an integer <strong>b</strong>.",
-                    outputFormat: "Return the sum of the two integers.",
-                    constraints: "-1000 ≤ a, b ≤ 1000",
-                    sampleInput: "3\n5",
-                    sampleOutput: "8"
-                },
-                testCases: [
-                    {
-                        input: "3\n5",
-                        expectedOutput: "8"
-                    },
-                    {
-                        input: "-10\n10",
-                        expectedOutput: "0"
-                    },
-                    {
-                        input: "100\n-50",
-                        expectedOutput: "50"
-                    }
-                ],
-                templates: {
-                    python: `def sum_two_numbers(a, b):
-    # Write your code here
-    return a + b
-
-# Read input
-a = int(input())
-b = int(input())
-
-# Call the function and print result
-result = sum_two_numbers(a, b)
-print(result)`,
-                    java: `import java.util.Scanner;
-
-public class Main {
-    public static int sumTwoNumbers(int a, int b) {
-        // Write your code here
-        return a + b;
-    }
+                const assessment = new CodingAssessment({
+        elementId: 'assessment-1',
+        apiUrl: 'http://172.16.6.47:2358', // Replace with your Judge0 API URL
+        problem: {
+            title: "<%= question.question %>", // Use EJS variable
+            description: "<%= question.description %>", // Use EJS variable
+            inputFormat: "<%= question.inputFormat %>",
+            outputFormat: "<%= question.outputFormat %>",
+            constraints: "<%= question.constraints %>",
+            sampleInput: "<%= question.sampleInput %>",
+            sampleOutput: "<%= question.sampleOutput %>"
+        },
+        testCases: JSON.parse('<%- JSON.stringify(question.testCases) %>'), // Parse JSON from EJS
+        templates: {
+            python: ``,
+            java: ``,
+            javascript: ``,
+            c: ``,
+            cpp: ``,
+            csharp: ``
+        }
+    });
     
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int a = scanner.nextInt();
-        int b = scanner.nextInt();
-        
-        int result = sumTwoNumbers(a, b);
-        System.out.println(result);
-        
-        scanner.close();
-    }
-}`,
-                    javascript: `function sumTwoNumbers(a, b) {
-    // Write your code here
-    return a + b;
-}
-
-// Read input
-const readline = require('readline');
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-let inputLines = [];
-rl.on('line', (line) => {
-    inputLines.push(line);
-    if (inputLines.length === 2) {
-        const a = parseInt(inputLines[0]);
-        const b = parseInt(inputLines[1]);
-        
-        const result = sumTwoNumbers(a, b);
-        console.log(result);
-        
-        rl.close();
-    }
-});`,
-                    c: `#include <stdio.h>
-
-int sumTwoNumbers(int a, int b) {
-    // Write your code here
-    return a + b;
-}
-
-int main() {
-    int a, b;
-    scanf("%d", &a);
-    scanf("%d", &b);
-    
-    int result = sumTwoNumbers(a, b);
-    printf("%d\\n", result);
-    
-    return 0;
-}`,
-                    cpp: `#include <iostream>
-using namespace std;
-
-int sumTwoNumbers(int a, int b) {
-    // Write your code here
-    return a + b;
-}
-
-int main() {
-    int a, b;
-    cin >> a >> b;
-    
-    int result = sumTwoNumbers(a, b);
-    cout << result << endl;
-    
-    return 0;
-}`,
-                    csharp: `using System;
-
-class Program {
-    static int SumTwoNumbers(int a, int b) {
-        // Write your code here
-        return a + b;
-    }
-    
-    static void Main() {
-        int a = int.Parse(Console.ReadLine());
-        int b = int.Parse(Console.ReadLine());
-        
-        int result = SumTwoNumbers(a, b);
-        Console.WriteLine(result);
-    }
-}`
-                }
-            });
+    // Listen for submission events
+    document.getElementById('assessment-1').addEventListener('submissionComplete', function(event) {
+        console.log('Submission completed:', event.detail);
+        // Set hidden field value for form submission
+        document.getElementById('coding-answer-<%= index %>').value = JSON.stringify(event.detail);
+    });
             
             // Listen for submission events
-            document.getElementById('assessment-1').addEventListener('submissionComplete', function(event) {
-                console.log('Submission completed:', event.detail);
-                // Here you can handle what happens after submission in your parent application
-            });
+         
         });
         
         // Function to create multiple coding assessments programmatically
@@ -2022,7 +1865,7 @@ class Program {
 
                                 <div class="navigation-buttons">
                                     <button type="button" class="btn btn-outline-secondary prev-question-btn">Previous</button>
-                                    <button type="button" class="btn btn-primary next-question-btn" <%= index === exam.codingQuestions.length - 1 ? 'disabled' : '' %>>Next</button>
+                                    <button type="button" class="btn btn-primary next-question-btn" id="" <%= index === exam.codingQuestions.length - 1 ? 'disabled' : '' %>>Next</button>
                                 </div>
                                 
                             </div>
@@ -2147,9 +1990,9 @@ class Program {
     
     <script>
         // Global Variables
-        let examDuration = 60 * 60 * 1000; // 60 minutes in milliseconds
-        let scheduledAt = new Date().getTime(); 
-        let scheduleTill = new Date().getTime() + (3 * 60 * 60 * 1000); // 3 hours from now
+        let examDuration = parseInt("<%= exam.duration %>") * 60 * 1000;
+let scheduledAt = new Date("<%= exam.scheduledAt %>").getTime();
+let scheduleTill = new Date("<%= exam.scheduleTill %>").getTime();
         let examTimerInterval = null;
         let endTime = null;
         let timeRemaining = examDuration;
@@ -3181,14 +3024,14 @@ function startWebcamCapture() {
                     return;
                 }
                 
-                // This triggers the browser's "Leave site?" dialog
+               
                 e.preventDefault();
                 e.returnValue = '';
                 return '';
             }
         });
 
-        // Ensure fullscreen after clicks
+
         document.addEventListener('click', () => {
             if (!document.fullscreenElement && localStorage.getItem('examStarted') == "true") {
                 enterFullscreen();

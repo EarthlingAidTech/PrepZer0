@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+  // Judge0 API base URL - using the same URL from your second code
+  const JUDGE0_API_URL = 'http://172.16.6.47:2358/submissions';
+  
+  // Assuming 'exam' is passed from the server to the EJS template
+  const examData = <%- JSON.stringify(exam) %>;
+  
+  // Store the exam data in localStorage when the page loads
+  window.addEventListener('DOMContentLoaded', () => {
+      const style = document.createElement('style');
+  style.textContent = `
+    .nav-button.unanswered {
+      border: 2px solid #dc3545;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 5px rgba(220, 53, 69, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+      }
+    }
+    
+    .editor-controls, .custom-test-section, .results-section {
+      margin-bottom: 20px;
+    }
+    
+    .language-selector {
+      margin-bottom: 10px;
+    }
+    
+    .test-result-pass {
+      color: #28a745;
+      font-weight: bold;
+    }
+    
+    .test-result-fail {
+      color: #dc3545;
+      font-weight: bold;
+    }
+    
+    .diff-view {
+      display: flex;
+      gap: 20px;
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #f8f9fa;
+      border-radius: 5px;
+    }
+    
+    .diff-expected, .diff-actual {
+      flex: 1;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    
+    .diff-expected {
+      background-color: #e8f4fd;
+    }
+    
+    .diff-actual {
+      background-color: #fff3f3;
+    }
+  `;
+  document.head.appendChild(style);
+  const submitButton = document.getElementById('submitExam');
+  if (submitButton) {
+    // Remove any existing onclick handlers
+    submitButton.onclick = null;
+    // Add our new confirmation handler
+    submitButton.addEventListener('click', confirmSubmitExam);
+  }
+  
+  // Also add keyboard shortcut for submission (Ctrl+Enter)
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      confirmSubmitExam();
+    }
+  });
+
+
+    // Store the entire exam object
+    localStorage.setItem('currentExam', JSON.stringify(examData));
+    
+    // Store questions separately for easier access
+    if (examData.questionType === "mcq") {
+      localStorage.setItem('mcqQuestions', JSON.stringify(examData.mcqQuestions));
+    } else if (examData.questionType === "coding") {
+      localStorage.setItem('codingQuestions', JSON.stringify(examData.codingQuestions));
+    } else if (examData.questionType === "mcq&coding") {
+      localStorage.setItem('mcqQuestions', JSON.stringify(examData.mcqQuestions));
+      localStorage.setItem('codingQuestions', JSON.stringify(examData.codingQuestions));
+    }
+    
+    // Initialize current question index
+    localStorage.setItem('currentQuestionIndex', '0');
+    
+    // Initialize timer if exam has duration
+    if (examData.duration) {
+      const endTime = new Date().getTime() + (examData.duration * 60 * 1000);
+      localStorage.setItem('examEndTime', endTime.toString());
+    }
+    
+    // Initialize empty answers object
+    const emptyAnswers = {
+      mcq: {},
+      coding: {}
+    };
+    localStorage.setItem('examAnswers', JSON.stringify(emptyAnswers));
+    
+    // Trigger the exam initialization
+    initializeExam();
+  });
+
+  // Function to handle exam initialization
+  function initializeExam() {
+    // Get the exam data from localStorage
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
+    
+    // Display exam information
+    document.getElementById('examTitle').textContent = examData.name;
+    document.getElementById('examDuration').textContent = `Duration: ${examData.duration} minutes`;
+    
+    // Determine which question to load first
+    loadQuestion(currentIndex);
+    
+    // Start the timer
+    startExamTimer();
+    
+    // Set up navigation between questions
+    setupQuestionNavigation();
+  }
+
+  // Function to load a specific question
+  function loadQuestion(index) {
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    let question;
+    let questionType;
+    
+    // Get the appropriate question based on question type and index
+    if (examData.questionType === "mcq") {
+      const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+      question = mcqQuestions[index];
+      questionType = "mcq";
+    } 
+    else if (examData.questionType === "coding") {
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      question = codingQuestions[index];
+      questionType = "coding";
+    } 
+    else if (examData.questionType === "mcq&coding") {
+      // For mixed exams, determine if we're showing MCQ or coding based on index
+      const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      
+      if (index < mcqQuestions.length) {
+        question = mcqQuestions[index];
+        questionType = "mcq";
+      } else {
+        question = codingQuestions[index - mcqQuestions.length];
+        questionType = "coding";
+      }
+    }
+    
+    // Update the current question index
+    localStorage.setItem('currentQuestionIndex', index.toString());
+    
+    // Display the question based on type
+    if (questionType === "mcq") {
+      displayMCQQuestion(question, index);
+    } else {
+      displayCodingQuestion(question, index);
+    }
+    
+    // Update the question navigation UI
+    updateQuestionNavigation(index);
+  }
+
+  // Function to display an MCQ question
+  function displayMCQQuestion(question, index) {
+
+    
+    const questionContainer = document.getElementById('questionContainer');
+    questionContainer.innerHTML = ''; // Clear previous content
+    
+    // Create question display
+    const questionElement = document.createElement('div');
+    questionElement.classList.add('mcq-question');
+    questionElement.innerHTML = `
+      <h3>Question ${index + 1}</h3>
+      <p>${question.questionText}</p>
+      <div class="options">
+        ${question.options.map((option, i) => `
+          <div class="option">
+            <input type="radio" name="q${index}" id="q${index}opt${i}" value="${i}" 
+              ${getSelectedMCQAnswer(question._id, i) ? 'checked' : ''}>
+            <label for="q${index}opt${i}">${option}</label>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    
+    questionContainer.appendChild(questionElement);
+
+
+    // Add event listeners to save answers
+    const optionInputs = questionContainer.querySelectorAll('input[type="radio"]');
+optionInputs.forEach(input => {
+  input.addEventListener('change', () => {
+    const optionIndex = parseInt(input.value);
+    const optionText = question.options[optionIndex]; // Get the actual option text
+    saveMCQAnswer(question._id, optionIndex, optionText);
+  });
+});
+  }
+function checkUnansweredQuestions() {
+  const examData = JSON.parse(localStorage.getItem('currentExam'));
+  const answers = JSON.parse(localStorage.getItem('examAnswers'));
+  
+  // Initialize arrays to store question IDs
+  let mcqQuestionIds = [];
+  let codingQuestionIds = [];
+  
+  // Get all question IDs based on the exam type
+  if (examData.questionType === "mcq" || examData.questionType === "mcq&coding") {
+    const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+    mcqQuestionIds = mcqQuestions.map(q => q._id);
+  }
+  
+  if (examData.questionType === "coding" || examData.questionType === "mcq&coding") {
+    const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+    codingQuestionIds = codingQuestions.map(q => q._id);
+  }
+  
+  // Check which questions have been answered
+  const answeredMcqIds = answers.mcq ? Object.keys(answers.mcq) : [];
+  const answeredCodingIds = answers.coding ? Object.keys(answers.coding) : [];
+  
+  // Find unanswered questions
+  const unansweredMcqIds = mcqQuestionIds.filter(id => !answeredMcqIds.includes(id));
+  const unansweredCodingIds = codingQuestionIds.filter(id => !answeredCodingIds.includes(id));
+  
+  // Mark unanswered questions in the navigation
+  const navButtons = document.querySelectorAll('.nav-button');
+  navButtons.forEach(button => {
+    const index = parseInt(button.dataset.index);
+    let isUnanswered = false;
+    
+    // Check if this is an unanswered MCQ question
+    if (index < mcqQuestionIds.length && unansweredMcqIds.includes(mcqQuestionIds[index])) {
+      isUnanswered = true;
+    }
+    
+    // Check if this is an unanswered coding question
+    if (examData.questionType === "mcq&coding" && index >= mcqQuestionIds.length) {
+      const codingIndex = index - mcqQuestionIds.length;
+      if (codingIndex < codingQuestionIds.length && 
+          unansweredCodingIds.includes(codingQuestionIds[codingIndex])) {
+        isUnanswered = true;
+      }
+    } else if (examData.questionType === "coding") {
+      if (unansweredCodingIds.includes(codingQuestionIds[index])) {
+        isUnanswered = true;
+      }
+    }
+    
+    // Mark unanswered questions with a red border
+    if (isUnanswered) {
+      button.classList.add('unanswered');
+    } else {
+      button.classList.remove('unanswered');
+    }
+  });
+  
+  return {
+    unansweredMcq: unansweredMcqIds.length,
+    unansweredCoding: unansweredCodingIds.length,
+    total: unansweredMcqIds.length + unansweredCodingIds.length
+  };
+}
+
+  // Function to display a coding question
+  function displayCodingQuestion(question, index) {
+    const questionContainer = document.getElementById('questionContainer');
+    questionContainer.innerHTML = ''; // Clear previous content
+    
+    // Create question display with additional test case elements
+    const questionElement = document.createElement('div');
+    questionElement.classList.add('coding-question');
+    questionElement.innerHTML = `
+      <h3>Question ${index + 1}: ${question.questionTile || ''}</h3>
+      <div class="question-metadata">
+        ${question.level ? `<span class="badge badge-${question.level}">${question.level.toUpperCase()}</span>` : ''}
+        ${question.classification ? `<span class="badge badge-category">${question.classification}</span>` : ''}
+        ${question.maxMarks ? `<span class="badge badge-marks">Marks: ${question.maxMarks}</span>` : ''}
+      </div>
+      
+      <div class="question-description">
+        <p>${question.questiontext}</p>
+        
+        ${question.inputFormat ? `<h4>Input Format</h4><p>${question.inputFormat}</p>` : ''}
+        ${question.outputFormat ? `<h4>Output Format</h4><p>${question.outputFormat}</p>` : ''}
+        ${question.constraits ? `<h4>Constraints</h4><p>${question.constraits}</p>` : ''}
+        
+        <div class="sample-io">
+          ${question.sampleInput ? `
+            <div class="sample-input">
+              <h4>Sample Input</h4>
+              <pre>${question.sampleInput}</pre>
+            </div>
+          ` : ''}
+          
+          ${question.sampleOutput ? `
+            <div class="sample-output">
+              <h4>Sample Output</h4>
+              <pre>${question.sampleOutput}</pre>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      
+      <!-- Display public test cases if any -->
+      ${question.testCases && question.testCases.filter(tc => tc.isPublic).length > 0 ? 
+        `<div class="test-cases">
+          <h4>Test Cases</h4>
+          ${question.testCases.filter(tc => tc.isPublic).map((testCase, tcIndex) => `
+            <div class="test-case">
+              <h5>Test Case ${tcIndex + 1}</h5>
+              <div class="test-input">
+                <h6>Input:</h6>
+                <pre>${testCase.input}</pre>
+              </div>
+              <div class="test-output">
+                <h6>Expected Output:</h6>
+                <pre>${testCase.expectedOutput}</pre>
+              </div>
+            </div>
+          `).join('')}
+        </div>` : ''
+      }
+      
+      <!-- Code editor section -->
+      <div class="code-editor-section">
+        <h4>Your Solution</h4>
+        
+        <div class="language-selector">
+          <label for="language-select-${question._id}">Language:</label>
+          <select id="language-select-${question._id}" class="language-select">
+            <option value="62">Java (OpenJDK 17)</option>
+            <option value="71" selected>Python (3.10.0)</option>
+            <option value="54">C++ (GCC 11.2.0)</option>
+            <option value="63">JavaScript (Node.js 16.13.0)</option>
+            <option value="51">C# (Mono 6.12.0)</option>
+          </select>
+        </div>
+        
+        <div class="code-editor">
+          <textarea id="codeEditor-${question._id}" class="code-editor" rows="10">${getSavedCodingAnswer(question._id) || getStarterCode(question)}</textarea>
+        </div>
+        
+        <div class="editor-controls">
+          <button class="run-code-btn" data-question-id="${question._id}">Run Code</button>
+          <button class="run-custom-btn" data-question-id="${question._id}">Run Custom Test</button>
+          <button class="run-all-tests-btn" data-question-id="${question._id}">Run All Tests</button>
+        </div>
+      </div>
+      
+      <!-- Custom test input section -->
+      <div class="custom-test-section" id="custom-test-${question._id}" style="display: none;">
+        <h4>Custom Test</h4>
+        <div class="custom-input">
+          <h5>Input:</h5>
+          <textarea id="custom-input-${question._id}" class="custom-input-textarea" placeholder="Enter your test input here..."></textarea>
+        </div>
+        <button id="run-custom-input-${question._id}" class="run-custom-input-btn">Run With Custom Input</button>
+      </div>
+      
+      <!-- Results section -->
+      <div class="results-section" id="results-${question._id}" style="display: none;">
+        <h4>Results</h4>
+        <div class="result-output" id="result-output-${question._id}"></div>
+        
+        <div class="test-results" id="test-results-${question._id}" style="display: none;">
+          <h4>Test Case Results</h4>
+          <table class="test-results-table">
+            <thead>
+              <tr>
+                <th>Test Case</th>
+                <th>Status</th>
+                <th>Time</th>
+                <th>Memory</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="test-results-body-${question._id}">
+              <!-- Test results will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+    
+    questionContainer.appendChild(questionElement);
+    
+    // Add event listener to save code periodically
+    const codeEditor = document.getElementById(`codeEditor-${question._id}`);
+    codeEditor.addEventListener('input', () => {
+      // Debounce to avoid saving too frequently
+      clearTimeout(codeEditor.saveTimeout);
+      codeEditor.saveTimeout = setTimeout(() => {
+        saveCodingAnswer(question._id, codeEditor.value);
+      }, 1000);
+    });
+    
+    // Add event listeners for code execution buttons
+    setupCodeExecutionButtons(question._id);
+  }
+
+  // Function to set up code execution buttons
+  function setupCodeExecutionButtons(questionId) {
+    // Run code button
+    const runCodeBtn = document.querySelector(`.run-code-btn[data-question-id="${questionId}"]`);
+    if (runCodeBtn) {
+      runCodeBtn.addEventListener('click', () => runCode(questionId));
+    }
+    
+    // Run custom test button
+    const runCustomBtn = document.querySelector(`.run-custom-btn[data-question-id="${questionId}"]`);
+    if (runCustomBtn) {
+      runCustomBtn.addEventListener('click', () => {
+        const customTestSection = document.getElementById(`custom-test-${questionId}`);
+        customTestSection.style.display = customTestSection.style.display === 'none' ? 'block' : 'none';
+      });
+    }
+    
+    // Run with custom input button
+    const runCustomInputBtn = document.getElementById(`run-custom-input-${questionId}`);
+    if (runCustomInputBtn) {
+      runCustomInputBtn.addEventListener('click', () => runCodeWithCustomInput(questionId));
+    }
+    
+    // Run all tests button
+    const runAllTestsBtn = document.querySelector(`.run-all-tests-btn[data-question-id="${questionId}"]`);
+    if (runAllTestsBtn) {
+      runAllTestsBtn.addEventListener('click', () => runAllTests(questionId));
+    }
+  }
+
+  // Helper function to get starter code for a language
+  function getStarterCode(question) {
+    if (!question.starterCode || question.starterCode.length === 0) {
+      return question.solutionTemplate || '';
+    }
+    
+    // Default to first available language or let user choose
+    return question.starterCode[0].code || question.solutionTemplate || '';
+  }
+
+  // Function to save MCQ answer to localStorage
+function saveMCQAnswer(questionId, optionIndex, optionText) {
+  const answers = JSON.parse(localStorage.getItem('examAnswers')) || { mcq: {}, coding: {} };
+  if (!answers.mcq) {
+    answers.mcq = {};
+  }
+  answers.mcq[questionId] = {
+    index: optionIndex,
+    value: optionText
+  };
+  localStorage.setItem('examAnswers', JSON.stringify(answers));
+}
+
+
+  // Function to get selected MCQ answer
+  function getSelectedMCQAnswer(questionId, optionIndex) {
+    const answers = JSON.parse(localStorage.getItem('examAnswers'));
+    return answers && answers.mcq && answers.mcq[questionId] === optionIndex;
+  }
+
+  // Function to save coding answer to localStorage
+  function saveCodingAnswer(questionId, code) {
+    const answers = JSON.parse(localStorage.getItem('examAnswers'));
+    if (!answers.coding) {
+      answers.coding = {};
+    }
+    answers.coding[questionId] = code;
+    localStorage.setItem('examAnswers', JSON.stringify(answers));
+  }
+
+  // Function to get saved coding answer
+  function getSavedCodingAnswer(questionId) {
+    const answers = JSON.parse(localStorage.getItem('examAnswers'));
+    return answers && answers.coding && answers.coding[questionId] ? answers.coding[questionId] : '';
+  }
+
+  // Function to setup question navigation
+  function setupQuestionNavigation() {
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    const navigationContainer = document.getElementById('questionNavigation');
+    
+    // Clear previous navigation
+    navigationContainer.innerHTML = '';
+    
+    // Determine total questions
+    let totalQuestions = 0;
+    if (examData.questionType === "mcq") {
+      totalQuestions = examData.numMCQs;
+    } else if (examData.questionType === "coding") {
+      totalQuestions = examData.numCoding;
+    } else if (examData.questionType === "mcq&coding") {
+      totalQuestions = examData.numTotalQuestions;
+    }
+    
+    // Create navigation buttons
+    for (let i = 0; i < totalQuestions; i++) {
+      const navButton = document.createElement('button');
+      navButton.textContent = i + 1;
+      navButton.classList.add('nav-button');
+      navButton.dataset.index = i;
+      navButton.addEventListener('click', () => {
+        loadQuestion(i);
+      });
+      navigationContainer.appendChild(navButton);
+    }
+    
+    // Add next/prev buttons
+    const navControls = document.createElement('div');
+    navControls.classList.add('nav-controls');
+    
+    const prevButton = document.createElement('button');
+    prevButton.textContent = 'Previous';
+    prevButton.id = 'prevQuestion';
+    prevButton.addEventListener('click', () => {
+      const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+      if (currentIndex > 0) {
+        loadQuestion(currentIndex - 1);
+      }
+    });
+    
+    const nextButton = document.createElement('button');
+    nextButton.textContent = 'Next';
+    nextButton.id = 'nextQuestion';
+    nextButton.addEventListener('click', () => {
+      const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+      if (currentIndex < totalQuestions - 1) {
+        loadQuestion(currentIndex + 1);
+      }
+    });
+    
+    navControls.appendChild(prevButton);
+    navControls.appendChild(nextButton);
+    navigationContainer.appendChild(navControls);
+  }
+
+  // Function to update question navigation UI
+
+
+  setInterval(() => {
+  const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
+  const examData = JSON.parse(localStorage.getItem('currentExam'));
+  
+  if (!examData) return; // Exit if no exam data
+  
+  if (examData.questionType === "mcq" || examData.questionType === "mcq&coding") {
+    // For MCQs, get all radio buttons for the current question
+    const mcqRadios = document.querySelectorAll(`input[name="q${currentIndex}"]`);
+    mcqRadios.forEach(radio => {
+      if (radio.checked) {
+        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+        const question = mcqQuestions[currentIndex];
+        if (question) {
+          saveMCQAnswer(question._id, parseInt(radio.value));
+        }
+      }
+    });
+  }
+  
+  if (examData.questionType === "coding" || examData.questionType === "mcq&coding") {
+    // For coding questions, get the code editor value
+    const mcqLength = examData.questionType === "mcq&coding" ? 
+      examData.numMCQs : 0;
+    
+    if (currentIndex >= mcqLength) {
+      const codingIndex = currentIndex - mcqLength;
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      const question = codingQuestions[codingIndex];
+      
+      if (question) {
+        const codeEditor = document.getElementById(`codeEditor-${question._id}`);
+        if (codeEditor) {
+          saveCodingAnswer(question._id, codeEditor.value);
+        }
+      }
+    }
+  }
+}, 10000); // Autosave every 10 seconds
+function updateQuestionNavigation(currentIndex) {
+  const navButtons = document.querySelectorAll('.nav-button');
+  navButtons.forEach(button => {
+    button.classList.remove('active');
+    if (parseInt(button.dataset.index) === currentIndex) {
+      button.classList.add('active');
+    }
+  });
+  
+  // Update next/prev button states
+  const examData = JSON.parse(localStorage.getItem('currentExam'));
+  let totalQuestions = 0;
+  if (examData.questionType === "mcq") {
+    totalQuestions = examData.numMCQs;
+  } else if (examData.questionType === "coding") {
+    totalQuestions = examData.numCoding;
+  } else if (examData.questionType === "mcq&coding") {
+    totalQuestions = examData.numTotalQuestions;
+  }
+  
+  const prevButton = document.getElementById('prevQuestion');
+  const nextButton = document.getElementById('nextQuestion');
+  
+  if (prevButton) {
+    prevButton.disabled = currentIndex === 0;
+  }
+  
+  if (nextButton) {
+    nextButton.disabled = currentIndex === totalQuestions - 1;
+  }
+  
+  // Check for unanswered questions
+  checkUnansweredQuestions();
+}
+  // Function to start exam timer
+  function startExamTimer() {
+    const endTimeStr = localStorage.getItem('examEndTime');
+    if (!endTimeStr) return;
+    
+    const endTime = parseInt(endTimeStr);
+    const timerDisplay = document.getElementById('examTimer');
+    
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const timeLeft = endTime - now;
+      
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        timerDisplay.textContent = "Time's up!";
+        submitExam(); // Auto-submit when time's up
+        return;
+      }
+      
+      // Calculate time left
+      const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+      
+      timerDisplay.textContent = `Time left: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }, 1000);
+  }
+
+function submitExam() {
+  const examData = JSON.parse(localStorage.getItem('currentExam'));
+  const answers = JSON.parse(localStorage.getItem('examAnswers'));
+  
+  // Show loading indicator
+  const submitButton = document.getElementById('submitExam');
+  const originalButtonText = submitButton.textContent;
+  submitButton.textContent = 'Submitting...';
+  submitButton.disabled = true;
+  
+  // Prepare submission data according to Mongoose schema format
+  const submissionData = {
+    exam: examData._id,
+    mcqAnswers: [],
+    codingAnswers: []
+  };
+  
+  // Process MCQ answers
+if (answers.mcq && Object.keys(answers.mcq).length > 0) {
+  for (const questionId in answers.mcq) {
+    const answerData = answers.mcq[questionId];
+    
+    // Send the actual option text (value) instead of just the index
+    submissionData.mcqAnswers.push({
+      questionId: questionId,
+      selectedOption: answerData.value || answerData.index.toString()
+    });
+  }
+}
+  
+  // Process coding answers
+  if (answers.coding && Object.keys(answers.coding).length > 0) {
+    for (const questionId in answers.coding) {
+      // Get the selected language for each coding question
+      const languageSelect = document.getElementById(`language-select-${questionId}`);
+      const languageId = languageSelect ? parseInt(languageSelect.value) : 71; // Default to Python (71) if not found
+      
+      submissionData.codingAnswers.push({
+        questionId: questionId,
+        code: answers.coding[questionId],
+        language: languageId
+      });
+    }
+  }
+  
+  console.log('Submission data:', submissionData);
+  
+  // Send submission to server using fetch API with JSON
+  fetch('/dashboard/submit-test', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(submissionData)
+  })
+  .then(response => {
+    if (!response.ok) {
+      if (response.redirected) {
+        window.location.href = response.url;
+        return;
+      }
+      return response.text().then(text => {
+        throw new Error(text || 'Submission failed');
+      });
+    }
+    return response.json();
+  })
+  .then(data => {
+    alert('Exam submitted successfully!');
+    // Clear exam data from localStorage
+    clearExamData();
+    
+    // Redirect to dashboard or results page
+    window.location.href = data.redirectUrl || '/dashboard';
+  })
+  .catch(error => {
+    console.error('Error submitting exam:', error);
+    alert(`There was an error submitting your exam: ${error.message}`);
+    
+    // Reset button state
+    submitButton.textContent = originalButtonText;
+    submitButton.disabled = false;
+  });
+}
+
+// Helper function to clear exam data
+function clearExamData() {
+  localStorage.removeItem('currentExam');
+  localStorage.removeItem('mcqQuestions');
+  localStorage.removeItem('codingQuestions');
+  localStorage.removeItem('currentQuestionIndex');
+  localStorage.removeItem('examEndTime');
+  localStorage.removeItem('examAnswers');
+}
+
+// Function to confirm submission
+function confirmSubmitExam() {
+  // Check if all questions have been attempted
+  const unansweredStatus = checkUnansweredQuestions();
+  
+  // Ask for confirmation, especially if not all questions are answered
+  let confirmMessage = 'Are you sure you want to submit your exam?';
+  
+  if (unansweredStatus.total > 0) {
+    confirmMessage = `You have ${unansweredStatus.total} unanswered question(s). Are you sure you want to submit?`;
+  }
+  
+  if (confirm(confirmMessage)) {
+    submitExam();
+  }
+}
+  async function createSubmission(languageId, sourceCode, stdin) {
+    try {
+      const response = await fetch(`${JUDGE0_API_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          source_code: sourceCode,
+          language_id: languageId,
+          stdin: stdin,
+          expected_output: null,
+          cpu_time_limit: 2,
+          memory_limit: 128000,
+          stack_limit: 64000,
+          max_processes_and_or_threads: 60,
+          enable_network: false
+        })
+      });
+      
+      const data = await response.json();
+      return data.token;
+    } catch (error) {
+      console.error('Error creating submission:', error);
+      throw error;
+    }
+  }
+  
+  // Function to get submission result from Judge0
+  async function getSubmissionResult(token) {
+    try {
+      const response = await fetch(`${JUDGE0_API_URL}/${token}?fields=stdout,stderr,status,time,memory,compile_output,message,exit_code`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting submission result:', error);
+      throw error;
+    }
+  }
+  
+  // Function to poll for submission result
+  async function pollSubmissionResult(token) {
+    let result = null;
+    let attempts = 0;
+    const maxAttempts = 30; // Maximum number of polling attempts
+    
+    while (attempts < maxAttempts) {
+      result = await getSubmissionResult(token);
+      
+      if (result.status.id >= 3) { // Status ID 3 means the submission has finished processing
+        return result;
+      }
+      
+      // Wait for 1 second before polling again
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      attempts++;
+    }
+    
+    throw new Error('Timed out waiting for submission result');
+  }
+  
+  // Function to format output from Judge0
+  function formatOutput(result) {
+    if (result.status.id === 3) { // Accepted
+      return {
+        success: true,
+        output: result.stdout || '(No output)',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else if (result.status.id === 4) { // Wrong Answer
+      return {
+        success: false,
+        output: result.stdout || '(No output)',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else if (result.status.id === 5) { // Time Limit Exceeded
+      return {
+        success: false,
+        output: 'Time Limit Exceeded',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else if (result.status.id === 6) { // Compilation Error
+      return {
+        success: false,
+        output: result.compile_output || 'Compilation Error',
+        executionTime: 0,
+        memory: 0
+      };
+    } else if (result.status.id === 7) { // Runtime Error (SIGSEGV)
+      return {
+        success: false,
+        output: result.stderr || 'Runtime Error',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else {
+      return {
+        success: false,
+        output: result.stderr || result.message || 'Unknown Error',
+        executionTime: result.time || 0,
+        memory: result.memory || 0
+      };
+    }
+  }
+  
+  // Function to compare expected output with actual output
+  function compareOutputs(expected, actual) {
+    // Normalize line endings and trim whitespace
+    expected = expected.replace(/\r\n/g, '\n').trim();
+    actual = actual.replace(/\r\n/g, '\n').trim();
+    
+    return expected === actual;
+  }
+  
+  // Function to display pretty diff between expected and actual output
+  function displayDiff(expected, actual) {
+    const diff = document.createElement('div');
+    diff.className = 'diff-view';
+    
+    const expectedDiv = document.createElement('div');
+    expectedDiv.className = 'diff-expected';
+    expectedDiv.innerText = 'Expected Output:\n' + expected;
+    
+    const actualDiv = document.createElement('div');
+    actualDiv.className = 'diff-actual';
+    actualDiv.innerText = 'Your Output:\n' + actual;
+    
+    diff.appendChild(expectedDiv);
+    diff.appendChild(actualDiv);
+    
+    return diff;
+  }
+
+  // Function to run code with sample input
+  async function runCode(questionId) {
+    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+    const languageSelect = document.getElementById(`language-select-${questionId}`);
+    const resultsSection = document.getElementById(`results-${questionId}`);
+    const resultOutput = document.getElementById(`result-output-${questionId}`);
+    
+    const code = codeTextarea.value;
+    const languageId = languageSelect.value;
+    
+    // Get the appropriate question data
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    let question;
+    
+    if (examData.questionType === "coding") {
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      question = codingQuestions.find(q => q._id == questionId);
+    } else if (examData.questionType === "mcq&coding") {
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      question = codingQuestions.find(q => q._id == questionId);
+    }
+    
+    if (!question) {
+      console.error('Question not found');
+      return;
+    }
+    
+    const sampleInput = question.sampleInput || '';
+    
+    // Show loading message
+    resultOutput.innerHTML = '<p>Running your code...</p>';
+    resultsSection.style.display = 'block';
+    
+    try {
+      // Create submission
+      const token = await createSubmission(languageId, code, sampleInput);
+      
+      // Poll for result
+      const result = await pollSubmissionResult(token);
+      
+      // Format and display result
+      const formattedResult = formatOutput(result);
+      
+      let outputHtml = `<h4>Execution Result:</h4>
+        <pre class="execution-output">${formattedResult.output}</pre>
+        <div class="execution-details">
+          <p>Execution Time: ${formattedResult.executionTime}s</p>
+          <p>Memory Used: ${formattedResult.memory / 1000}KB</p>
+        </div>`;
+      
+      // Compare with expected output if available
+      if (question.sampleOutput) {
+        const isCorrect = compareOutputs(question.sampleOutput, formattedResult.output);
+        
+        outputHtml += `<div class="comparison-result">
+          <p>Sample Test: <span class="${isCorrect ? 'test-result-pass' : 'test-result-fail'}">${isCorrect ? 'PASSED' : 'FAILED'}</span></p>
+        </div>`;
+        
+        if (!isCorrect) {
+          outputHtml += '<div id="diff-container-' + questionId + '"></div>';
+        }
+      }
+      
+      resultOutput.innerHTML = outputHtml;
+      
+      // Add diff view if test failed
+      if (question.sampleOutput && !compareOutputs(question.sampleOutput, formattedResult.output)) {
+        const diffContainer = document.getElementById(`diff-container-${questionId}`);
+        diffContainer.appendChild(displayDiff(question.sampleOutput, formattedResult.output));
+      }
+      
+    } catch (error) {
+      resultOutput.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+    }
+  }
+
+  // Function to run code with custom input
+  async function runCodeWithCustomInput(questionId) {
+    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+    const languageSelect = document.getElementById(`language-select-${questionId}`);
+    const customInput = document.getElementById(`custom-input-${questionId}`);
+    const resultsSection = document.getElementById(`results-${questionId}`);
+    const resultOutput = document.getElementById(`result-output-${questionId}`);
+    
+    const code = codeTextarea.value;
+    const languageId = languageSelect.value;
+    const stdin = customInput.value;
+    
+    // Show loading message
+    resultOutput.innerHTML = '<p>Running your code with custom input...</p>';
+    resultsSection.style.display = 'block';
+    
+    try {
+      // Create submission
+      const token = await createSubmission(languageId, code, stdin);
+      
+      // Poll for result
+      const result = await pollSubmissionResult(token);
+      
+      // Format and display result
+      const formattedResult = formatOutput(result);
+      
+      let outputHtml = `<h4>Custom Test Result:</h4>
+        <pre class="execution-output">${formattedResult.output}</pre>
+        <div class="execution-details">
+          <p>Execution Time: ${formattedResult.executionTime}s</p>
+          <p>Memory Used: ${formattedResult.memory / 1000}KB</p>
+        </div>`;
+      
+      resultOutput.innerHTML = outputHtml;
+    } catch (error) {
+      resultOutput.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+    }
+  }
+
+  // Function to run all test cases
+  async function runAllTests(questionId) {
+    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+    const languageSelect = document.getElementById(`language-select-${questionId}`);
+    const resultsSection = document.getElementById(`results-${questionId}`);
+    const resultOutput = document.getElementById(`result-output-${questionId}`);
+    const testResultsSection = document.getElementById(`test-results-${questionId}`);
+    const testResultsBody = document.getElementById(`test-results-body-${questionId}`);
+    
+    const code = codeTextarea.value;
+    const languageId = languageSelect.value;
+    
+    // Get the appropriate question data
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    let question;
+    
+    if (examData.questionType === "coding") {
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      question = codingQuestions.find(q => q._id == questionId);
+    } else if (examData.questionType === "mcq&coding") {
+      const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+      question = codingQuestions.find(q => q._id == questionId);
+    }
+    
+    // Check if question has test cases
+    if (!question || !question.testCases || question.testCases.length === 0) {
+      resultOutput.innerHTML = '<p class="error">No test cases available for this question.</p>';
+      return;
+    }
+    
+    // Show loading message
+    resultOutput.innerHTML = '<p>Running all test cases...</p>';
+    resultsSection.style.display = 'block';
+    testResultsSection.style.display = 'block';
+    testResultsBody.innerHTML = '';
+    
+    let allTestsPassed = true;
+    let totalTime = 0;
+    let maxMemory = 0;
+    
+    // Run all test cases
+    for (let i = 0; i < question.testCases.length; i++) {
+      const testCase = question.testCases[i];
+      
+      try {
+        // Create submission for this test case
+        const token = await createSubmission(languageId, code, testCase.input);
+        
+        // Poll for result
+        const result = await pollSubmissionResult(token);
+        
+        // Format result
+        const formattedResult = formatOutput(result);
+        
+        // Check if output matches expected output
+        const isCorrect = compareOutputs(testCase.expectedOutput, formattedResult.output);
+        
+        // Update aggregate statistics
+        totalTime += parseFloat(formattedResult.executionTime || 0);
+        maxMemory = Math.max(maxMemory, formattedResult.memory || 0);
+        
+        // If any test fails, mark all tests as failed
+        if (!isCorrect) {
+          allTestsPassed = false;
+        }
+        
+        // Add test result to table
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
+          <td class="${isCorrect ? 'test-result-pass' : 'test-result-fail'}">${isCorrect ? 'PASS' : 'FAIL'}</td>
+          <td>${formattedResult.executionTime}s</td>
+          <td>${formattedResult.memory / 1000}KB</td>
+          <td><span class="test-case-details" data-test-id="${questionId}-${i}">View Details</span></td>
+        `;
+        testResultsBody.appendChild(row);
+        
+        // Create hidden details div
+        const detailsDiv = document.createElement('div');
+        detailsDiv.id = `test-details-${questionId}-${i}`;
+        detailsDiv.style.display = 'none';
+        detailsDiv.className = 'test-case-details-container';
+        detailsDiv.innerHTML = `
+          <h4>Test Case ${i + 1} Details</h4>
+          <div class="test-case-input">
+            <h5>Input:</h5>
+            <pre>${testCase.input}</pre>
+          </div>
+          <div class="test-case-output">
+            <h5>Expected Output:</h5>
+            <pre>${testCase.expectedOutput}</pre>
+          </div>
+          <div class="test-case-actual">
+            <h5>Your Output:</h5>
+            <pre>${formattedResult.output}</pre>
+          </div>
+        `;
+        
+        // If test failed, add diff view
+        if (!isCorrect) {
+          detailsDiv.appendChild(displayDiff(testCase.expectedOutput, formattedResult.output));
+        }
+        
+        testResultsSection.appendChild(detailsDiv);
+        
+      } catch (error) {
+        allTestsPassed = false;
+        
+        // Add error row to table
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
+          <td class="test-result-fail">ERROR</td>
+          <td>-</td>
+          <td>-</td>
+          <td>${error.message}</td>
+        `;
+        testResultsBody.appendChild(row);
+      }
+    }
+    
+    // Update overall result
+    resultOutput.innerHTML = `
+      <h4>All Tests Result:</h4>
+      <p class="${allTestsPassed ? 'test-result-pass' : 'test-result-fail'}">
+        ${allTestsPassed ? 'All tests passed!' : 'Some tests failed!'}
+      </p>
+      <div class="execution-details">
+        <p>Total Execution Time: ${totalTime.toFixed(3)}s</p>
+        <p>Max Memory Used: ${maxMemory / 1000}KB</p>
+      </div>
+    `;
+    
+    // Add event listeners to the "View Details" links
+    document.querySelectorAll('.test-case-details').forEach(link => {
+      link.addEventListener('click', function() {
+        const testId = this.getAttribute('data-test-id');
+        const detailsDiv = document.getElementById(`test-details-${testId}`);
+        
+        // Toggle display
+        detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
+      });
+    });
+  }
+</script>
+
+<!-- HTML structure for the exam UI -->
+<div class="exam-container">
+  <div class="exam-header">
+    <h2 id="examTitle"></h2>
+    <div id="examTimer" class="timer"></div>
+    <div id="examDuration" class="duration"></div>
+  </div>
+  
+  <div class="exam-content">
+    <div id="questionContainer" class="question-container"></div>
+    
+    <div id="questionNavigation" class="question-navigation"></div>
+    
+    <div class="submission-controls">
+      <button id="submitExam" onclick="submitExam()">Submit Exam</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSS Styles -->
+<style>
+  .exam-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .exam-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .timer {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #d9534f;
+  }
+  
+  .question-container {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .mcq-question .options {
+    margin-top: 15px;
+  }
+  
+  .option {
+    margin-bottom: 10px;
+  }
+  
+  .coding-question .question-description {
+    margin-bottom: 20px;
+  }
+  
+  .sample-io {
+    display: flex;
+    gap: 20px;
+    margin-top: 15px;
+  }
+  
+  .sample-input, .sample-output {
+    flex: 1;
+  }
+  
+  pre {
+    background-color: #f1f1f1;
+    padding: 10px;
+    border-radius: 3px;
+    overflow-x: auto;
+  }
+  
+  .code-editor {
+    width: 100%;
+    min-height: 300px;
+    font-family: monospace;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  
+  .question-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .nav-button {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .nav-button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  
+  .nav-controls {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+  }
+  
+  .submission-controls {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  
+  #submitExam {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  #submitExam:hover {
+    background-color: #218838;
+  }
+</style>
+</body>
+</html>

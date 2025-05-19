@@ -431,57 +431,40 @@
 <body class="light-theme">
     <div class="container">
         <div class="problem-panel">
-            <div class="problem-header">
-                <h2>Problem: Sum of Two Numbers</h2>
-                <p>Write a function that returns the sum of two integers.</p>
+<div class="problem-header">
+    <h2>Problem: <%= exam.codingQuestions[0].questionTile %></h2>
+    <p><%= exam.codingQuestions[0].questiontext %></p>
+</div>
+
+<div class="problem-content">
+    <h3>Input Format</h3>
+    <p><%= exam.codingQuestions[0].inputFormat %></p>
+    
+    <h3>Output Format</h3>
+    <p><%= exam.codingQuestions[0].outputFormat %></p>
+    
+    <h3>Constraints</h3>
+    <p><%= exam.codingQuestions[0].constraits %></p>
+    
+    <h3>Sample Input</h3>
+    <div class="test-input"><%= exam.codingQuestions[0].sampleInput %></div>
+    
+    <h3>Sample Output</h3>
+    <div class="test-output"><%= exam.codingQuestions[0].sampleOutput %></div>
+    
+    <div class="test-case-container">
+        <h3>Test Cases</h3>
+        <% exam.codingQuestions[0].testCases.filter(tc => tc.isPublic).forEach((testCase, index) => { %>
+            <div class="test-case">
+                <h4>Test Case <%= index + 1 %></h4>
+                <p><strong>Input:</strong></p>
+                <div class="test-input"><%= testCase.input %></div>
+                <p><strong>Expected Output:</strong></p>
+                <div class="test-output"><%= testCase.expectedOutput %></div>
             </div>
-            
-            <div class="problem-content">
-                <h3>Input Format</h3>
-                <p>The first line contains an integer <strong>a</strong>.<br>
-                The second line contains an integer <strong>b</strong>.</p>
-                
-                <h3>Output Format</h3>
-                <p>Return the sum of the two integers.</p>
-                
-                <h3>Constraints</h3>
-                <p>-1000 ≤ a, b ≤ 1000</p>
-                
-                <h3>Sample Input</h3>
-                <div class="test-input">3
-5</div>
-                
-                <h3>Sample Output</h3>
-                <div class="test-output">8</div>
-                
-                <div class="test-case-container">
-                    <h3>Test Cases</h3>
-                    <div class="test-case">
-                        <h4>Test Case 1</h4>
-                        <p><strong>Input:</strong></p>
-                        <div class="test-input">3
-5</div>
-                        <p><strong>Expected Output:</strong></p>
-                        <div class="test-output">8</div>
-                    </div>
-                    <div class="test-case">
-                        <h4>Test Case 2</h4>
-                        <p><strong>Input:</strong></p>
-                        <div class="test-input">-10
-10</div>
-                        <p><strong>Expected Output:</strong></p>
-                        <div class="test-output">0</div>
-                    </div>
-                    <div class="test-case">
-                        <h4>Test Case 3</h4>
-                        <p><strong>Input:</strong></p>
-                        <div class="test-input">100
--50</div>
-                        <p><strong>Expected Output:</strong></p>
-                        <div class="test-output">50</div>
-                    </div>
-                </div>
-            </div>
+        <% }); %>
+    </div>
+</div>
         </div>
         <div class="editor-panel">
             <div class="editor-header">

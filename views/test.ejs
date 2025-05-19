@@ -800,21 +800,7 @@
                         <!-- Coding Questions -->
                         <% exam.codingQuestions.forEach((question, index) => { %>
                             <div class="question-card" id="coding-question-<%= index %>">
-                                <!-- <div class="question-status">
-                                    <div>
-                                        <span class="question-type-badge coding-badge">Coding</span>
-                                    </div>
-                                    <div>
-                                        Question <%= index + 1 + exam.mcqQuestions.length %> of <%= totalQuestions %>
-                                    </div>
-                                </div>
-                                <h4 class="question-text"><%= question.question %></h4>
-                                <textarea name="coding-<%= question._id %>" class="coding-textarea mt-4" rows="12" placeholder="Write your code here..."></textarea>
-                                <div class="navigation-buttons">
-                                    <button type="button" class="btn btn-outline-secondary prev-question-btn">Previous</button>
-                                    <button type="button" class="btn btn-primary next-question-btn" <%= index === exam.codingQuestions.length - 1 ? 'disabled' : '' %>>Next</button>
-                                </div> -->
-                                <%- include('partials/hack') %>
+                            
                             </div>
                         <% }); %>
                         
