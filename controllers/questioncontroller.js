@@ -304,8 +304,9 @@ exports.postcoding_from_db = async (req, res) => {
 };
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases } = req.body;
+        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases,starterCode  } = req.body;
         console.log(req.body);
+
         
         // This one is for to be seen in exams so it's connected to the exams
         // It says this question belongs to this exam
@@ -323,6 +324,7 @@ exports.postaddcodingQuestion = async (req, res) => {
             createdBy: req.user._id,
             sampleInput: req.body.sampleInput,
             sampleOutput: req.body.sampleOutput,
+            starterCode
         });
         
         await newCodingQuestion.save();
@@ -349,6 +351,7 @@ exports.postaddcodingQuestion = async (req, res) => {
                 createdBy: req.user._id,
                 sampleInput: req.body.sampleInput,
                 sampleOutput: req.body.sampleOutput,
+                starterCode
             });
             await addDBCodingQuestion.save();
             console.log("Question added to database collection");
