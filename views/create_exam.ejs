@@ -1,5 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE
+html >
+  <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -681,6 +682,8 @@
         // Function to check if a date is in the past
         function isDateInPast(date) {
             const now = new Date();
+            // Add a small buffer (5 seconds) to prevent false positives during input
+            now.setSeconds(now.getSeconds() - 5);
             return date < now;
         }
         
@@ -707,7 +710,7 @@
             startDatePicker = flatpickr("#scheduledAt", {
                 ...commonConfig,
                 minDate: "today",
-                onChange: function(selectedDates, dateStr) {
+                onClose: function(selectedDates, dateStr) {
                     // Check if selected date is in the past
                     if (isDateInPast(selectedDates[0])) {
                         showPastDateWarning();
@@ -728,6 +731,10 @@
                     }
                     
                     updateDurationDisplay();
+                },
+                onChange: function() {
+                    // Just update the display without validation
+                    updateDurationDisplay();
                 }
             });
             
@@ -735,7 +742,22 @@
             endDatePicker = flatpickr("#scheduleTill", {
                 ...commonConfig,
                 minDate: "today",
+                onClose: function(selectedDates) {
+                    // Check if selected date is in the past
+                    if (isDateInPast(selectedDates[0])) {
+                        showPastDateWarning();
+                        
+                        // Reset to a reasonable future time
+                        setTimeout(() => {
+                            endDatePicker.setDate(getDefaultFutureDate());
+                        }, 100);
+                        return;
+                    }
+                    
+                    updateDurationDisplay();
+                },
                 onChange: function() {
+                    // Just update the display without validation
                     updateDurationDisplay();
                 }
             });

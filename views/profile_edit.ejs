@@ -9,167 +9,184 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <style>
         body {
-            background-color: #141D2F; /* Dark blue background */
-            font-family: Arial, sans-serif;
-            color: #333;
-        }
-        
-        /* Navbar styling */
-        .navbar {
-            background-color: #0d1b3a !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .navbar-brand {
-            color: #ffffff !important;
-            font-weight: 600;
-        }
-        
-        .nav-link {
-            color: #b3d1ff !important;
-        }
-        
-        .nav-link:hover {
-            color: #ffffff !important;
-        }
-        
-        .dropdown-menu {
-            background-color: #0d1b3a;
-            border: 1px solid #1D4ED8;
-        }
-        
-        .dropdown-item {
-            color: #b3d1ff;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #1D4ED8;
-            color: #ffffff;
-        }
-        
-        /* Container styling */
-        .container {
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-        
-        .main-body {
-            padding: 15px;
-        }
-        
-        /* Card styling */
-        .card {
-            border: 3px solid #1D4ED8;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
-            background-color: #ffffff;
-            margin-bottom: 20px;
-        }
-        
-        .card-body {
-            padding: 25px;
-        }
-        
-        /* Profile image */
-        #profileimg {
-            border: 5px solid #1D4ED8;
-            padding: 3px;
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-        }
-        
-        #navimg {
-            border: 2px solid #1D4ED8;
-        }
-        
-        /* Typography */
-        h2 {
-            color: #0056b3;
-            margin-top: 15px;
-            font-weight: 600;
-        }
-        
-        h4 {
-            color: #1D4ED8;
-            font-weight: 500;
-        }
-        
-        h6 {
-            color: #0056b3;
-            font-weight: 600;
-        }
-        
-        .text-secondary {
-            color: #495057 !important;
-        }
-        
-        /* Form styling */
-        input[type="text"],
-        input[type="number"],
-        input[type="file"] {
-            border: 2px solid #b3d1ff;
-            border-radius: 5px;
-            padding: 8px 12px;
-            width: 100%;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="text"]:focus,
-        input[type="number"]:focus {
-            border-color: #1D4ED8;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
-        }
-        
-        input[type="file"] {
-            padding: 8px 0;
-            border: none;
-            color: #0056b3;
-        }
-        
-        /* Button styling */
-        .btn-info {
-            background-color: #1D4ED8;
-            border-color: #1D4ED8;
-            padding: 8px 20px;
-            font-weight: 500;
-            margin-right: 10px;
-        }
-        
-        .btn-info:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-        
-        /* Divider */
-        hr {
-            border-top: 1px solid #b3d1ff;
-            margin-top: 0.8rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 767px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-            
-            #profileimg {
-                width: 120px;
-                height: 120px;
-            }
-        }
+    background-color: #111827; /* Dark blue background */
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: #1F2937 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.nav-link {
+    color: #b3d1ff !important;
+}
+
+.nav-link:hover {
+    color: #ffffff !important;
+}
+
+.dropdown-menu {
+    background-color: #0d1b3a;
+    border: 1px solid #1D4ED8;
+}
+
+.dropdown-item {
+    color: #b3d1ff;
+}
+
+.dropdown-item:hover {
+    background-color: #1D4ED8;
+    color: #ffffff;
+}
+
+/* Container styling */
+.container {
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.main-body {
+    padding: 15px;
+}
+
+/* Card styling */
+.card {
+    border: 3px solid #1D4ED8;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
+    background-color: #1F2937;
+    margin-bottom: 20px;
+}
+
+.card-body {
+    padding: 25px;
+    background-color: #1F2937;
+    color: white;
+}
+
+/* Profile image */
+#profileimg {
+    border: 5px solid #1D4ED8;
+    padding: 3px;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+#navimg {
+    border: 2px solid #1D4ED8;
+}
+
+/* Typography */
+h2, h4 {
+    color: white;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+h6 {
+    color: #b3d1ff;
+    font-weight: 600;
+}
+
+.text-secondary {
+    color: white !important;
+}
+
+.text-muted {
+    color: #b3d1ff !important;
+}
+
+/* Form styling */
+input[type="text"],
+input[type="number"],
+input[type="file"] {
+    border: 2px solid #b3d1ff;
+    border-radius: 5px;
+    padding: 8px 12px;
+    width: 100%;
+    transition: border-color 0.3s;
+    background-color: #2a3749;
+    color: white;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+    border-color: #1D4ED8;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
+}
+
+input[type="file"] {
+    padding: 8px 0;
+    border: none;
+    color: #b3d1ff;
+}
+
+input::placeholder {
+    color: #8895a7;
+}
+
+/* Button styling */
+.btn-info {
+    background-color: #1D4ED8;
+    border-color: #1D4ED8;
+    padding: 8px 20px;
+    font-weight: 500;
+    margin-right: 10px;
+}
+
+.btn-info:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Divider */
+hr {
+    border-top: 1px solid #b3d1ff;
+    margin-top: 0.8rem;
+    margin-bottom: 0.8rem;
+    opacity: 0.3;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    #profileimg {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+/* Additional dark theme fixes */
+p {
+    color: white;
+}
+
+.small {
+    color: #b3d1ff !important;
+}
     </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <a class="navbar-brand" href="#">
-        <img src="https://salty-lowlands-81889.herokuapp.com/images/eat.png" width="30" height="30" class="d-inline-block align-top" alt=""> 
+       <img src=".\..\uploads\unnamed-removebg-preview.png" width="30" height="30" class="d-inline-block align-top" alt=""> 
         PrepZer0
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
@@ -178,9 +195,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
-        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <!-- <li class="nav-item"><a class="nav-link" href="/">Home</a></li> -->
         <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-        <ul class="navbar-nav">
+        <!-- <ul class="navbar-nav">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" 
                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -191,7 +208,7 @@
                   <a class="dropdown-item" href="/logout">Log Out</a>
                 </div>
             </li>   
-        </ul>
+        </ul> -->
       </ul>
     </div>
 </nav>
@@ -267,7 +284,8 @@
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0">Department</h6></div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" name="department" placeholder="<%= department %>" value="<%= department %>">
+                                     <p><%= department %></p>
+                                   
                                 </div>
                             </div>
                             <hr>
@@ -278,7 +296,7 @@
                             <div class="row">
                                 <div class="col-sm-3"><h6 class="mb-0">Semester</h6></div>
                                 <div class="col-sm-9 text-secondary">
-                                    <input type="text" name="sem" placeholder="<%= sem %>" value="<%= sem %>">
+                                    <p><%= sem %></p>
                                 </div>
                             </div>
                             <hr>

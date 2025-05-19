@@ -1,0 +1,732 @@
+<!-- Loop through all coding questions in the exam -->
+<% exam.codingQuestions.forEach((question) => { %>
+  <div class="coding-question" id="question-<%= question._id %>">
+    <h2>Problem <%= question._id %>: <%= question.questionTile %></h2>
+    
+    <div class="question-metadata">
+      <span class="badge badge-<%= question.level %>"><%= question.level.toUpperCase() %></span>
+      <span class="badge badge-category"><%= question.classification %></span>
+      <span class="badge badge-marks">Marks: <%= question.maxMarks %></span>
+    </div>
+
+    <div class="question-description">
+      <p><%= question.questiontext %></p>
+    </div>
+
+    <% if (question.inputFormat) { %>
+      <div class="question-section">
+        <h3>Input Format</h3>
+        <p><%= question.inputFormat %></p>
+      </div>
+    <% } %>
+
+    <% if (question.outputFormat) { %>
+      <div class="question-section">
+        <h3>Output Format</h3>
+        <p><%= question.outputFormat %></p>
+      </div>
+    <% } %>
+
+    <% if (question.constraits) { %>
+      <div class="question-section">
+        <h3>Constraints</h3>
+        <p><%= question.constraits %></p>
+      </div>
+    <% } %>
+
+    <% if (question.sampleInput && question.sampleOutput) { %>
+      <div class="question-samples">
+        <div class="sample">
+          <h3>Sample Input</h3>
+          <pre><code><%= question.sampleInput %></code></pre>
+        </div>
+        <div class="sample">
+          <h3>Sample Output</h3>
+          <pre><code><%= question.sampleOutput %></code></pre>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Display public test cases if any -->
+    <% const publicTestCases = question.testCases.filter(tc => tc.isPublic); %>
+    <% if (publicTestCases.length > 0) { %>
+      <div class="test-cases">
+        <h3>Test Cases</h3>
+        <% publicTestCases.forEach((testCase, tcIndex) => { %>
+          <div class="test-case">
+            <h4>Test Case <%= tcIndex + 1 %></h4>
+            <div class="test-input">
+              <h5>Input:</h5>
+              <pre><code><%= testCase.input %></code></pre>
+            </div>
+            <div class="test-output">
+              <h5>Expected Output:</h5>
+              <pre><code><%= testCase.expectedOutput %></code></pre>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <!-- Code editor section -->
+    <div class="code-editor-section">
+      <h3>Your Solution</h3>
+      
+      <div class="language-selector">
+        <label for="language-select-<%= question._id %>">Language:</label>
+        <select id="language-select-<%= question._id %>" class="language-select">
+          <option value="62">Java (OpenJDK 17)</option>
+          <option value="71" selected>Python (3.10.0)</option>
+          <option value="54">C++ (GCC 11.2.0)</option>
+          <option value="63">JavaScript (Node.js 16.13.0)</option>
+          <option value="51">C# (Mono 6.12.0)</option>
+        </select>
+      </div>
+      
+      <div class="code-editor" id="editor-<%= question._id %>">
+        <textarea class="code-textarea" id="code-textarea-<%= question._id %>"><%= question.solutionTemplate %></textarea>
+      </div>
+      
+      <div class="editor-controls">
+        <button class="run-code-btn" data-question-id="<%= question._id %>">Run Code</button>
+        <button class="run-custom-btn" data-question-id="<%= question._id %>">Run Custom Test</button>
+        <button class="run-all-tests-btn" data-question-id="<%= question._id %>">Run All Tests</button>
+        <button class="submit-btn" data-question-id="<%= question._id %>">Submit</button>
+      </div>
+    </div>
+    
+    <!-- Custom test input section -->
+    <div class="custom-test-section" id="custom-test-<%= question._id %>" style="display: none;">
+      <h3>Custom Test</h3>
+      <div class="custom-input">
+        <h4>Input:</h4>
+        <textarea id="custom-input-<%= question._id %>" class="custom-input-textarea" placeholder="Enter your test input here..."></textarea>
+      </div>
+    </div>
+    
+    <div class="results-section" id="results-<%= question._id %>" style="display: none;">
+      <h3>Results</h3>
+      <div class="result-output" id="result-output-<%= question._id %>"></div>
+      
+      <div class="test-results" id="test-results-<%= question._id %>" style="display: none;">
+        <h3>Test Case Results</h3>
+        <table class="test-results-table">
+          <thead>
+            <tr>
+              <th>Test Case</th>
+              <th>Status</th>
+              <th>Time</th>
+              <th>Memory</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="test-results-body-<%= question._id %>">
+            <!-- Test results will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <% if (question._id < exam.codingQuestions.length) { %>
+    <hr class="question-divider">
+  <% } %>
+<% }); %>
+
+<!-- Add styles for new elements -->
+<style>
+  .custom-test-section {
+    margin-top: 20px;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .custom-input-textarea {
+    width: 100%;
+    min-height: 100px;
+    font-family: monospace;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  
+  .test-results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .test-results-table th, .test-results-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .test-results-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .test-result-pass {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .test-result-fail {
+    color: red;
+    font-weight: bold;
+  }
+  
+  .language-selector {
+    margin-bottom: 10px;
+  }
+  
+  .execution-details {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #666;
+  }
+  
+  .test-case-details {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+  }
+  
+  .diff-view {
+    font-family: monospace;
+    white-space: pre-wrap;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+  }
+  
+  .diff-expected {
+    background-color: #ffeded;
+  }
+  
+  .diff-actual {
+    background-color: #edfff0;
+  }
+</style>
+<script id="exam-data" type="application/json">
+  <%- JSON.stringify(exam) %>
+</script>
+<!-- JavaScript for integration with Judge0 -->
+ <script>
+    // JavaScript for integration with Judge0
+document.addEventListener('DOMContentLoaded', function() {
+  // Judge0 API base URL
+  const JUDGE0_API_URL = 'http://172.16.6.47:2358/submissions';
+  
+  // Parse exam data from the embedded JSON
+  window.exam = JSON.parse(document.getElementById('exam-data').textContent);
+  
+  // Function to create submission to Judge0
+  async function createSubmission(languageId, sourceCode, stdin) {
+    try {
+      const response = await fetch(`${JUDGE0_API_URL}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          source_code: sourceCode,
+          language_id: languageId,
+          stdin: stdin,
+          expected_output: null,
+          cpu_time_limit: 2,
+          memory_limit: 128000,
+          stack_limit: 64000,
+          max_processes_and_or_threads: 60,
+          enable_network: false
+        })
+      });
+      
+      const data = await response.json();
+      return data.token;
+    } catch (error) {
+      console.error('Error creating submission:', error);
+      throw error;
+    }
+  }
+  
+  // Function to get submission result from Judge0
+  async function getSubmissionResult(token) {
+    try {
+      const response = await fetch(`${JUDGE0_API_URL}/${token}?fields=stdout,stderr,status,time,memory,compile_output,message,exit_code`);
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting submission result:', error);
+      throw error;
+    }
+  }
+  
+  // Function to poll for submission result
+  async function pollSubmissionResult(token) {
+    let result = null;
+    let attempts = 0;
+    const maxAttempts = 30; // Maximum number of polling attempts
+    
+    while (attempts < maxAttempts) {
+      result = await getSubmissionResult(token);
+      
+      if (result.status.id >= 3) { // Status ID 3 means the submission has finished processing
+        return result;
+      }
+      
+      // Wait for 1 second before polling again
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      attempts++;
+    }
+    
+    throw new Error('Timed out waiting for submission result');
+  }
+  
+  // Function to format output from Judge0
+  function formatOutput(result) {
+    if (result.status.id === 3) { // Accepted
+      return {
+        success: true,
+        output: result.stdout || '(No output)',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else if (result.status.id === 4) { // Wrong Answer
+      return {
+        success: false,
+        output: result.stdout || '(No output)',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else if (result.status.id === 5) { // Time Limit Exceeded
+      return {
+        success: false,
+        output: 'Time Limit Exceeded',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else if (result.status.id === 6) { // Compilation Error
+      return {
+        success: false,
+        output: result.compile_output || 'Compilation Error',
+        executionTime: 0,
+        memory: 0
+      };
+    } else if (result.status.id === 7) { // Runtime Error (SIGSEGV)
+      return {
+        success: false,
+        output: result.stderr || 'Runtime Error',
+        executionTime: result.time,
+        memory: result.memory
+      };
+    } else {
+      return {
+        success: false,
+        output: result.stderr || result.message || 'Unknown Error',
+        executionTime: result.time || 0,
+        memory: result.memory || 0
+      };
+    }
+  }
+  
+  // Function to compare expected output with actual output
+  function compareOutputs(expected, actual) {
+    // Normalize line endings and trim whitespace
+    expected = expected.replace(/\r\n/g, '\n').trim();
+    actual = actual.replace(/\r\n/g, '\n').trim();
+    
+    return expected === actual;
+  }
+  
+  // Function to display pretty diff between expected and actual output
+  function displayDiff(expected, actual) {
+    const diff = document.createElement('div');
+    diff.className = 'diff-view';
+    
+    const expectedDiv = document.createElement('div');
+    expectedDiv.className = 'diff-expected';
+    expectedDiv.innerText = 'Expected Output:\n' + expected;
+    
+    const actualDiv = document.createElement('div');
+    actualDiv.className = 'diff-actual';
+    actualDiv.innerText = 'Your Output:\n' + actual;
+    
+    diff.appendChild(expectedDiv);
+    diff.appendChild(actualDiv);
+    
+    return diff;
+  }
+  
+  // Handle run code button
+  const runButtons = document.querySelectorAll('.run-code-btn');
+  runButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const questionId = this.getAttribute('data-question-id');
+      const codeTextarea = document.getElementById(`code-textarea-${questionId}`);
+      const languageSelect = document.getElementById(`language-select-${questionId}`);
+      const resultsSection = document.getElementById(`results-${questionId}`);
+      const resultOutput = document.getElementById(`result-output-${questionId}`);
+      
+      const code = codeTextarea.value;
+      const languageId = languageSelect.value;
+      
+      // Get question by ID from the exam data
+      const question = window.exam.codingQuestions.find(q => q._id == questionId);
+      const sampleInput = question.sampleInput || '';
+      
+      // Show loading message
+      resultOutput.innerHTML = '<p>Running your code...</p>';
+      resultsSection.style.display = 'block';
+      
+      try {
+        // Create submission
+        const token = await createSubmission(languageId, code, sampleInput);
+        
+        // Poll for result
+        const result = await pollSubmissionResult(token);
+        
+        // Format and display result
+        const formattedResult = formatOutput(result);
+        
+        let outputHtml = `<h4>Execution Result:</h4>
+          <pre class="execution-output">${formattedResult.output}</pre>
+          <div class="execution-details">
+            <p>Execution Time: ${formattedResult.executionTime}s</p>
+            <p>Memory Used: ${formattedResult.memory / 1000}KB</p>
+          </div>`;
+        
+        // Compare with expected output if available
+        if (question.sampleOutput) {
+          const isCorrect = compareOutputs(question.sampleOutput, formattedResult.output);
+          
+          outputHtml += `<div class="comparison-result">
+            <p>Sample Test: <span class="${isCorrect ? 'test-result-pass' : 'test-result-fail'}">${isCorrect ? 'PASSED' : 'FAILED'}</span></p>
+          </div>`;
+          
+          if (!isCorrect) {
+            outputHtml += '<div id="diff-container-' + questionId + '"></div>';
+          }
+        }
+        
+        resultOutput.innerHTML = outputHtml;
+        
+        // Add diff view if test failed
+        if (question.sampleOutput && !compareOutputs(question.sampleOutput, formattedResult.output)) {
+          const diffContainer = document.getElementById(`diff-container-${questionId}`);
+          diffContainer.appendChild(displayDiff(question.sampleOutput, formattedResult.output));
+        }
+        
+      } catch (error) {
+        resultOutput.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+      }
+    });
+  });
+  
+  // Handle run custom test button with fixed functionality
+  const runCustomButtons = document.querySelectorAll('.run-custom-btn');
+  runCustomButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const questionId = this.getAttribute('data-question-id');
+      const customTestSection = document.getElementById(`custom-test-${questionId}`);
+      
+      // Toggle custom test section
+      customTestSection.style.display = customTestSection.style.display === 'none' ? 'block' : 'none';
+      
+      // Add run button within the custom test section if it doesn't exist
+      if (!document.getElementById(`run-custom-input-${questionId}`)) {
+        const runCustomInputBtn = document.createElement('button');
+        runCustomInputBtn.id = `run-custom-input-${questionId}`;
+        runCustomInputBtn.className = 'run-custom-input-btn';
+        runCustomInputBtn.textContent = 'Run With Custom Input';
+        runCustomInputBtn.style.marginTop = '10px';
+        customTestSection.appendChild(runCustomInputBtn);
+        
+        // Add event listener for the custom input run button
+        runCustomInputBtn.addEventListener('click', async function() {
+          const codeTextarea = document.getElementById(`code-textarea-${questionId}`);
+          const languageSelect = document.getElementById(`language-select-${questionId}`);
+          const resultsSection = document.getElementById(`results-${questionId}`);
+          const resultOutput = document.getElementById(`result-output-${questionId}`);
+          const customInput = document.getElementById(`custom-input-${questionId}`);
+          
+          const code = codeTextarea.value;
+          const languageId = languageSelect.value;
+          const stdin = customInput.value;
+          
+          // Show loading message
+          resultOutput.innerHTML = '<p>Running your code with custom input...</p>';
+          resultsSection.style.display = 'block';
+          
+          try {
+            // Create submission
+            const token = await createSubmission(languageId, code, stdin);
+            
+            // Poll for result
+            const result = await pollSubmissionResult(token);
+            
+            // Format and display result
+            const formattedResult = formatOutput(result);
+            
+            let outputHtml = `<h4>Custom Test Result:</h4>
+              <pre class="execution-output">${formattedResult.output}</pre>
+              <div class="execution-details">
+                <p>Execution Time: ${formattedResult.executionTime}s</p>
+                <p>Memory Used: ${formattedResult.memory / 1000}KB</p>
+              </div>`;
+            
+            resultOutput.innerHTML = outputHtml;
+          } catch (error) {
+            resultOutput.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+          }
+        });
+      }
+    });
+  });
+  
+  // Handle run all tests button with fixed functionality
+  const runAllTestsButtons = document.querySelectorAll('.run-all-tests-btn');
+  runAllTestsButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const questionId = this.getAttribute('data-question-id');
+      const codeTextarea = document.getElementById(`code-textarea-${questionId}`);
+      const languageSelect = document.getElementById(`language-select-${questionId}`);
+      const resultsSection = document.getElementById(`results-${questionId}`);
+      const resultOutput = document.getElementById(`result-output-${questionId}`);
+      const testResultsSection = document.getElementById(`test-results-${questionId}`);
+      const testResultsBody = document.getElementById(`test-results-body-${questionId}`);
+      
+      const code = codeTextarea.value;
+      const languageId = languageSelect.value;
+      
+      // Get question by ID from the exam data
+      const question = window.exam.codingQuestions.find(q => q._id == questionId);
+      
+      // Check if question has test cases
+      if (!question.testCases || question.testCases.length === 0) {
+        resultOutput.innerHTML = '<p class="error">No test cases available for this question.</p>';
+        return;
+      }
+      
+      // Show loading message
+      resultOutput.innerHTML = '<p>Running all test cases...</p>';
+      resultsSection.style.display = 'block';
+      testResultsSection.style.display = 'block';
+      testResultsBody.innerHTML = '';
+      
+      let allTestsPassed = true;
+      let totalTime = 0;
+      let maxMemory = 0;
+      
+      // Run all test cases
+      for (let i = 0; i < question.testCases.length; i++) {
+        const testCase = question.testCases[i];
+        
+        try {
+          // Create submission for this test case
+          const token = await createSubmission(languageId, code, testCase.input);
+          
+          // Poll for result
+          const result = await pollSubmissionResult(token);
+          
+          // Format result
+          const formattedResult = formatOutput(result);
+          
+          // Check if output matches expected output
+          const isCorrect = compareOutputs(testCase.expectedOutput, formattedResult.output);
+          
+          // Update aggregate statistics
+          totalTime += parseFloat(formattedResult.executionTime || 0);
+          maxMemory = Math.max(maxMemory, formattedResult.memory || 0);
+          
+          // If any test fails, mark all tests as failed
+          if (!isCorrect) {
+            allTestsPassed = false;
+          }
+          
+          // Add test result to table
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
+            <td class="${isCorrect ? 'test-result-pass' : 'test-result-fail'}">${isCorrect ? 'PASS' : 'FAIL'}</td>
+            <td>${formattedResult.executionTime}s</td>
+            <td>${formattedResult.memory / 1000}KB</td>
+            <td><span class="test-case-details" data-test-id="${questionId}-${i}">View Details</span></td>
+          `;
+          testResultsBody.appendChild(row);
+          
+          // Create hidden details div
+          const detailsDiv = document.createElement('div');
+          detailsDiv.id = `test-details-${questionId}-${i}`;
+          detailsDiv.style.display = 'none';
+          detailsDiv.className = 'test-case-details-container';
+          detailsDiv.innerHTML = `
+            <h4>Test Case ${i + 1} Details</h4>
+            <div class="test-case-input">
+              <h5>Input:</h5>
+              <pre>${testCase.input}</pre>
+            </div>
+            <div class="test-case-output">
+              <h5>Expected Output:</h5>
+              <pre>${testCase.expectedOutput}</pre>
+            </div>
+            <div class="test-case-actual">
+              <h5>Your Output:</h5>
+              <pre>${formattedResult.output}</pre>
+            </div>
+          `;
+          
+          // If test failed, add diff view
+          if (!isCorrect) {
+            detailsDiv.appendChild(displayDiff(testCase.expectedOutput, formattedResult.output));
+          }
+          
+          testResultsSection.appendChild(detailsDiv);
+          
+        } catch (error) {
+          allTestsPassed = false;
+          
+          // Add error row to table
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
+            <td class="test-result-fail">ERROR</td>
+            <td>-</td>
+            <td>-</td>
+            <td>${error.message}</td>
+          `;
+          testResultsBody.appendChild(row);
+        }
+      }
+      
+      // Update overall result
+      resultOutput.innerHTML = `
+        <h4>All Tests Result:</h4>
+        <p class="${allTestsPassed ? 'test-result-pass' : 'test-result-fail'}">
+          ${allTestsPassed ? 'All tests passed!' : 'Some tests failed!'}
+        </p>
+        <div class="execution-details">
+          <p>Total Execution Time: ${totalTime.toFixed(3)}s</p>
+          <p>Max Memory Used: ${maxMemory / 1000}KB</p>
+        </div>
+      `;
+      
+      // Add event listeners to the "View Details" links
+      document.querySelectorAll('.test-case-details').forEach(link => {
+        link.addEventListener('click', function() {
+          const testId = this.getAttribute('data-test-id');
+          const detailsDiv = document.getElementById(`test-details-${testId}`);
+          
+          // Toggle display
+          detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
+        });
+      });
+    });
+  });
+  
+  // Handle submit button with fixed functionality
+  const submitButtons = document.querySelectorAll('.submit-btn');
+  submitButtons.forEach(button => {
+    button.addEventListener('click', async function() {
+      const questionId = this.getAttribute('data-question-id');
+      const codeTextarea = document.getElementById(`code-textarea-${questionId}`);
+      const languageSelect = document.getElementById(`language-select-${questionId}`);
+      const resultsSection = document.getElementById(`results-${questionId}`);
+      const resultOutput = document.getElementById(`result-output-${questionId}`);
+      
+      const code = codeTextarea.value;
+      const languageId = languageSelect.value;
+      
+      // Get question by ID from the exam data
+      const question = window.exam.codingQuestions.find(q => q._id == questionId);
+      
+      // Check if question has test cases
+      if (!question.testCases || question.testCases.length === 0) {
+        resultOutput.innerHTML = '<p class="error">No test cases available for this question.</p>';
+        return;
+      }
+      
+      // Show loading message
+      resultOutput.innerHTML = '<p>Submitting your solution...</p>';
+      resultsSection.style.display = 'block';
+      
+      let passedTests = 0;
+      const totalTests = question.testCases.length;
+      
+      // Run all test cases
+      for (let i = 0; i < totalTests; i++) {
+        const testCase = question.testCases[i];
+        
+        try {
+          // Create submission for this test case
+          const token = await createSubmission(languageId, code, testCase.input);
+          
+          // Poll for result
+          const result = await pollSubmissionResult(token);
+          
+          // Format result
+          const formattedResult = formatOutput(result);
+          
+          // Check if output matches expected output
+          const isCorrect = compareOutputs(testCase.expectedOutput, formattedResult.output);
+          
+          if (isCorrect) {
+            passedTests++;
+          }
+        } catch (error) {
+          // Test failed due to error
+          console.error(`Test ${i + 1} error:`, error);
+        }
+      }
+      
+      // Calculate score
+      const score = (passedTests / totalTests) * question.maxMarks;
+      
+      // Update overall result
+      resultOutput.innerHTML = `
+        <h4>Submission Result:</h4>
+        <p>Passed ${passedTests} out of ${totalTests} tests</p>
+        <p>Score: ${score.toFixed(2)} / ${question.maxMarks}</p>
+      `;
+      
+      // Here you would send the submission to your server to save the score
+      console.log(`Submitting final solution for question ${questionId}`);
+      console.log(`Code: ${code}`);
+      console.log(`Score: ${score} / ${question.maxMarks}`);
+      
+      // Example of submission API call:
+      /*
+      try {
+        const response = await fetch('/api/submissions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            questionId: questionId,
+            code: code,
+            languageId: languageId,
+            score: score,
+            passedTests: passedTests,
+            totalTests: totalTests
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          resultOutput.innerHTML += '<p class="success">Submission saved successfully!</p>';
+        } else {
+          resultOutput.innerHTML += '<p class="error">Error saving submission: ' + data.message + '</p>';
+        }
+      } catch (error) {
+        resultOutput.innerHTML += '<p class="error">Error saving submission: ' + error.message + '</p>';
+      }
+      */
+    });
+  });
+});
+ </script>
+
