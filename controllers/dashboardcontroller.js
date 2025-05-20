@@ -3,96 +3,57 @@ const Exam = require("../models/Exam");
 const Submission = require("./../models/SubmissionSchema");
 const { redirect } = require("express/lib/response");
 const MCQQuestion = require("./../models/MCQQuestion")
-// exports.getcontrol = async (req, res) => {
-//     if (req.isAuthenticated()) {
-//         try {
-//             const student = await User.findById(req.user._id); // Get the logged-in student
-
-//             if (!student) return res.status(404).json({ error: "Student not found" });
-
-//             // Get the current date and time
-//             const currentTime = new Date();
-//             // Find exams that match the student's semester and department and are within the valid schedule range
-//             const exams = await Exam.find({
-//                 semester: student.Semester,
-//                 departments: student.Department,
-//                 scheduleTill: { $gte: currentTime } // Exam should not have ended
-//             });
-            
-//             console.log(exams);
-            
-//             const Userprofile = await User.findById(req.user.id);
-//             res.render("dashboard", { 
-//                 pic: Userprofile.imageurl, 
-//                 logged_in: "true", 
-//                 exams, 
-//                 user: req.user 
-//             });
-
-//         } catch (error) {
-//             res.status(500).json({ error: "Server Error" });
-//         }
-//     } else {
-//         res.redirect("/");
-//     }
-// };
 exports.getcontrol = async (req, res) => {
     if (req.isAuthenticated()) {
         try {
             const student = await User.findById(req.user._id); // Get the logged-in student
-            if (student.usertype !="student"){
+            if (student.usertype != "student") {
                 res.redirect("/admin")
-            } else{
+            } else {
+                if (!student) return res.status(404).json({ error: "Student not found" });
 
-            if (!student) return res.status(404).json({ error: "Student not found" });
+                const currentTime = new Date();
+                
+                // Find ALL exams that match the student's semester and department
+                // Remove the scheduleTill condition to get all exams
+                const exams = await Exam.find({
+                    semester: student.Semester,
+                    departments: student.Department
+                });
 
-            const currentTime = new Date();
-            
-            // Find exams that match the student's semester and department and are within the valid schedule range
-            const exams = await Exam.find({
-                semester: student.Semester,
-                departments: student.Department,
-                scheduleTill: { $gte: currentTime }
-            });
+                // Fetch exams that the user has already taken
+                const submittedExams = await Submission.find({ student: req.user._id }).distinct("exam");
+                const submittedExamIds = submittedExams.map(sub => sub._id.toString());
 
-            // Fetch exams that the user has already taken
-            const submittedExams = await Submission.find({ student: req.user._id }).distinct("exam");
+                // Add status properties to each exam
+                const examsWithStatus = exams.map(exam => {
+                    const examObj = exam.toObject();
+                    return {
+                        ...examObj,
+                        alreadyGiven: submittedExamIds.includes(exam._id.toString()),
+                        // Add a property to indicate if the exam time has passed
+                        isExpired: new Date(exam.scheduleTill) < currentTime
+                    };
+                });
 
-            const submittedExamIds = submittedExams.map(sub => sub._id.toString()); // Extract exam IDs and convert them to strings
+                console.log(examsWithStatus);
 
-const examsWithStatus = exams.map(exam => ({
-    ...exam.toObject(), 
-    alreadyGiven: submittedExamIds.includes(exam._id.toString()) // Proper comparison
-}));
-
-console.log(examsWithStatus);
-            // console.log(submittedExams[0]._id)
-
-
-            // // Modify exam objects to include a flag
-            // const examsWithStatus = exams.map(exam => ({
-            //     ...exam.toObject(), 
-            //     alreadyGiven: submittedExams.includes(exam._id.toString()) // Ensure type matching
-            // }));
-
-            // console.log(examsWithStatus)
-
-            const Userprofile = await User.findById(req.user.id);
-            res.render("dashboard", { 
-                pic: Userprofile.imageurl, 
-                logged_in: "true", 
-                exams: examsWithStatus, 
-                user: req.user 
-            });}
-
+                const Userprofile = await User.findById(req.user.id);
+                res.render("dashboard", {
+                    pic: Userprofile.imageurl,
+                    logged_in: "true",
+                    exams: examsWithStatus,
+                    user: req.user
+                });
+            }
         } catch (error) {
+            console.error(error); // Add this for better debugging
             res.status(500).json({ error: "Server Error" });
         }
     } else {
         res.redirect("/");
     }
 };
-
 
 
 exports.getStartExam = async(req,res)=>{
