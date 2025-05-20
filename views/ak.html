@@ -1,0 +1,955 @@
+
+<button id="startExamBtn">test</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the module
+    const integrity = examIntegrity.init({
+    // Required exam information
+    examId: '68279e510d946970ad46613d',
+    userId: '680e97f04704387f2e73ad2a',
+    
+    // Custom API endpoints (optional)
+    apiEndpoints: {
+        integrityUpdate: 'http://localhost/update-integrity',
+        activityPing: 'http://localhost/dashboard/see-active',
+        saveImage: 'http://localhost/save-image',
+        
+    },
+    
+    // Behavior configuration (optional)
+    config: {
+        maxViolations: 5,                // Default: 3
+        maxRefreshes: 3,                 // Default: 2
+        pingInterval: 30000,             // Default: 20000 (20 seconds)
+        webcamCaptureInterval: 10000     // Default: 5000 (5 seconds)
+    },
+    
+    // Callback when violations trigger auto-submit
+    onAutoSubmit: function(reason) {
+        // Your custom submit logic
+    },
+    
+    // Start webcam automatically on init
+    startWebcam: true
+});
+    
+    // Start monitoring when the exam begins
+    document.getElementById('startExamBtn').addEventListener('click', function() {
+        integrity.start();
+        integrity.startWebcamCapture();
+    });
+})
+</script>
+<script>
+    /**
+ * Exam Integrity Monitoring Module
+ * 
+ * This module provides functionality for:
+ * 1. Integrity monitoring (tab changes, mouse exits, fullscreen controls, etc.)
+ * 2. Activity ping tracking to server
+ * 3. Webcam capture and submission
+ * 
+ * Usage: Include this script and initialize with examIntegrity.init()
+ */
+
+const examIntegrity = (function() {
+    // Configuration
+    const config = {
+        maxViolations: 3,                // Maximum violations before auto-submit
+        maxRefreshes: 2,                 // Maximum allowed page refreshes
+        pingInterval: 20000,             // Ping interval in ms (20 seconds)
+        tabFocusCooldown: 1000,          // Time between focus events in ms
+        webcamCaptureInterval: 5000,     // Webcam capture interval in ms
+        resizeCooldown: 500,             // Time between resize events in ms
+        maxResizeAttempts: 2             // Maximum resize attempts before violation
+    };
+
+    // State variables
+    let state = {
+        examStarted: false,
+        isFullscreenActive: false,
+        lastTabFocusTime: 0,
+        pingIntervalId: null,
+        resizeAttempts: 0,
+        lastResizeTime: 0,
+        submitting: false,
+        autoSubmitCallback: null,        // Callback when auto submitting
+        
+        // Violation counters
+        violations: {
+            tabChangeCount: 0,
+            mouseOutCount: 0,
+            fullscreenExitCount: 0,
+            copyAttemptCount: 0,
+            pasteAttemptCount: 0,
+            focusChangeCount: 0,
+            refreshViolationCount: 0
+        },
+        totalViolations: 0
+    };
+
+    // DOM Elements (to be initialized)
+    let elements = {
+        tabChangeCount: null,
+        mouseOutCount: null,
+        fullscreenExitCount: null,
+        copyAttemptCount: null,
+        pasteAttemptCount: null,
+        focusChangeCount: null,
+        refreshViolationCount: null,
+        totalViolations: null,
+        lastEvent: null,
+        notificationContainer: null
+    };
+
+    // URLs for API endpoints
+    const apiEndpoints = {
+        integrityUpdate: '/update-integrity',
+        activityPing: '/dashboard/see-active',
+        saveImage: '/save-image'
+    };
+
+    // User and exam info
+    let examInfo = {
+        examId: '',
+        userId: ''
+    };
+
+    /**
+     * Initialize the integrity module
+     * @param {Object} options Configuration options
+     */
+    function init(options = {}) {
+        console.log('Initializing exam integrity module...');
+        
+        // Merge options with defaults
+        if (options.config) {
+            Object.assign(config, options.config);
+        }
+        
+        // Set exam info
+        if (options.examId) examInfo.examId = options.examId;
+        if (options.userId) examInfo.userId = options.userId;
+        
+        // Initialize from localStorage if available
+        state.examStarted = localStorage.getItem('examStarted') === 'true';
+        
+        // Auto-submit callback
+        if (options.onAutoSubmit && typeof options.onAutoSubmit === 'function') {
+            state.autoSubmitCallback = options.onAutoSubmit;
+        }
+        
+        // Set API endpoints
+        if (options.apiEndpoints) {
+            Object.assign(apiEndpoints, options.apiEndpoints);
+        }
+        
+        // Initialize UI elements
+        initElements();
+        
+        // Initialize event listeners
+        if (state.examStarted) {
+            setupEventListeners();
+            handleRefreshDetection();
+            startActivityPing();
+            
+            if (options.startWebcam) {
+                startWebcamCapture();
+            }
+        }
+        
+        return {
+            start,
+            stop,
+            enterFullscreen,
+            handleRefreshDetection,
+            startWebcamCapture,
+            showNotification,
+            getViolationCounts,
+            preventBackButton
+        };
+    }
+
+    /**
+     * Initialize UI elements
+     */
+    function initElements() {
+        // Get DOM elements for counters
+        elements.tabChangeCount = document.getElementById('tabChangeCount');
+        elements.mouseOutCount = document.getElementById('mouseOutCount');
+        elements.fullscreenExitCount = document.getElementById('fullscreenExitCount');
+        elements.copyAttemptCount = document.getElementById('copyAttemptCount');
+        elements.pasteAttemptCount = document.getElementById('pasteAttemptCount');
+        elements.focusChangeCount = document.getElementById('focusChangeCount');
+        elements.refreshViolationCount = document.getElementById('refreshViolationCount');
+        elements.totalViolations = document.getElementById('totalViolations');
+        elements.lastEvent = document.getElementById('lastEvent');
+        
+        // Create notification container if it doesn't exist
+        elements.notificationContainer = document.getElementById('notificationContainer');
+        if (!elements.notificationContainer) {
+            elements.notificationContainer = document.createElement('div');
+            elements.notificationContainer.id = 'notificationContainer';
+            elements.notificationContainer.style.position = 'fixed';
+            elements.notificationContainer.style.top = '10px';
+            elements.notificationContainer.style.right = '10px';
+            elements.notificationContainer.style.zIndex = '9999';
+            document.body.appendChild(elements.notificationContainer);
+        }
+    }
+
+    /**
+     * Start integrity monitoring
+     */
+    function start(examId, userId) {
+        if (examId) examInfo.examId = examId;
+        if (userId) examInfo.userId = userId;
+        
+        state.examStarted = true;
+        localStorage.setItem('examStarted', 'true');
+        localStorage.setItem('examRefreshCount', '0');
+        
+        setupEventListeners();
+        startActivityPing();
+        preventBackButton();
+        enterFullscreen();
+        
+        updateUI();
+        updateStatus('Exam integrity monitoring started');
+    }
+
+    /**
+     * Stop integrity monitoring
+     */
+    function stop() {
+        state.examStarted = false;
+        localStorage.removeItem('examStarted');
+        localStorage.removeItem('examRefreshCount');
+        
+        if (state.pingIntervalId) {
+            clearInterval(state.pingIntervalId);
+            state.pingIntervalId = null;
+        }
+        
+        updateStatus('Exam integrity monitoring stopped');
+    }
+
+    /**
+     * Setup event listeners for integrity monitoring
+     */
+    function setupEventListeners() {
+        // Fullscreen change events
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        
+        // Tab visibility and focus events
+        document.addEventListener('visibilitychange', handleTabChange);
+        window.addEventListener('blur', handleFocusChange);
+        window.addEventListener('focus', handleFocusChange);
+        
+        // Mouse exit detection
+        document.addEventListener('mouseout', handleMouseOut);
+        
+        // Copy/paste prevention
+        document.addEventListener('copy', handleCopyAttempt);
+        document.addEventListener('paste', handlePasteAttempt);
+        
+        // Keyboard shortcuts prevention
+        document.addEventListener('keydown', preventKeyboardShortcuts);
+        
+        // Prevent context menu
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Window resize detection (potential DevTools)
+        window.addEventListener('resize', handleResize);
+        
+        // Before unload warning
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        // Ensure fullscreen on click
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement && state.examStarted) {
+                enterFullscreen();
+                updateStatus("Fullscreen mode ensured after click");
+            }
+        });
+    }
+
+    /**
+     * Prevent keyboard shortcuts
+     */
+    function preventKeyboardShortcuts(e) {
+        if (!state.examStarted) return;
+        
+        // Prevent dev tools and refresh shortcuts
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) || 
+            (e.ctrlKey && e.key === 'U') ||
+            e.key === 'Escape' ||
+            e.key === 'F5' || 
+            ((e.metaKey || e.ctrlKey) && e.key === 'r') ||
+            e.key === 'F11' || 
+            (e.metaKey && e.shiftKey && e.key === 'f') ||
+            (e.metaKey && e.key === 'w') || 
+            (e.key === 'F4' && e.altKey)) {
+                
+            e.preventDefault();
+            e.stopPropagation();
+            showNotification("This action is not allowed during the exam.");
+            return false;
+        }
+    }
+
+    /**
+     * Prevent back button
+     */
+    function preventBackButton() {
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+    }
+
+    /**
+     * Update UI with violation counts
+     */
+    function updateUI() {
+        if (!state.examStarted) return;
+        
+        // Update DOM elements if they exist
+        if (elements.tabChangeCount) elements.tabChangeCount.textContent = state.violations.tabChangeCount;
+        if (elements.mouseOutCount) elements.mouseOutCount.textContent = state.violations.mouseOutCount;
+        if (elements.fullscreenExitCount) elements.fullscreenExitCount.textContent = state.violations.fullscreenExitCount;
+        if (elements.copyAttemptCount) elements.copyAttemptCount.textContent = state.violations.copyAttemptCount;
+        if (elements.pasteAttemptCount) elements.pasteAttemptCount.textContent = state.violations.pasteAttemptCount;
+        if (elements.focusChangeCount) elements.focusChangeCount.textContent = state.violations.focusChangeCount;
+        if (elements.refreshViolationCount) elements.refreshViolationCount.textContent = state.violations.refreshViolationCount;
+        if (elements.totalViolations) elements.totalViolations.textContent = state.totalViolations;
+    }
+
+    /**
+     * Update status message
+     */
+    function updateStatus(message) {
+        if (!state.examStarted) return;
+        
+        if (elements.lastEvent) {
+            elements.lastEvent.textContent = message;
+        }
+        console.log('Integrity status:', message);
+    }
+
+    /**
+     * Handle tab change events
+     */
+    function handleTabChange() {
+        if (!state.examStarted) return;
+        
+        if (document.hidden) {
+            // Only count tab change if it's not immediately after a focus change
+            const currentTime = Date.now();
+            if (currentTime - state.lastTabFocusTime > config.tabFocusCooldown) {
+                state.violations.tabChangeCount++;
+                state.totalViolations++;
+                sendIntegrityUpdate("tabChanges");
+                updateStatus("Tab change detected");
+                updateUI();
+                checkAndTriggerAutoSubmit();
+            }
+        }
+    }
+
+    /**
+     * Handle mouse leaving the window
+     */
+    function handleMouseOut(event) {
+        if (!state.examStarted) return;
+        
+        // Check if mouse actually left the window
+        if (event.clientX < 0 || event.clientX > window.innerWidth - 1 || 
+            event.clientY < 0 || event.clientY > window.innerHeight - 1) {
+            state.violations.mouseOutCount++;
+            state.totalViolations++;
+            sendIntegrityUpdate("mouseOuts");
+            updateStatus("Mouse left workspace");
+            showNotification("Mouse Going Out is not allowed");
+            updateUI();
+            checkAndTriggerAutoSubmit();
+        }
+    }
+
+    /**
+     * Handle window focus changes
+     */
+    function handleFocusChange(event) {
+        if (!state.examStarted) return;
+        
+        if (event.type === 'blur') {
+            // Only count focus change if it's not immediately after a tab change
+            const currentTime = Date.now();
+            if (currentTime - state.lastTabFocusTime > config.tabFocusCooldown) {
+                state.violations.focusChangeCount++;
+                state.lastTabFocusTime = currentTime;
+                
+                // Check if this is coming from a tab change or standalone focus change
+                if (!document.hidden) {
+                    // If document is not hidden, this is a standalone focus change
+                    state.totalViolations++;
+                    sendIntegrityUpdate("focusChanges");
+                    updateStatus("Focus change detected");
+                    updateUI();
+                    checkAndTriggerAutoSubmit();
+                }
+            }
+        }
+    }
+
+    /**
+     * Handle fullscreen change events
+     */
+    function handleFullscreenChange() {
+        if (!state.examStarted) return;
+        
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && 
+            !document.mozFullScreenElement && !document.msFullscreenElement) {
+            state.violations.fullscreenExitCount++;
+            state.totalViolations++;
+            showNotification("Exiting fullscreen is not allowed during the exam.");
+            
+            // Give a short delay before forcing back to fullscreen (helps with Mac transition)
+            setTimeout(enterFullscreen, 500);
+            
+            sendIntegrityUpdate("fullscreenExits");
+            updateStatus("Fullscreen exited");
+            updateUI();
+            checkAndTriggerAutoSubmit();
+        } else {
+            if (!state.isFullscreenActive) {
+                state.isFullscreenActive = true;
+            }
+            updateStatus("Fullscreen entered");
+        }
+    }
+
+    /**
+     * Enter fullscreen mode
+     */
+    function enterFullscreen() {
+        const elem = document.documentElement;
+        
+        // Don't attempt to enter fullscreen if already in fullscreen mode
+        if (document.fullscreenElement || document.webkitFullscreenElement || 
+            document.mozFullScreenElement || document.msFullscreenElement) {
+            return;
+        }
+        
+        try {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { // Safari
+                elem.webkitRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) { // Firefox
+                elem.mozRequestFullScreen();
+            } else if (elem.msRequestFullscreen) { // IE/Edge
+                elem.msRequestFullscreen();
+            }
+        } catch (error) {
+            console.error("Fullscreen error:", error);
+            showNotification("Fullscreen mode failed. Please try again.");
+        }
+    }
+
+    /**
+     * Handle copy attempts
+     */
+    function handleCopyAttempt(e) {
+        if (!state.examStarted) return;
+        
+        e.preventDefault();
+        state.violations.copyAttemptCount++;
+        state.totalViolations++;
+        sendIntegrityUpdate("copyAttempts");
+        updateStatus("Copy attempt detected");
+        updateUI();
+        checkAndTriggerAutoSubmit();
+    }
+
+    /**
+     * Handle paste attempts
+     */
+    function handlePasteAttempt(e) {
+        if (!state.examStarted) return;
+        
+        e.preventDefault();
+        state.violations.pasteAttemptCount++;
+        state.totalViolations++;
+        sendIntegrityUpdate("pasteAttempts");
+        updateStatus("Paste attempt detected");
+        updateUI();
+        checkAndTriggerAutoSubmit();
+    }
+
+    /**
+     * Handle resize events (potential DevTools)
+     */
+    function handleResize() {
+        if (!state.examStarted) return;
+        
+        const currentTime = Date.now();
+        
+        // Check if we're within the cooldown period
+        if (currentTime - state.lastResizeTime < config.resizeCooldown) {
+            // Count this as another attempt within the same period
+            state.resizeAttempts++;
+            
+            // Check if max attempts exceeded
+            if (state.resizeAttempts >= config.maxResizeAttempts) {
+                // Only show notification and count as violation if not due to Mac-specific events
+                if (Math.abs(window.innerHeight - window.screen.height) > 100) {
+                    showNotification(`DevTools detected! Your exam is being monitored.`, 'error');
+                    state.totalViolations++;
+                    sendIntegrityUpdate("resizeViolations");
+                    updateStatus("Multiple suspicious resize events detected");
+                    updateUI();
+                    
+                    // Show the violation modal and trigger auto-submit
+                    showViolationModal(() => {
+                        if (state.autoSubmitCallback) {
+                            state.autoSubmitCallback("resize_violations");
+                        }
+                    });
+                }
+            }
+        } else {
+            // First resize attempt in a new period
+            state.resizeAttempts = 1;
+            
+            if (state.resizeAttempts > 1) {
+                showNotification(`Window resize detected. This is being monitored.`);
+            }
+        }
+        
+        // Update the timestamp
+        state.lastResizeTime = currentTime;
+        
+        // Check if total violations are too high
+        checkAndTriggerAutoSubmit();
+    }
+
+    /**
+     * Handle beforeunload event
+     */
+    function handleBeforeUnload(e) {
+        if (!state.examStarted) return;
+        
+        if (state.pingIntervalId) {
+            clearInterval(state.pingIntervalId);
+            
+            // Send final ping with status=inactive
+            sendActivityPing();
+        }
+        
+        if (state.submitting) {
+            return;
+        }
+        
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+
+    /**
+     * Handle refresh detection
+     */
+    function handleRefreshDetection() {
+        // Check if there's a saved refresh count
+        let refreshCount = parseInt(localStorage.getItem('examRefreshCount') || '0');
+        
+        if (state.examStarted) {
+            refreshCount++;
+            localStorage.setItem('examRefreshCount', refreshCount.toString());
+        }
+        
+        // Count this as a violation if it's not the first load
+        if (refreshCount > 1) {
+            state.violations.refreshViolationCount = refreshCount - 1; // Don't count the initial load
+            state.totalViolations += 1; // Increment total violations by 1 for this refresh
+            
+            // Send refresh event to server for logging
+            sendIntegrityUpdate("pageRefresh");
+            updateStatus("Page refresh detected");
+            updateUI();
+            
+            // Check if exceeded maximum allowed refreshes
+            if (refreshCount > config.maxRefreshes) {
+                showNotification(`Maximum page refreshes (${config.maxRefreshes}) exceeded. Your exam is being submitted.`, 'error');
+                
+                if (state.autoSubmitCallback) {
+                    state.autoSubmitCallback("excessive_refreshes");
+                }
+                
+                return false;
+            }
+        }
+        
+        return true;
+    }
+
+    /**
+     * Check and trigger auto-submit if violations are too high
+     */
+    function checkAndTriggerAutoSubmit() {
+        if (!state.examStarted) return;
+        
+        if (state.totalViolations >= config.maxViolations) {
+            updateStatus("Auto-submitting test due to integrity violations");
+            const modalOverlay = showViolationModal(() => {
+                if (state.autoSubmitCallback) {
+                    state.autoSubmitCallback("integrity_violations");
+                }
+            });
+        }
+    }
+
+    /**
+     * Show violation modal
+     */
+    function showViolationModal(callback) {
+        // Create modal container
+        const modalOverlay = document.createElement('div');
+        modalOverlay.style.position = 'fixed';
+        modalOverlay.style.top = '0';
+        modalOverlay.style.left = '0';
+        modalOverlay.style.width = '100%';
+        modalOverlay.style.height = '100%';
+        modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        modalOverlay.style.display = 'flex';
+        modalOverlay.style.justifyContent = 'center';
+        modalOverlay.style.alignItems = 'center';
+        modalOverlay.style.zIndex = '10000';
+        
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.style.backgroundColor = '#fff';
+        modalContent.style.padding = '25px';
+        modalContent.style.borderRadius = '10px';
+        modalContent.style.maxWidth = '500px';
+        modalContent.style.width = '80%';
+        modalContent.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.3)';
+        modalContent.style.textAlign = 'center';
+        
+        // Add warning icon
+        const warningIcon = document.createElement('div');
+        warningIcon.innerHTML = '⚠️';
+        warningIcon.style.fontSize = '4rem';
+        warningIcon.style.marginBottom = '15px';
+        modalContent.appendChild(warningIcon);
+        
+        // Add title
+        const title = document.createElement('h2');
+        title.textContent = 'Critical Violation Alert';
+        title.style.color = '#d9534f';
+        title.style.marginBottom = '15px';
+        modalContent.appendChild(title);
+        
+        // Add message
+        const message = document.createElement('p');
+        message.textContent = `You have committed ${state.totalViolations} or more integrity violations. Your exam will be automatically submitted.`;
+        message.style.marginBottom = '20px';
+        message.style.fontSize = '1.1rem';
+        modalContent.appendChild(message);
+        
+        // Add violations list
+        const violationsList = document.createElement('div');
+        violationsList.style.textAlign = 'left';
+        violationsList.style.marginBottom = '20px';
+        violationsList.style.padding = '10px';
+        violationsList.style.backgroundColor = '#f8d7da';
+        violationsList.style.borderRadius = '5px';
+        
+        let violationsHTML = '<strong>Violations detected:</strong><ul style="margin-top: 10px;">';
+        
+        // Add each violation type with count
+        if (state.violations.tabChangeCount > 0) violationsHTML += `<li>Tab changes: ${state.violations.tabChangeCount}</li>`;
+        if (state.violations.mouseOutCount > 0) violationsHTML += `<li>Mouse left window: ${state.violations.mouseOutCount}</li>`;
+        if (state.violations.fullscreenExitCount > 0) violationsHTML += `<li>Fullscreen exits: ${state.violations.fullscreenExitCount}</li>`;
+        if (state.violations.copyAttemptCount > 0) violationsHTML += `<li>Copy attempts: ${state.violations.copyAttemptCount}</li>`;
+        if (state.violations.pasteAttemptCount > 0) violationsHTML += `<li>Paste attempts: ${state.violations.pasteAttemptCount}</li>`;
+        if (state.violations.focusChangeCount > 0) violationsHTML += `<li>Focus changes: ${state.violations.focusChangeCount}</li>`;
+        if (state.violations.refreshViolationCount > 0) violationsHTML += `<li>Page refreshes: ${state.violations.refreshViolationCount}</li>`;
+        
+        violationsHTML += '</ul>';
+        violationsList.innerHTML = violationsHTML;
+        modalContent.appendChild(violationsList);
+        
+        // Add countdown text
+        const countdown = document.createElement('p');
+        countdown.textContent = 'Submitting exam in 5 seconds...';
+        countdown.style.fontWeight = 'bold';
+        modalContent.appendChild(countdown);
+        
+        modalOverlay.appendChild(modalContent);
+        document.body.appendChild(modalOverlay);
+        
+        // Start countdown
+        let seconds = 5;
+        const countdownInterval = setInterval(() => {
+            seconds--;
+            countdown.textContent = `Submitting exam in ${seconds} second${seconds !== 1 ? 's' : ''}...`;
+            
+            if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+            }
+        }, 1000);
+        
+        return modalOverlay;
+    }
+
+    /**
+     * Show notification
+     */
+    function showNotification(message, type = 'warning') {
+        // Create notification container if it doesn't exist
+        if (!elements.notificationContainer) {
+            elements.notificationContainer = document.createElement('div');
+            elements.notificationContainer.id = 'notificationContainer';
+            elements.notificationContainer.style.position = 'fixed';
+            elements.notificationContainer.style.top = '10px';
+            elements.notificationContainer.style.right = '10px';
+            elements.notificationContainer.style.zIndex = '9999';
+            document.body.appendChild(elements.notificationContainer);
+        }
+        
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.style.backgroundColor = type === 'warning' ? '#fff3cd' : '#f8d7da';
+        notification.style.color = type === 'warning' ? '#856404' : '#721c24';
+        notification.style.padding = '10px 15px';
+        notification.style.marginBottom = '10px';
+        notification.style.borderRadius = '4px';
+        notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
+        notification.style.width = '300px';
+        notification.innerHTML = message;
+        
+        // Add animation styles
+        notification.style.animation = 'fadeIn 0.3s ease-out';
+        
+        // Define animations if they don't exist
+        if (!document.getElementById('notificationAnimations')) {
+            const style = document.createElement('style');
+            style.id = 'notificationAnimations';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(-20px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Add to container
+        elements.notificationContainer.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'fadeOut 0.3s ease-in';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 5000);
+        
+        return notification;
+    }
+
+    /**
+     * Send integrity update to server
+     */
+    function sendIntegrityUpdate(eventType) {
+        if (!state.examStarted) return;
+        
+        const data = {
+            examId: examInfo.examId,
+            userId: examInfo.userId,
+            eventType: eventType
+        };
+
+        fetch(apiEndpoints.integrityUpdate, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => console.log('Integrity event logged:', data))
+        .catch(error => console.error('Error sending integrity update:', error));
+    }
+
+    /**
+     * Start sending activity pings to server
+     */
+    function startActivityPing() {
+        if (state.pingIntervalId) {
+            clearInterval(state.pingIntervalId);
+        }
+        
+        // Send initial ping
+        sendActivityPing();
+        
+        // Set up interval for regular pings
+        state.pingIntervalId = setInterval(sendActivityPing, config.pingInterval);
+    }
+
+    /**
+     * Send activity ping to server
+     */
+    function sendActivityPing() {
+        if (!state.examStarted) return;
+        
+        fetch(apiEndpoints.activityPing, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                examId: examInfo.examId,
+                userId: examInfo.userId,
+                timestamp: new Date().toISOString()
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Failed to send activity ping');
+            }
+        })
+        .catch(error => {
+            console.error('Error sending activity ping:', error);
+        });
+    }
+
+    /**
+     * Start webcam capture
+     */
+    function startWebcamCapture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 320;
+        canvas.height = 240;
+        canvas.style.display = 'none';
+        document.body.appendChild(canvas);
+        
+        const context = canvas.getContext('2d');
+        
+        // Check if media devices API is supported
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.error("MediaDevices API not supported");
+            showNotification("Your browser doesn't support webcam capture. Please use a modern browser.", 'error');
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                width: { ideal: 320 },
+                height: { ideal: 240 },
+                facingMode: "user"
+            } 
+        })
+        .then((stream) => {
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.style.display = 'none';
+            document.body.appendChild(video);
+            video.play();
+            
+            // Wait for video to be ready
+            video.onloadedmetadata = () => {
+                // Set up snapshot interval
+                setInterval(() => {
+                    try {
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        
+                        canvas.toBlob((blob) => {
+                            if (!blob) return;
+                            
+                            const formData = new FormData();
+                            formData.append('image', blob, `capture-${Date.now()}.png`);
+                            formData.append('userId', examInfo.userId);
+                            formData.append('examId', examInfo.examId);
+                            
+                            fetch(apiEndpoints.saveImage, { 
+                                method: 'POST',
+                                body: formData,
+                            })
+                            .then(response => response.json())
+                            .then(data => console.log('Image saved:', data))
+                            .catch(error => console.error('Error saving image:', error));
+                        }, 'image/png');
+                    } catch (err) {
+                        console.error("Error capturing webcam frame:", err);
+                    }
+                }, config.webcamCaptureInterval);
+            };
+        })
+        .catch((error) => {
+            console.error("Error accessing webcam:", error);
+            showNotification("Unable to access the webcam. Please ensure your camera is connected and you've allowed permission.", 'error');
+        });
+    }
+
+    /**
+     * Get current violation counts
+     */
+    function getViolationCounts() {
+        return {
+            ...state.violations,
+            totalViolations: state.totalViolations
+        };
+    }
+
+    // Return public API
+    return {
+        init,
+        start,
+        stop,
+        enterFullscreen,
+        handleRefreshDetection,
+        startWebcamCapture,
+        showNotification,
+        getViolationCounts,
+        preventBackButton
+    };
+})();
+
+// Example usage:
+/*
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the integrity module
+    const integrity = examIntegrity.init({
+        examId: document.querySelector('input[name="examId"]').value,
+        userId: document.querySelector('input[name="userId"]').value,
+        onAutoSubmit: function(reason) {
+            console.log('Auto submitting exam due to: ' + reason);
+            // Implement your exam submission logic here
+        }
+    });
+
+    // Start monitoring when exam begins
+    document.getElementById('startExamBtn').addEventListener('click', function() {
+        integrity.start();
+        integrity.startWebcamCapture();
+    });
+});
+*/
+</script>
