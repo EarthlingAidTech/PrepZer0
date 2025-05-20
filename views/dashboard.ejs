@@ -4,347 +4,799 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-
-    <title>EAT - Student Dashboard</title>
-   
+    <title>PrepZer0 - Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-gradient: linear-gradient(135deg, #4f46e5, #8b5cf6);
+            --dark-bg: #111827;
+            --card-bg: #1f2937;
+            --light-text: #f9fafb;
+            --secondary-text: #9ca3af;
+            --border-color: #374151;
+            --row-hover: #2d3748;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --success: #10b981;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            --btn-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+        }
+        
         body {
-            background-color: #151E31;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 20%);
         }
+        
+        /* Navbar styling */
+        .navbar {
+            background-color: rgba(31, 41, 55, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(79, 70, 229, 0.1);
+            padding: 0.75rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-section img {
+            width: 38px;
+            height: 38px;
+            margin-right: 0.75rem;
+            filter: drop-shadow(0 0 8px rgba(79, 70, 229, 0.5));
+        }
+        
+        .logo-section h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 0;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        /* Card styling */
         .card {
-            transition: transform 0.3s, box-shadow 0.3s;
-            margin-bottom: 20px;
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            overflow: hidden;
         }
+        
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(79, 70, 229, 0.1);
         }
+        
+        .card-body {
+            background-color: var(--card-bg);
+            color: var(--light-text);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+            opacity: 0.9;
+        }
+
+        /* Dashboard header */
         .dashboard-header {
-            background: #1F2937;
-            color: white;
-            padding: 30px 0;
-            margin-bottom: 30px;
-            border-radius: 5px;
+            background: var(--card-bg);
+            color: var(--light-text);
+            padding: 2.5rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                135deg, 
+                rgba(79, 70, 229, 0.1) 0%, 
+                rgba(139, 92, 246, 0.05) 50%, 
+                transparent 100%
+            );
+            animation: rotateBackground 10s linear infinite;
+            z-index: 0;
+        }
+        
+        @keyframes rotateBackground {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .dashboard-header > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .dashboard-header h1 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 2.25rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dashboard-header p {
+            color: var(--secondary-text);
+            font-size: 1.1rem;
+        }
+
+        /* Card variations */
         .stats-card {
-            background-color: #f8f9fa;
-            border-left: 4px solid #007bff;
+            position: relative;
+            border-left: 4px solid var(--primary);
         }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(79, 70, 229, 0.1), transparent);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        
+        .stats-card .display-4 {
+            font-weight: 700;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--light-text);
+        }
+        
         .upcoming-exam {
-            border-left: 4px solid #28a745;
+            border-left: 4px solid var(--success);
         }
+        
+        .upcoming-exam::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.1), transparent);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        
         .completed-exam {
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid var(--info);
         }
+        
+        .completed-exam::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.1), transparent);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        
+        .missed-exam {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .missed-exam::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(245, 158, 11, 0.1), transparent);
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        /* Navigation tabs */
+        .nav-tabs {
+            border-bottom: none;
+            gap: 0.75rem;
+            padding-bottom: 0.5rem;
+        }
+        
+        .nav-tabs .nav-link {
+            color: var(--secondary-text);
+            background-color: rgba(31, 41, 55, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            padding: 0.6rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .nav-tabs .nav-link:hover:not(.active) {
+            background-color: rgba(31, 41, 55, 0.9);
+            border-color: rgba(79, 70, 229, 0.3);
+            color: var(--light-text);
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: white;
+            background: var(--primary-gradient);
+            border: none;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            position: relative;
+        }
+        
+        .nav-tabs .nav-link i {
+            font-size: 0.875rem;
+        }
+
+        /* Tab content */
+        .tab-content {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 0.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+        
+        /* Badge styling */
+        .badge {
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            letter-spacing: 0.025em;
+        }
+        
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+        
+        .badge-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        
         .badge-custom {
             font-size: 85%;
         }
-        .progress {
-            height: 10px;
+
+        /* Button styling */
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.25rem;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            gap: 0.5rem;
         }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            box-shadow: var(--btn-shadow);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #4338ca, #7c3aed);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline-secondary {
+            color: var(--light-text);
+            border: 1px solid var(--secondary-text);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-secondary:hover {
+            background: rgba(156, 163, 175, 0.1);
+            border-color: var(--light-text);
+            color: var(--light-text);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-text);
+            border-color: var(--secondary-text);
+        }
+        
+        .btn i {
+            opacity: 0.9;
+        }
+
+        /* Progress bar */
+        .progress {
+            height: 8px;
+            background-color: rgba(17, 24, 39, 0.5);
+            border-radius: 10px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+        }
+        
+        .progress-bar.bg-success {
+            background-color: var(--success);
+        }
+        
+        .progress-bar.bg-info {
+            background-color: var(--info);
+        }
+        
+        .progress-bar.bg-warning {
+            background-color: var(--warning);
+        }
+        
+        .progress-bar.bg-danger {
+            background-color: var(--danger);
+        }
+
+        /* Avatar styling */
         .avatar-container {
             display: inline-block;
             position: relative;
+            border: 2px solid rgba(79, 70, 229, 0.3);
+            border-radius: 50%;
+            padding: 2px;
         }
+        
+        .avatar-container img {
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
         .avatar-badge {
             position: absolute;
             bottom: 0;
             right: 0;
-            background: #28a745;
-            height: 15px;
-            width: 15px;
+            background: var(--success);
+            height: 12px;
+            width: 12px;
             border-radius: 50%;
-            border: 2px solid white;
-        }
-        @media (max-width: 768px) {
-            .dashboard-header {
-                padding: 15px 0;
-            }
-            .dashboard-header h1 {
-                font-size: 1.8rem;
-            }
-        }
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            font-size: 10px;
-        }
-        .section-title {
-            position: relative;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-        .section-title:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            height: 3px;
-            width: 50px;
-            background-color: #007bff;
-        }
-        .nav-tabs .nav-link.active {
-            color: white;
-            background-color: #1F2937;
-            border-color: #4F46E5;
-            border-width: 2px;
-        }
-        .nav-tabs .nav-link {
-            color: white;
-            background-color: #1F2937;
-        }
-        .nav-tabs{
-            border-bottom: none;
-        }
-        .navbar {
-            background-color: #121827 !important;
-        }
-        .bg-white {
-            background-color: #1F2937 !important;
-        }
-        .bg-dark {
-            background-color: #1F2937 !important;
-        }
-        .tab-content{
-            margin-top: 1rem;
-        }
-        .card-body{
-            background-color: #1F2937;
-            color: #fff;
-        }
-        .text-muted {
-            color: #fff !important;
+            border: 2px solid var(--card-bg);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
         }
 
+        /* Modal styling */
+        .modal-content {
+            background-color: var(--card-bg);
+            color: var(--light-text);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0.75rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .btn-close {
+            color: var(--light-text);
+            filter: invert(1) grayscale(100%) brightness(200%);
+            opacity: 0.7;
+        }
+        
+        .btn-close:hover {
+            opacity: 1;
+        }
+        
+        .form-control {
+            background-color: rgba(17, 24, 39, 0.8);
+            border: 1px solid var(--border-color);
+            color: var(--light-text);
+            border-radius: 0.5rem;
+            padding: 0.625rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            background-color: rgba(17, 24, 39, 0.9);
+            color: var(--light-text);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+        }
+        
+        .form-control::placeholder {
+            color: var(--secondary-text);
+            opacity: 0.7;
+        }
+
+        /* Timeline styling */
+        .timeline {
+            color: var(--light-text);
+        }
+        
+        .timeline .badge {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .timeline .badge i {
+            font-size: 1rem;
+        }
+        
+        .timeline .d-flex {
+            position: relative;
+        }
+        
+        .timeline .d-flex:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 18px;
+            top: 36px;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            height: calc(100% - 12px);
+        }
+
+        /* Alert styling */
+        .alert-info, .alert-success {
+            background-color: rgba(45, 55, 72, 0.6);
+            color: var(--light-text);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+        }
+        
+        .alert-info {
+            border-left: 4px solid var(--info);
+        }
+        
+        .alert-success {
+            border-left: 4px solid var(--success);
+        }
+
+        .text-muted {
+            color: var(--secondary-text) !important;
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: rgba(31, 41, 55, 0.95) !important;
+            color: var(--light-text);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(79, 70, 229, 0.1);
+            padding: 1.25rem 0;
+            margin-top: 3rem;
+        }
+
+        /* Fix for video element */
+        #video, #canvas {
+            display: none;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .card-body {
+                padding: 1.25rem;
+            }
+            
+            .stats-card .display-4 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 0.75rem;
+            }
+            
+            .nav-tabs .nav-link {
+                white-space: nowrap;
+            }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">
-            <img src="uploads/unnamed-removebg-preview.png" width="30" height="30" class="d-inline-block align-top" alt=""> Prepzer0
-        </a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ml-auto">
-            <!-- <li class="nav-item">
-              <a class="nav-link" href="/">Home</a>
-            </li> -->
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Dashboard</a>
-            </li>
-            <li class="nav-item position-relative mx-2 d-none d-lg-block">
-                <!-- <a class="nav-link" href="#" id="notificationsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-bell" viewBox="0 0 16 16">
-                        <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2M8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6"/>
-                    </svg>
-                    <span class="badge badge-danger notification-badge">3</span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notificationsDropdown">
-                    <h6 class="dropdown-header">Notifications</h6>
-                    <a class="dropdown-item" href="#">
-                        <small class="text-muted">10 mins ago</small>
-                        <p class="mb-0">New exam scheduled: Data Structures</p>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">
-                        <small class="text-muted">1 hour ago</small>
-                        <p class="mb-0">Results published: Operating Systems</p>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">
-                        <small class="text-muted">Yesterday</small>
-                        <p class="mb-0">New learning material available</p>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item text-center" href="#">View all notifications</a>
-                </div> -->
-            </li>
-            <li class="nav-item dropdown" id="roots">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <div class="avatar-container">
-                    <img id="navimg" src="<%=pic%>" width="30" height="30" class="rounded-circle">
-                    <span class="avatar-badge"></span>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <div class="logo-section">
+                    <img src="uploads/unnamed-removebg-preview.png" alt="Logo">
+                    <h1>PrepZer0</h1>
                 </div>
-              </a>
-              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="/profile">Profile</a>
-                <a class="dropdown-item" href="#">My Performance</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="/logout">Log Out</a>
-              </div>
-            </li>   
-          </ul>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item active me-3">
+                        <a class="nav-link d-flex align-items-center gap-2" href="#">
+                            <i class="fas fa-columns"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link d-flex align-items-center gap-2" href="#">
+                            <i class="fas fa-chart-line"></i>
+                            Performance
+                        </a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="#" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; padding: 0.15rem 0.4rem;">
+                                3
+                            </span>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown" id="roots">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar-container">
+                                <img id="navimg" src="<%=pic%>" width="30" height="30" class="rounded-circle">
+                                <span class="avatar-badge"></span>
+                            </div>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink" style="border-radius: 0.5rem; margin-top: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="/profile"><i class="fas fa-user"></i> Profile</a></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="#"><i class="fas fa-question-circle"></i> Help</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item d-flex align-items-center gap-2" href="/logout"><i class="fas fa-sign-out-alt"></i> Log Out</a></li>
+                        </ul>
+                    </li>   
+                </ul>
+            </div>
         </div>
     </nav>
 
- 
-
-    <div class="container-fluid py-4">
+    <div class="container py-4">
         <div class="row">
             <div class="col-md-12">
-                <div class="dashboard-header text-center">
+                <div class="dashboard-header">
                     <h1>Welcome, <%= user.fname %> <%= user.lname %></h1>
                     <p class="mb-0">Department: <%= user.Department.toUpperCase() %> | Semester: <%= user.Semester %></p>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card stats-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Academic Progress</h5>
-                        <h2 class="display-4 mb-3">78<small class="text-muted">%</small></h2>
-                        <div class="progress mb-2">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: 78%" aria-valuenow="78" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <p class="card-text text-muted">Overall performance across all subjects</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card stats-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Upcoming Exams</h5>
-                        <h2 class="display-4 mb-3">2</h2>
-                        <p class="card-text">Next: <strong>Database Management</strong></p>
-                        <p class="card-text text-muted">Scheduled on <%= new Date().toLocaleDateString() %></p>
-                        <a href="#upcoming" class="btn btn-sm btn-outline-primary">View All</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-12 mb-4">
-                <div class="card stats-card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Recent Activity</h5>
-                        <div class="timeline">
-                            <div class="d-flex mb-3">
-                                <div class="mr-3">
-                                    <span class="badge badge-primary p-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check2-circle" viewBox="0 0 16 16">
-                                            <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
-                                            <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="mb-0"><strong>Computer Networks Exam completed</strong></p>
-                                    <small class="text-muted">Today, 10:25 AM</small>
-                                </div>
-                            </div>
-                            <div class="d-flex mb-3">
-                                <div class="mr-3">
-                                    <span class="badge badge-info p-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-text" viewBox="0 0 16 16">
-                                            <path d="M5.5 7a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1h-5zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
-                                            <path d="M9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.5L9.5 0zm0 1v2A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5z"/>
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="mb-0"><strong>Results published: Web Development</strong></p>
-                                    <small class="text-muted">Yesterday</small>
-                                </div>
-                            </div>
-                            <div class="d-flex">
-                                <div class="mr-3">
-                                    <span class="badge badge-success p-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-check" viewBox="0 0 16 16">
-                                            <path d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
-                                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="mb-0"><strong>New exam scheduled: Data Structures</strong></p>
-                                    <small class="text-muted">2 days ago</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+       
 
         <div class="row mt-4">
             <div class="col-md-12">
                 <ul class="nav nav-tabs" id="examTabs" role="tablist">
-                    <li class="nav-item mr-2">
-                        <a class="nav-link active" id="upcoming-tab" data-toggle="tab" href="#upcoming" role="tab" aria-controls="upcoming" aria-selected="true">Upcoming Exams</a>
+                    <li class="nav-item">
+                        <a class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" href="#upcoming" role="tab" aria-controls="upcoming" aria-selected="true">
+                            <i class="fas fa-hourglass-start"></i> Upcoming Exams
+                        </a>
                     </li>
-                    <li class="nav-item mr-2">
-                        <a class="nav-link" id="completed-tab" data-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">Completed Exams</a>
+                    <li class="nav-item">
+                        <a class="nav-link" id="completed-tab" data-bs-toggle="tab" href="#completed" role="tab" aria-controls="completed" aria-selected="false">
+                            <i class="fas fa-check-circle"></i> Completed Exams
+                        </a>
                     </li>
-                    <li class="nav-item mr-2">
-                        <a class="nav-link" id="performance-tab" data-toggle="tab" href="#performance" role="tab" aria-controls="performance" aria-selected="false">Performance</a>
+                    <li class="nav-item">
+                        <a class="nav-link" id="missed-tab" data-bs-toggle="tab" href="#missed" role="tab" aria-controls="missed" aria-selected="false">
+                            <i class="fas fa-exclamation-circle"></i> Missed Exams
+                        </a>
                     </li>
-                    
-                    
+                    <li class="nav-item">
+                        <a class="nav-link" id="performance-tab" data-bs-toggle="tab" href="#performance" role="tab" aria-controls="performance" aria-selected="false">
+                            <i class="fas fa-chart-bar"></i> Performance
+                        </a>
+                    </li>
                 </ul>
                 
-                <div class="tab-content p-3 bg-white border border-top-1 rounded-bottom" id="examTabsContent">
+                <div class="tab-content p-3 rounded-bottom" id="examTabsContent">
                     <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
-                        <% exams.forEach(exam => { 
-                            if (!exam.alreadyGiven) { %>
+                        <% 
+                        const currentDate = new Date();
+                        let upcomingCount = 0;
+                        exams.forEach(exam => { 
+                            const scheduleTillDate = new Date(exam.scheduleTill);
+                            // Only show exams in Upcoming if not taken AND scheduled date is in the future
+                            if (!exam.alreadyGiven && scheduleTillDate > currentDate) { 
+                                upcomingCount++;
+                        %>
                             <div class="card mb-3 upcoming-exam">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h5 class="card-title"><%= exam.name %></h5>
-                                            <p class="card-text mb-1">Type: <span class="badge badge-info badge-custom"><%= exam.questionType.toUpperCase() %></span></p>
-                                            <p class="card-text mb-1">Duration: <%= exam.duration %> minutes</p>
-                                            <p class="card-text mb-1">Scheduled At: <%= new Date(exam.scheduledAt).toLocaleString() %></p>
-                                            <p class="card-text mb-1">Scheduled Till: <%= new Date(exam.scheduleTill).toLocaleString() %></p>
+                                            <h5 class="card-title"><i class="fas fa-book me-2"></i><%= exam.name %></h5>
+                                            <p class="card-text mb-1">
+                                                <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
+                                                <span class="ms-2"><i class="fas fa-clock me-1"></i> <%= exam.duration %> minutes</span>
+                                            </p>
+                                            <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Scheduled At: <%= new Date(exam.scheduledAt).toLocaleString() %></p>
+                                            <p class="card-text mb-1"><i class="fas fa-calendar-check me-1"></i> Scheduled Till: <%= new Date(exam.scheduleTill).toLocaleString() %></p>
                                         </div>
-                                        <div class="col-md-4 text-md-right d-flex align-items-center justify-content-md-end">
-                                            <button class="btn btn-primary start-test-btn" data-exam-id="<%= exam._id %>">Start Test</button>
+                                        <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
+                                            <button class="btn btn-primary start-test-btn" data-exam-id="<%= exam._id %>">
+                                                <i class="fas fa-play"></i> Start Test
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         <% }}); %>
 
-                        <% if (!exams.some(exam => !exam.alreadyGiven)) { %>
+                        <% if (upcomingCount === 0) { %>
                             <div class="alert alert-info">
-                                No upcoming exams at the moment.
+                                <i class="fas fa-info-circle me-2"></i> No upcoming exams at the moment.
                             </div>
                         <% } %>
                     </div>
                     
                     <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
-                        <% exams.forEach(exam => { 
-                            if (exam.alreadyGiven) { %>
+                        <% 
+                        let completedCount = 0;
+                        exams.forEach(exam => { 
+                            if (exam.alreadyGiven) { 
+                                completedCount++;
+                        %>
                             <div class="card mb-3 completed-exam">
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h5 class="card-title"><%= exam.name %></h5>
-                                            <p class="card-text mb-1">Type: <span class="badge badge-info badge-custom"><%= exam.questionType.toUpperCase() %></span></p>
-                                            <p class="card-text mb-1">Completed On: <%= new Date(exam.completedAt).toLocaleString() %></p>
+                                            <h5 class="card-title"><i class="fas fa-check-circle me-2"></i><%= exam.name %></h5>
+                                            <p class="card-text mb-1">
+                                                <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
+                                            </p>
+                                            <p class="card-text mb-1"><i class="far fa-calendar-check me-1"></i> Completed On: <%= new Date(exam.completedAt).toLocaleString() %></p>
                                             <p class="card-text mb-1">
                                                 Result: 
                                                 <% if (exam.score) { %>
-                                                    <span class="badge badge-success badge-custom"><%= exam.score %>%</span>
+                                                    <span class="badge badge-success badge-custom"><i class="fas fa-trophy me-1"></i><%= exam.score %>%</span>
                                                 <% } else { %>
-                                                    <span class="badge badge-secondary badge-custom">Pending</span>
+                                                    <span class="badge badge-secondary badge-custom"><i class="fas fa-hourglass me-1"></i>Pending</span>
                                                 <% } %>
                                             </p>
                                         </div>
-                                        <div class="col-md-4 text-md-right d-flex align-items-center justify-content-md-end">
-                                            <button class="btn btn-outline-secondary">View Details</button>
+                                        <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
+                                            <button class="btn btn-outline-secondary">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         <% }}); %>
 
-                        <% if (!exams.some(exam => exam.alreadyGiven)) { %>
+                        <% if (completedCount === 0) { %>
                             <div class="alert alert-info">
-                                No completed exams yet.
+                                <i class="fas fa-info-circle me-2"></i> No completed exams yet.
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Missed Exams Tab -->
+                    <div class="tab-pane fade" id="missed" role="tabpanel" aria-labelledby="missed-tab">
+                        <% 
+                        const currentDateForMissed = new Date();
+                        let missedCount = 0;
+                        exams.forEach(exam => { 
+                            const scheduleTillDate = new Date(exam.scheduleTill);
+                            // Show exams in Missed if not taken AND scheduled date is in the past
+                            if (!exam.alreadyGiven && scheduleTillDate < currentDateForMissed) { 
+                                missedCount++;
+                        %>
+                            <div class="card mb-3 missed-exam">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h5 class="card-title"><i class="fas fa-exclamation-circle me-2"></i><%= exam.name %></h5>
+                                            <p class="card-text mb-1">
+                                                <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
+                                            </p>
+                                            <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Was Scheduled At: <%= new Date(exam.scheduledAt).toLocaleString() %></p>
+                                            <p class="card-text mb-1"><i class="fas fa-clock me-1"></i> Deadline Passed: <%= new Date(exam.scheduleTill).toLocaleString() %></p>
+                                            <p class="card-text mb-1">Status: <span class="badge badge-warning badge-custom"><i class="fas fa-exclamation-triangle me-1"></i>Missed</span></p>
+                                        </div>
+                                        <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
+                                            <button class="btn btn-outline-secondary contact-instructor-btn" data-exam-id="<%= exam._id %>">
+                                                <i class="fas fa-envelope"></i> Contact Instructor
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }}); %>
+
+                        <% if (missedCount === 0) { %>
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i> You haven't missed any exams. Great job!
                             </div>
                         <% } %>
                     </div>
@@ -354,29 +806,41 @@
                             <div class="col-md-6">
                                 <div class="card mb-4">
                                     <div class="card-body">
-                                        <h5 class="card-title">Subject Performance</h5>
-                                        <div class="mb-3">
-                                            <p class="mb-1">Data Structures</p>
+                                        <h5 class="card-title"><i class="fas fa-book me-2"></i>Subject Performance</h5>
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <p class="mb-0">Data Structures</p>
+                                                <p class="mb-0 fw-bold">85%</p>
+                                            </div>
                                             <div class="progress mb-2">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100">85%</div>
+                                                <div class="progress-bar bg-success" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <p class="mb-1">Database Management</p>
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <p class="mb-0">Database Management</p>
+                                                <p class="mb-0 fw-bold">75%</p>
+                                            </div>
                                             <div class="progress mb-2">
-                                                <div class="progress-bar bg-info" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">75%</div>
+                                                <div class="progress-bar bg-info" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <p class="mb-1">Computer Networks</p>
+                                        <div class="mb-4">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <p class="mb-0">Computer Networks</p>
+                                                <p class="mb-0 fw-bold">65%</p>
+                                            </div>
                                             <div class="progress mb-2">
-                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100">65%</div>
+                                                <div class="progress-bar bg-warning" role="progressbar" style="width: 65%" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <p class="mb-1">Operating Systems</p>
+                                        <div class="mb-0">
+                                            <div class="d-flex justify-content-between mb-1">
+                                                <p class="mb-0">Operating Systems</p>
+                                                <p class="mb-0 fw-bold">60%</p>
+                                            </div>
                                             <div class="progress mb-2">
-                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">60%</div>
+                                                <div class="progress-bar bg-danger" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -385,9 +849,9 @@
                             <div class="col-md-6">
                                 <div class="card mb-4">
                                     <div class="card-body">
-                                        <h5 class="card-title">Performance Trends</h5>
+                                        <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Performance Trends</h5>
                                         <div class="text-center mt-4">
-                                            <img src="/api/placeholder/400/250" alt="Performance Graph placeholder" class="img-fluid">
+                                            <img src="/api/placeholder/400/250" alt="Performance Graph placeholder" class="img-fluid rounded">
                                             <p class="text-muted mt-3">Performance across last 5 exams</p>
                                         </div>
                                     </div>
@@ -401,74 +865,235 @@
     </div>
 
     <!-- Exam Rules & Camera Permission Modal -->
-    <div class="modal fade" id="examRulesModal" tabindex="-1" role="dialog" aria-labelledby="examRulesModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="examRulesModal" tabindex="-1" aria-labelledby="examRulesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="examRulesModalLabel">Exam Rules & Permissions</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title" id="examRulesModalLabel"><i class="fas fa-clipboard-list me-2"></i>Exam Rules & Permissions</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Rules for Examination:</strong></p>
-                    <ul>
-                        <li>Ensure you are alone in the room.</li>
-                        <li>Do not navigate away from the exam window.</li>
-                        <li>Keep your camera on at all times.</li>
-                        <li>Any suspicious activity may result in disqualification.</li>
+                    <div class="p-2 mb-3 rounded" style="background-color: rgba(79, 70, 229, 0.1); border-left: 3px solid var(--primary);">
+                        <p class="mb-0"><i class="fas fa-info-circle me-2"></i>Please read the rules carefully before proceeding.</p>
+                    </div>
+                    
+                    <p class="mb-2"><strong><i class="fas fa-gavel me-2"></i>Rules for Examination:</strong></p>
+                    <ul class="mb-4">
+                        <li class="mb-2"><i class="fas fa-user-check me-2"></i>Ensure you are alone in the room.</li>
+                        <li class="mb-2"><i class="fas fa-window-restore me-2"></i>Do not navigate away from the exam window.</li>
+                        <li class="mb-2"><i class="fas fa-video me-2"></i>Keep your camera on at all times.</li>
+                        <li><i class="fas fa-exclamation-triangle me-2"></i>Any suspicious activity may result in disqualification.</li>
                     </ul>
-                    <p><strong>Camera Access:</strong></p>
-                    <p>We need to turn on your camera for proctoring. Click "Allow" when prompted.</p>
-                    <button id="requestCamera" class="btn btn-secondary">Enable Camera</button>
-                    <p id="cameraStatus" class="text-muted mt-2"></p>
+                    
+                    <p class="mb-2"><strong><i class="fas fa-camera me-2"></i>Camera Access:</strong></p>
+                    <p>We need to turn on your camera for proctoring. Click "Enable Camera" when prompted.</p>
+                    
+                    <div class="d-grid">
+                        <button id="requestCamera" class="btn btn-secondary">
+                            <i class="fas fa-camera me-2"></i>Enable Camera
+                        </button>
+                    </div>
+                    
+                    <div id="cameraStatus" class="mt-3 text-center"></div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                    <button id="confirmStartTest" class="btn btn-primary" disabled>Start Test</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button id="confirmStartTest" class="btn btn-primary" disabled>
+                        <i class="fas fa-play me-2"></i>Start Test
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Contact Instructor Modal -->
+    <div class="modal fade" id="contactInstructorModal" tabindex="-1" aria-labelledby="contactInstructorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactInstructorModalLabel"><i class="fas fa-envelope me-2"></i>Contact Instructor</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-2 mb-4 rounded" style="background-color: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warning);">
+                        <p class="mb-0"><i class="fas fa-exclamation-circle me-2"></i>You are contacting your instructor about a missed exam.</p>
+                    </div>
+                    
+                    <form id="contactInstructorForm">
+                        <div class="form-group mb-3">
+                            <label for="subject" class="form-label"><i class="fas fa-heading me-2"></i>Subject</label>
+                            <input type="text" class="form-control" id="subject" placeholder="Regarding missed exam" value="Regarding missed exam">
+                        </div>
+                        <div class="form-group mb-2">
+                            <label for="message" class="form-label"><i class="fas fa-comment-alt me-2"></i>Message</label>
+                            <textarea class="form-control" id="message" rows="5" placeholder="Explain your reason for missing the exam..."></textarea>
+                            <small class="text-muted">Please provide a detailed explanation of why you were unable to take the exam.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="sendMessageBtn">
+                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden video elements for camera -->
     <video id="video" autoplay></video>
     <canvas id="canvas"></canvas>
 
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <p class="mb-0">© 2025 Earthling Aid Tech | Academic Assessment Platform</p>
+    <footer class="text-center py-3 mt-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-md-start mb-3 mb-md-0">
+                    <div class="logo-section" style="justify-content: center;">
+                        <img src="uploads/unnamed-removebg-preview.png" alt="Logo" width="24" height="24">
+                        <h1 style="font-size: 1.2rem;">PrepZer0</h1>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <p class="mb-0">© 2025 PrepZer0 | Academic Assessment Platform</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="#" class="text-decoration-none me-3" style="color: var(--light-text);"><i class="fas fa-question-circle"></i> Help</a>
+                    <a href="#" class="text-decoration-none" style="color: var(--light-text);"><i class="fas fa-shield-alt"></i> Privacy</a>
+                </div>
+            </div>
+        </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let selectedExamId = null;
 
-        // Open Modal on "Start Test" button click
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Card hover animation enhancement
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+                this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.3)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.25)';
+            });
+        });
+
+        // Open Modal on "Start Test" button click with animation
         document.querySelectorAll('.start-test-btn').forEach(button => {
             button.addEventListener('click', function() {
+                // Add a small animation to the button when clicked
+                this.classList.add('animate__animated', 'animate__pulse');
+                setTimeout(() => {
+                    this.classList.remove('animate__animated', 'animate__pulse');
+                }, 500);
+                
                 selectedExamId = this.getAttribute('data-exam-id');
-                $('#examRulesModal').modal('show');
+                let myModal = new bootstrap.Modal(document.getElementById('examRulesModal'));
+                myModal.show();
+            });
+        });
+
+        // Open Contact Instructor Modal
+        document.querySelectorAll('.contact-instructor-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                selectedExamId = this.getAttribute('data-exam-id');
+                let contactModal = new bootstrap.Modal(document.getElementById('contactInstructorModal'));
+                contactModal.show();
             });
         });
 
         // Handle Camera Permission Request
         document.getElementById('requestCamera').addEventListener('click', async function() {
+            // Add loading state to button
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Requesting access...';
+            this.disabled = true;
+            
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                document.getElementById('cameraStatus').innerHTML = "✅ Camera access granted!";
+                document.getElementById('cameraStatus').innerHTML = '<div class="alert alert-success mb-0"><i class="fas fa-check-circle me-2"></i>Camera access granted!</div>';
                 document.getElementById('confirmStartTest').removeAttribute('disabled');
+                this.classList.add('d-none');
             } catch (error) {
-                document.getElementById('cameraStatus').innerHTML = "❌ Camera access denied. You must allow it to proceed.";
+                document.getElementById('cameraStatus').innerHTML = '<div class="alert alert-danger mb-0"><i class="fas fa-times-circle me-2"></i>Camera access denied. You must allow it to proceed.</div>';
+                this.innerHTML = '<i class="fas fa-camera me-2"></i>Try Again';
+                this.disabled = false;
             }
         });
 
         // Start the test when confirmed
         document.getElementById('confirmStartTest').addEventListener('click', function() {
             if (selectedExamId) {
-                window.location.href = `/dashboard/start-test/${selectedExamId}`;
+                // Add loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
+                this.disabled = true;
+                
+                // Redirect after a slight delay for better UX
+                setTimeout(() => {
+                    window.location.href = `/dashboard/start-test/${selectedExamId}`;
+                }, 500);
             }
         });
-    </script>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        // Send message to instructor
+        document.getElementById('sendMessageBtn').addEventListener('click', function() {
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            if (!message.trim()) {
+                // Show validation error
+                document.getElementById('message').classList.add('is-invalid');
+                const invalidFeedback = document.createElement('div');
+                invalidFeedback.classList.add('invalid-feedback');
+                invalidFeedback.innerText = 'Please enter a message.';
+                document.getElementById('message').parentNode.appendChild(invalidFeedback);
+                return;
+            }
+            
+            // Add loading state
+            this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+            this.disabled = true;
+            
+            // Here you would add code to send the message to the backend
+            setTimeout(() => {
+                // Show success message
+                const modalBody = document.querySelector('#contactInstructorModal .modal-body');
+                const form = document.getElementById('contactInstructorForm');
+                form.style.display = 'none';
+                
+                const successMessage = document.createElement('div');
+                successMessage.classList.add('alert', 'alert-success', 'mb-0');
+                successMessage.innerHTML = '<i class="fas fa-check-circle me-2"></i>Message sent successfully! Your instructor will get back to you soon.';
+                modalBody.appendChild(successMessage);
+                
+                document.querySelector('#contactInstructorModal .modal-footer').innerHTML = 
+                    '<button type="button" class="btn btn-primary" data-bs-dismiss="modal">' +
+                    '<i class="fas fa-check me-2"></i>Close</button>';
+            }, 1000);
+        });
+        
+        // Initialize any tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
 </body>
 </html>
