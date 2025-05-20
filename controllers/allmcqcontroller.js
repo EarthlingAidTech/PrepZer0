@@ -12,7 +12,7 @@ const mongoose = require('mongoose');
 exports.getAllMCQQuestions = async (req, res) => {
     try {
         // Fetch all questions from database
-        const mcqQuestions = await MCQQuestion.find().sort({ level: 1 });
+        const mcqQuestions = await AllMCQQuestion.find().sort({ level: 1 });
         
         // Render the EJS template with the questions
         res.render("allMCQQuestion", {
