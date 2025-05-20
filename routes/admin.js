@@ -45,6 +45,7 @@ router.route("/verify/:id").get(authenticatecontroller.getVerified).post(authent
 router.route("/mcq-questions").get(mcqquestions.getAllMCQQuestions)
 
 router.route("/profile/students").get(admincontroller.allStudents)
+router.route("/students/:studentId/exams").get(admincontroller.getStudentExams)
 
 router.route("/exam/candidates/:examId").get(admincontroller.examCandidates)
 router.post('/api/submission/delete', reportController.deleteSubmission);

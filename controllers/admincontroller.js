@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const passport =  require('passport');
 const Submission = require('../models/SubmissionSchema');
 const ActivityTracker = require('../models/ActiveSession');
+const ReportModel = require('./../models/reportModel');
 
 
 
@@ -158,28 +159,6 @@ exports.signuppostcontrol = async(req,res)=>{
 
 
 
-// exports.allStudents = async(req, res) => {
-//     try {
-//         // Query the database for all users with usertype "student"
-//         const students = await User.find({ usertype: "student" })
-//             .select('-password -passwordresettoken -passwordresetdate') // Exclude sensitive fields
-//             .sort({ created: -1 }); // Sort by creation date, newest first
-        
-//         // Render the EJS template with the students data
-//         res.render('allstudentsprofile', { 
-//             students: students,
-//             title: 'All Students', 
-//             heading: 'Student Profiles'
-//         });
-//     } catch (error) {
-//         console.error('Error fetching students:', error);
-//         res.status(500).render('error', { 
-//             message: 'Failed to load student profiles',
-//             error: error
-//         });
-//     }
-// };
-
     exports.allStudents = async(req, res) => {
         try {
             // Get filter parameters from query string
@@ -208,6 +187,8 @@ exports.signuppostcontrol = async(req,res)=>{
                 .select('-password -passwordresettoken -passwordresetdate') // Exclude sensitive fields
                 .sort({ created: -1 }); // Sort by creation date, newest first
             
+
+            console.log(students[0]);
             // Render the EJS template with the students data
             res.render('allstudentsprofile', { 
                 students: students,
@@ -231,262 +212,310 @@ exports.signuppostcontrol = async(req,res)=>{
 
 
 
-
-
-
-    // exports.examCandidates = async(req, res) => {
-    //     try {
-    //         const examId = req.params.examId;
-            
-    //         // Fetch the exam details
-    //         const exam = await Exam.findById(examId);
-            
-    //         if (!exam) {
-    //             return res.status(404).render('error', { 
-    //                 message: 'Exam not found',
-    //                 error: { status: 404, stack: '' } 
-    //             });
-    //         }
-            
-    //         // Fetch all submissions related to this exam
-    //         const submissions = await Submission.find({ exam: examId })
-    //             .populate('student', 'USN email Department Semester Rollno') // Adjust fields as needed based on your User model
-    //             .sort({ submittedAt: -1 }); // Most recent submissions first
-            
-    //         // Create a list of unique students (in case of multiple submissions)
-    //         const studentMap = new Map();
-    //         submissions.forEach(submission => {
-    //             if (!studentMap.has(submission.student._id.toString())) {
-    //                 studentMap.set(submission.student._id.toString(), {
-    //                     student: submission.student,
-    //                     submission: submission,
-    //                     score: submission.score || 'N/A',
-    //                     submittedAt: submission.submittedAt
-    //                 });
-    //             }
-    //         });
-            
-    //         const candidates = Array.from(studentMap.values());
-            
-    //         // Render the candidates view
-    //         res.render('exam_candidates', {
-    //             title: `Candidates for ${exam.name}`,
-    //             exam: exam,
-    //             candidates: candidates
-    //         });
-            
-    //     } catch (error) {
-    //         console.error('Error fetching exam candidates:', error);
-    //         res.status(500).render('error', { 
-    //             message: 'Error fetching exam candidates',
-    //             error: { status: 500, stack: process.env.NODE_ENV === 'development' ? error.stack : '' } 
-    //         });
-    //     }
-    // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// exports.getExam = async (req, res) => {
-//     res.render('create_exam');
-// }
-
-// exports.createExam = async (req, res) => {
+/**
+ * Get student exam history
+ * GET /students/:studentId/exams
+ */
+exports.getStudentExams = async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
     
-//     try {
-//         const { department, semester, questionType, numMCQs, numCoding, duration, scheduledAt } = req.body;
+    // Find student by ID
+    const student = await User.findOne({ _id: studentId });
+    
+    if (!student) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Student not found' 
+      });
+    }
+    
+    // Find all submissions by this student
+    const submissions = await Submission.find({ student: studentId })
+      .populate({
+        path: 'exam',
+        match: { _id: { $ne: null } } // Only populate non-null exam references
+      })
+      .sort({ submittedAt: -1 }); // Sort by newest first
+    
+    // Filter out submissions where exam couldn't be populated (might be null)
+    const validSubmissions = submissions.filter(sub => sub.exam != null);
+    
+    // Process submission data to prepare exam history with detailed reports
+    const examHistory = await Promise.all(validSubmissions.map(async (submission) => {
+      try {
+        // Skip if submission or its exam is null or undefined
+        if (!submission || !submission._id || !submission.exam) {
+          console.log("Skipping invalid submission:", submission);
+          return null;
+        }
+        
+        // Get detailed report using ReportModel
+        const detailedReport = await ReportModel.getAssessmentReport(submission._id);
+        
+        if (!detailedReport || !detailedReport.exam) {
+          return null; // Skip if report or exam not found
+        }
+        
+        // Calculate performance metrics
+        const scorePercentage = Math.round((detailedReport.score.obtained / detailedReport.score.total * 100) * 10) / 10;
+        const questionsAttempted = detailedReport.questions.filter(q => q.submittedAnswer !== 'Not answered').length;
+        const totalQuestions = detailedReport.questions.length;
+        
+        // Calculate time taken in readable format
+        const startTime = new Date(detailedReport.timeAnalysis.startTime);
+        const endTime = new Date(detailedReport.timeAnalysis.endTime);
+        const timeTakenMs = endTime - startTime;
+        
+        const hours = Math.floor(timeTakenMs / (1000 * 60 * 60));
+        const minutes = Math.floor((timeTakenMs % (1000 * 60 * 60)) / (1000 * 60));
+        const timeTaken = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
 
-     
-//         const mcqs = await Question.find({
-//             department,
-//             semester,
-//             type: "mcq"
-//         }).limit(numMCQs);
+        const examId = detailedReport.exam._id;
+        const examDoc = await Exam.findOne({ _id: examId });
+        const examName = examDoc ? examDoc.name : 'Untitled Exam';
 
-//         const codingQuestions = await Question.find({
-//             department,
-//             semester,
-//             type: "coding"
-//         }).limit(numCoding);
+        const scheduledAt = new Date(examDoc.scheduledAt);
+        const scheduleTill = new Date(examDoc.scheduleTill);
 
-//         // Create new exam entry
-//         const newExam = new Exam({
-//             name: `${department} ${semester} Placement Exam`,
-//             department,
-//             semester,
-//             questionType,
-//             numMCQs,
-//             numCoding,
-//             questions: [...mcqs, ...codingQuestions],
-//             duration,
-//             scheduledAt,
-//             // createdBy: req.user.id  // Assuming req.user is populated with the logged-in user
-//         });
+        // Check if both are valid dates
+        if (isNaN(scheduledAt) || isNaN(scheduleTill)) {
+        console.error('Invalid date(s) in scheduledAt or scheduleTill');
+        return {
+            date: 'Invalid Date',
+        };
+        }
 
-//         // Save the exam to the database
-//         await newExam.save();
-//         // res.render('exam');
-//         res.status(201).json({
-//             message: "Exam created successfully",
-//             exam: newExam
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// };
+        const datePart = scheduledAt.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+        });
+
+        const st = scheduledAt.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+        });
+
+        const et = scheduleTill.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+        });
+
+        const fullDate = `${datePart}, ${st} – ${et}`;
+
+        
+        return {
+          id: submission._id, // Use submission ID for detailed report access
+          examId: examId,
+          title: examName,
+          subject: detailedReport.exam.subject || 'Not specified',
+          date: fullDate,
+          scoreObtained: detailedReport.score.obtained,
+          scoreTotal: detailedReport.score.total,
+          scorePercentage: scorePercentage,
+          questionsAttempted: questionsAttempted,
+          totalQuestions: totalQuestions,
+          timeTaken: timeTaken,
+          submittedAt: new Date(submission.submittedAt).toLocaleString(),
+          rank: detailedReport.ranking.rank,
+          totalStudents: detailedReport.ranking.totalStudents,
+          integrityStatus: detailedReport.integrity.status
+        };
+      } catch (error) {
+        console.error(`Error processing exam report for submission ${submission?._id || 'unknown'}:`, error);
+        console.error('Submission object:', JSON.stringify(submission, null, 2));
+        // Return basic submission data as fallback
+        if (!submission || !submission.exam) {
+          return {
+            id: submission ? submission._id : 'unknown',
+            title: 'Exam Information Unavailable',
+            subject: 'Not available',
+            date: 'Unknown',
+            scorePercentage: 0,
+            submittedAt: submission ? new Date(submission.submittedAt).toLocaleString() : 'Unknown',
+            note: 'Detailed report unavailable'
+          };
+        }
+        
+        return {
+          id: submission._id,
+          examId: submission.exam._id,
+          title: submission.exam.title || 'Untitled Exam',
+          subject: submission.exam.subject || 'Not specified',
+          date: submission.exam.startTime ? new Date(submission.exam.startTime).toLocaleDateString() : 'Unknown',
+          scorePercentage: (submission.score && submission.exam.totalMarks) ? 
+            Math.round((submission.score / submission.exam.totalMarks * 100) * 10) / 10 : 0,
+          submittedAt: new Date(submission.submittedAt).toLocaleString(),
+          note: 'Detailed report unavailable'
+        };
+      }
+    }));
+
+    // Filter out any nulls from the exam history
+    const validExamHistory = examHistory.filter(exam => exam !== null);
+    
+    // Render exam history view with enhanced data
+    res.render('student_exam_history', {
+      title: 'Exam History',
+      student,
+      examHistory: validExamHistory
+    });
+  } catch (error) {
+    console.error('Error fetching student exam history:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching student exam history',
+      error: error.message
+    });
+  }
+};
 
 
-// exports.examCandidates = async(req, res) => {
-//     try {
-//         const examId = req.params.examId;
-        
-//         // Fetch the exam details
-//         const exam = await Exam.findById(examId);
-        
-//         if (!exam) {
-//             return res.status(404).render('error', { 
-//                 message: 'Exam not found',
-//                 error: { status: 404, stack: '' } 
-//             });
-//         }
-        
-//         // Fetch all submissions related to this exam
-//         const submissions = await Submission.find({ exam: examId })
-//             .populate('student', 'USN email Department Semester Rollno _id') 
-//             .sort({ submittedAt: -1 }); // Most recent submissions first
-        
-//         // Fetch active sessions for this exam
-//         const activeSessions = await ActivityTracker.find({ examId: examId })
-//             .populate('userId', 'USN email Department Semester Rollno _id')
-//             .select('userId status lastPingTimestamp')
-//             .sort({ lastPingTimestamp: -1 });
-        
-//         // Convert active sessions to a map for easy lookup
-//         const activeSessionsMap = new Map();
-//         activeSessions.forEach(session => {
-//             // Skip if userId is not properly populated
-//             if (!session.userId || !session.userId._id) return;
-            
-//             const userId = session.userId._id.toString();
-//             activeSessionsMap.set(userId, {
-//                 status: session.status,
-//                 lastPing: session.lastPingTimestamp,
-//                 studentInfo: session.userId
-//             });
-//         });
-        
-//         // Create a set of student IDs who have submitted
-//         const submittedStudentIds = new Set();
-//         submissions.forEach(submission => {
-//             if (submission.student && submission.student._id) {
-//                 submittedStudentIds.add(submission.student._id.toString());
-//             }
-//         });
-        
-//         // First, process all submissions
-//         const studentMap = new Map();
-//         submissions.forEach(submission => {
-//             if (submission.student && submission.student._id && !studentMap.has(submission.student._id.toString())) {
-//                 const studentId = submission.student._id.toString();
-//                 const activeSession = activeSessionsMap.get(studentId);
-                
-//                 studentMap.set(studentId, {
-//                     student: submission.student,
-//                     submission: submission,
-//                     score: submission.score || 'N/A',
-//                     submittedAt: submission.submittedAt,
-//                     activityStatus: activeSession ? activeSession.status : 'offline',
-//                     lastActive: activeSession ? activeSession.lastPing : null,
-//                     hasSubmitted: true
-//                 });
-                
-//                 // Remove from active sessions map to avoid duplicates
-//                 activeSessionsMap.delete(studentId);
-//             }
-//         });
-        
-//         // Then, process active sessions of students who haven't submitted
-//         activeSessionsMap.forEach((session, studentId) => {
-//             if (!submittedStudentIds.has(studentId)) {
-//                 studentMap.set(studentId, {
-//                     student: session.studentInfo,
-//                     submission: null,
-//                     score: 'In progress',
-//                     submittedAt: null,
-//                     activityStatus: session.status,
-//                     lastActive: session.lastPing,
-//                     hasSubmitted: false
-//                 });
-//             }
-//         });
-        
-//         const candidates = Array.from(studentMap.values());
-        
-//         // Sort candidates: active students first, then by submission status and time
-//         candidates.sort((a, b) => {
-//             // First prioritize active status
-//             if (a.activityStatus === 'active' && b.activityStatus !== 'active') return -1;
-//             if (a.activityStatus !== 'active' && b.activityStatus === 'active') return 1;
-            
-//             // Then by submission status (submitted after non-submitted)
-//             if (a.hasSubmitted && !b.hasSubmitted) return -1;
-//             if (!a.hasSubmitted && b.hasSubmitted) return 1;
-            
-//             // Then by submission time (most recent first)
-//             if (a.submittedAt && b.submittedAt) {
-//                 return new Date(b.submittedAt) - new Date(a.submittedAt);
-//             }
-            
-//             // Finally by last active time
-//             if (a.lastActive && b.lastActive) {
-//                 return new Date(b.lastActive) - new Date(a.lastActive);
-//             }
-            
-//             return 0;
-//         });
-        
-//         // Render the candidates view
-//         res.render('exam_candidates', {
-//             title: `Candidates for ${exam.name}`,
-//             exam: exam,
-//             candidates: candidates
-//         });
-        
-//     } catch (error) {
-//         console.error('Error fetching exam candidates:', error);
-//         res.status(500).render('error', { 
-//             message: 'Error fetching exam candidates',
-//             error: { status: 500, stack: process.env.NODE_ENV === 'development' ? error.stack : '' } 
-//         });
-//     }
-// }
+
+
+
+
+exports.getExamDetailedReport = async (req, res) => {
+  try {
+    const submissionId = req.params.submissionId;
+    
+    // Get detailed report using ReportModel
+    const detailedReport = await ReportModel.getAssessmentReport(submissionId);
+    
+    if (!detailedReport) {
+      return res.status(404).json({ 
+        success: false,
+        message: 'Exam report not found' 
+      });
+    }
+    
+    // Render detailed report view
+    res.render('exam_detailed_report', {
+      title: 'Exam Report',
+      report: detailedReport
+    });
+  } catch (error) {
+    console.error('Error fetching exam report:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching exam report',
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Get student performance summary
+ * GET /students/:usn/performance
+ */
+exports.getStudentPerformance = async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
+    
+    // Find student
+    const student = await Student.findOne({ _id: studentId });
+    
+    if (!student) {
+      return res.status(404).render('error', { 
+        message: 'Student not found',
+        error: { status: 404 }
+      });
+    }
+    
+    // Find all submissions for this student
+    const submissions = await Submission.find({ student: studentUSN }).populate('exam');
+    
+    if (submissions.length === 0) {
+      return res.render('student-performance', {
+        title: 'Student Performance',
+        student,
+        hasData: false,
+        performanceData: null
+      });
+    }
+    
+    // Calculate average score and other metrics
+    let totalScore = 0;
+    let totalExams = submissions.length;
+    let subjectPerformance = {};
+    
+    // Process each submission
+    for (const submission of submissions) {
+      const exam = await Exam.findById(submission.exam);
+      if (!exam) continue;
+      
+      // Calculate score percentage for this exam
+      const scorePercentage = submission.score / exam.totalMarks * 100;
+      totalScore += scorePercentage;
+      
+      // Track subject performance
+      if (!subjectPerformance[exam.subject]) {
+        subjectPerformance[exam.subject] = {
+          totalScore: 0,
+          examCount: 0
+        };
+      }
+      
+      subjectPerformance[exam.subject].totalScore += scorePercentage;
+      subjectPerformance[exam.subject].examCount += 1;
+    }
+    
+    // Calculate average score
+    const averageScore = Math.round((totalScore / totalExams) * 10) / 10;
+    
+    // Calculate average score per subject
+    const subjectAverages = {};
+    for (const subject in subjectPerformance) {
+      const { totalScore, examCount } = subjectPerformance[subject];
+      subjectAverages[subject] = Math.round((totalScore / examCount) * 10) / 10;
+    }
+    
+    // Render performance view
+    res.render('student-performance', {
+      title: 'Student Performance',
+      student,
+      hasData: true,
+      performanceData: {
+        totalExams,
+        averageScore,
+        subjectAverages
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching student performance:', error);
+    res.status(500).render('error', {
+      message: 'Error fetching student performance',
+      error: { status: 500 }
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.examCandidates = async(req, res) => {
     try {
         const examId = req.params.examId;

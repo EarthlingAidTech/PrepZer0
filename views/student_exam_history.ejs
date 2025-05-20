@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %> - Student Exam History</title>
+  <style>
+    :root {
+      --primary-bg: #1B2638;
+      --secondary-bg: #1e263a;
+      --card-bg: #2a3854;
+      --accent-color: #4285f4;
+      --hover-accent: #5a94ff;
+      --text-primary: #ffffff;
+      --text-secondary: #a0aec0;
+      --border-color: #3d4b69;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      --input-bg: #252e43;
+      --success-color: #34d399;
+      --danger-color: #f87171;
+      --warning-color: #fbbf24;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--primary-bg);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      background-image: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 100%);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .upper{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+
+    header {
+      background-color: var(--secondary-bg);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 15px 0;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-top: 10px;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--accent-color);
+      letter-spacing: -0.5px;
+    }
+
+    .student-profile {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 30px;
+      margin: 30px 0;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .profile-usn {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .profile-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .profile-badge {
+      background-color: rgba(66, 133, 244, 0.15);
+      padding: 6px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent-color);
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background-color: rgba(66, 133, 244, 0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .back-button:hover {
+      background-color: rgba(66, 133, 244, 0.2);
+    }
+
+    .exams-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .exam-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .exam-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .exam-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .exam-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .exam-date {
+      font-style: italic;
+      margin-bottom: 5px;
+    }
+
+    .exam-stats {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .stat-label {
+      color: var(--text-secondary);
+    }
+
+    .stat-value {
+      font-weight: 500;
+    }
+
+    .no-exams {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 25px;
+      font-size: 18px;
+      color: var(--text-secondary);
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      margin: 30px auto;
+      max-width: 500px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .score-pill {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .score-high {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: var(--success-color);
+    }
+
+    .score-medium {
+      background-color: rgba(251, 191, 36, 0.2);
+      color: var(--warning-color);
+    }
+
+    .score-low {
+      background-color: rgba(248, 113, 113, 0.2);
+      color: var(--danger-color);
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin: 40px 0 20px;
+      color: var(--text-primary);
+      position: relative;
+      padding-left: 15px;
+    }
+
+    .section-title:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 5px;
+      background-color: var(--accent-color);
+      border-radius: 10px;
+    }
+
+    .integrity-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .integrity-acceptable {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: var(--success-color);
+    }
+
+    .integrity-unacceptable {
+      background-color: rgba(248, 113, 113, 0.2);
+      color: var(--danger-color);
+    }
+
+    .report-link {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 6px 16px;
+      background-color: var(--accent-color);
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .report-link:hover {
+      background-color: var(--hover-accent);
+    }
+
+    .rank-badge {
+      background-color: rgba(251, 191, 36, 0.2);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--warning-color);
+    }
+
+    @media (max-width: 768px) {
+      .student-profile {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .profile-details {
+        justify-content: center;
+      }
+
+      .exams-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container upper">
+      <h1 class="page-title">Student Exam History</h1>
+      <a href="/admin/profile/students" class="back-button">← Back to All Students</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="student-profile">
+      <img class="profile-avatar" src="<%= student.imageurl || 'https://randomuser.me/api/portraits/men/1.jpg' %>" alt="<%= student.fname %>" />
+      <div class="profile-info">
+        <h2 class="profile-name"><%= student.fname %> <%= student.lname || '' %></h2>
+        <div class="profile-usn"><%= student.USN || student.email || 'No USN Available' %></div>
+        <div class="profile-details">
+          <% if(student.Department) { %>
+            <span class="profile-badge"><%= student.Department %></span>
+          <% } %>
+          <% if(student.Semester) { %>
+            <span class="profile-badge">Semester <%= student.Semester %></span>
+          <% } %>
+          <% if(student.Section) { %>
+            <span class="profile-badge">Section <%= student.Section %></span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="section-title">Exam History</h3>
+    
+    <div class="exams-container">
+      <% if(examHistory && examHistory.length > 0) { %>
+        <% examHistory.forEach(exam => { %>
+          <div class="exam-card">
+            <div class="exam-meta">
+              <h4 class="exam-title"><%= exam.title %></h4>
+              <span class="exam-date"><%= exam.date %></span>
+            </div>
+            
+            <div class="exam-stats">
+              <% if(exam.note) { %>
+                <div class="stat-row">
+                  <span class="stat-label">Note</span>
+                  <span class="stat-value"><%= exam.note %></span>
+                </div>
+              <% } else { %>
+                <div class="stat-row">
+                  <span class="stat-label">Score</span>
+                  <% 
+                    let scoreClass = '';
+                    const scoreValue = exam.scorePercentage || 0;
+                    if (scoreValue >= 75) scoreClass = 'score-high';
+                    else if (scoreValue >= 50) scoreClass = 'score-medium';
+                    else scoreClass = 'score-low';
+                  %>
+                  <span class="stat-value score-pill <%= scoreClass %>">
+                    <% if(exam.scoreObtained !== undefined && exam.scoreTotal !== undefined) { %>
+                      <%= exam.scoreObtained %>/<%= exam.scoreTotal %> (<%= exam.scorePercentage %>%)
+                    <% } else { %>
+                      <%= exam.scorePercentage %>%
+                    <% } %>
+                  </span>
+                </div>
+                
+                <% if(exam.questionsAttempted !== undefined && exam.totalQuestions !== undefined) { %>
+                <div class="stat-row">
+                  <span class="stat-label">Questions Attempted</span>
+                  <span class="stat-value"><%= exam.questionsAttempted %> / <%= exam.totalQuestions %></span>
+                </div>
+                <% } %>
+                
+                <% if(exam.timeTaken) { %>
+                <div class="stat-row">
+                  <span class="stat-label">Time Taken</span>
+                  <span class="stat-value"><%= exam.timeTaken %></span>
+                </div>
+                <% } %>
+                
+                <% if(exam.submittedAt) { %>
+                <div class="stat-row">
+                  <span class="stat-label">Submitted</span>
+                  <span class="stat-value"><%= exam.submittedAt %></span>
+                </div>
+                <% } %>
+                
+                <% if(exam.rank && exam.totalStudents) { %>
+                <div class="stat-row">
+                  <span class="stat-label">Rank</span>
+                  <span class="stat-value rank-badge">
+                    <%= exam.rank %> of <%= exam.totalStudents %>
+                  </span>
+                </div>
+                <% } %>
+                
+                <% if(exam.integrityStatus) { %>
+                <div class="stat-row">
+                  <span class="stat-label">Integrity</span>
+                  <span class="stat-value integrity-badge <%= exam.integrityStatus === 'Acceptable' ? 'integrity-acceptable' : 'integrity-unacceptable' %>">
+                    <%= exam.integrityStatus %>
+                  </span>
+                </div>
+                <% } %>
+                
+                <div class="stat-row" style="justify-content: center; margin-top: 15px;">
+                  <a href="/admin/exam/submission/<%= exam.id %>" class="report-link">View Full Report</a>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="no-exams">
+          <p>No exam history available for this student</p>
+          <p>The student has not taken any exams yet</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

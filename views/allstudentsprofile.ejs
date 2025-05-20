@@ -123,6 +123,7 @@
       box-shadow: var(--card-shadow);
       border: 1px solid var(--border-color);
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      cursor: pointer;
     }
 
     .student-card:hover {
@@ -211,13 +212,55 @@
       margin-top: 20px;
       font-size: 15px;
     }
+    
+    .dashboard-link {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 500;
+      background-color: rgba(66, 133, 244, 0.15);
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+    
+    .dashboard-link:hover {
+      background-color: rgba(66, 133, 244, 0.25);
+      color: var(--accent-color);
+      border-color: var(--accent-color);
+      transform: translateY(-2px);
+    }
+    
+    .dashboard-link svg {
+      margin-right: 6px;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-link {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin: 10px 0;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="container">
+      <a href="/dashboard" class="dashboard-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to Dashboard
+      </a>
       <h1 class="page-title"><%= title %> Student Directory</h1>
-      
       <form action="" method="GET" class="search-form">
         <select id="semesterSelect" name="semester">
           <option value="">All Semesters</option>
@@ -255,7 +298,7 @@
     <div class="students-container" id="studentList">
       <% if(students && students.length > 0) { %>
         <% students.forEach(student => { %>
-          <div class="student-card">
+          <div class="student-card" onclick="location.href='/admin/students/<%= student._id %>/exams'">
             <img class="student-avatar" src="<%= student.imageurl || 'https://randomuser.me/api/portraits/men/1.jpg' %>" alt="<%= student.name %>" />
             <div class="student-info">
               <div class="student-name"><%= student.fname || 'Student Name' %></div>
@@ -275,5 +318,12 @@
       <% } %>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Making student cards clickable already handled with onclick attribute
+      // This space is available for any additional JavaScript functionality
+    });
+  </script>
 </body>
 </html>
