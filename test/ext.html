@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Extension Detector</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+    }
+    #extension-list li {
+      padding: 8px;
+      margin: 5px 0;
+      background: #fff;
+      border-left: 5px solid #007BFF;
+      list-style: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Browser Extension Checker</h1>
+  <ul id="extension-list"></ul>
+
+  <script>
+    const knownExtensions = [
+        {
+  name: "Don't Fuck With Paste (experimental)",
+  check: () => {
+    const input = document.createElement('input');
+    let pasteBlocked = false;
+
+    input.onpaste = (e) => {
+      pasteBlocked = true;
+      e.preventDefault();
+    };
+
+    document.body.appendChild(input);
+    const pasteEvent = new ClipboardEvent('paste', { bubbles: true, cancelable: true });
+
+    input.dispatchEvent(pasteEvent);
+    document.body.removeChild(input);
+
+    // If paste was not blocked despite our handler, maybe DFWP is forcing it
+    return !pasteBlocked;
+  }
+},
+      {
+        name: 'Grammarly',
+        check: () => !!document.querySelector('grammarly-extension')
+      },
+      {
+        name: 'MetaMask',
+        check: () => typeof window.ethereum !== 'undefined'
+      },
+      {
+        name: 'Honey',
+        check: () => typeof window.honey !== 'undefined'
+      },
+      {
+        name: 'React Developer Tools',
+        check: () => typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ !== 'undefined'
+      },
+      {
+        name: 'Pesticide for Chrome',
+        check: () => {
+          const testDiv = document.createElement('div');
+          testDiv.className = 'pesticide';
+          document.body.appendChild(testDiv);
+          const isStyled = getComputedStyle(testDiv).outlineStyle === 'solid';
+          document.body.removeChild(testDiv);
+          return isStyled;
+        }
+      },
+      {
+        name: 'ColorZilla',
+        check: () => {
+          // ColorZilla injects a global variable or modifies mouse events
+          return typeof window.colorzilla !== 'undefined';
+        }
+      },
+      {
+        name: 'AdBlock',
+        check: () => {
+          return new Promise(resolve => {
+            const ad = document.createElement('div');
+            ad.className = 'adsbox';
+            ad.style.height = '1px';
+            document.body.appendChild(ad);
+            setTimeout(() => {
+              const isBlocked = ad.offsetHeight === 0;
+              document.body.removeChild(ad);
+              resolve(isBlocked);
+            }, 100);
+          });
+        }
+      }
+    ];
+
+    const extensionList = document.getElementById('extension-list');
+
+    (async () => {
+      for (let ext of knownExtensions) {
+        let result = ext.check();
+        if (result instanceof Promise) result = await result;
+        const listItem = document.createElement('li');
+        listItem.textContent = `${ext.name}: ${result ? '✅ Installed' : '❌ Not Detected'}`;
+        extensionList.appendChild(listItem);
+      }
+    })();
+  </script>
+</body>
+</html>
