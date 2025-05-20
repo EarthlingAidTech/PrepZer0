@@ -14,8 +14,9 @@ html >
             --primary-color: #1D4ED8;
             --primary-hover: #1e40af;
             --secondary-color: #64748b;
-            --background-color: #f0f4fa;
-            --card-background: #ffffff;
+            --background-color: #111827;
+            --card-background: #1F2836;
+            --navbar-background: #2563eb;
             --border-radius: 12px;
             --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --input-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
@@ -29,36 +30,34 @@ html >
         }
         
         .app-container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
         
-        .page-header {
+        .top-navbar {
+            background-color: var(--navbar-background);
+            padding: 15px 20px;
             display: flex;
-            align-items: center;
+            justify-content: flex-end;
             margin-bottom: 20px;
         }
         
         .back-button {
-            color: var(--secondary-color);
+            color: white;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
             font-weight: 500;
-            padding: 8px 15px;
+            padding: 10px 20px;
             border-radius: var(--border-radius);
-            background-color: var(--card-background);
-            box-shadow: var(--input-shadow);
+            background-color: rgba(0, 0, 0, 0.15);
             transition: all 0.2s ease;
-            margin-right: 15px;
         }
         
         .back-button:hover {
-            background-color: #f8f9fa;
-            box-shadow: var(--box-shadow);
-            color: var(--primary-color);
+            background-color: rgba(0, 0, 0, 0.25);
         }
         
         .form-card {
@@ -80,22 +79,22 @@ html >
         }
         
         .card-body {
-            padding: 25px;
+            padding: 20px;
         }
         
         .form-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .form-label {
             font-weight: 500;
-            color: #334155;
+            color: #e2e8f0;
             margin-bottom: 8px;
             font-size: 0.95rem;
         }
@@ -103,14 +102,21 @@ html >
         .form-control, .form-select {
             border-radius: 8px;
             padding: 10px 15px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #4b5563;
             box-shadow: var(--input-shadow);
             transition: all 0.2s ease;
+            background-color: #374151;
+            color: #e5e7eb;
+        }
+        
+        .form-control::placeholder {
+            color: #9ca3af;
         }
         
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+            background-color: #3c4655;
         }
         
         .form-check-input {
@@ -127,36 +133,43 @@ html >
         .form-check-label {
             padding-left: 5px;
             font-weight: 400;
+            color: #e2e8f0;
         }
         
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            font-weight: 500;
-            padding: 10px 20px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover, .btn-primary:focus {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
-        }
-        
-        .btn-secondary {
-            background-color: #f1f5f9;
-            border-color: #e2e8f0;
+        .btn-save-draft {
+            background-color: white;
             color: #475569;
+            border: none;
             font-weight: 500;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 8px;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .btn-secondary:hover {
-            background-color: #e2e8f0;
-            color: #334155;
+        .btn-save-draft:hover {
+            background-color: #f8fafc;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-create-exam {
+            background-color: var(--navbar-background);
+            color: white;
+            border: none;
+            font-weight: 500;
+            padding: 12px 25px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-create-exam:hover {
+            background-color: #1e40af;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
         }
         
         .btn-sm {
@@ -196,8 +209,8 @@ html >
         .section-divider {
             width: 100%;
             height: 1px;
-            background-color: #e2e8f0;
-            margin: 20px 0;
+            background-color: #4b5563;
+            margin: 15px 0;
             grid-column: 1 / -1;
         }
         
@@ -228,16 +241,16 @@ html >
             display: flex;
             justify-content: flex-end;
             gap: 15px;
-            margin-top: 10px;
+            margin-top: 5px;
         }
         
         /* Selected candidates styling */
         .selected-candidates-container {
-            background-color: #f8fafc;
+            background-color: var(--card-background);
             border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #4b5563;
+            margin-top: 10px;
         }
         
         .candidate-badge {
@@ -266,6 +279,7 @@ html >
             border-radius: 12px;
             border: none;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            background-color: var(--card-background);
         }
         
         .modal-header {
@@ -275,7 +289,7 @@ html >
         
         .modal-title {
             font-weight: 600;
-            color: #1e293b;
+            color: #e2e8f0;
         }
         
         .modal-body {
@@ -293,7 +307,7 @@ html >
             padding: 18px;
             margin-bottom: 15px;
             position: relative;
-            background-color: white;
+            background-color: var(--card-background);
             transition: all 0.2s ease;
         }
         
@@ -303,19 +317,19 @@ html >
         
         .student-card.selected {
             border-color: var(--primary-color);
-            background-color: #f0f7ff;
+            background-color: #1a365d;
         }
         
         .student-card h5 {
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 10px;
-            color: #1e293b;
+            color: #e2e8f0;
         }
         
         .student-card p {
             margin-bottom: 5px;
-            color: #475569;
+            color: #cbd5e1;
         }
         
         .student-card .btn-select {
@@ -326,7 +340,7 @@ html >
         
         #durationDisplay {
             margin-top: 8px;
-            color: #475569;
+            color: #cbd5e1;
             font-size: 0.9rem;
         }
         
@@ -368,7 +382,7 @@ html >
         }
         
         .warning-modal-content {
-            background-color: white;
+            background-color: var(--card-background);
             border-radius: 12px;
             padding: 25px;
             max-width: 450px;
@@ -391,12 +405,12 @@ html >
         .warning-modal-header h4 {
             margin: 0;
             font-weight: 600;
-            color: #1e293b;
+            color: #e2e8f0;
         }
         
         .warning-modal-body {
             margin-bottom: 20px;
-            color: #475569;
+            color: #cbd5e1;
         }
         
         .warning-modal-footer {
@@ -405,18 +419,15 @@ html >
         }
         
         /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .form-content {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
         @media (max-width: 768px) {
             .form-content {
                 grid-template-columns: 1fr;
-            }
-            
-            .form-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .form-buttons button {
-                width: 100%;
             }
             
             .page-header {
@@ -424,26 +435,21 @@ html >
                 align-items: flex-start;
                 gap: 10px;
             }
-            
-            .back-button {
-                margin-right: 0;
-            }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <div class="page-header">
-            <a href="/admin" class="back-button">
-                <i class="bi bi-arrow-left"></i> Back to Admin Dashboard
-            </a>
-            <h2 class="mb-0">Create New Exam</h2>
-        </div>
+ 
         
         <div class="card form-card">
             <div class="card-header">
                 Exam Details
+            <a href="/admin" class="back-button" style="display: inline; float: right;" >
+                <i class="bi bi-arrow-left"></i> Back to Admin Dashboard
+            </a>
             </div>
+
             <div class="card-body">
                 <form id="createExamForm" action="/admin/create_exam" method="POST">
                     <div class="form-content">
@@ -465,6 +471,15 @@ html >
                                 <option value="7">Semester 7</option>
                                 <option value="8">Semester 8</option>
                             </select>
+                        </div>
+                        
+                        <div class="form-group" style="grid-column: 3; text-align: right;">
+                            <label class="form-label" style="color: transparent;">Save</label>
+                            <div>
+                                <button type="submit" name="draft" value="draft" class="btn-save-draft">
+                                    <i class="bi bi-save"></i> Save Draft
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group full-width">
@@ -500,9 +515,12 @@ html >
                                 </div>
                             </div>
                             
-                            <div class="mt-3">
+                            <div class="mt-3 d-flex justify-content-between">
                                 <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#selectCandidatesModal">
                                     <i class="bi bi-person-plus"></i> Select Additional Candidates
+                                </button>
+                                <button type="submit" name="action" value="create" class="btn-create-exam">
+                                    <i class="bi bi-check-circle"></i> Create Exam
                                 </button>
                             </div>
                         </div>
@@ -526,18 +544,6 @@ html >
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="duration" class="form-label">Duration (minutes)</label>
-                            <input type="number" id="duration" name="Duration" class="form-control" placeholder="Enter duration">
-                            <!-- Quick duration buttons -->
-                            <div class="duration-quick-select">
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(30)">30m</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(60)">1h</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(90)">1.5h</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(120)">2h</button>
-                            </div>
-                        </div>
-
                         <div id="mcqFields" class="form-group" style="display: none;">
                             <label for="numMCQs" class="form-label">Number of MCQ Questions</label>
                             <input type="number" id="numMCQs" name="numMCQs" class="form-control" onchange="updateTotalQuestions()" placeholder="Enter MCQ count">
@@ -553,7 +559,17 @@ html >
                             <input type="number" id="numTotalQuestions" name="numTotalQuestions" class="form-control" readonly>
                         </div>
 
-                        <div class="section-divider"></div>
+                        <div class="form-group">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" id="duration" name="Duration" class="form-control" placeholder="Enter duration">
+                            <!-- Quick duration buttons -->
+                            <div class="duration-quick-select">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(30)">30m</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(60)">1h</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(90)">1.5h</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(120)">2h</button>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label for="scheduledAt" class="form-label">Exam Start Time</label>
@@ -572,18 +588,9 @@ html >
                             <div id="durationDisplay"></div>
                         </div>
 
-                        <div class="text-center mt-3 full-width">
+                        <div class="text-center mt-3" style="grid-column: span 2;">
                             <button type="button" class="btn btn-outline-primary" id="calculateEndTime">
                                 <i class="bi bi-calculator"></i> Calculate End Time From Duration
-                            </button>
-                        </div>
-
-                        <div class="form-buttons full-width">
-                            <button type="submit" name="draft" value="draft" class="btn btn-secondary">
-                                <i class="bi bi-save"></i> Save to Draft
-                            </button>
-                            <button type="submit" name="action" value="create" class="btn btn-primary">
-                                <i class="bi bi-check-circle"></i> Create Exam
                             </button>
                         </div>
                     </div>
