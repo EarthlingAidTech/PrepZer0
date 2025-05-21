@@ -1,58 +1,3 @@
-
-
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title><%= title %></title> <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"> <st
-
-pasted
-
-firstly only make change as instructed, no unnecessary additional things, and make sure code isn't affected
-
-these are the colors to use
-navigation bar: 
-#1F2937
-body bg: 
-#111827
-bg of other things in cards/boxes/containers: 
-#1F2836
-
-also the long emails which exceed the box/container, wrap that
-
-navigation bar is not proper, make it proper and use color as mentioned above
-make body bg as mentioned above
-make card/box/container bg as mentioned above
-
-I'll help you adjust the color scheme of the assessment report page as requested and fix issues with email wrapping and navigation bar. I'll make these specific changes without altering functionality.
-
-
-Updated Assessment Report with Dark Theme
-Interactive artifact 
-I've updated the assessment report template with the dark theme as requested. Here are the specific changes I made:
-
-Color updates:
-Changed the navigation bar color to 
-#1F2937
-Updated the body background to 
-#111827
-Set card/box/container backgrounds to 
-#1F2836
-Adjusted text colors to be more visible on dark backgrounds
-Updated border colors to complement the dark theme
-Navigation bar improvements:
-Made the navigation bar more prominent with proper spacing and padding
-Ensured proper alignment of logo and title
-Applied the exact color requested (
-#1F2937)
-Email wrapping fix:
-Added word-break: break-word to the info-item class to handle long emails that might exceed container width
-This ensures long email addresses will wrap properly within their container
-Additional refinements:
-Adjusted card shadows for better visibility in dark mode
-Updated modal colors to match the dark theme
-Maintained all functionality of the original template
-All of these changes were made while preserving the original functionality of the page, including the confirmation modal and button interactions. The code
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,6 +18,7 @@ All of these changes were made while preserving the original functionality of th
       --success-color: #10b981;
       --error-color: #ef4444;
       --warning-color: #f59e0b;
+      --info-color: #0ea5e9;
       --gold: #f59e0b;
       --silver: #94a3b8;
       --bronze: #d97706;
@@ -226,6 +172,31 @@ All of these changes were made while preserving the original functionality of th
       opacity: 0.8;
     }
     
+    .score-breakdown {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    
+    .score-component {
+      padding: 0.75rem 1.5rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 0.375rem;
+    }
+    
+    .score-component-title {
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+      opacity: 0.8;
+    }
+    
+    .score-component-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
     .time-analysis, .integrity-report {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -260,6 +231,37 @@ All of these changes were made while preserving the original functionality of th
       border-radius: 0.5rem;
       padding: 1.5rem;
       margin-bottom: 1.5rem;
+    }
+    
+    .question-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .question-score {
+      font-size: 0.875rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 500;
+    }
+    
+    .question-score-success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+    
+    .question-score-error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--error-color);
+    }
+    
+    .question-score-partial {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
     }
     
     .question-text {
@@ -437,6 +439,138 @@ All of these changes were made while preserving the original functionality of th
     .btn-secondary:hover {
       background-color: #64748b;
     }
+
+    /* Coding assessment styles */
+    .coding-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .test-cases-summary {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .test-case-indicator {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .test-case-pass {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: var(--success-color);
+    }
+
+    .test-case-fail {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: var(--error-color);
+    }
+
+    .test-cases-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      table-layout: fixed;
+    }
+
+    .test-cases-table th,
+    .test-cases-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .test-cases-table th {
+      background-color: rgba(99, 102, 241, 0.1);
+      font-weight: 600;
+    }
+
+    .error-message {
+      background-color: rgba(239, 68, 68, 0.1);
+      border-left: 3px solid var(--error-color);
+      padding: 0.75rem;
+      margin-top: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .pill-success {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .pill-error {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--error-color);
+    }
+
+    .pill-warning {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    .pill-info {
+      background-color: rgba(14, 165, 233, 0.1);
+      color: var(--info-color);
+    }
+
+    .execution-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.25rem;
+      font-weight: 500;
+      font-size: 0.75rem;
+    }
+
+    .execution-pass {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success-color);
+    }
+
+    .execution-fail {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: var(--error-color);
+    }
+
+    .execution-partial {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning-color);
+    }
+
+    .execution-details {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 0.25rem;
+    }
+
+    .classification-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      background-color: rgba(14, 165, 233, 0.1);
+      color: var(--info-color);
+      margin-left: 0.5rem;
+    }
     
     @media (max-width: 768px) {
       .container {
@@ -464,6 +598,11 @@ All of these changes were made while preserving the original functionality of th
 
       .performer-table {
         font-size: 0.875rem;
+      }
+
+      .score-breakdown {
+        flex-direction: column;
+        gap: 0.75rem;
       }
     }
   </style>
@@ -507,7 +646,35 @@ All of these changes were made while preserving the original functionality of th
     
     <section class="card score-card">
       <div class="score-title">Assessment Score</div>
-      <div class="score-value"><%= report.score.obtained %><span class="score-max">/<%= report.score.total %></span></div>
+      
+      <% if (report.combinedScore) { %>
+        <!-- Display combined score (MCQ + Coding) -->
+        <div class="score-value"><%= report.combinedScore.obtained %><span class="score-max">/<%= report.combinedScore.total %></span></div>
+        
+        <% if (report.combinedScore.mcq && report.combinedScore.coding) { %>
+          <!-- Show score breakdown if both MCQ and coding are present -->
+          <div class="score-breakdown">
+            <div class="score-component">
+              <div class="score-component-title">MCQ Score</div>
+              <div class="score-component-value"><%= report.combinedScore.mcq.obtained %>/<%= report.combinedScore.mcq.total %></div>
+            </div>
+            <div class="score-component">
+              <div class="score-component-title">Coding Score</div>
+              <div class="score-component-value">
+                <% if (report.combinedScore.coding.evaluationStatus === 'Evaluated') { %>
+                  <%= report.combinedScore.coding.obtained %>/<%= report.combinedScore.coding.total %>
+                <% } else { %>
+                  Pending
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% } %>
+      <% } else { %>
+        <!-- Fallback to using just MCQ score -->
+        <div class="score-value"><%= report.score.obtained %><span class="score-max">/<%= report.score.total %></span></div>
+      <% } %>
+      
       <div class="rank-info">
         <div class="rank-badge">#<%= report.ranking.rank %></div>
         <div class="rank-text">Rank <%= report.ranking.rank %> of <%= report.ranking.totalStudents %></div>
@@ -599,8 +766,9 @@ All of these changes were made while preserving the original functionality of th
       </div>
     </section>
     
+    <!-- MCQ Questions Section -->
     <section class="card">
-      <h2 class="card-title">Assessment Questions</h2>
+      <h2 class="card-title">MCQ Questions</h2>
       <div class="questions-list">
         <% report.questions.forEach((question, index) => { %>
           <div class="question-item">
@@ -641,6 +809,184 @@ All of these changes were made while preserving the original functionality of th
         <% }); %>
       </div>
     </section>
+    
+    <!-- Coding Questions Section (if coding evaluation exists) -->
+    <% if (report.codingEvaluation) { %>
+    <section class="card">
+      <h2 class="card-title">Coding Assessment</h2>
+      
+      <!-- Coding Summary Statistics -->
+      <div class="coding-summary">
+        <div class="info-item">
+          <span class="info-label">Total Questions:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.totalQuestions || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Attempted:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.attempted || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Correct:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.correct || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Partial:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.partial || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Incorrect:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.incorrect || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Total Test Cases:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.totalTestCases || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Passed Test Cases:</span>
+          <span class="info-value"><%= report.codingEvaluation.summary?.passedTestCases || 0 %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Success Rate:</span>
+          <span class="info-value">
+            <%= report.codingEvaluation.summary?.totalTestCases ? 
+                Math.round((report.codingEvaluation.summary.passedTestCases / report.codingEvaluation.summary.totalTestCases) * 100) : 
+                0 %>%
+          </span>
+        </div>
+      </div>
+      
+      <!-- Individual Coding Questions -->
+      <div class="questions-list">
+        <% if (report.codingEvaluation.questions && report.codingEvaluation.questions.length > 0) { %>
+          <% report.codingEvaluation.questions.forEach((question, index) => { %>
+            <div class="question-item">
+              <div class="question-title">
+                <%= index + 1 %>. <%= question.title || 'Coding Question' %>
+                <% if (question.classification) { %>
+                  <span class="classification-badge"><%= question.classification %></span>
+                <% } %>
+                <span class="question-score 
+                  <%= question.status === 'correct' ? 'question-score-success' : 
+                     (question.status === 'partial' ? 'question-score-partial' : 'question-score-error') %>">
+                  <%= question.score %>/<%= question.maxScore %> pts
+                </span>
+              </div>
+              
+              <!-- Execution Summary -->
+              <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="execution-badge 
+                  <%= question.status === 'correct' ? 'execution-pass' : 
+                     (question.status === 'partial' ? 'execution-partial' : 'execution-fail') %>">
+                  <%= question.status === 'correct' ? 'All Test Cases Passed' : 
+                     (question.status === 'partial' ? 'Partially Correct' : 
+                      (question.status === 'not_attempted' ? 'Not Attempted' : 'Failed')) %>
+                </span>
+              </div>
+              
+              <div class="test-cases-summary">
+                <div class="info-item">
+                  <span class="info-label">Test Cases:</span>
+                  <span class="info-value"><%= question.testCasesPassed || 0 %>/<%= question.testCasesTotal || 0 %> passed</span>
+                </div>
+              </div>
+              
+              <!-- Test Cases Results (without showing actual test cases) -->
+              <% if (question.testCases && question.testCases.length > 0) { %>
+                <table class="test-cases-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 10%">Test #</th>
+                      <th style="width: 15%">Status</th>
+                      <th style="width: 20%">Execution Time</th>
+                      <th style="width: 20%">Memory Usage</th>
+                      <th style="width: 35%">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% question.testCases.forEach((testCase, tcIndex) => { %>
+                      <tr>
+                        <td>Test <%= tcIndex + 1 %></td>
+                        <td>
+                          <span class="pill <%= testCase.passed ? 'pill-success' : 'pill-error' %>">
+                            <%= testCase.passed ? 'PASS' : 'FAIL' %>
+                          </span>
+                        </td>
+                        <td><%= testCase.executionTime ? (testCase.executionTime + ' ms') : 'N/A' %></td>
+                        <td><%= testCase.memoryUsage ? (testCase.memoryUsage + ' MB') : 'N/A' %></td>
+                        <td>
+                          <% if (!testCase.passed && testCase.error) { %>
+                            <span class="pill pill-error">Error</span>
+                          <% } else if (testCase.passed) { %>
+                            <span class="pill pill-success">Output Matched</span>
+                          <% } else { %>
+                            <span class="pill pill-warning">Output Mismatch</span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              <% } %>
+              
+              <!-- Execution Details -->
+              <% if (question.executionDetails) { %>
+                <div class="execution-details">
+                  <div class="info-item">
+                    <span class="info-label">Execution Status:</span>
+                    <span class="info-value">
+                      <span class="pill <%= 
+                        question.executionDetails.status === 'executed' ? 'pill-success' : 
+                        (question.executionDetails.status === 'compilation_error' ? 'pill-error' : 
+                        (question.executionDetails.status === 'runtime_error' ? 'pill-error' : 'pill-warning')) %>">
+                        <%= question.executionDetails.status === 'executed' ? 'Successfully Executed' :
+                           (question.executionDetails.status === 'compilation_error' ? 'Compilation Error' :
+                           (question.executionDetails.status === 'runtime_error' ? 'Runtime Error' :
+                           (question.executionDetails.status === 'pending' ? 'Pending' : 'Error'))) %>
+                      </span>
+                    </span>
+                  </div>
+                  
+                  <% if (question.executionDetails.compilationError) { %>
+                    <div class="error-message">
+                      Compilation Error: <%= question.executionDetails.compilationError %>
+                    </div>
+                  <% } %>
+                  
+                  <% if (question.executionDetails.runtimeError) { %>
+                    <div class="error-message">
+                      Runtime Error: <%= question.executionDetails.runtimeError %>
+                    </div>
+                  <% } %>
+                  
+                  <div class="info-item">
+                    <span class="info-label">Total Execution Time:</span>
+                    <span class="info-value"><%= question.executionDetails.executionTime || 0 %> ms</span>
+                  </div>
+                  
+                  <div class="info-item">
+                    <span class="info-label">Memory Usage:</span>
+                    <span class="info-value"><%= question.executionDetails.memoryUsage || 0 %> MB</span>
+                  </div>
+                </div>
+              <% } %>
+              
+              <!-- Error Summary (if any) -->
+              <% if (question.errorSummary) { %>
+                <div class="error-message">
+                  <%= question.errorSummary %>
+                </div>
+              <% } %>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <div class="info-item">
+            <span class="info-value">No coding questions were attempted or the evaluation data is incomplete.</span>
+          </div>
+        <% } %>
+      </div>
+    </section>
+    <% } %>
   </div>
   
   <!-- Confirmation Modal -->
