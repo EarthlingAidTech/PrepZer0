@@ -267,6 +267,15 @@
             background-color: #6b7280;
         }
         
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #059669;
+        }
+        
         /* Search input */
         .search-container {
             margin-bottom: 1.5rem;
@@ -301,6 +310,57 @@
             font-size: 0.75rem;
             font-weight: 500;
             text-transform: uppercase;
+        }
+        
+        /* Additional styles for activity status */
+        .badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 12px;
+            display: inline-block;
+        }
+        
+        .badge-success {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: #FFC107;
+            color: #333;
+        }
+        
+        .badge-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .badge-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .text-muted {
+            color: #fff !important;
+            font-size: 11px;
+        }
+
+        /* Highlight for active students who haven't submitted */
+        tr.candidate-row:has(.badge-info) {
+            background-color: rgba(23, 162, 184, 0.05);
+        }
+        
+        /* Active student highlight */
+        tr.candidate-row:has(.badge-success) {
+            background-color: rgba(76, 175, 80, 0.05);
+        }
+        
+        /* Score breakdown */
+        .score-breakdown {
+            font-size: 11px;
+            color: var(--secondary-text);
+            margin-top: 3px;
         }
         
         /* Responsive */
@@ -372,22 +432,50 @@
                     <div class="exam-detail-label">Total Questions</div>
                     <div class="exam-detail-value"><%= exam.numMCQs + exam.numCoding %> (MCQ: <%= exam.numMCQs %>, Coding: <%= exam.numCoding %>)</div>
                 </div>
-
-
-                
-                <!-- Add this button in the subhead div, right after the "Back to Exams" link -->
-                <a href="/admin/exam/<%= exam._id %>/report" class="btn btn-sm btn-success" style="margin-left: 10px;">
-                    <i class="fas fa-file-excel"></i> Export Report
-                </a>
-
-
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Type</div>
+                    <div class="exam-detail-value"><%= exam.questionType %></div>
+                </div>
+                <div class="exam-detail-item">
+                    <div class="exam-detail-label">Actions</div>
+                    <div class="exam-detail-value">
+                        <a href="/admin/exam/<%= exam._id %>/report" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-excel"></i> Export Report
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Evaluation Status for Coding Exams -->
+        <% if (hasCoding) { %>
+        <div class="card mb-4">
+            <div class="card-header">
+                <h2 class="card-title">Evaluation Status</h2>
+            </div>
+            <div class="p-4">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>Total Submissions: <%= evaluationResults.total %></h4>
+                        <div class="mt-2">
+                            <span class="badge badge-success">Evaluated: <%= evaluationResults.evaluated %></span>
+                            <span class="badge badge-warning">Pending: <%= evaluationResults.pending %></span>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary" onclick="location.href='/admin/exam/<%= exam._id %>/evaluate-all'">
+                            <i class="fas fa-sync"></i> Evaluate All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
 
         <!-- Candidates List -->
         <div class="card">
             <div class="card-header">
-                <h2 class="card-title">Exam Candidates <%= candidates.length %></h2>
+                <h2 class="card-title">Exam Candidates (<%= candidates.length %>)</h2>
                 <div class="search-container">
                     <input type="text" id="searchInput" class="search-input" placeholder="Search candidates..." oninput="searchCandidates()">
                 </div>
@@ -401,7 +489,18 @@
                             <th>Department</th>
                             <th>Semester</th>
                             <th>Activity Status</th>
-                            <th>Score</th>
+                            <% if (hasMCQ && hasCoding) { %>
+                                <th>Total Score</th>
+                            <% } else { %>
+                                <th>Score</th>
+                            <% } %>
+                            <% if (hasMCQ && hasCoding) { %>
+                                <th>MCQ Score</th>
+                                <th>Coding Score</th>
+                            <% } %>
+                            <% if (hasCoding) { %>
+                                <th>Evaluation</th>
+                            <% } %>
                             <th>Submitted At</th>
                             <th>Actions</th>
                         </tr>
@@ -431,17 +530,55 @@
                                             <span class="badge badge-secondary">offline</span>
                                         <% } %>
                                     </td>
+                                    
+                                    <!-- Score display -->
                                     <td>
-                                        <% if (typeof candidate.score === 'number') { %>
-                                            <span class="badge <%= candidate.score >= 0 ? 'badge-success' : 'badge-warning' %>">
+                                        <% if (candidate.score === 'In progress') { %>
+                                            <span class="badge badge-info">In progress</span>
+                                        <% } else if (candidate.score === 'N/A' || !candidate.score) { %>
+                                            <span class="badge badge-secondary">N/A</span>
+                                        <% } else { %>
+                                            <span class="badge badge-success">
                                                 <%= candidate.score %>
                                             </span>
-                                        <% } else if (candidate.score === 'In progress') { %>
-                                            <span class="badge badge-info">In progress</span>
-                                        <% } else { %>
-                                            <span class="badge">N/A</span>
                                         <% } %>
                                     </td>
+                                    
+                                    <!-- MCQ and Coding score breakdown for combined exams -->
+                                    <% if (hasMCQ && hasCoding) { %>
+                                        <td>
+                                            <% if (candidate.hasSubmitted && candidate.mcqScore !== undefined) { %>
+                                                <span class="badge badge-info"><%= candidate.mcqScore %></span>
+                                            <% } else { %>
+                                                <span class="badge badge-secondary">N/A</span>
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <% if (candidate.hasSubmitted && candidate.codingScore !== undefined) { %>
+                                                <% if (candidate.evaluationStatus === 'Evaluated') { %>
+                                                    <span class="badge badge-success"><%= candidate.codingScore %></span>
+                                                <% } else { %>
+                                                    <span class="badge badge-warning">Pending</span>
+                                                <% } %>
+                                            <% } else { %>
+                                                <span class="badge badge-secondary">N/A</span>
+                                            <% } %>
+                                        </td>
+                                    <% } %>
+                                    
+                                    <!-- Evaluation status for coding exams -->
+                                    <% if (hasCoding) { %>
+                                        <td>
+                                            <% if (candidate.evaluationStatus) { %>
+                                                <span class="badge <%= candidate.evaluationStatus === 'Evaluated' ? 'badge-success' : 'badge-warning' %>">
+                                                    <%= candidate.evaluationStatus %>
+                                                </span>
+                                            <% } else { %>
+                                                <span class="badge badge-secondary">Not Applicable</span>
+                                            <% } %>
+                                        </td>
+                                    <% } %>
+                                    
                                     <td>
                                         <% if (candidate.submittedAt) { %>
                                             <%= new Date(candidate.submittedAt).toLocaleDateString() %> 
@@ -457,6 +594,11 @@
                                             <a href="/admin/exam/submission/<%= candidate.submission._id %>" class="btn btn-sm btn-info">
                                                 <i class="fas fa-eye"></i> View Details
                                             </a>
+                                            <% if (hasCoding && candidate.evaluationStatus !== 'Evaluated') { %>
+                                                <a href="/admin/exam/<%= exam._id %>/evaluate/<%= candidate.student._id %>" class="btn btn-sm btn-warning mt-1">
+                                                    <i class="fas fa-code"></i> Evaluate
+                                                </a>
+                                            <% } %>
                                         <% } else { %>
                                             <button class="btn btn-sm btn-secondary" disabled>
                                                 <i class="fas fa-clock"></i> Pending
@@ -467,7 +609,7 @@
                             <% }) %>
                         <% } else { %>
                             <tr id="no-candidates">
-                                <td colspan="8">
+                                <td colspan="<%= (hasMCQ && hasCoding) ? 11 : (hasCoding ? 9 : 8) %>">
                                     <div class="empty-state">
                                         <i class="fas fa-users"></i>
                                         <h3>No Candidates Found</h3>
@@ -523,51 +665,5 @@
             location.reload();
         }, 30000);
     </script>
-
-    <style>
-        /* Additional styles for activity status */
-        .badge {
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-weight: 500;
-            font-size: 12px;
-            display: inline-block;
-        }
-        
-        .badge-success {
-            background-color: #4CAF50;
-            color: white;
-        }
-        
-        .badge-warning {
-            background-color: #FFC107;
-            color: #333;
-        }
-        
-        .badge-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        
-        .badge-info {
-            background-color: #17a2b8;
-            color: white;
-        }
-        
-        .text-muted {
-            color: #fff !important;
-            font-size: 11px;
-        }
-
-        /* Highlight for active students who haven't submitted */
-        tr.candidate-row:has(.badge-info) {
-            background-color: rgba(23, 162, 184, 0.05);
-        }
-        
-        /* Active student highlight */
-        tr.candidate-row:has(.badge-success) {
-            background-color: rgba(76, 175, 80, 0.05);
-        }
-    </style>
 </body>
 </html>

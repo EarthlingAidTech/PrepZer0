@@ -2438,13 +2438,10 @@ document.head.appendChild(styleElement);
         // Add question title and text
         const questionTitle = document.createElement('h2');
         questionTitle.classList.add('question-title');
-        questionTitle.textContent = question.questionTitle || `Question ${index + 1}`;
+        questionTitle.textContent = question.questionTitle || question.question;
         questionElement.appendChild(questionTitle);
         
-        const questionText = document.createElement('div');
-        questionText.classList.add('question-description');
-        questionText.innerHTML = question.questionText;
-        questionElement.appendChild(questionText);
+
         
         // Add options
         const optionsContainer = document.createElement('div');

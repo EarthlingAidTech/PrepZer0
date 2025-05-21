@@ -1,10 +1,122 @@
 const reportModel = require('../models/reportModel');
-const Submission = require("./../models/SubmissionSchema")
+const Submission = require("./../models/SubmissionSchema");
 const Integrity = require("./../models/Integrity");
-const { redirect } = require('express/lib/response');
+const mongoose = require('mongoose');
+const EvaluationResult = require('../models/EvaluationResultSchema');
 
-// Add this to your reportController.js file
+exports.viewAssessmentReport = async(req,res) => {
+  try {
+      const submissionId = req.params.submissionId;
+      
+      if (!submissionId) {
+        return res.status(400).send('Submission ID is required');
+      }
+      
+      // Fetch the base report with MCQ data
+      const reportData = await reportModel.getAssessmentReport(submissionId);
+      
+      // Get the submission to access student and exam IDs
+      const submission = await Submission.findById(submissionId)
+        .populate('exam')
+        .populate('student');
+      
+      if (!submission) {
+        throw new Error('Submission not found');
+      }
+      
+      // Check if this is a coding exam or has coding questions
+      const hasCoding = submission.exam.questionType === 'coding' || 
+                       submission.exam.questionType === 'mcq&coding';
+      
+      // If it has coding questions, fetch coding evaluation results
+      if (hasCoding) {
+        // Find the coding evaluation result for this student and exam
+        const codingEvaluation = await EvaluationResult.findOne({
+          userId: submission.student._id,
+          examId: submission.exam._id
+        }).lean();
+        
+        // Add coding evaluation data to the report
+        if (codingEvaluation) {
+          reportData.codingEvaluation = codingEvaluation;
+          
+          // Add a combined score (MCQ + Coding)
+          const mcqScore = reportData.score.obtained || 0;
+          const mcqTotal = reportData.score.total || 0;
+          
+          const codingScore = codingEvaluation.totalScore || 
+                             (codingEvaluation.results && codingEvaluation.results.totalScore) || 0;
+          const codingTotal = 100; // Assuming coding is out of 100
+          
+          reportData.combinedScore = {
+            obtained: mcqScore + codingScore,
+            total: mcqTotal + codingTotal,
+            mcq: {
+              obtained: mcqScore,
+              total: mcqTotal
+            },
+            coding: {
+              obtained: codingScore,
+              total: codingTotal,
+              evaluationStatus: 'Evaluated',
+              details: codingEvaluation.results || {},
+              percentage: codingEvaluation.percentage || 
+                         (codingEvaluation.results && codingEvaluation.results.percentage) || 0
+            }
+          };
+        } else {
+          // No coding evaluation results found - exam has coding questions but not evaluated yet
+          reportData.codingEvaluation = null;
+          reportData.combinedScore = {
+            obtained: reportData.score.obtained || 0,
+            total: reportData.score.total || 0,
+            mcq: {
+              obtained: reportData.score.obtained || 0,
+              total: reportData.score.total || 0
+            },
+            coding: {
+              obtained: 0,
+              total: 100,
+              evaluationStatus: 'Pending Evaluation',
+              details: null
+            }
+          };
+        }
+      } else {
+        // Exam doesn't have coding questions, just use MCQ score
+        reportData.combinedScore = {
+          obtained: reportData.score.obtained || 0,
+          total: reportData.score.total || 0,
+          mcq: {
+            obtained: reportData.score.obtained || 0,
+            total: reportData.score.total || 0
+          }
+        };
+      }
+      
+      console.log("Complete Report Data:", {
+        hasCoding: hasCoding,
+        combinedScore: reportData.combinedScore,
+        codingEvaluation: reportData.codingEvaluation ? 'Present' : 'Not found'
+      });
+      
+      // Render the EJS template with the complete report data
+      res.render('assessment_report', { 
+        title: 'PrepZer0 Assessment Report',
+        report: reportData,
+        submissionId: submissionId,
+        hasCoding: hasCoding
+      });
+    } catch (error) {
+      console.error('Error in assessment report controller:', error);
+      res.status(500).render('error', { 
+        message: 'Failed to load assessment report',
+        error: process.env.NODE_ENV === 'development' ? error : {}
+      });
+    }
+}
 
+// Keep the deleteSubmission function as is
 exports.deleteSubmission = async (req, res) => {
   try {
     const { userId, examId, submissionId } = req.body;
@@ -40,9 +152,7 @@ exports.deleteSubmission = async (req, res) => {
       deletedSubmission: deletedSubmission._id,
       deletedIntegrity: deletedIntegrity ? deletedIntegrity._id : 'Not found',
       redirectUrl: `/admin/exam/candidates/${examId}`
-      
     });
-    
     
   } catch (error) {
     console.error('Error deleting submission:', error);
@@ -52,41 +162,3 @@ exports.deleteSubmission = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-exports.viewAssessmentReport = async(req,res) => {
-  try {
-      const submissionId = req.params.submissionId;
-      
-      if (!submissionId) {
-        return res.status(400).send('Submission ID is required');
-      }
-      
-      const reportData = await reportModel.getAssessmentReport(submissionId);
-      console.log(reportData)
-      // Render the EJS template with the report data
-      res.render('assessment_report', { 
-        title: 'PrepZer0 Assessment Report',
-        report: reportData,
-        submissionId: submissionId  // Add this line
-      });
-    } catch (error) {
-      console.error('Error in assessment report controller:', error);
-      res.status(500).render('error', { 
-        message: 'Failed to load assessment report',
-        error: process.env.NODE_ENV === 'development' ? error : {}
-      });
-    }
-}
-
-
-
-
-
-
-
-
