@@ -549,12 +549,325 @@ const evalbatchcod =  async (req, res) => {
 
 
 
+// exports.examCandidates = async(req, res) => {
+//     try {
+//         const examId = req.params.examId;
+
+//         // Fetch the exam details
+//         const exam = await Exam.findById(examId);
+        
+//         if (!exam) {
+//             return res.status(404).render('error', { 
+//                 message: 'Exam not found',
+//                 error: { status: 404, stack: '' } 
+//             });
+//         }
+        
+//         // Determine if this exam has MCQ questions, coding questions, or both
+//         const hasMCQ = exam.questionType === 'mcq' || exam.questionType === 'mcq&coding';
+//         const hasCoding = exam.questionType === 'coding' || exam.questionType === 'mcq&coding';
+        
+//         // Fetch all submissions related to this exam
+//         const submissions = await Submission.find({ exam: examId })
+//             .populate('student', 'USN email Department Semester Rollno _id fname lname') 
+//             .sort({ submittedAt: -1 }); // Most recent submissions first
+        
+//         // Create a set of student IDs who have submitted
+//         const submittedStudentIds = new Set();
+//         submissions.forEach(submission => {
+//             if (submission.student && submission.student._id) {
+//                 submittedStudentIds.add(submission.student._id.toString());
+//             }
+//         });
+
+//         // If this exam has coding questions, handle code evaluations
+//         let evaluationMap = new Map();
+//         if (hasCoding) {
+//             // Get the user IDs from submissions
+//             const submissionUserIds = submissions.map(submission => 
+//                 submission.student && submission.student._id ? 
+//                 submission.student._id.toString() : null
+//             ).filter(id => id !== null);
+            
+//             // Check which students already have evaluation results
+//             const EvaluationResult = mongoose.models.EvaluationResult || 
+//                 mongoose.model('EvaluationResult', new mongoose.Schema({
+//                     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+//                     examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true }
+//                 }));
+            
+//             const existingEvaluations = await EvaluationResult.find({
+//                 examId: examId,
+//                 userId: { $in: submissionUserIds }
+//             }).select('userId');
+            
+//             // Create a set of user IDs that already have evaluations
+//             const evaluatedUserIds = new Set(
+//                 existingEvaluations.map(eval => eval.userId.toString())
+//             );
+            
+//             console.log(`Found ${evaluatedUserIds.size} students with existing evaluations`);
+            
+//             // Filter out students who already have evaluations
+//             const unevaluatedUserIds = submissionUserIds.filter(
+//                 userId => !evaluatedUserIds.has(userId)
+//             );
+            
+//             if (unevaluatedUserIds.length > 0) {
+//                 console.log(`Evaluating ${unevaluatedUserIds.length} students who haven't been evaluated yet`);
+                
+//                 // Only run batch evaluation for students who don't have results yet
+//                 const newResults = await batchEvaluateSubmissions(examId, unevaluatedUserIds);
+//                 const evaluationResults = newResults.results || [];
+                
+//                 console.log(`Completed evaluation for ${evaluationResults.length} students`);
+//             } else {
+//                 console.log('All submissions have already been evaluated');
+//             }
+            
+//             // Now fetch all evaluation results, including those we just created
+//             const allEvaluations = await EvaluationResult.find({
+//                 examId: examId,
+//                 userId: { $in: submissionUserIds }
+//             }).lean();
+            
+//             // Create a map of user ID to evaluation result for easy lookup
+//             allEvaluations.forEach(eval => {
+//                 evaluationMap.set(eval.userId.toString(), eval);
+//             });
+//         }
+        
+//         // Fetch active sessions for this exam
+//         const activeSessions = await ActivityTracker.find({ examId: examId })
+//             .populate('userId', 'USN email Department Semester Rollno _id fname lname')
+//             .select('userId status lastPingTimestamp')
+//             .sort({ lastPingTimestamp: -1 });
+            
+//         // Update status to offline for students who have submitted
+//         const updatePromises = [];
+//         activeSessions.forEach(session => {
+//             if (session.userId && session.userId._id) {
+//                 const studentId = session.userId._id.toString();
+                
+//                 // If student has submitted, update their status to offline
+//                 if (submittedStudentIds.has(studentId) && session.status !== 'offline') {
+//                     updatePromises.push(
+//                         ActivityTracker.findByIdAndUpdate(
+//                             session._id,
+//                             { 
+//                                 status: 'offline',
+//                                 $push: { 
+//                                     pingHistory: { 
+//                                         timestamp: new Date(), 
+//                                         status: 'offline' 
+//                                     } 
+//                                 }
+//                             }
+//                         )
+//                     );
+                    
+//                     // Update the session object to reflect the new status
+//                     session.status = 'offline';
+//                 }
+//             }
+//         });
+        
+//         // Execute all update promises
+//         if (updatePromises.length > 0) {
+//             await Promise.all(updatePromises);
+//         }
+        
+//         // Convert active sessions to a map for easy lookup
+//         const activeSessionsMap = new Map();
+//         activeSessions.forEach(session => {
+//             // Skip if userId is not properly populated
+//             if (!session.userId || !session.userId._id) return;
+            
+//             const userId = session.userId._id.toString();
+//             activeSessionsMap.set(userId, {
+//                 status: session.status, 
+//                 lastPing: session.lastPingTimestamp,
+//                 studentInfo: session.userId
+//             });
+//         });
+        
+//         // Process all submissions
+//         const studentMap = new Map();
+//         for (const submission of submissions) {
+//             if (submission.student && submission.student._id && !studentMap.has(submission.student._id.toString())) {
+//                 const studentId = submission.student._id.toString();
+//                 const activeSession = activeSessionsMap.get(studentId);
+                
+//                 // Get MCQ score using ReportModel
+//                 let mcqScore = 0;
+//                 let maxMCQScore = 0;
+//                 let report = null;
+                
+//                 if (hasMCQ && submission._id) {
+//                     try {
+//                         // Get assessment report for MCQ scores
+//                         report = await ReportModel.getAssessmentReport(submission._id);
+//                         if (report && report.score) {
+//                             mcqScore = report.score.obtained;
+//                             maxMCQScore = report.score.total;
+//                         }
+//                     } catch (error) {
+//                         console.error(`Error getting report for submission ${submission._id}:`, error);
+//                     }
+//                 }
+                
+//                 // Get coding evaluation score
+//                 let codingScore = 0;
+//                 let maxCodingScore = 100; // Assuming coding evaluations are out of 100
+//                 let isEvaluated = false;
+                
+//                 if (hasCoding) {
+//                     const evaluation = evaluationMap.get(studentId);
+//                     if (evaluation) {
+//                         codingScore = evaluation.totalScore || evaluation.results?.totalScore || 0;
+//                         isEvaluated = true;
+//                     }
+//                 }
+                
+//                 // Calculate total score
+//                 const totalScore = mcqScore + codingScore;
+//                 const totalPossible = hasMCQ && hasCoding ? maxMCQScore + maxCodingScore : 
+//                                      hasMCQ ? maxMCQScore : maxCodingScore;
+                
+//                 // Format display score
+//                 let displayScore = '';
+//                 if (hasMCQ && hasCoding) {
+//                     if (isEvaluated) {
+//                         displayScore = `${totalScore}/${totalPossible} (MCQ: ${mcqScore}, Code: ${codingScore})`;
+//                     } else {
+//                         displayScore = `MCQ: ${mcqScore}/${maxMCQScore}, Code: Pending Evaluation`;
+//                     }
+//                 } else if (hasMCQ) {
+//                     displayScore = `${mcqScore}/${maxMCQScore}`;
+//                 } else if (hasCoding) {
+//                     if (isEvaluated) {
+//                         displayScore = `${codingScore}/${maxCodingScore}`;
+//                     } else {
+//                         displayScore = 'Pending Evaluation';
+//                     }
+//                 } else {
+//                     displayScore = 'N/A';
+//                 }
+                
+//                 studentMap.set(studentId, {
+//                     student: submission.student,
+//                     submission: submission,
+//                     score: displayScore,
+//                     mcqScore: mcqScore,
+//                     codingScore: codingScore,
+//                     totalScore: totalScore,
+//                     evaluationStatus: hasCoding ? 
+//                         (isEvaluated ? 'Evaluated' : 'Pending Evaluation') : 'N/A',
+//                     submittedAt: submission.submittedAt,
+//                     activityStatus: activeSession ? activeSession.status : 'offline',
+//                     lastActive: activeSession ? activeSession.lastPing : null,
+//                     hasSubmitted: true
+//                 });
+                
+//                 // Remove from active sessions map to avoid duplicates
+//                 activeSessionsMap.delete(studentId);
+//             }
+//         }
+        
+//         // Process active sessions of students who haven't submitted
+//         activeSessionsMap.forEach((session, studentId) => {
+//             if (!submittedStudentIds.has(studentId)) {
+//                 studentMap.set(studentId, {
+//                     student: session.studentInfo,
+//                     submission: null,
+//                     score: 'In progress',
+//                     mcqScore: 0,
+//                     codingScore: 0,
+//                     totalScore: 0,
+//                     evaluationStatus: 'Not submitted',
+//                     submittedAt: null,
+//                     activityStatus: session.status,
+//                     lastActive: session.lastPing,
+//                     hasSubmitted: false
+//                 });
+//             }
+//         });
+        
+//         const candidates = Array.from(studentMap.values());
+        
+//         // Sort candidates: active students first, then by submission status and time
+//         candidates.sort((a, b) => {
+//             // First prioritize active status
+//             if (a.activityStatus === 'active' && b.activityStatus !== 'active') return -1;
+//             if (a.activityStatus !== 'active' && b.activityStatus === 'active') return 1;
+            
+//             // Then by submission status (submitted after non-submitted)
+//             if (a.hasSubmitted && !b.hasSubmitted) return -1;
+//             if (!a.hasSubmitted && b.hasSubmitted) return 1;
+            
+//             // If both have submitted, sort by total score (higher first)
+//             if (a.hasSubmitted && b.hasSubmitted) {
+//                 if (a.totalScore !== b.totalScore) {
+//                     return b.totalScore - a.totalScore;
+//                 }
+//             }
+            
+//             // Then by submission time (most recent first)
+//             if (a.submittedAt && b.submittedAt) {
+//                 return new Date(b.submittedAt) - new Date(a.submittedAt);
+//             }
+            
+//             // Finally by last active time
+//             if (a.lastActive && b.lastActive) {
+//                 return new Date(b.lastActive) - new Date(a.lastActive);
+//             }
+            
+//             return 0;
+//         });
+        
+//         // Render the candidates view
+//         res.render('exam_candidates', {
+//             title: `Candidates for ${exam.name}`,
+//             exam: exam,
+//             candidates: candidates,
+//             hasMCQ: hasMCQ,
+//             hasCoding: hasCoding,
+//             evaluationResults: {
+//                 total: submissions.length,
+//                 evaluated: hasCoding ? submissions.filter(s => 
+//                     s.student && s.student._id && evaluationMap.has(s.student._id.toString())
+//                 ).length : 0,
+//                 pending: hasCoding ? submissions.filter(s => 
+//                     s.student && s.student._id && !evaluationMap.has(s.student._id.toString())
+//                 ).length : 0
+//             }
+//         });
+        
+//     } catch (error) {
+//         console.error('Error fetching exam candidates:', error);
+//         res.status(500).render('error', { 
+//             message: 'Error fetching exam candidates',
+//             error: { status: 500, stack: process.env.NODE_ENV === 'development' ? error.stack : '' } 
+//         });
+//     }
+// }
+
+
+
+
+
+
+
+
+
 exports.examCandidates = async(req, res) => {
     try {
         const examId = req.params.examId;
 
-        // Fetch the exam details
-        const exam = await Exam.findById(examId);
+        // Fetch the exam details with populated questions
+        const exam = await Exam.findById(examId)
+            .populate('mcqQuestions')
+            .populate('codingQuestions');
         
         if (!exam) {
             return res.status(404).render('error', { 
@@ -566,6 +879,17 @@ exports.examCandidates = async(req, res) => {
         // Determine if this exam has MCQ questions, coding questions, or both
         const hasMCQ = exam.questionType === 'mcq' || exam.questionType === 'mcq&coding';
         const hasCoding = exam.questionType === 'coding' || exam.questionType === 'mcq&coding';
+        
+        // Calculate maximum possible scores
+        let maxMCQScore = 0;
+        if (hasMCQ && exam.mcqQuestions && exam.mcqQuestions.length > 0) {
+            maxMCQScore = exam.mcqQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
+        }
+        
+        let maxCodingScore = 0;
+        if (hasCoding && exam.codingQuestions && exam.codingQuestions.length > 0) {
+            maxCodingScore = exam.codingQuestions.reduce((sum, q) => sum + (q.maxMarks || 0), 0);
+        }
         
         // Fetch all submissions related to this exam
         const submissions = await Submission.find({ exam: examId })
@@ -591,10 +915,7 @@ exports.examCandidates = async(req, res) => {
             
             // Check which students already have evaluation results
             const EvaluationResult = mongoose.models.EvaluationResult || 
-                mongoose.model('EvaluationResult', new mongoose.Schema({
-                    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-                    examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true }
-                }));
+                mongoose.model('EvaluationResult', evaluationResultSchema);
             
             const existingEvaluations = await EvaluationResult.find({
                 examId: examId,
@@ -700,7 +1021,6 @@ exports.examCandidates = async(req, res) => {
                 
                 // Get MCQ score using ReportModel
                 let mcqScore = 0;
-                let maxMCQScore = 0;
                 let report = null;
                 
                 if (hasMCQ && submission._id) {
@@ -709,7 +1029,6 @@ exports.examCandidates = async(req, res) => {
                         report = await ReportModel.getAssessmentReport(submission._id);
                         if (report && report.score) {
                             mcqScore = report.score.obtained;
-                            maxMCQScore = report.score.total;
                         }
                     } catch (error) {
                         console.error(`Error getting report for submission ${submission._id}:`, error);
@@ -718,27 +1037,26 @@ exports.examCandidates = async(req, res) => {
                 
                 // Get coding evaluation score
                 let codingScore = 0;
-                let maxCodingScore = 100; // Assuming coding evaluations are out of 100
                 let isEvaluated = false;
                 
                 if (hasCoding) {
                     const evaluation = evaluationMap.get(studentId);
                     if (evaluation) {
-                        codingScore = evaluation.totalScore || evaluation.results?.totalScore || 0;
+                        // Use totalScore from the evaluation result
+                        codingScore = evaluation.totalScore || 0;
                         isEvaluated = true;
                     }
                 }
                 
                 // Calculate total score
                 const totalScore = mcqScore + codingScore;
-                const totalPossible = hasMCQ && hasCoding ? maxMCQScore + maxCodingScore : 
-                                     hasMCQ ? maxMCQScore : maxCodingScore;
+                const totalPossible = maxMCQScore + maxCodingScore;
                 
                 // Format display score
                 let displayScore = '';
                 if (hasMCQ && hasCoding) {
                     if (isEvaluated) {
-                        displayScore = `${totalScore}/${totalPossible} (MCQ: ${mcqScore}, Code: ${codingScore})`;
+                        displayScore = `${totalScore}/${totalPossible} (MCQ: ${mcqScore}/${maxMCQScore}, Code: ${codingScore}/${maxCodingScore})`;
                     } else {
                         displayScore = `MCQ: ${mcqScore}/${maxMCQScore}, Code: Pending Evaluation`;
                     }
@@ -761,6 +1079,9 @@ exports.examCandidates = async(req, res) => {
                     mcqScore: mcqScore,
                     codingScore: codingScore,
                     totalScore: totalScore,
+                    maxMCQScore: maxMCQScore,
+                    maxCodingScore: maxCodingScore,
+                    maxTotalScore: totalPossible,
                     evaluationStatus: hasCoding ? 
                         (isEvaluated ? 'Evaluated' : 'Pending Evaluation') : 'N/A',
                     submittedAt: submission.submittedAt,
@@ -784,6 +1105,9 @@ exports.examCandidates = async(req, res) => {
                     mcqScore: 0,
                     codingScore: 0,
                     totalScore: 0,
+                    maxMCQScore: maxMCQScore,
+                    maxCodingScore: maxCodingScore,
+                    maxTotalScore: totalPossible,
                     evaluationStatus: 'Not submitted',
                     submittedAt: null,
                     activityStatus: session.status,
@@ -832,6 +1156,11 @@ exports.examCandidates = async(req, res) => {
             candidates: candidates,
             hasMCQ: hasMCQ,
             hasCoding: hasCoding,
+            scoreSummary: {
+                maxMCQScore: maxMCQScore,
+                maxCodingScore: maxCodingScore,
+                maxTotalScore: maxMCQScore + maxCodingScore
+            },
             evaluationResults: {
                 total: submissions.length,
                 evaluated: hasCoding ? submissions.filter(s => 
@@ -853,175 +1182,3 @@ exports.examCandidates = async(req, res) => {
 }
 
 
-
-
-
-
-
-
-
-// exports.examCandidates = async(req, res) => {
-//     try {
-//       const examId = req.params.examId;
-     
-    
-
-//         // Fetch the exam details
-//         const exam = await Exam.findById(examId);
-        
-//         if (!exam) {
-//             return res.status(404).render('error', { 
-//                 message: 'Exam not found',
-//                 error: { status: 404, stack: '' } 
-//             });
-//         }
-        
-//         // Fetch all submissions related to this exam
-//         const submissions = await Submission.find({ exam: examId })
-//             .populate('student', 'USN email Department Semester Rollno _id') 
-//             .sort({ submittedAt: -1 }); // Most recent submissions first
-        
-//         // Create a set of student IDs who have submitted
-//         const submittedStudentIds = new Set();
-//         submissions.forEach(submission => {
-//             if (submission.student && submission.student._id) {
-//                 submittedStudentIds.add(submission.student._id.toString());
-//             }
-//         });
-//         const userIds = submissions.map(submission => 
-//     submission.student && submission.student._id ? 
-//     submission.student._id.toString() : null
-// ).filter(id => id !== null);
-//             const results = await batchEvaluateSubmissions(examId, userIds);
-//             console.log(results)
-//         // Fetch active sessions for this exam
-//         const activeSessions = await ActivityTracker.find({ examId: examId })
-//             .populate('userId', 'USN email Department Semester Rollno _id')
-//             .select('userId status lastPingTimestamp')
-//             .sort({ lastPingTimestamp: -1 });
-            
-//         // Update status to offline for students who have submitted
-//         const updatePromises = [];
-//         activeSessions.forEach(session => {
-//             if (session.userId && session.userId._id) {
-//                 const studentId = session.userId._id.toString();
-                
-//                 // If student has submitted, update their status to offline
-//                 if (submittedStudentIds.has(studentId) && session.status !== 'offline') {
-//                     updatePromises.push(
-//                         ActivityTracker.findByIdAndUpdate(
-//                             session._id,
-//                             { 
-//                                 status: 'offline',
-//                                 $push: { 
-//                                     pingHistory: { 
-//                                         timestamp: new Date(), 
-//                                         status: 'offline' 
-//                                     } 
-//                                 }
-//                             }
-//                         )
-//                     );
-                    
-//                     // Update the session object to reflect the new status
-//                     session.status = 'offline';
-//                 }
-//             }
-//         });
-        
-//         // Execute all update promises
-//         if (updatePromises.length > 0) {
-//             await Promise.all(updatePromises);
-//         }
-        
-//         // Convert active sessions to a map for easy lookup
-//         const activeSessionsMap = new Map();
-//         activeSessions.forEach(session => {
-//             // Skip if userId is not properly populated
-//             if (!session.userId || !session.userId._id) return;
-            
-//             const userId = session.userId._id.toString();
-//             activeSessionsMap.set(userId, {
-//                 status: session.status, // This now reflects the updated status
-//                 lastPing: session.lastPingTimestamp,
-//                 studentInfo: session.userId
-//             });
-//         });
-        
-//         // First, process all submissions
-//         const studentMap = new Map();
-//         submissions.forEach(submission => {
-//             if (submission.student && submission.student._id && !studentMap.has(submission.student._id.toString())) {
-//                 const studentId = submission.student._id.toString();
-//                 const activeSession = activeSessionsMap.get(studentId);
-                
-//                 studentMap.set(studentId, {
-//                     student: submission.student,
-//                     submission: submission,
-//                     score: submission.score || 'N/A',
-//                     submittedAt: submission.submittedAt,
-//                     activityStatus: activeSession ? activeSession.status : 'offline', // Will be 'offline' based on our updates
-//                     lastActive: activeSession ? activeSession.lastPing : null,
-//                     hasSubmitted: true
-//                 });
-                
-//                 // Remove from active sessions map to avoid duplicates
-//                 activeSessionsMap.delete(studentId);
-//             }
-//         });
-        
-//         // Then, process active sessions of students who haven't submitted
-//         activeSessionsMap.forEach((session, studentId) => {
-//             if (!submittedStudentIds.has(studentId)) {
-//                 studentMap.set(studentId, {
-//                     student: session.studentInfo,
-//                     submission: null,
-//                     score: 'In progress',
-//                     submittedAt: null,
-//                     activityStatus: session.status,
-//                     lastActive: session.lastPing,
-//                     hasSubmitted: false
-//                 });
-//             }
-//         });
-        
-//         const candidates = Array.from(studentMap.values());
-        
-//         // Sort candidates: active students first, then by submission status and time
-//         candidates.sort((a, b) => {
-//             // First prioritize active status
-//             if (a.activityStatus === 'active' && b.activityStatus !== 'active') return -1;
-//             if (a.activityStatus !== 'active' && b.activityStatus === 'active') return 1;
-            
-//             // Then by submission status (submitted after non-submitted)
-//             if (a.hasSubmitted && !b.hasSubmitted) return -1;
-//             if (!a.hasSubmitted && b.hasSubmitted) return 1;
-            
-//             // Then by submission time (most recent first)
-//             if (a.submittedAt && b.submittedAt) {
-//                 return new Date(b.submittedAt) - new Date(a.submittedAt);
-//             }
-            
-//             // Finally by last active time
-//             if (a.lastActive && b.lastActive) {
-//                 return new Date(b.lastActive) - new Date(a.lastActive);
-//             }
-            
-//             return 0;
-//         });
-        
-//         // Render the candidates view
-//         res.render('exam_candidates', {
-//             title: `Candidates for ${exam.name}`,
-//             exam: exam,
-//             candidates: candidates
-//         });
-        
-//     } catch (error) {
-//         console.error('Error fetching exam candidates:', error);
-//         res.status(500).render('error', { 
-//             message: 'Error fetching exam candidates',
-//             error: { status: 500, stack: process.env.NODE_ENV === 'development' ? error.stack : '' } 
-//         });
-//     }
-// }

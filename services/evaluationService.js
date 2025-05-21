@@ -375,10 +375,6 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
         failedTestCases: failedTestCases,
         errorSummary: generateErrorSummary(questionEvaluation)
       });
-let questionScore = Math.round(scorePercentage * question.maxMarks * 100) / 100;
-console.log(`Adding score for question ${questionId}: ${questionScore}/${question.maxMarks}`);
-evaluationResults.totalScore += questionScore;
-      
       evaluationResults.maxPossibleScore += question.maxMarks;
       evaluationResults.summary.totalTestCases += totalTestCases;
       evaluationResults.summary.passedTestCases += testCasesPassed;
