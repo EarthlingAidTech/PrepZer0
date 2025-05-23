@@ -191,6 +191,38 @@
             box-shadow: 0 0 0 0.25rem rgba(63, 142, 252, 0.15);
         }
         
+        /* Password input container */
+        .password-container {
+            position: relative;
+        }
+        
+        .password-container .form-control {
+            padding-right: 45px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        
+        .password-toggle:focus {
+            outline: none;
+            color: var(--primary-color);
+        }
+        
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
@@ -439,14 +471,24 @@
                     <label for="password" class="form-label">
                         <i class="fa-solid fa-lock"></i> Password
                     </label>
-                    <input type="password" id="password" name="password" class="form-control" required placeholder="Create a strong password">
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" class="form-control" required placeholder="Create a strong password">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fa-solid fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="form-group position-relative">
                     <label for="confirm_password" class="form-label">
                         <i class="fa-solid fa-check-circle"></i> Confirm Password
                     </label>
-                    <input type="password" id="confirm_password" name="passcode" class="form-control" required placeholder="Confirm your password">
+                    <div class="password-container">
+                        <input type="password" id="confirm_password" name="passcode" class="form-control" required placeholder="Confirm your password">
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                            <i class="fa-solid fa-eye" id="confirm_password-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
@@ -472,6 +514,21 @@
                 departmentDiv.style.display = "block";
             } else {
                 departmentDiv.style.display = "none";
+            }
+        }
+
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(inputId + '-eye');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
             }
         }
     </script>
