@@ -100,9 +100,22 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
       if (!user) {
           return done(null, false, { message: 'No user found with this email' });
       }
-      if (!user.userallowed) {
-          return done(null, false, { message: 'Verify your account to log in' });
+      
+      // Special check for teachers - they must have verified their email (active: true)
+      if (user.usertype === 'teacher' && !user.active) {
+        console.log("sadasdsaaaaaaaaaaaaaa")
+          return done(null, false, { message: 'Please verify your email before logging in' });
       }
+      
+      // Check if user is allowed to access the platform
+      if (!user.userallowed) {
+          if (user.usertype === 'teacher') {
+              return done(null, false, { message: 'Your teacher account is pending administrator approval. You will be notified once approved.' });
+          } else {
+              return done(null, false, { message: 'Verify your account to log in' });
+          }
+      }
+      
       user.authenticate(password, (err, user, msg) => {
           if (err) {
               return done(err);
@@ -111,7 +124,6 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
               return done(null, false, { message: msg || 'Incorrect password' });
           }
 
-        
           return done(null, user);
       });
       
