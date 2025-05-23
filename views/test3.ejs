@@ -64,7 +64,7 @@
         .header-title {
             font-size: 1.2rem;
             font-weight: 600;
-            color: var(--dark);
+            color: #fff;
         }
 
         .header-right {
@@ -181,7 +181,7 @@
             font-size: 1.25rem;
             font-weight: 700;
             margin-bottom: 1rem;
-            color: var(--dark);
+            color: #fff;
         }
 
         .question-description {
@@ -193,7 +193,7 @@
             font-weight: 600;
             margin-top: 1.5rem;
             margin-bottom: 0.5rem;
-            color: var(--dark);
+            color: #fff;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -1080,7 +1080,7 @@ const examIntegrity = (function() {
             (e.altKey && e.key === 'Tab') ||
             (e.metaKey && e.key === 'w') || 
             (e.key === 'F4' && e.altKey)) {
-                
+            
             e.preventDefault();
             e.stopPropagation();
             showNotification("This action is not allowed during the exam.");
@@ -1465,6 +1465,7 @@ const examIntegrity = (function() {
         message.textContent = `You have committed ${state.totalViolations} or more integrity violations. Your exam will be automatically submitted.`;
         message.style.marginBottom = '20px';
         message.style.fontSize = '1.1rem';
+        message.style.color = '#000';
         modalContent.appendChild(message);
         
         // Add violations list
@@ -1474,6 +1475,7 @@ const examIntegrity = (function() {
         violationsList.style.padding = '10px';
         violationsList.style.backgroundColor = '#f8d7da';
         violationsList.style.borderRadius = '5px';
+        violationsList.style.color = '#000';
         
         let violationsHTML = '<strong>Violations detected:</strong><ul style="margin-top: 10px;">';
         
@@ -1494,6 +1496,7 @@ const examIntegrity = (function() {
         const countdown = document.createElement('p');
         countdown.textContent = 'Submitting exam in 5 seconds...';
         countdown.style.fontWeight = 'bold';
+        countdown.style.color = '#000';
         modalContent.appendChild(countdown);
         
         modalOverlay.appendChild(modalContent);
