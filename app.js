@@ -39,7 +39,7 @@ app.set('views', path.join(__dirname, 'views'));
 const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo');
 const dbname = "codingplatform"
-const dburl = "mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0"
+const dburl = "mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/check?retryWrites=true&w=majority&appName=Cluster0"
 
 mongoose.connect(dburl,
 {useNewUrlParser: true},
@@ -103,9 +103,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
       
       // Special check for teachers - they must have verified their email (active: true)
       if (user.usertype === 'teacher' && !user.active) {
-        console.log("sadasdsaaaaaaaaaaaaaa")
           return done(null, false, { message: 'Please verify your email before logging in' });
       }
+
       
       // Check if user is allowed to access the platform
       if (!user.userallowed) {
