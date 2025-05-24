@@ -26,55 +26,112 @@ exports.getQuestion = async (req, res,) => {
 exports.getaddmcqQuestion = async (req, res) => {
     res.render("add_mcq", { examId: req.params.examId });
 }
+
 exports.postaddmcqQuestion = async (req, res) => {
     try {
-        const { question, options, correctAnswer, marks, classification, level} = req.body;
+        const { question, options, correctAnswer, marks, classification, level } = req.body;
+        
+        // Validate required fields
+        if (!question || !options || !correctAnswer || !classification || !level) {
+            return res.status(400).send("All fields are required.");
+        }
+
+        // Create and save the main MCQ
         const newMCQ = new MCQ({
             examId: req.params.examId,
             classification,
             level,
             question,
-            options: options.split(","),
-            correctAnswer,
-            marks
+            options: options.split(",").map(opt => opt.trim()), // Trim whitespace
+            correctAnswer: correctAnswer.trim(),
+            marks: parseInt(marks) || 1
         });
+        
         await newMCQ.save();
+        console.log("MCQ saved successfully:", newMCQ._id);
 
-        await Exam.findByIdAndUpdate(req.params.examId, { $push: { mcqQuestions: newMCQ._id } });
+        // Update the exam with the new MCQ
+        await Exam.findByIdAndUpdate(req.params.examId, { 
+            $push: { mcqQuestions: newMCQ._id } 
+        });
+        console.log("Exam updated successfully");
 
+        // Handle AllMCQ saving with better error handling
+        try {
+            // Normalize the question text to handle minor differences
+            const normalizeText = (text) => {
+                if (!text || typeof text !== 'string') return '';
+                return text
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ')
+                    .replace(/['",.?!;:()\[\]{}]/g, '')
+                    .trim();
+            };
 
-         // Normalize the question text to handle minor differences
-        const normalizeText = (text) => {
-            return text
-                .toLowerCase()                         // Convert to lowercase
-                .replace(/\s+/g, ' ')                  // Normalize whitespace
-                .replace(/['",.?!;:()\[\]{}]/g, '')    // Remove punctuation
-                .trim();                               // Remove leading/trailing spaces
-        };
-        const normalizedQuestion = normalizeText(question);
+            const normalizedQuestion = normalizeText(question);
 
-        // Get all questions from AllMCQ and check for similarity
-        const allQuestions = await AllMCQ.find({});
-        const questionExists = allQuestions.some(q => normalizeText(q.question) === normalizedQuestion);
+            // More efficient duplicate check - use database query instead of loading all
+            const existingQuestion = await AllMCQ.findOne({
+                $expr: {
+                    $eq: [
+                        {
+                            $toLower: {
+                                $replaceAll: {
+                                    input: {
+                                        $replaceAll: {
+                                            input: "$question",
+                                            find: " ",
+                                            replacement: ""
+                                        }
+                                    },
+                                    find: /['",.?!;:()\[\]{}]/,
+                                    replacement: ""
+                                }
+                            }
+                        },
+                        normalizedQuestion.replace(/\s/g, '')
+                    ]
+                }
+            }).limit(1);
 
-         // Save to the AllMCQ database as well
-        if (!questionExists) {
-            const allMCQEntry = new AllMCQ({
-                classification,
-                level,
-                question,
-                options: options.split(","),
-                correctAnswer,
-                marks
-            });
-            
-            await allMCQEntry.save();
+            // If no duplicate found, save to AllMCQ
+            if (!existingQuestion) {
+                const allMCQEntry = new AllMCQ({
+                    classification,
+                    level,
+                    question,
+                    options: options.split(",").map(opt => opt.trim()),
+                    correctAnswer: correctAnswer.trim(),
+                    marks: parseInt(marks) || 1
+                });
+                
+                await allMCQEntry.save();
+                console.log("Question saved to AllMCQ collection");
+            } else {
+                console.log("Question already exists in AllMCQ collection, skipping...");
+            }
+        } catch (allMCQError) {
+            // Log the AllMCQ error but don't fail the main operation
+            console.error("Error saving to AllMCQ collection:", allMCQError.message);
+            // Continue with redirect since main MCQ was saved successfully
         }
 
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
+        
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Error adding MCQ.");
+        console.error("Error in postaddmcqQuestion:", error);
+        
+        // More specific error messages
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).send(`Validation Error: ${errors.join(', ')}`);
+        }
+        
+        if (error.name === 'CastError') {
+            return res.status(400).send("Invalid data format provided.");
+        }
+        
+        res.status(500).send(`Error adding MCQ: ${error.message}`);
     }
 }
 exports.getEditmcqQuestion = async (req, res) => {
@@ -304,12 +361,10 @@ exports.postcoding_from_db = async (req, res) => {
 };
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases,starterCode  } = req.body;
+        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases, starterCode } = req.body;
         console.log(req.body);
 
-        
-        // This one is for to be seen in exams so it's connected to the exams
-        // It says this question belongs to this exam
+        // Create and save the new coding question
         const newCodingQuestion = new CodingQuestion({
             questionTile,
             questiontext,
@@ -328,43 +383,53 @@ exports.postaddcodingQuestion = async (req, res) => {
         });
         
         await newCodingQuestion.save();
-        
-        // Check if a question with the same questiontext and questionTile already exists in DbCodingQuestion
-        const existingQuestion = await DbCodingQuestion.findOne({
-            questionTile: questionTile,
-            questiontext: questiontext
-        });
-        
-        // Only add to DbCodingQuestion if no matching question exists
-        if (!existingQuestion) {
-            const addDBCodingQuestion = new DbCodingQuestion({
-                questionTile,
-                questiontext,
-                constraits,
-                inputFormat,
-                outputFormat,
-                solutionTemplate,
-                maxMarks,
-                testCases,
-                level,
-                classification,
-                createdBy: req.user._id,
-                sampleInput: req.body.sampleInput,
-                sampleOutput: req.body.sampleOutput,
-                starterCode
+        console.log("Coding question saved successfully");
+
+        // Update the exam FIRST (this is the critical operation)
+        await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
+        console.log("Exam updated successfully");
+
+        // Handle DbCodingQuestion operations (non-critical)
+        try {
+            const existingQuestion = await DbCodingQuestion.findOne({
+                questionTile: questionTile,
+                questiontext: questiontext
             });
-            await addDBCodingQuestion.save();
-            console.log("Question added to database collection");
-        } else {
-            console.log("Question already exists in database collection. Not adding duplicate.");
-            return res.send("exam already exists");
+            
+            if (!existingQuestion) {
+                const addDBCodingQuestion = new DbCodingQuestion({
+                    questionTile,
+                    questiontext,
+                    constraits,
+                    inputFormat,
+                    outputFormat,
+                    solutionTemplate,
+                    maxMarks,
+                    testCases,
+                    level,
+                    classification,
+                    createdBy: req.user._id,
+                    sampleInput: req.body.sampleInput,
+                    sampleOutput: req.body.sampleOutput,
+                    starterCode
+                });
+                await addDBCodingQuestion.save();
+                console.log("Question added to database collection");
+            } else {
+                console.log("Question already exists in database collection. Not adding duplicate.");
+                // DON'T return here - just continue to redirect
+            }
+        } catch (dbError) {
+            console.error("Error with DbCodingQuestion operations:", dbError.message);
+            res.redirect(`/admin/exam/questions/${req.params.examId}`)
+            // Don't throw - just log and continue
         }
 
-        await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
-
+        // Always redirect after successful main operations
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
+        
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Error adding Coding Question.");
+        console.error("Error adding coding question:", error);
+        res.status(500).send("Error adding Coding Question: " + error.message);
     }
 }
