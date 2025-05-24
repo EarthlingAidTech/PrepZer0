@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -194,6 +193,36 @@
       margin-bottom: 20px;
       display: none;
     }
+
+    .accordion-item {
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .accordion-button {
+      width: 100%;
+      padding: 10px 15px;
+      background: #f8f9fa;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .accordion-collapse {
+      display: none;
+      padding: 15px;
+    }
+
+    .accordion-collapse.show {
+      display: block;
+    }
+
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -211,8 +240,8 @@
       <div class="form-row">
         <div class="form-col">
           <div class="form-group">
-            <label for="questionTitle">Question Title*</label>
-            <input type="text" id="questionTitle" name="questionTitle" required>
+            <label for="questionTile">Question Title*</label>
+            <input type="text" id="questionTile" name="questionTile" required>
           </div>
         </div>
         <div class="form-col">
@@ -267,13 +296,13 @@
       <div class="section-title">Question Content</div>
       
       <div class="form-group">
-        <label for="questionText">Question Text*</label>
-        <textarea id="questionText" name="questionText" required></textarea>
+        <label for="questiontext">Question Text*</label>
+        <textarea id="questiontext" name="questiontext" required></textarea>
       </div>
       
       <div class="form-group">
-        <label for="constraints">Constraints</label>
-        <textarea id="constraints" name="constraints"></textarea>
+        <label for="constraits">Constraints</label>
+        <textarea id="constraits" name="constraits"></textarea>
       </div>
       
       <div class="form-row">
@@ -321,14 +350,14 @@
       <div class="accordion" id="starterCodeAccordion">
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#cppCode">
+            <button type="button" class="accordion-button collapsed" data-target="#cppCode">
               C++ Starter Code
             </button>
           </h2>
-          <div id="cppCode" class="accordion-collapse collapse">
+          <div id="cppCode" class="accordion-collapse">
             <div class="accordion-body">
               <div class="form-group">
-                <textarea id="cppStarterCode" name="starterCode[cpp]" placeholder="Enter C++ starter code here"></textarea>
+                <textarea id="cppStarterCode" name="starterCode_cpp" placeholder="Enter C++ starter code here"></textarea>
               </div>
             </div>
           </div>
@@ -336,14 +365,14 @@
         
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#cCode">
+            <button type="button" class="accordion-button collapsed" data-target="#cCode">
               C Starter Code
             </button>
           </h2>
-          <div id="cCode" class="accordion-collapse collapse">
+          <div id="cCode" class="accordion-collapse">
             <div class="accordion-body">
               <div class="form-group">
-                <textarea id="cStarterCode" name="starterCode[c]" placeholder="Enter C starter code here"></textarea>
+                <textarea id="cStarterCode" name="starterCode_c" placeholder="Enter C starter code here"></textarea>
               </div>
             </div>
           </div>
@@ -351,14 +380,14 @@
         
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#javaCode">
+            <button type="button" class="accordion-button collapsed" data-target="#javaCode">
               Java Starter Code
             </button>
           </h2>
-          <div id="javaCode" class="accordion-collapse collapse">
+          <div id="javaCode" class="accordion-collapse">
             <div class="accordion-body">
               <div class="form-group">
-                <textarea id="javaStarterCode" name="starterCode[java]" placeholder="Enter Java starter code here"></textarea>
+                <textarea id="javaStarterCode" name="starterCode_java" placeholder="Enter Java starter code here"></textarea>
               </div>
             </div>
           </div>
@@ -366,14 +395,14 @@
         
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#pythonCode">
+            <button type="button" class="accordion-button collapsed" data-target="#pythonCode">
               Python Starter Code
             </button>
           </h2>
-          <div id="pythonCode" class="accordion-collapse collapse">
+          <div id="pythonCode" class="accordion-collapse">
             <div class="accordion-body">
               <div class="form-group">
-                <textarea id="pythonStarterCode" name="starterCode[python]" placeholder="Enter Python starter code here"></textarea>
+                <textarea id="pythonStarterCode" name="starterCode_python" placeholder="Enter Python starter code here"></textarea>
               </div>
             </div>
           </div>
@@ -381,14 +410,14 @@
         
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#csharpCode">
+            <button type="button" class="accordion-button collapsed" data-target="#csharpCode">
               C# Starter Code
             </button>
           </h2>
-          <div id="csharpCode" class="accordion-collapse collapse">
+          <div id="csharpCode" class="accordion-collapse">
             <div class="accordion-body">
               <div class="form-group">
-                <textarea id="csharpStarterCode" name="starterCode[csharp]" placeholder="Enter C# starter code here"></textarea>
+                <textarea id="csharpStarterCode" name="starterCode_csharp" placeholder="Enter C# starter code here"></textarea>
               </div>
             </div>
           </div>
@@ -396,14 +425,14 @@
         
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#jsCode">
+            <button type="button" class="accordion-button collapsed" data-target="#jsCode">
               JavaScript Starter Code
             </button>
           </h2>
-          <div id="jsCode" class="accordion-collapse collapse">
+          <div id="jsCode" class="accordion-collapse">
             <div class="accordion-body">
               <div class="form-group">
-                <textarea id="jsStarterCode" name="starterCode[javascript]" placeholder="Enter JavaScript starter code here"></textarea>
+                <textarea id="jsStarterCode" name="starterCode_javascript" placeholder="Enter JavaScript starter code here"></textarea>
               </div>
             </div>
           </div>
@@ -421,7 +450,7 @@
       <!-- Form Controls -->
       <div class="controls">
         <button type="button" id="clearForm" class="warning">Clear Form</button>
-        <button type="submit">Submit Question</button>
+        <button type="submit" id="submitBtn">Submit Question</button>
       </div>
     </form>
   </div>
@@ -434,6 +463,7 @@
       const clearFormBtn = document.getElementById('clearForm');
       const form = document.getElementById('codingQuestionForm');
       const successMessage = document.getElementById('successMessage');
+      const submitBtn = document.getElementById('submitBtn');
       
       // Add test case function
       function addTestCase() {
@@ -453,13 +483,13 @@
             <div class="form-col">
               <div class="form-group">
                 <label for="testInput${testCaseCount}">Input*</label>
-                <textarea id="testInput${testCaseCount}" name="testInput${testCaseCount}" required></textarea>
+                <textarea id="testInput${testCaseCount}" name="testCases[${testCaseCount-1}][input]" required></textarea>
               </div>
             </div>
             <div class="form-col">
               <div class="form-group">
                 <label for="expectedOutput${testCaseCount}">Expected Output*</label>
-                <textarea id="expectedOutput${testCaseCount}" name="expectedOutput${testCaseCount}" required></textarea>
+                <textarea id="expectedOutput${testCaseCount}" name="testCases[${testCaseCount-1}][expectedOutput]" required></textarea>
               </div>
             </div>
           </div>
@@ -468,19 +498,19 @@
             <div class="form-col">
               <div class="form-group">
                 <label for="timeout${testCaseCount}">Timeout (seconds)</label>
-                <input type="number" id="timeout${testCaseCount}" name="timeout${testCaseCount}" value="2" min="1" max="30">
+                <input type="number" id="timeout${testCaseCount}" name="testCases[${testCaseCount-1}][timeout]" value="2" min="1" max="30">
               </div>
             </div>
             <div class="form-col">
               <div class="form-group">
                 <label for="memoryLimit${testCaseCount}">Memory Limit (MB)</label>
-                <input type="number" id="memoryLimit${testCaseCount}" name="memoryLimit${testCaseCount}" value="256" min="64" max="1024">
+                <input type="number" id="memoryLimit${testCaseCount}" name="testCases[${testCaseCount-1}][memoryLimit]" value="256" min="64" max="1024">
               </div>
             </div>
           </div>
           
           <div class="checkbox-group">
-            <input type="checkbox" id="isPublic${testCaseCount}" name="isPublic${testCaseCount}">
+            <input type="checkbox" id="isPublic${testCaseCount}" name="testCases[${testCaseCount-1}][isPublic]" value="true">
             <label for="isPublic${testCaseCount}">Make this test case visible to students</label>
           </div>
         `;
@@ -493,7 +523,29 @@
         const testCase = document.querySelector(`.test-case[data-id="${id}"]`);
         if (testCase) {
           testCase.remove();
+          // Update remaining test case indices
+          updateTestCaseIndices();
         }
+      }
+      
+      // Update test case indices after removal
+      function updateTestCaseIndices() {
+        const testCases = testCasesContainer.querySelectorAll('.test-case');
+        testCases.forEach((testCase, index) => {
+          const inputs = testCase.querySelectorAll('input, textarea');
+          inputs.forEach(input => {
+            const name = input.getAttribute('name');
+            if (name && name.includes('testCases[')) {
+              const newName = name.replace(/testCases\[\d+\]/, `testCases[${index}]`);
+              input.setAttribute('name', newName);
+            }
+          });
+          
+          const header = testCase.querySelector('.test-case-header h3');
+          if (header) {
+            header.textContent = `Test Case #${index + 1}`;
+          }
+        });
       }
       
       // Add first test case by default
@@ -512,36 +564,41 @@
         }
       });
       
-      // Handle accordion toggling manually if Bootstrap is not available
+      // Handle accordion toggling
       document.querySelectorAll('.accordion-button').forEach(button => {
         button.addEventListener('click', function() {
-          // Toggle aria-expanded attribute
-          const expanded = this.getAttribute('aria-expanded') === 'true' || false;
-          this.setAttribute('aria-expanded', !expanded);
-          
-          // Toggle the collapse
-          const target = document.querySelector(this.getAttribute('data-bs-target'));
+          const target = document.querySelector(this.getAttribute('data-target'));
           if (target) {
-            if (expanded) {
-              target.classList.remove('show');
-            } else {
+            const isOpen = target.classList.contains('show');
+            
+            // Close all accordions
+            document.querySelectorAll('.accordion-collapse').forEach(collapse => {
+              collapse.classList.remove('show');
+            });
+            
+            // Open clicked accordion if it wasn't already open
+            if (!isOpen) {
               target.classList.add('show');
             }
           }
         });
       });
       
-      // Form submission
+      // Form submission - Let the form submit normally to the backend
       form.addEventListener('submit', function(e) {
-        e.preventDefault();
+        // Show loading state
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.disabled = true;
+        form.classList.add('loading');
         
-        // Validate the form
+        // Validate required fields
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
         
         requiredFields.forEach(field => {
           if (!field.value.trim()) {
             isValid = false;
+            e.preventDefault();
             
             // Add error message if not already present
             let errorMsgElement = field.nextElementSibling;
@@ -563,92 +620,19 @@
         // Check if there's at least one test case
         if (testCasesContainer.children.length === 0) {
           isValid = false;
+          e.preventDefault();
           alert('At least one test case is required.');
         }
         
-        if (isValid) {
-          // Collect all form data
-          const formData = {
-            questionTile: document.getElementById('questionTitle').value,
-            questiontext: document.getElementById('questionText').value,
-            constraits: document.getElementById('constraints').value,
-            inputFormat: document.getElementById('inputFormat').value,
-            outputFormat: document.getElementById('outputFormat').value,
-            sampleInput: document.getElementById('sampleInput').value,
-            sampleOutput: document.getElementById('sampleOutput').value,
-            solutionTemplate: document.getElementById('solutionTemplate').value,
-            maxMarks: parseInt(document.getElementById('maxMarks').value),
-            level: document.getElementById('level').value,
-            classification: document.getElementById('classification').value,
-            starterCode: [],
-            testCases: []
-          };
-          
-          // Collect starter code for different languages
-          const languages = ['cpp', 'c', 'java', 'python', 'csharp', 'javascript'];
-          languages.forEach(lang => {
-            const codeField = document.getElementById(`${lang}StarterCode`);
-            if (codeField && codeField.value.trim()) {
-              formData.starterCode.push({
-                language: lang,
-                code: codeField.value.trim()
-              });
-            }
-          });
-          
-          // Collect test cases
-          const testCases = testCasesContainer.querySelectorAll('.test-case');
-          testCases.forEach(testCase => {
-            const id = testCase.getAttribute('data-id');
-            formData.testCases.push({
-              input: document.getElementById(`testInput${id}`).value,
-              expectedOutput: document.getElementById(`expectedOutput${id}`).value,
-              isPublic: document.getElementById(`isPublic${id}`).checked,
-              timeout: parseInt(document.getElementById(`timeout${id}`).value),
-              memoryLimit: parseInt(document.getElementById(`memoryLimit${id}`).value)
-            });
-          });
-          
-          // Here you would send this data to your backend
-          console.log('Form data:', formData);
-          
-          // Example API call
-          fetch('/admin/exam/<%= examId %>/add/coding', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-          })
-          .then(response => response.json())
-          .then(data => {
-            console.log('Success:', data);
-            successMessage.style.display = 'block';
-            setTimeout(() => {
-              successMessage.style.display = 'none';
-            }, 3000);
-            form.reset();
-            testCasesContainer.innerHTML = '';
-            testCaseCount = 0;
-            addTestCase();
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-            alert('There was an error submitting the form. Please try again.');
-          });
-          
-          // For demo purposes, just show success message
-          successMessage.style.display = 'block';
-          setTimeout(() => {
-            successMessage.style.display = 'none';
-          }, 3000);
-          
-          // Reset form after successful submission
-          form.reset();
-          testCasesContainer.innerHTML = '';
-          testCaseCount = 0;
-          addTestCase();
+        if (!isValid) {
+          // Reset button state if validation fails
+          submitBtn.textContent = 'Submit Question';
+          submitBtn.disabled = false;
+          form.classList.remove('loading');
         }
+        
+        // If valid, let the form submit normally (don't prevent default)
+        // The backend will handle the redirect
       });
     });
   </script>
