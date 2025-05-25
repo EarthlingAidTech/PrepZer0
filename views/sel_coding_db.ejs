@@ -91,6 +91,9 @@
             border-radius: 5px;
             margin-top: 20px;
         }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -135,13 +138,8 @@
                     <div class="col-md-12">
                         <h5>Selection Tools</h5>
                         <button id="autoSelectBtn" class="btn btn-success">Auto Select Required Questions from Filtered Categories</button>
+                        <button id="autoCompleteBtn" class="btn btn-warning ms-2">Auto Complete Selection (Fill Remaining)</button>
                         <button id="clearAllBtn" class="btn btn-outline-danger ms-2">Clear All Selections</button>
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" id="autoCompleteMode">
-                            <label class="form-check-label" for="autoCompleteMode">
-                                Auto Complete Mode (after selecting one question, auto-select the rest)
-                            </label>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -238,8 +236,8 @@
         const selectedCountEl = document.getElementById('selectedCount');
         const addSelectedBtn = document.getElementById('addSelectedQuestionsBtn');
         const autoSelectBtn = document.getElementById('autoSelectBtn');
+        const autoCompleteBtn = document.getElementById('autoCompleteBtn');
         const clearAllBtn = document.getElementById('clearAllBtn');
-        const autoCompleteMode = document.getElementById('autoCompleteMode');
         const questionCheckboxes = document.querySelectorAll('.question-checkbox');
         const selectAllCategoryBtns = document.querySelectorAll('.select-all-category-btn');
         const difficultyFilters = document.querySelectorAll('.difficulty-filter');
@@ -272,37 +270,6 @@
             checkbox.addEventListener('change', function() {
                 updateQuestionCardStyle(this);
                 updateSelectionCount();
-                
-                // If auto-complete mode is enabled and this checkbox was just checked
-                if (autoCompleteMode.checked && this.checked) {
-                    const remainingToSelect = requiredCount - document.querySelectorAll('.question-checkbox:checked').length;
-                    
-                    if (remainingToSelect > 0) {
-                        // Get all visible questions that are not yet selected
-                        const visibleUnselectedQuestions = Array.from(document.querySelectorAll('.question-card:not(.hidden):not(.selected) .question-checkbox'));
-                        
-                        // Randomly select questions until we reach the required count
-                        if (visibleUnselectedQuestions.length >= remainingToSelect) {
-                            // Shuffle array to randomize selection
-                            const shuffled = visibleUnselectedQuestions.sort(() => 0.5 - Math.random());
-                            
-                            // Select the required number
-                            shuffled.slice(0, remainingToSelect).forEach(qCheckbox => {
-                                qCheckbox.checked = true;
-                                updateQuestionCardStyle(qCheckbox);
-                            });
-                            updateSelectionCount();
-                        } else if (visibleUnselectedQuestions.length > 0) {
-                            // Select all remaining visible questions
-                            visibleUnselectedQuestions.forEach(qCheckbox => {
-                                qCheckbox.checked = true;
-                                updateQuestionCardStyle(qCheckbox);
-                            });
-                            updateSelectionCount();
-                            alert(`Only selected ${visibleUnselectedQuestions.length} more questions from visible categories. Need ${remainingToSelect - visibleUnselectedQuestions.length} more to meet requirement.`);
-                        }
-                    }
-                }
             });
         });
         
@@ -325,7 +292,7 @@
             });
         });
         
-        // Auto-select button handler
+        // Auto-select button handler (clears all and selects required amount)
         autoSelectBtn.addEventListener('click', function() {
             // First clear all selections
             questionCheckboxes.forEach(checkbox => {
@@ -338,20 +305,16 @@
                 .filter(card => !card.classList.contains('hidden'))
                 .map(card => card.querySelector('.question-checkbox'));
             
-            let remainingToSelect = requiredCount;
-            
-            // Randomly select questions until we reach the required count
-            if (visibleQuestions.length >= remainingToSelect) {
+            // Only select exactly the required number
+            if (visibleQuestions.length >= requiredCount) {
                 // Shuffle array to randomize selection
                 const shuffled = visibleQuestions.sort(() => 0.5 - Math.random());
                 
-                // Select the required number
-                shuffled.slice(0, remainingToSelect).forEach(checkbox => {
+                // Select exactly the required number
+                shuffled.slice(0, requiredCount).forEach(checkbox => {
                     checkbox.checked = true;
                     updateQuestionCardStyle(checkbox);
                 });
-                
-                updateSelectionCount();
             } else {
                 // If not enough visible questions, select all visible and alert user
                 visibleQuestions.forEach(checkbox => {
@@ -359,9 +322,52 @@
                     updateQuestionCardStyle(checkbox);
                 });
                 
-                updateSelectionCount();
                 alert(`Only ${visibleQuestions.length} questions are available with current filters. Please adjust filters to select ${requiredCount} questions.`);
             }
+            
+            updateSelectionCount();
+        });
+        
+        // Auto-complete button handler (fills remaining selections without clearing existing ones)
+        autoCompleteBtn.addEventListener('click', function() {
+            // Calculate how many more questions we need to select
+            const currentSelectedCount = document.querySelectorAll('.question-checkbox:checked').length;
+            const remainingToSelect = requiredCount - currentSelectedCount;
+            
+            if (remainingToSelect <= 0) {
+                alert(`You have already selected ${currentSelectedCount} questions. Required: ${requiredCount}`);
+                return;
+            }
+            
+            // Get all visible questions that are not yet selected
+            const visibleUnselectedQuestions = Array.from(document.querySelectorAll('.question-card:not(.hidden) .question-checkbox'))
+                .filter(qCheckbox => !qCheckbox.checked);
+            
+            // Only select the exact number we need
+            if (visibleUnselectedQuestions.length >= remainingToSelect) {
+                // Shuffle array to randomize selection
+                const shuffled = visibleUnselectedQuestions.sort(() => 0.5 - Math.random());
+                
+                // Select exactly the required number
+                shuffled.slice(0, remainingToSelect).forEach(qCheckbox => {
+                    qCheckbox.checked = true;
+                    updateQuestionCardStyle(qCheckbox);
+                });
+                
+                alert(`Successfully selected ${remainingToSelect} more questions to complete your requirement.`);
+            } else if (visibleUnselectedQuestions.length > 0) {
+                // Select all remaining visible questions if less than required
+                visibleUnselectedQuestions.forEach(qCheckbox => {
+                    qCheckbox.checked = true;
+                    updateQuestionCardStyle(qCheckbox);
+                });
+                
+                alert(`Selected all ${visibleUnselectedQuestions.length} remaining visible questions. Still need ${remainingToSelect - visibleUnselectedQuestions.length} more. Please adjust filters to see more questions.`);
+            } else {
+                alert('No more questions available with current filters. Please adjust filters to see more questions.');
+            }
+            
+            updateSelectionCount();
         });
         
         // Clear all selections button handler
