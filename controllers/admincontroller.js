@@ -13,6 +13,7 @@ const {
   getEvaluationResults,
   getAllEvaluationResults
 } = require('../services/evaluationService');
+
 const EvaluationResult = require('../models/EvaluationResultSchema')
 
 exports.getcontrol = async(req,res)=>{
@@ -71,6 +72,26 @@ exports.loginpostcontrol = async(req,res)=>{
             })       
 
         }
+                else if( req.body.role == "admin" ){
+            const user =new User({
+                email : req.body.email,
+                password : req.body.password,
+                usertype : req.body.role,
+            })
+           await req.login(user,function(err){
+                if(err){
+                    console.log(err)
+                    res.render("invalid email or password ")
+                }
+                else{
+                    passport.authenticate('local')(req,res,function(){
+                        console.log("sessions loged  in sucessfully")
+                        res.redirect('/supadmin')
+                    })
+                }
+            })       
+
+        }
         else{
             res.send("invalid role")
         }
@@ -114,10 +135,10 @@ exports.signuppostcontrol = async(req,res)=>{
                }
                console.log("whats happening")
 
-        await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role, Department : req.body.department }, req.body.password,(err,user)=>{
+        await  User.register({email : req.body.email,randomurl : randurl  ,usertype : req.body.role}, req.body.password ,(err,user)=>{
             if(err){   
                 console.log(err)
-                res.render('signup',{errormsg : "email already taken"})
+                res.render('adminsignup',{errormsg : "email already taken"})
             }
             else{
 

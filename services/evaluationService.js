@@ -1534,7 +1534,7 @@ async function storeEvaluationResults(userId, examId, results) {
     
     // First, try to find an existing evaluation result
     let evaluationResult = await EvaluationResult.findOne({ userId, examId });
-    
+
     if (evaluationResult) {
       // Update existing result
       evaluationResult.totalScore = results.totalScore;
@@ -1690,7 +1690,7 @@ async function getEvaluationResults(userId, examId) {
   try {
     const result = await EvaluationResult.findOne({ userId, examId })
       .populate('examId', 'name scheduledAt duration')
-      .populate('userId', 'fname lname USN');
+      .populate('userId', 'fname  USN');
       
     if (!result) {
       throw new Error('No evaluation results found');

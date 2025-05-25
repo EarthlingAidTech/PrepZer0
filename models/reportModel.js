@@ -93,7 +93,7 @@ class ReportModel {
         
         return {
           studentId: sub.student._id,
-          studentName: `${sub.student.fname} ${sub.student.lname}`,
+          studentName: `${sub.student.fname}`,
           score: score,
           submittedAt: sub.submittedAt
         };

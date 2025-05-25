@@ -154,6 +154,7 @@ const admin = require('./routes/admin')
 const authenticateing = require('./routes/authenticate')
 const profile = require('./routes/profile')
 const userauth = require('./routes/userauth')
+const supadmin = require('./routes/supadmin')
 
 app.get('/logout', (req, res, next) => {
   // Clear both the session and authentication
@@ -243,6 +244,7 @@ app.post('/save-image', upload.single('image'), async (req, res) => {
 });
 
 app.use('/',home )
+app.use('/supadmin', supadmin)
 app.use('/dashboard',dashboard)
 app.use('/admin' ,admin)
 app.use('/authenticate',authenticateing)
