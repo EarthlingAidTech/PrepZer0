@@ -3283,7 +3283,7 @@ document.head.appendChild(styleElement);
             
             // Redirect to dashboard or results page after a short delay
             setTimeout(() => {
-                window.location.href = data.redirectUrl || '/dashboard';
+                window.close();
             }, 1500);
         })
         .catch(error => {

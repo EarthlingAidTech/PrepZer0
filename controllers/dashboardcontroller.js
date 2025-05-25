@@ -3,10 +3,11 @@ const Exam = require("../models/Exam");
 const Submission = require("./../models/SubmissionSchema");
 const { redirect } = require("express/lib/response");
 const MCQQuestion = require("./../models/MCQQuestion")
+
 exports.getcontrol = async (req, res) => {
     if (req.isAuthenticated()) {
         try {
-            const student = await User.findById(req.user._id); // Get the logged-in student
+            const student = await User.findById(req.user._id);
             if (student.usertype != "student") {
                 res.redirect("/admin")
             } else {
@@ -15,24 +16,47 @@ exports.getcontrol = async (req, res) => {
                 const currentTime = new Date();
                 
                 // Find ALL exams that match the student's semester and department
-                // Remove the scheduleTill condition to get all exams
                 const exams = await Exam.find({
                     semester: student.Semester,
                     departments: student.Department
                 });
 
-                // Fetch exams that the user has already taken
-                const submittedExams = await Submission.find({ student: req.user._id }).distinct("exam");
-                const submittedExamIds = submittedExams.map(sub => sub._id.toString());
+                // Fetch submissions with exam details
+                const submissions = await Submission.find({ student: req.user._id })
+                    .populate('exam')
+                    .exec();
+
+                // Create a map of exam ID to submission data
+                const submissionMap = {};
+                submissions.forEach(submission => {
+                    // Check if exam exists and is not null before accessing its _id
+                    if (submission.exam && submission.exam._id) {
+                        submissionMap[submission.exam._id.toString()] = {
+                            submittedAt: submission.submittedAt,
+                            score: submission.score,
+                            submissionId: submission._id
+                        };
+                    } else {
+                        // Log the problematic submission for debugging
+                        console.warn('Found submission with null or missing exam:', {
+                            submissionId: submission._id,
+                            examField: submission.exam,
+                            studentId: submission.student
+                        });
+                    }
+                });
 
                 // Add status properties to each exam
                 const examsWithStatus = exams.map(exam => {
                     const examObj = exam.toObject();
+                    const submission = submissionMap[exam._id.toString()];
+                    
                     return {
                         ...examObj,
-                        alreadyGiven: submittedExamIds.includes(exam._id.toString()),
-                        // Add a property to indicate if the exam time has passed
-                        isExpired: new Date(exam.scheduleTill) < currentTime
+                        alreadyGiven: !!submission,
+                        isExpired: new Date(exam.scheduleTill) < currentTime,
+                        // Add submission data if exists
+                        submissionData: submission || null
                     };
                 });
 
@@ -47,7 +71,7 @@ exports.getcontrol = async (req, res) => {
                 });
             }
         } catch (error) {
-            console.error(error); // Add this for better debugging
+            console.error(error);
             res.status(500).json({ error: "Server Error" });
         }
     } else {
@@ -169,104 +193,6 @@ exports.postStartExam = async (req, res) => {
     return res.status(500).json({ error: 'Server error during submission' });
   }
 };
-// exports.postStartExam = async(req,res)=>{
-//     console.log(req.body)
-//     try {
-//         const { examId } = req.body;
-//         const student = req.user;
-//         const existingSubmission = await Submission.findOne({ exam: examId, student: student });
-//         if (existingSubmission) {
-//             return res.status(403).send("You have already taken this exam and cannot attempt it again.");
-//         }
-//         const exam = await Exam.findById(examId);
-//         if (!exam) {
-//             return res.status(404).send("Exam not found");
-//         }
-
-//         const mcqAnswers = [];
-//         const codingAnswers = [];
-
-//         for (let key in req.body) {
-//             if (key.startsWith("mcq-")) {
-//                 mcqAnswers.push({
-//                     questionId: key.replace("mcq-", ""),
-//                     selectedOption: req.body[key],
-//                 });
-//             } else if (key.startsWith("coding-")) {
-//                 codingAnswers.push({
-//                     questionId: key.replace("coding-", ""),
-//                     code: req.body[key],
-//                 });
-//             }
-//         }
-
-
-
-//         // Calculate scores
-//         let totalScore = 0;
-//         let maxPossibleScore = 0;
-        
-//         // Score MCQ questions
-//         if (mcqAnswers.length > 0) {
-//             // Get all question IDs from MCQ answers
-//             const mcqQuestionIds = mcqAnswers.map(answer => answer.questionId);
-            
-//             // Fetch questions from database
-//             const mcqQuestions = await MCQQuestion.find({
-//                 _id: { $in: mcqQuestionIds },
-//             });
-            
-//             // Calculate MCQ scores
-//             for (const answer of mcqAnswers) {
-//                 const question = mcqQuestions.find(q => q._id.toString() === answer.questionId);
-//                 if (question) {
-//                     const pointsPerQuestion = question.marks || 1; // Default 1 point if not specified
-//                     maxPossibleScore += pointsPerQuestion;
-                    
-//                     if (answer.selectedOption === question.correctAnswer) {
-//                         totalScore += pointsPerQuestion;
-//                         answer.isCorrect = true;
-//                         answer.points = pointsPerQuestion;
-//                     } else {
-//                         answer.isCorrect = false;
-//                         answer.points = 0;
-//                     }
-//                 }
-//             }
-//         }
-        
-
-
-
-
-
-//         const submission = new Submission({
-//             exam: exam._id,
-//             student: student._id,
-//             mcqAnswers,
-//             codingAnswers,
-//             score:totalScore,
-//             submittedAt: new Date(),
-//         });
-
-//         await submission.save();
-        
-
-        
-//         // Redirect to dashboard
-//         res.redirect("/dashboard");
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send("Error submitting test");
-//     }
-// }
-
-
-
-
-
-
-
 
 
 

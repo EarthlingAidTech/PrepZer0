@@ -550,7 +550,7 @@
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(79, 70, 229, 0.1);
             padding: 1.25rem 0;
-             position: absolute;
+            position: sticky;
   bottom: 0;
   width: 100%;
         }
@@ -701,8 +701,8 @@
                                                 <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
                                                 <span class="ms-2"><i class="fas fa-clock me-1"></i> <%= exam.duration %> minutes</span>
                                             </p>
-                                            <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Scheduled At: <%= new Date(exam.scheduledAt).toLocaleString() %></p>
-                                            <p class="card-text mb-1"><i class="fas fa-calendar-check me-1"></i> Scheduled Till: <%= new Date(exam.scheduleTill).toLocaleString() %></p>
+                                            <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Scheduled At: <%= exam.scheduledAt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Kolkata'}) %></p>
+                                            <p class="card-text mb-1"><i class="fas fa-calendar-check me-1"></i> Scheduled Till: <%= exam.scheduleTill.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Kolkata'}) %></p>
                                         </div>
                                         <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
                                             <button class="btn btn-primary start-test-btn" data-exam-id="<%= exam._id %>">
@@ -736,7 +736,15 @@
                                             <p class="card-text mb-1">
                                                 <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
                                             </p>
-                                            <p class="card-text mb-1"><i class="far fa-calendar-check me-1"></i> Completed On: <%= new Date(exam.completedAt).toLocaleString() %></p>
+                                            <p class="card-text mb-1"><i class="far fa-calendar-check me-1"></i> Completed On:    <%= new Date(exam.submissionData.submittedAt).toLocaleString('en-IN', {
+                                timeZone: 'Asia/Kolkata',
+                                year: 'numeric',
+                                month: 'short',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            }) %></p>
                                             <p class="card-text mb-1">
                                                 Result: 
                                                 <% if (exam.score) { %>
@@ -782,8 +790,8 @@
                                             <p class="card-text mb-1">
                                                 <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
                                             </p>
-                                            <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Was Scheduled At: <%= new Date(exam.scheduledAt).toLocaleString() %></p>
-                                            <p class="card-text mb-1"><i class="fas fa-clock me-1"></i> Deadline Passed: <%= new Date(exam.scheduleTill).toLocaleString() %></p>
+                                            <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Was Scheduled At: <%= new Date(exam.scheduledAt).toLocaleString([],{timeZone: 'Asia/Kolkata',year: 'numeric',month: 'short',day: '2-digit',hour: '2-digit',minute: '2-digit',hour12: true}) %></p>
+                                            <p class="card-text mb-1"><i class="fas fa-clock me-1"></i> Deadline Passed: <%= new Date(exam.scheduleTill).toLocaleString([],{timeZone: 'Asia/Kolkata',year: 'numeric',month: 'short',day: '2-digit',hour: '2-digit',minute: '2-digit',hour12: true}) %></p>
                                             <p class="card-text mb-1">Status: <span class="badge badge-warning badge-custom"><i class="fas fa-exclamation-triangle me-1"></i>Missed</span></p>
                                         </div>
                                         <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
@@ -1049,7 +1057,7 @@
                 
                 // Redirect after a slight delay for better UX
                 setTimeout(() => {
-                    window.location.href = `/dashboard/start-test/${selectedExamId}`;
+                     window.open(`/dashboard/start-test/${selectedExamId}`, '_blank');
                 }, 500);
             }
         });

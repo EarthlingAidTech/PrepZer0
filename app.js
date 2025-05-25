@@ -39,7 +39,7 @@ app.set('views', path.join(__dirname, 'views'));
 const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo');
 const dbname = "codingplatform"
-const dburl = "mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0"
+const dburl = "mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/check?retryWrites=true&w=majority&appName=Cluster0"
 
 mongoose.connect(dburl,
 {useNewUrlParser: true},
@@ -105,6 +105,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
       if (user.usertype === 'teacher' && !user.active) {
           return done(null, false, { message: 'Please verify your email before logging in' });
       }
+      if (user.usertype === 'admin' && !user.admin_access) {
+          return done(null, false, { message: 'login access not allowwed' });
+      }
 
       
       // Check if user is allowed to access the platform
@@ -151,6 +154,7 @@ const admin = require('./routes/admin')
 const authenticateing = require('./routes/authenticate')
 const profile = require('./routes/profile')
 const userauth = require('./routes/userauth')
+
 app.get('/logout', (req, res, next) => {
   // Clear both the session and authentication
   req.logout((err) => {
