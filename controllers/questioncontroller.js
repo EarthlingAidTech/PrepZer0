@@ -3,7 +3,7 @@ const DbCodingQuestion = require('./../models/Codingschema')
 const MCQ = require("./../models/MCQQuestion");
 
 
-const MCQQuestion = require("../models/MCQschema");///raj changed for testing the csv file
+const AllMCQ = require("../models/MCQschema");
 
 
 const CodingQuestion = require("./../models/CodingQuestion");
@@ -70,45 +70,66 @@ exports.postaddmcqQuestion = async (req, res) => {
 
             const normalizedQuestion = normalizeText(question);
 
-            // More efficient duplicate check - use database query instead of loading all
+            // Simple duplicate check using regex (more MongoDB-friendly)
             const existingQuestion = await AllMCQ.findOne({
-                $expr: {
-                    $eq: [
-                        {
-                            $toLower: {
-                                $replaceAll: {
-                                    input: {
-                                        $replaceAll: {
-                                            input: "$question",
-                                            find: " ",
-                                            replacement: ""
-                                        }
-                                    },
-                                    find: /['",.?!;:()\[\]{}]/,
-                                    replacement: ""
-                                }
-                            }
-                        },
-                        normalizedQuestion.replace(/\s/g, '')
-                    ]
+                question: { 
+                    $regex: new RegExp(`^${normalizedQuestion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') 
                 }
             }).limit(1);
 
-            // If no duplicate found, save to AllMCQ
+            // Alternative approach: Load all questions and check in JavaScript
+            // This is more reliable but less efficient for large datasets
             if (!existingQuestion) {
-                const allMCQEntry = new AllMCQ({
-                    classification,
-                    level,
-                    question,
-                    options: options.split(",").map(opt => opt.trim()),
-                    correctAnswer: correctAnswer.trim(),
-                    marks: parseInt(marks) || 1
-                });
+                // Get all questions to check for duplicates in JavaScript
+                const allQuestions = await AllMCQ.find({}, { question: 1 }).lean();
                 
-                await allMCQEntry.save();
-                console.log("Question saved to AllMCQ collection");
+                const isDuplicate = allQuestions.some(existingQ => {
+                    const existingNormalized = normalizeText(existingQ.question);
+                    return existingNormalized === normalizedQuestion;
+                });
+
+                if (!isDuplicate) {
+                    const allMCQEntry = new AllMCQ({
+                        classification,
+                        level,
+                        question,
+                        options: options.split(",").map(opt => opt.trim()),
+                        correctAnswer: correctAnswer.trim(),
+                        marks: parseInt(marks) || 1
+                    });
+                    
+                    await allMCQEntry.save();
+                    console.log("Question saved to AllMCQ collection with ID:", allMCQEntry._id);
+                    
+                    // Update the MCQ record with the AllMCQ ID
+                    await MCQ.findByIdAndUpdate(newMCQ._id, {
+                        questionId: allMCQEntry._id
+                    });
+                    console.log("MCQ updated with questionId:", allMCQEntry._id);
+                } else {
+                    console.log("Question already exists in AllMCQ collection, skipping...");
+                    
+                    // If duplicate exists, update MCQ with existing AllMCQ ID
+                    const existingAllMCQ = allQuestions.find(existingQ => {
+                        const existingNormalized = normalizeText(existingQ.question);
+                        return existingNormalized === normalizedQuestion;
+                    });
+                    
+                    if (existingAllMCQ) {
+                        await MCQ.findByIdAndUpdate(newMCQ._id, {
+                            questionId: existingAllMCQ._id
+                        });
+                        console.log("MCQ updated with existing questionId:", existingAllMCQ._id);
+                    }
+                }
             } else {
                 console.log("Question already exists in AllMCQ collection, skipping...");
+                
+                // Update MCQ with existing AllMCQ ID
+                await MCQ.findByIdAndUpdate(newMCQ._id, {
+                    questionId: existingQuestion._id
+                });
+                console.log("MCQ updated with existing questionId:", existingQuestion._id);
             }
         } catch (allMCQError) {
             // Log the AllMCQ error but don't fail the main operation
@@ -117,7 +138,6 @@ exports.postaddmcqQuestion = async (req, res) => {
         }
 
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
-        
     } catch (error) {
         console.error("Error in postaddmcqQuestion:", error);
         
