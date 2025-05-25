@@ -26,55 +26,112 @@ exports.getQuestion = async (req, res,) => {
 exports.getaddmcqQuestion = async (req, res) => {
     res.render("add_mcq", { examId: req.params.examId });
 }
+
 exports.postaddmcqQuestion = async (req, res) => {
     try {
-        const { question, options, correctAnswer, marks, classification, level} = req.body;
+        const { question, options, correctAnswer, marks, classification, level } = req.body;
+        
+        // Validate required fields
+        if (!question || !options || !correctAnswer || !classification || !level) {
+            return res.status(400).send("All fields are required.");
+        }
+
+        // Create and save the main MCQ
         const newMCQ = new MCQ({
             examId: req.params.examId,
             classification,
             level,
             question,
-            options: options.split(","),
-            correctAnswer,
-            marks
+            options: options.split(",").map(opt => opt.trim()), // Trim whitespace
+            correctAnswer: correctAnswer.trim(),
+            marks: parseInt(marks) || 1
         });
+        
         await newMCQ.save();
+        console.log("MCQ saved successfully:", newMCQ._id);
 
-        await Exam.findByIdAndUpdate(req.params.examId, { $push: { mcqQuestions: newMCQ._id } });
+        // Update the exam with the new MCQ
+        await Exam.findByIdAndUpdate(req.params.examId, { 
+            $push: { mcqQuestions: newMCQ._id } 
+        });
+        console.log("Exam updated successfully");
 
+        // Handle AllMCQ saving with better error handling
+        try {
+            // Normalize the question text to handle minor differences
+            const normalizeText = (text) => {
+                if (!text || typeof text !== 'string') return '';
+                return text
+                    .toLowerCase()
+                    .replace(/\s+/g, ' ')
+                    .replace(/['",.?!;:()\[\]{}]/g, '')
+                    .trim();
+            };
 
-         // Normalize the question text to handle minor differences
-        const normalizeText = (text) => {
-            return text
-                .toLowerCase()                         // Convert to lowercase
-                .replace(/\s+/g, ' ')                  // Normalize whitespace
-                .replace(/['",.?!;:()\[\]{}]/g, '')    // Remove punctuation
-                .trim();                               // Remove leading/trailing spaces
-        };
-        const normalizedQuestion = normalizeText(question);
+            const normalizedQuestion = normalizeText(question);
 
-        // Get all questions from AllMCQ and check for similarity
-        const allQuestions = await AllMCQ.find({});
-        const questionExists = allQuestions.some(q => normalizeText(q.question) === normalizedQuestion);
+            // More efficient duplicate check - use database query instead of loading all
+            const existingQuestion = await AllMCQ.findOne({
+                $expr: {
+                    $eq: [
+                        {
+                            $toLower: {
+                                $replaceAll: {
+                                    input: {
+                                        $replaceAll: {
+                                            input: "$question",
+                                            find: " ",
+                                            replacement: ""
+                                        }
+                                    },
+                                    find: /['",.?!;:()\[\]{}]/,
+                                    replacement: ""
+                                }
+                            }
+                        },
+                        normalizedQuestion.replace(/\s/g, '')
+                    ]
+                }
+            }).limit(1);
 
-         // Save to the AllMCQ database as well
-        if (!questionExists) {
-            const allMCQEntry = new AllMCQ({
-                classification,
-                level,
-                question,
-                options: options.split(","),
-                correctAnswer,
-                marks
-            });
-            
-            await allMCQEntry.save();
+            // If no duplicate found, save to AllMCQ
+            if (!existingQuestion) {
+                const allMCQEntry = new AllMCQ({
+                    classification,
+                    level,
+                    question,
+                    options: options.split(",").map(opt => opt.trim()),
+                    correctAnswer: correctAnswer.trim(),
+                    marks: parseInt(marks) || 1
+                });
+                
+                await allMCQEntry.save();
+                console.log("Question saved to AllMCQ collection");
+            } else {
+                console.log("Question already exists in AllMCQ collection, skipping...");
+            }
+        } catch (allMCQError) {
+            // Log the AllMCQ error but don't fail the main operation
+            console.error("Error saving to AllMCQ collection:", allMCQError.message);
+            // Continue with redirect since main MCQ was saved successfully
         }
 
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
+        
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Error adding MCQ.");
+        console.error("Error in postaddmcqQuestion:", error);
+        
+        // More specific error messages
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).send(`Validation Error: ${errors.join(', ')}`);
+        }
+        
+        if (error.name === 'CastError') {
+            return res.status(400).send("Invalid data format provided.");
+        }
+        
+        res.status(500).send(`Error adding MCQ: ${error.message}`);
     }
 }
 exports.getEditmcqQuestion = async (req, res) => {
@@ -304,12 +361,104 @@ exports.postcoding_from_db = async (req, res) => {
 };
 exports.postaddcodingQuestion = async (req, res) => {
     try {
-        const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases,starterCode  } = req.body;
-        console.log(req.body);
-
+        console.log('Received form data:', req.body);
         
-        // This one is for to be seen in exams so it's connected to the exams
-        // It says this question belongs to this exam
+        const { 
+            questionTile, 
+            questiontext, 
+            constraits, 
+            inputFormat, 
+            outputFormat, 
+            solutionTemplate, 
+            maxMarks, 
+            level, 
+            classification, 
+            sampleInput, 
+            sampleOutput 
+        } = req.body;
+
+        // Process starter code from form data
+        const starterCode = [];
+        const languages = ['cpp', 'c', 'java', 'python', 'csharp', 'javascript'];
+        
+        languages.forEach(lang => {
+            const fieldName = `starterCode_${lang}`;
+            if (req.body[fieldName] && req.body[fieldName].trim()) {
+                starterCode.push({
+                    language: lang,
+                    code: req.body[fieldName].trim()
+                });
+            }
+        });
+
+        // Process test cases from form data
+        const testCases = [];
+        if (req.body.testCases) {
+            // If testCases is an array (multiple test cases)
+            if (Array.isArray(req.body.testCases)) {
+                req.body.testCases.forEach(testCase => {
+                    if (testCase.input && testCase.expectedOutput) {
+                        testCases.push({
+                            input: testCase.input,
+                            expectedOutput: testCase.expectedOutput,
+                            isPublic: testCase.isPublic === 'true' || testCase.isPublic === true,
+                            timeout: parseInt(testCase.timeout) || 2,
+                            memoryLimit: parseInt(testCase.memoryLimit) || 256
+                        });
+                    }
+                });
+            } else {
+                // Single test case object
+                const testCase = req.body.testCases;
+                if (testCase.input && testCase.expectedOutput) {
+                    testCases.push({
+                        input: testCase.input,
+                        expectedOutput: testCase.expectedOutput,
+                        isPublic: testCase.isPublic === 'true' || testCase.isPublic === true,
+                        timeout: parseInt(testCase.timeout) || 2,
+                        memoryLimit: parseInt(testCase.memoryLimit) || 256
+                    });
+                }
+            }
+        }
+
+        // Alternative way to process test cases if the above doesn't work
+        // This handles the form array naming convention testCases[0][input], etc.
+        if (testCases.length === 0) {
+            let i = 0;
+            while (req.body[`testCases[${i}][input]`]) {
+                const input = req.body[`testCases[${i}][input]`];
+                const expectedOutput = req.body[`testCases[${i}][expectedOutput]`];
+                const isPublic = req.body[`testCases[${i}][isPublic]`] === 'true';
+                const timeout = parseInt(req.body[`testCases[${i}][timeout]`]) || 2;
+                const memoryLimit = parseInt(req.body[`testCases[${i}][memoryLimit]`]) || 256;
+                
+                if (input && expectedOutput) {
+                    testCases.push({
+                        input,
+                        expectedOutput,
+                        isPublic,
+                        timeout,
+                        memoryLimit
+                    });
+                }
+                i++;
+            }
+        }
+
+        console.log('Processed testCases:', testCases);
+        console.log('Processed starterCode:', starterCode);
+
+        // Validate required fields
+        if (!questionTile || !questiontext || !solutionTemplate || !maxMarks || !classification || !level) {
+            return res.status(400).send("Required fields are missing.");
+        }
+
+        if (testCases.length === 0) {
+            return res.status(400).send("At least one test case is required.");
+        }
+
+        // Create and save the new coding question
         const newCodingQuestion = new CodingQuestion({
             questionTile,
             questiontext,
@@ -317,54 +466,150 @@ exports.postaddcodingQuestion = async (req, res) => {
             inputFormat,
             outputFormat,
             solutionTemplate,
-            maxMarks,
+            maxMarks: parseInt(maxMarks),
             testCases,
             level,
             classification,
             createdBy: req.user._id,
-            sampleInput: req.body.sampleInput,
-            sampleOutput: req.body.sampleOutput,
+            sampleInput,
+            sampleOutput,
             starterCode
         });
         
         await newCodingQuestion.save();
-        
-        // Check if a question with the same questiontext and questionTile already exists in DbCodingQuestion
-        const existingQuestion = await DbCodingQuestion.findOne({
-            questionTile: questionTile,
-            questiontext: questiontext
+        console.log("Coding question saved successfully:", newCodingQuestion._id);
+
+        // Update the exam with the new coding question
+        await Exam.findByIdAndUpdate(req.params.examId, { 
+            $push: { codingQuestions: newCodingQuestion._id } 
         });
-        
-        // Only add to DbCodingQuestion if no matching question exists
-        if (!existingQuestion) {
-            const addDBCodingQuestion = new DbCodingQuestion({
-                questionTile,
-                questiontext,
-                constraits,
-                inputFormat,
-                outputFormat,
-                solutionTemplate,
-                maxMarks,
-                testCases,
-                level,
-                classification,
-                createdBy: req.user._id,
-                sampleInput: req.body.sampleInput,
-                sampleOutput: req.body.sampleOutput,
-                starterCode
+        console.log("Exam updated successfully");
+
+        // Handle DbCodingQuestion operations (non-critical)
+        try {
+            const existingQuestion = await DbCodingQuestion.findOne({
+                questionTile: questionTile,
+                questiontext: questiontext
             });
-            await addDBCodingQuestion.save();
-            console.log("Question added to database collection");
-        } else {
-            console.log("Question already exists in database collection. Not adding duplicate.");
-            return res.send("exam already exists");
+            
+            if (!existingQuestion) {
+                const addDBCodingQuestion = new DbCodingQuestion({
+                    questionTile,
+                    questiontext,
+                    constraits,
+                    inputFormat,
+                    outputFormat,
+                    solutionTemplate,
+                    maxMarks: parseInt(maxMarks),
+                    testCases,
+                    level,
+                    classification,
+                    createdBy: req.user._id,
+                    sampleInput,
+                    sampleOutput,
+                    starterCode
+                });
+                await addDBCodingQuestion.save();
+                console.log("Question added to database collection");
+            } else {
+                console.log("Question already exists in database collection. Not adding duplicate.");
+            }
+        } catch (dbError) {
+            console.error("Error with DbCodingQuestion operations:", dbError.message);
+            // Don't throw - just log and continue
         }
 
-        await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
-
+        // Redirect after successful submission
         res.redirect(`/admin/exam/questions/${req.params.examId}`);
+        
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Error adding Coding Question.");
+        console.error("Error adding coding question:", error);
+        
+        // More specific error messages
+        if (error.name === 'ValidationError') {
+            const errors = Object.values(error.errors).map(e => e.message);
+            return res.status(400).send(`Validation Error: ${errors.join(', ')}`);
+        }
+        
+        if (error.name === 'CastError') {
+            return res.status(400).send("Invalid data format provided.");
+        }
+        
+        res.status(500).send(`Error adding Coding Question: ${error.message}`);
     }
 }
+// exports.postaddcodingQuestion = async (req, res) => {
+   
+//     try {
+//         const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases, starterCode } = req.body;
+//         console.log(req.body);
+
+//         // Create and save the new coding question
+//         const newCodingQuestion = new CodingQuestion({
+//             questionTile,
+//             questiontext,
+//             constraits,
+//             inputFormat,
+//             outputFormat,
+//             solutionTemplate,
+//             maxMarks,
+//             testCases,
+//             level,
+//             classification,
+//             createdBy: req.user._id,
+//             sampleInput: req.body.sampleInput,
+//             sampleOutput: req.body.sampleOutput,
+//             starterCode
+//         });
+        
+//         await newCodingQuestion.save();
+//         console.log("Coding question saved successfully");
+
+//         // Update the exam FIRST (this is the critical operation)
+//         await Exam.findByIdAndUpdate(req.params.examId, { $push: { codingQuestions: newCodingQuestion._id } });
+//         console.log("Exam updated successfully");
+
+//         // Handle DbCodingQuestion operations (non-critical)
+//         try {
+//             const existingQuestion = await DbCodingQuestion.findOne({
+//                 questionTile: questionTile,
+//                 questiontext: questiontext
+//             });
+            
+//             if (!existingQuestion) {
+//                 const addDBCodingQuestion = new DbCodingQuestion({
+//                     questionTile,
+//                     questiontext,
+//                     constraits,
+//                     inputFormat,
+//                     outputFormat,
+//                     solutionTemplate,
+//                     maxMarks,
+//                     testCases,
+//                     level,
+//                     classification,
+//                     createdBy: req.user._id,
+//                     sampleInput: req.body.sampleInput,
+//                     sampleOutput: req.body.sampleOutput,
+//                     starterCode
+//                 });
+//                 await addDBCodingQuestion.save();
+//                 console.log("Question added to database collection");
+//             } else {
+//                 console.log("Question already exists in database collection. Not adding duplicate.");
+//                 // DON'T return here - just continue to redirect
+//             }
+//         } catch (dbError) {
+//             console.error("Error with DbCodingQuestion operations:", dbError.message);
+//             res.redirect(`/admin/exam/questions/${req.params.examId}`)
+//             // Don't throw - just log and continue
+//         }
+
+//         // Always redirect after successful main operations
+//         res.redirect(`/admin/exam/questions/${req.params.examId}`);
+        
+//     } catch (error) {
+//         console.error("Error adding coding question:", error);
+//         res.status(500).send("Error adding Coding Question: " + error.message);
+//     }
+// }

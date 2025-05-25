@@ -1,201 +1,763 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add MCQ Question</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #141D2F; /* Dark blue background */
-            font-family: Arial, sans-serif;
-            color: #333;
-        }
-        
-        .container {
-            margin-top: 50px;
-            margin-bottom: 50px;
-        }
-        
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 25px;
-            color: #ffffff;
-            font-weight: 600;
-            text-align: center;
-        }
-        
-        /* Card styling */
-        .card {
-            border: 3px solid #1D4ED8;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
-            background-color: #ffffff;
-            margin-bottom: 25px;
-            padding: 30px !important;
-        }
-        
-        /* Form elements */
-        .form-label {
-            font-weight: 600;
-            color: #0056b3;
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            border: 2px solid #b3d1ff;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            border-color: #1D4ED8;
-            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
-        }
-        
-        /* Dropdown styling */
-        .form-select {
-            border: 2px solid #b3d1ff;
-            border-radius: 5px;
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-        
-        .form-select:focus {
-            border-color: #1D4ED8;
-            box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
-        }
-        
-        /* Button styling */
-        .btn-primary {
-            background-color: #1D4ED8;
-            border-color: #1D4ED8;
-            padding: 10px 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Back link */
-        .back-link {
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .btn-link {
-            color: #b3d1ff;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-link:hover {
-            color: #ffffff;
-            text-decoration: underline;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 767px) {
-            .container {
-                padding: 15px;
-                margin-top: 30px;
-            }
-            
-            .card {
-                padding: 20px !important;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add MCQ Question</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --dark-bg: #111827;
+      --card-bg: #1f2937;
+      --light-text: #f9fafb;
+      --secondary-text: #9ca3af;
+      --border-color: #374151;
+      --row-hover: #2d3748;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --success: #10b981;
+      --input-bg: #374151;
+      --input-border: #4b5563;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .header {
+      background-color: var(--card-bg);
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-section img {
+      width: 36px;
+      height: 36px;
+      margin-right: 0.75rem;
+    }
+    
+    .logo-section h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      background: linear-gradient(to right, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--secondary-text);
+      font-size: 0.875rem;
+    }
+    
+    .breadcrumb-nav a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .breadcrumb-nav a:hover {
+      color: var(--primary-hover);
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      margin-bottom: 2rem;
+      border: none;
+    }
+    
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+    }
+    
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--light-text);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--light-text);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--light-text);
+      font-size: 0.875rem;
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--danger);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--light-text);
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .form-control::placeholder {
+      color: var(--secondary-text);
+    }
+    
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    select.form-control {
+      height: 44px;
+    }
+    
+    .options-container {
+      background-color: rgba(55, 65, 81, 0.3);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      margin-top: 1rem;
+    }
+    
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background-color: var(--input-bg);
+      border-radius: 0.5rem;
+      border: 1px solid var(--input-border);
+      transition: all 0.2s ease;
+    }
+    
+    .option-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.1);
+    }
+    
+    .option-item.correct {
+      border-color: var(--success);
+      background-color: rgba(16, 185, 129, 0.1);
+    }
+    
+    .option-label {
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+    
+    .option-label.correct {
+      background-color: var(--success);
+    }
+    
+    .option-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--light-text);
+      font-size: 0.875rem;
+      padding: 0.5rem;
+    }
+    
+    .option-input:focus {
+      outline: none;
+    }
+    
+    .option-input::placeholder {
+      color: var(--secondary-text);
+    }
+    
+    .option-radio {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      accent-color: var(--success);
+      cursor: pointer;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary-text);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #6b7280;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+    
+    .controls {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .success-message {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .error {
+      color: var(--danger);
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .badge-info {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: var(--info);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    .correct-answer-hint {
+      background-color: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--success);
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .controls .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .option-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      
+      .option-input {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .card-header, .card-body {
+        padding: 1rem;
+      }
+      
+      .section-title {
+        font-size: 1rem;
+      }
+      
+      .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.8rem;
+      }
+      
+      .options-container {
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Add MCQ Question</h1>
-
-        <!-- Add MCQ Question Form -->
-        <div class="card">
-            <form action="/admin/exam/<%= examId %>/add/mcq" method="POST">
-                <div class="mb-3">
-                    <label for="question" class="form-label">Question:</label>
-                    <input type="text" id="question" name="question" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="options" class="form-label">Options (comma-separated):</label>
-                    <input type="text" id="options" name="options" class="form-control" required>
-                    <small class="text-muted">Example: Option 1, Option 2, Option 3, Option 4</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="correctAnswer" class="form-label">Correct Answer:</label>
-                    <input type="text" id="correctAnswer" name="correctAnswer" class="form-control" required>
-                    <small class="text-muted">Enter the exact text of the correct option</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="classification" class="form-label">Classification:</label>
-                    <select id="classification" name="classification" class="form-select" required>
-                        <option value="" selected disabled>Select a classification</option>
-                        <option value="Data Structures">Data Structures</option>
-                        <option value="Algorithms">Algorithms</option>
-                        <option value="Databases">Databases</option>
-                        <option value="Object-Oriented Programming">Object-Oriented Programming</option>
-                        <option value="Networking">Networking</option>
-                        <option value="Operating Systems">Operating Systems</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Artificial Intelligence">Artificial Intelligence</option>
-                        <option value="Machine Learning">Machine Learning</option>
-                        <option value="other">other</option>
-                    </select>
-                    <small class="text-muted">Select a category of the question</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="level" class="form-label">Level:</label>
-                    <select id="level" name="level" class="form-select" required>
-                        <option value="" selected disabled>Select a level: </option>
-                        <option value="easy">easy</option>
-                        <option value="medium">medium</option>
-                        <option value="hard">hard</option>
-                    </select>
-                    <small class="text-muted">Select a level for the question</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="marks" class="form-label">Marks:</label>
-                    <input type="number" id="marks" name="marks" class="form-control" value="1" min="1" required>
-                </div>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-primary">Add MCQ</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Back Link -->
-        <div class="back-link">
-            <a href="/admin/exam/questions/<%= examId %>" class="btn btn-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-2" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                </svg>
-                Back to Questions
-            </a>
-        </div>
+  <div class="header">
+    <div class="logo-section">
+      <img src="../uploads/unnamed-removebg-preview.png" alt="Logo">
+      <h1>PrepZer0</h1>
     </div>
+    <div class="breadcrumb-nav">
+      <a href="/admin/dashboard">Dashboard</a>
+      <i class="fas fa-chevron-right"></i>
+      <a href="/admin/exams">Exams</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Add MCQ Question</span>
+    </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <i class="fas fa-list-ul"></i>
+          Add MCQ Question
+        </h2>
+      </div>
+      
+      <div class="card-body">
+        <div id="successMessage" class="success-message">
+          <i class="fas fa-check-circle"></i>
+          MCQ Question added successfully!
+        </div>
+        
+        <form id="mcqForm" action="/admin/exam/<%= examId %>/add/mcq" method="POST">
+          <!-- Hidden fields for backend compatibility -->
+          <input type="hidden" id="hiddenOptions" name="options" required>
+          <input type="hidden" id="hiddenCorrectAnswer" name="correctAnswer" required>
+          
+          <!-- Basic Info Section -->
+          <div class="section-title">
+            <i class="fas fa-info-circle"></i>
+            Question Details
+          </div>
+          
+          <div class="form-group">
+            <label for="question" class="form-label required">Question</label>
+            <textarea id="question" name="question" class="form-control" placeholder="Enter your question here..." required></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="classification" class="form-label required">Classification</label>
+              <select id="classification" name="classification" class="form-control" required>
+                <option value="">Select a classification</option>
+                <option value="Data Structures">📊 Data Structures</option>
+                <option value="Algorithms">⚡ Algorithms</option>
+                <option value="Databases">🗄️ Databases</option>
+                <option value="Object-Oriented Programming">🔄 Object-Oriented Programming</option>
+                <option value="Networking">🌐 Networking</option>
+                <option value="Operating Systems">💻 Operating Systems</option>
+                <option value="Software Engineering">🛠️ Software Engineering</option>
+                <option value="Mathematics">🧮 Mathematics</option>
+                <option value="Artificial Intelligence">🤖 Artificial Intelligence</option>
+                <option value="Machine Learning">📈 Machine Learning</option>
+                <option value="other">❓ Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="level" class="form-label required">Difficulty Level</label>
+              <select id="level" name="level" class="form-control" required>
+                <option value="">Select difficulty level</option>
+                <option value="easy">🟢 Easy</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="hard">🔴 Hard</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="marks" class="form-label required">Marks</label>
+            <input type="number" id="marks" name="marks" class="form-control" value="1" min="1" max="10" placeholder="Enter marks for this question" required>
+          </div>
+          
+          <!-- Options Section -->
+          <div class="section-title">
+            <i class="fas fa-check-square"></i>
+            Answer Options
+          </div>
+          
+          <div class="badge badge-info">
+            <i class="fas fa-lightbulb"></i>
+            Click the radio button next to the correct answer
+          </div>
+          
+          <div class="options-container">
+            <div class="option-item" data-option="A">
+              <div class="option-label">A</div>
+              <input type="text" class="option-input" data-option="A" placeholder="Enter option A..." required>
+              <input type="radio" name="correctRadio" value="A" class="option-radio" required>
+            </div>
+            
+            <div class="option-item" data-option="B">
+              <div class="option-label">B</div>
+              <input type="text" class="option-input" data-option="B" placeholder="Enter option B..." required>
+              <input type="radio" name="correctRadio" value="B" class="option-radio" required>
+            </div>
+            
+            <div class="option-item" data-option="C">
+              <div class="option-label">C</div>
+              <input type="text" class="option-input" data-option="C" placeholder="Enter option C..." required>
+              <input type="radio" name="correctRadio" value="C" class="option-radio" required>
+            </div>
+            
+            <div class="option-item" data-option="D">
+              <div class="option-label">D</div>
+              <input type="text" class="option-input" data-option="D" placeholder="Enter option D..." required>
+              <input type="radio" name="correctRadio" value="D" class="option-radio" required>
+            </div>
+          </div>
+          
+          <div class="correct-answer-hint">
+            <i class="fas fa-info-circle"></i>
+            <span id="correctAnswerText">Please select the correct answer by clicking the radio button</span>
+          </div>
+          
+          <!-- Form Controls -->
+          <div class="controls">
+            <a href="/admin/exam/questions/<%= examId %>" class="btn btn-secondary">
+              <i class="fas fa-arrow-left"></i>
+              Back to Questions
+            </a>
+            <div>
+              <button type="button" id="clearForm" class="btn btn-danger">
+                <i class="fas fa-trash"></i>
+                Clear Form
+              </button>
+              <button type="submit" id="submitBtn" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                Add MCQ Question
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('mcqForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const clearFormBtn = document.getElementById('clearForm');
+      const successMessage = document.getElementById('successMessage');
+      const correctAnswerText = document.getElementById('correctAnswerText');
+      const optionItems = document.querySelectorAll('.option-item');
+      const radioButtons = document.querySelectorAll('input[name="correctRadio"]');
+      const optionInputs = document.querySelectorAll('.option-input');
+      
+      // Function to update hidden fields for backend compatibility
+      function updateHiddenFields() {
+        const options = [];
+        optionInputs.forEach(input => {
+          if (input.value.trim()) {
+            options.push(input.value.trim());
+          }
+        });
+        
+        // Update hidden options field (comma-separated)
+        document.getElementById('hiddenOptions').value = options.join(', ');
+        
+        // Update hidden correct answer field (exact text of correct option)
+        const selectedRadio = document.querySelector('input[name="correctRadio"]:checked');
+        if (selectedRadio) {
+          const selectedOption = selectedRadio.closest('.option-item');
+          const selectedOptionInput = selectedOption.querySelector('.option-input');
+          document.getElementById('hiddenCorrectAnswer').value = selectedOptionInput.value.trim();
+        }
+      }
+      
+      // Handle radio button changes
+      radioButtons.forEach(radio => {
+        radio.addEventListener('change', function() {
+          // Remove correct class from all option items
+          optionItems.forEach(item => {
+            item.classList.remove('correct');
+            item.querySelector('.option-label').classList.remove('correct');
+          });
+          
+          // Add correct class to selected option
+          const selectedOption = this.closest('.option-item');
+          selectedOption.classList.add('correct');
+          selectedOption.querySelector('.option-label').classList.add('correct');
+          
+          // Update hint text
+          const optionLetter = this.value;
+          const optionText = selectedOption.querySelector('.option-input').value || `Option ${optionLetter}`;
+          correctAnswerText.textContent = `Correct answer: ${optionLetter} - ${optionText}`;
+          
+          // Update hidden fields
+          updateHiddenFields();
+        });
+      });
+      
+      // Update correct answer text and hidden fields when option text changes
+      optionInputs.forEach(input => {
+        input.addEventListener('input', function() {
+          const optionItem = this.closest('.option-item');
+          const radio = optionItem.querySelector('input[type="radio"]');
+          
+          if (radio.checked) {
+            const optionLetter = radio.value;
+            const optionText = this.value || `Option ${optionLetter}`;
+            correctAnswerText.textContent = `Correct answer: ${optionLetter} - ${optionText}`;
+          }
+          
+          // Update hidden fields whenever any option changes
+          updateHiddenFields();
+        });
+      });
+      
+      // Clear form function
+      clearFormBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all form data?')) {
+          form.reset();
+          
+          // Remove correct classes
+          optionItems.forEach(item => {
+            item.classList.remove('correct');
+            item.querySelector('.option-label').classList.remove('correct');
+          });
+          
+          // Reset hint text
+          correctAnswerText.textContent = 'Please select the correct answer by clicking the radio button';
+          successMessage.style.display = 'none';
+          
+          // Remove error messages
+          document.querySelectorAll('.error').forEach(error => error.remove());
+        }
+      });
+      
+      // Real-time validation
+      form.addEventListener('input', function(e) {
+        if (e.target.hasAttribute('required')) {
+          const errorMsg = e.target.closest('.form-group')?.querySelector('.error');
+          if (e.target.value.trim() && errorMsg) {
+            errorMsg.remove();
+          }
+        }
+      });
+      
+      // Form submission
+      form.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Question...';
+        submitBtn.disabled = true;
+        form.classList.add('loading');
+        
+        // Validate required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        // Remove existing error messages
+        document.querySelectorAll('.error').forEach(error => error.remove());
+        
+        // Check text inputs and selects
+        requiredFields.forEach(field => {
+          if (field.type !== 'radio' && !field.value.trim()) {
+            isValid = false;
+            e.preventDefault();
+            
+            // Add error message
+            const errorMsgElement = document.createElement('div');
+            errorMsgElement.className = 'error';
+            errorMsgElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> This field is required';
+            field.closest('.form-group').appendChild(errorMsgElement);
+          }
+        });
+        
+        // Check if correct answer is selected
+        const isCorrectAnswerSelected = Array.from(radioButtons).some(radio => radio.checked);
+        if (!isCorrectAnswerSelected) {
+          isValid = false;
+          e.preventDefault();
+          
+          const errorMsgElement = document.createElement('div');
+          errorMsgElement.className = 'error';
+          errorMsgElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please select the correct answer';
+          document.querySelector('.correct-answer-hint').appendChild(errorMsgElement);
+        }
+        
+        // Check if all options are filled
+        let emptyOptions = 0;
+        optionInputs.forEach(input => {
+          if (!input.value.trim()) {
+            emptyOptions++;
+          }
+        });
+        
+        if (emptyOptions > 0) {
+          isValid = false;
+          e.preventDefault();
+          
+          const errorMsgElement = document.createElement('div');
+          errorMsgElement.className = 'error';
+          errorMsgElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> All options must be filled';
+          document.querySelector('.options-container').appendChild(errorMsgElement);
+        }
+        
+        if (!isValid) {
+          // Reset button state if validation fails
+          submitBtn.innerHTML = '<i class="fas fa-save"></i> Add MCQ Question';
+          submitBtn.disabled = false;
+          form.classList.remove('loading');
+          
+          // Scroll to first error
+          const firstError = document.querySelector('.error');
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          // Update hidden fields one final time before submission
+          updateHiddenFields();
+          
+          // Form will submit normally with the hidden fields
+        }
+      });
+      
+      // Auto-resize textarea
+      const questionTextarea = document.getElementById('question');
+      questionTextarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+      });
+    });
+  </script>
 </body>
 </html>
