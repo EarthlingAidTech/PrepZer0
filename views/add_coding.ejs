@@ -4,457 +4,727 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Add Coding Question</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --dark-bg: #111827;
+      --card-bg: #1f2937;
+      --light-text: #f9fafb;
+      --secondary-text: #9ca3af;
+      --border-color: #374151;
+      --row-hover: #2d3748;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --success: #10b981;
+      --input-bg: #374151;
+      --input-border: #4b5563;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      min-height: 100vh;
       line-height: 1.6;
-      color: #333;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f7fa;
+    }
+    
+    .header {
+      background-color: var(--card-bg);
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-section img {
+      width: 36px;
+      height: 36px;
+      margin-right: 0.75rem;
+    }
+    
+    .logo-section h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      background: linear-gradient(to right, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--secondary-text);
+      font-size: 0.875rem;
+    }
+    
+    .breadcrumb-nav a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .breadcrumb-nav a:hover {
+      color: var(--primary-hover);
     }
     
     .container {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 25px;
-    }
-    
-    h1 {
-      color: #2c3e50;
-      margin-bottom: 25px;
-      border-bottom: 2px solid #eaeaea;
-      padding-bottom: 10px;
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    
-    input[type="text"],
-    input[type="number"],
-    select,
-    textarea {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-      box-sizing: border-box;
     }
     
-    textarea {
-      min-height: 100px;
-      font-family: monospace;
-    }
-    
-    select {
-      height: 44px;
-    }
-    
-    button {
-      background-color: #3498db;
-      color: white;
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+      margin-bottom: 2rem;
       border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-right: 10px;
-      transition: background-color 0.3s;
     }
     
-    button:hover {
-      background-color: #2980b9;
+    .card-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      background-color: var(--card-bg);
     }
     
-    button.secondary {
-      background-color: #95a5a6;
-    }
-    
-    button.secondary:hover {
-      background-color: #7f8c8d;
-    }
-    
-    button.warning {
-      background-color: #e74c3c;
-    }
-    
-    button.warning:hover {
-      background-color: #c0392b;
-    }
-    
-    .test-case {
-      background-color: #f8f9fa;
-      border-radius: 6px;
-      padding: 15px;
-      margin-bottom: 15px;
-      position: relative;
-      border-left: 4px solid #3498db;
-    }
-    
-    .test-case .remove-btn {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: #e74c3c;
-      color: white;
-      border: none;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      font-size: 16px;
-      cursor: pointer;
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--light-text);
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 0.75rem;
     }
     
-    .test-case .remove-btn:hover {
-      background: #c0392b;
-    }
-    
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      margin-top: 15px;
-    }
-    
-    .checkbox-group input[type="checkbox"] {
-      margin-right: 8px;
-    }
-    
-    .checkbox-group label {
-      margin-bottom: 0;
-      font-weight: normal;
+    .card-body {
+      padding: 1.5rem;
     }
     
     .section-title {
-      margin-top: 30px;
-      margin-bottom: 20px;
-      color: #2c3e50;
-      font-weight: bold;
-      font-size: 18px;
-      border-bottom: 1px solid #eaeaea;
-      padding-bottom: 8px;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--light-text);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--light-text);
+      font-size: 0.875rem;
+    }
+    
+    .required::after {
+      content: " *";
+      color: var(--danger);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--light-text);
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .form-control::placeholder {
+      color: var(--secondary-text);
+    }
+    
+    textarea.form-control {
+      min-height: 100px;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      resize: vertical;
+    }
+    
+    select.form-control {
+      height: 44px;
     }
     
     .form-row {
-      display: flex;
-      gap: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
     }
     
-    .form-col {
-      flex: 1;
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
     }
     
-    .controls {
-      margin-top: 30px;
-      display: flex;
-      justify-content: space-between;
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary-text);
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #6b7280;
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+    
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+    
+    .test-case {
+      background-color: rgba(55, 65, 81, 0.5);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+    
+    .test-case:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.1);
     }
     
     .test-case-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 15px;
+      margin-bottom: 1.5rem;
     }
     
-    .test-case-header h3 {
+    .test-case-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--light-text);
       margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .remove-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
     }
     
-    #testCasesContainer {
-      margin-top: 20px;
+    .remove-btn:hover {
+      background: #dc2626;
+      transform: scale(1.05);
     }
     
-    .error {
-      color: #e74c3c;
-      font-size: 14px;
-      margin-top: 5px;
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: rgba(79, 70, 229, 0.05);
+      border-radius: 0.5rem;
+      border: 1px solid rgba(79, 70, 229, 0.1);
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      accent-color: var(--primary);
+    }
+    
+    .checkbox-group label {
+      margin: 0;
+      font-weight: normal;
+      color: var(--light-text);
+      cursor: pointer;
+    }
+    
+    .controls {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
     
     .success-message {
-      background-color: #d4edda;
-      color: #155724;
-      border-radius: 4px;
-      padding: 15px;
-      margin-bottom: 20px;
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
       display: none;
+      align-items: center;
+      gap: 0.5rem;
     }
-
+    
+    .error {
+      color: var(--danger);
+      font-size: 0.8rem;
+      margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .accordion {
+      margin-top: 1.5rem;
+    }
+    
     .accordion-item {
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      background-color: var(--input-bg);
     }
-
+    
     .accordion-button {
       width: 100%;
-      padding: 10px 15px;
-      background: #f8f9fa;
+      padding: 1rem 1.25rem;
+      background: var(--input-bg);
       border: none;
       text-align: left;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 500;
+      color: var(--light-text);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s ease;
     }
-
+    
+    .accordion-button:hover {
+      background: var(--row-hover);
+    }
+    
+    .accordion-button::after {
+      content: '⌄';
+      font-size: 1.2rem;
+      transition: transform 0.2s ease;
+    }
+    
+    .accordion-button.active::after {
+      transform: rotate(180deg);
+    }
+    
     .accordion-collapse {
       display: none;
-      padding: 15px;
+      padding: 1.25rem;
+      border-top: 1px solid var(--border-color);
+      background-color: rgba(55, 65, 81, 0.3);
     }
-
+    
     .accordion-collapse.show {
       display: block;
     }
-
+    
     .loading {
       opacity: 0.6;
       pointer-events: none;
     }
+    
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .badge-info {
+      background-color: rgba(59, 130, 246, 0.1);
+      color: var(--info);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .controls .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .test-case {
+        padding: 1rem;
+      }
+      
+      .accordion-button {
+        padding: 0.75rem 1rem;
+      }
+      
+      .accordion-collapse {
+        padding: 1rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .card-header, .card-body {
+        padding: 1rem;
+      }
+      
+      .section-title {
+        font-size: 1rem;
+      }
+      
+      .btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.8rem;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Add Coding Question</h1>
-    
-    <div id="successMessage" class="success-message">
-      Question added successfully!
+  <div class="header">
+    <div class="logo-section">
+      <img src="../uploads/unnamed-removebg-preview.png" alt="Logo">
+      <h1>PrepZer0</h1>
     </div>
-    
-    <form id="codingQuestionForm" action='/admin/exam/<%= examId %>/add/coding' method="POST">
-      <!-- Basic Info Section -->
-      <div class="section-title">Basic Information</div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="questionTile">Question Title*</label>
-            <input type="text" id="questionTile" name="questionTile" required>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="maxMarks">Maximum Marks*</label>
-            <input type="number" id="maxMarks" name="maxMarks" min="1" required>
-          </div>
-        </div>
+    <div class="breadcrumb-nav">
+      <a href="/admin/dashboard">Dashboard</a>
+      <i class="fas fa-chevron-right"></i>
+      <a href="/admin/exams">Exams</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Add Coding Question</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <i class="fas fa-code"></i>
+          Add Coding Question
+        </h2>
       </div>
       
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="level">Difficulty Level*</label>
-            <select id="level" name="level" required>
-              <option value="">Select Difficulty</option>
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="classification">Classification*</label>
-            <select id="classification" name="classification" required>
-              <option value="">Select Classification</option>
-              <option value="Arrays">Arrays</option>
-              <option value="Strings">Strings</option>
-              <option value="Linked Lists">Linked Lists</option>
-              <option value="Stacks">Stacks</option>
-              <option value="Queues">Queues</option>
-              <option value="Trees">Trees</option>
-              <option value="Graphs">Graphs</option>
-              <option value="Recursion">Recursion</option>
-              <option value="Dynamic Programming">Dynamic Programming</option>
-              <option value="Sorting">Sorting</option>
-              <option value="Searching">Searching</option>
-              <option value="Hashing">Hashing</option>
-              <option value="Greedy Algorithms">Greedy Algorithms</option>
-              <option value="Backtracking">Backtracking</option>
-              <option value="Math">Math</option>
-              <option value="Bit Manipulation">Bit Manipulation</option>
-              <option value="Matrix">Matrix</option>
-              <option value="SQL">SQL</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Question Content Section -->
-      <div class="section-title">Question Content</div>
-      
-      <div class="form-group">
-        <label for="questiontext">Question Text*</label>
-        <textarea id="questiontext" name="questiontext" required></textarea>
-      </div>
-      
-      <div class="form-group">
-        <label for="constraits">Constraints</label>
-        <textarea id="constraits" name="constraits"></textarea>
-      </div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="inputFormat">Input Format</label>
-            <textarea id="inputFormat" name="inputFormat"></textarea>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="outputFormat">Output Format</label>
-            <textarea id="outputFormat" name="outputFormat"></textarea>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Examples Section -->
-      <div class="section-title">Sample Examples</div>
-      
-      <div class="form-row">
-        <div class="form-col">
-          <div class="form-group">
-            <label for="sampleInput">Sample Input*</label>
-            <textarea id="sampleInput" name="sampleInput" required></textarea>
-          </div>
-        </div>
-        <div class="form-col">
-          <div class="form-group">
-            <label for="sampleOutput">Sample Output*</label>
-            <textarea id="sampleOutput" name="sampleOutput" required></textarea>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Starter Code Section -->
-      <div class="section-title">Starter Code</div>
-      
-      <div class="form-group">
-        <label for="solutionTemplate">Default Solution Template* (Primary language)</label>
-        <textarea id="solutionTemplate" name="solutionTemplate" required></textarea>
-      </div>
-      
-      <!-- Language-specific starter code accordion -->
-      <div class="accordion" id="starterCodeAccordion">
-        <div class="accordion-item">
-          <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-target="#cppCode">
-              C++ Starter Code
-            </button>
-          </h2>
-          <div id="cppCode" class="accordion-collapse">
-            <div class="accordion-body">
-              <div class="form-group">
-                <textarea id="cppStarterCode" name="starterCode_cpp" placeholder="Enter C++ starter code here"></textarea>
-              </div>
-            </div>
-          </div>
+      <div class="card-body">
+        <div id="successMessage" class="success-message">
+          <i class="fas fa-check-circle"></i>
+          Question added successfully!
         </div>
         
-        <div class="accordion-item">
-          <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-target="#cCode">
-              C Starter Code
-            </button>
-          </h2>
-          <div id="cCode" class="accordion-collapse">
-            <div class="accordion-body">
-              <div class="form-group">
-                <textarea id="cStarterCode" name="starterCode_c" placeholder="Enter C starter code here"></textarea>
+        <form id="codingQuestionForm" action='/admin/exam/<%= examId %>/add/coding' method="POST">
+          <!-- Basic Info Section -->
+          <div class="section-title">
+            <i class="fas fa-info-circle"></i>
+            Basic Information
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="questionTile" class="form-label required">Question Title</label>
+              <input type="text" id="questionTile" name="questionTile" class="form-control" placeholder="Enter question title" required>
+            </div>
+            <div class="form-group">
+              <label for="maxMarks" class="form-label required">Maximum Marks</label>
+              <input type="number" id="maxMarks" name="maxMarks" class="form-control" min="1" placeholder="Enter maximum marks" required>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="level" class="form-label required">Difficulty Level</label>
+              <select id="level" name="level" class="form-control" required>
+                <option value="">Select Difficulty</option>
+                <option value="easy">🟢 Easy</option>
+                <option value="medium">🟡 Medium</option>
+                <option value="hard">🔴 Hard</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="classification" class="form-label required">Classification</label>
+              <select id="classification" name="classification" class="form-control" required>
+                <option value="">Select Classification</option>
+                <option value="Arrays">📊 Arrays</option>
+                <option value="Strings">📝 Strings</option>
+                <option value="Linked Lists">🔗 Linked Lists</option>
+                <option value="Stacks">📚 Stacks</option>
+                <option value="Queues">📋 Queues</option>
+                <option value="Trees">🌳 Trees</option>
+                <option value="Graphs">🕸️ Graphs</option>
+                <option value="Recursion">🔄 Recursion</option>
+                <option value="Dynamic Programming">⚡ Dynamic Programming</option>
+                <option value="Sorting">📈 Sorting</option>
+                <option value="Searching">🔍 Searching</option>
+                <option value="Hashing"># Hashing</option>
+                <option value="Greedy Algorithms">🎯 Greedy Algorithms</option>
+                <option value="Backtracking">↩️ Backtracking</option>
+                <option value="Math">🧮 Math</option>
+                <option value="Bit Manipulation">🔧 Bit Manipulation</option>
+                <option value="Matrix">⬜ Matrix</option>
+                <option value="SQL">🗄️ SQL</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Question Content Section -->
+          <div class="section-title">
+            <i class="fas fa-file-text"></i>
+            Question Content
+          </div>
+          
+          <div class="form-group">
+            <label for="questiontext" class="form-label required">Question Text</label>
+            <textarea id="questiontext" name="questiontext" class="form-control" placeholder="Describe the problem statement..." required></textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="constraits" class="form-label">Constraints</label>
+            <textarea id="constraits" name="constraits" class="form-control" placeholder="Enter constraints (e.g., 1 ≤ n ≤ 10^5)"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="inputFormat" class="form-label">Input Format</label>
+              <textarea id="inputFormat" name="inputFormat" class="form-control" placeholder="Describe the input format..."></textarea>
+            </div>
+            <div class="form-group">
+              <label for="outputFormat" class="form-label">Output Format</label>
+              <textarea id="outputFormat" name="outputFormat" class="form-control" placeholder="Describe the output format..."></textarea>
+            </div>
+          </div>
+          
+          <!-- Examples Section -->
+          <div class="section-title">
+            <i class="fas fa-lightbulb"></i>
+            Sample Examples
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sampleInput" class="form-label required">Sample Input</label>
+              <textarea id="sampleInput" name="sampleInput" class="form-control" placeholder="Enter sample input..." required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="sampleOutput" class="form-label required">Sample Output</label>
+              <textarea id="sampleOutput" name="sampleOutput" class="form-control" placeholder="Enter expected output..." required></textarea>
+            </div>
+          </div>
+          
+          <!-- Starter Code Section -->
+          <div class="section-title">
+            <i class="fas fa-code-branch"></i>
+            Starter Code
+          </div>
+          
+          <div class="form-group">
+            <label for="solutionTemplate" class="form-label required">Default Solution Template</label>
+            <div class="badge badge-info">Primary language template</div>
+            <textarea id="solutionTemplate" name="solutionTemplate" class="form-control" placeholder="Enter the default starter code..." required></textarea>
+          </div>
+          
+          <!-- Language-specific starter code accordion -->
+          <div class="accordion" id="starterCodeAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button type="button" class="accordion-button collapsed" data-target="#cppCode">
+                  <span><i class="fab fa-cuttlefish"></i> C++ Starter Code</span>
+                </button>
+              </h2>
+              <div id="cppCode" class="accordion-collapse">
+                <div class="form-group">
+                  <textarea id="cppStarterCode" name="starterCode_cpp" class="form-control" placeholder="Enter C++ starter code here..."></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button type="button" class="accordion-button collapsed" data-target="#cCode">
+                  <span><i class="fas fa-code"></i> C Starter Code</span>
+                </button>
+              </h2>
+              <div id="cCode" class="accordion-collapse">
+                <div class="form-group">
+                  <textarea id="cStarterCode" name="starterCode_c" class="form-control" placeholder="Enter C starter code here..."></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button type="button" class="accordion-button collapsed" data-target="#javaCode">
+                  <span><i class="fab fa-java"></i> Java Starter Code</span>
+                </button>
+              </h2>
+              <div id="javaCode" class="accordion-collapse">
+                <div class="form-group">
+                  <textarea id="javaStarterCode" name="starterCode_java" class="form-control" placeholder="Enter Java starter code here..."></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button type="button" class="accordion-button collapsed" data-target="#pythonCode">
+                  <span><i class="fab fa-python"></i> Python Starter Code</span>
+                </button>
+              </h2>
+              <div id="pythonCode" class="accordion-collapse">
+                <div class="form-group">
+                  <textarea id="pythonStarterCode" name="starterCode_python" class="form-control" placeholder="Enter Python starter code here..."></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button type="button" class="accordion-button collapsed" data-target="#csharpCode">
+                  <span><i class="fab fa-microsoft"></i> C# Starter Code</span>
+                </button>
+              </h2>
+              <div id="csharpCode" class="accordion-collapse">
+                <div class="form-group">
+                  <textarea id="csharpStarterCode" name="starterCode_csharp" class="form-control" placeholder="Enter C# starter code here..."></textarea>
+                </div>
+              </div>
+            </div>
+            
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button type="button" class="accordion-button collapsed" data-target="#jsCode">
+                  <span><i class="fab fa-js-square"></i> JavaScript Starter Code</span>
+                </button>
+              </h2>
+              <div id="jsCode" class="accordion-collapse">
+                <div class="form-group">
+                  <textarea id="jsStarterCode" name="starterCode_javascript" class="form-control" placeholder="Enter JavaScript starter code here..."></textarea>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div class="accordion-item">
-          <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-target="#javaCode">
-              Java Starter Code
-            </button>
-          </h2>
-          <div id="javaCode" class="accordion-collapse">
-            <div class="accordion-body">
-              <div class="form-group">
-                <textarea id="javaStarterCode" name="starterCode_java" placeholder="Enter Java starter code here"></textarea>
-              </div>
-            </div>
+          
+          <!-- Test Cases Section -->
+          <div class="section-title">
+            <i class="fas fa-flask"></i>
+            Test Cases
           </div>
-        </div>
-        
-        <div class="accordion-item">
-          <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-target="#pythonCode">
-              Python Starter Code
-            </button>
-          </h2>
-          <div id="pythonCode" class="accordion-collapse">
-            <div class="accordion-body">
-              <div class="form-group">
-                <textarea id="pythonStarterCode" name="starterCode_python" placeholder="Enter Python starter code here"></textarea>
-              </div>
-            </div>
+          <button type="button" id="addTestCase" class="btn btn-secondary btn-sm">
+            <i class="fas fa-plus"></i>
+            Add Test Case
+          </button>
+          
+          <div id="testCasesContainer">
+            <!-- Test cases will be added here dynamically -->
           </div>
-        </div>
-        
-        <div class="accordion-item">
-          <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-target="#csharpCode">
-              C# Starter Code
+          
+          <!-- Form Controls -->
+          <div class="controls">
+            <button type="button" id="clearForm" class="btn btn-danger">
+              <i class="fas fa-trash"></i>
+              Clear Form
             </button>
-          </h2>
-          <div id="csharpCode" class="accordion-collapse">
-            <div class="accordion-body">
-              <div class="form-group">
-                <textarea id="csharpStarterCode" name="starterCode_csharp" placeholder="Enter C# starter code here"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="accordion-item">
-          <h2 class="accordion-header">
-            <button type="button" class="accordion-button collapsed" data-target="#jsCode">
-              JavaScript Starter Code
+            <button type="submit" id="submitBtn" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              Submit Question
             </button>
-          </h2>
-          <div id="jsCode" class="accordion-collapse">
-            <div class="accordion-body">
-              <div class="form-group">
-                <textarea id="jsStarterCode" name="starterCode_javascript" placeholder="Enter JavaScript starter code here"></textarea>
-              </div>
-            </div>
           </div>
-        </div>
+        </form>
       </div>
-      
-      <!-- Test Cases Section -->
-      <div class="section-title">Test Cases</div>
-      <button type="button" id="addTestCase" class="secondary">Add Test Case</button>
-      
-      <div id="testCasesContainer">
-        <!-- Test cases will be added here dynamically -->
-      </div>
-      
-      <!-- Form Controls -->
-      <div class="controls">
-        <button type="button" id="clearForm" class="warning">Clear Form</button>
-        <button type="submit" id="submitBtn">Submit Question</button>
-      </div>
-    </form>
+    </div>
   </div>
   
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       let testCaseCount = 0;
@@ -475,43 +745,41 @@
         
         testCaseDiv.innerHTML = `
           <div class="test-case-header">
-            <h3>Test Case #${testCaseCount}</h3>
-            <button type="button" class="remove-btn" onclick="removeTestCase(${testCaseCount})">×</button>
+            <h3 class="test-case-title">
+              <i class="fas fa-vial"></i>
+              Test Case #${testCaseCount}
+            </h3>
+            <button type="button" class="remove-btn" onclick="removeTestCase(${testCaseCount})" title="Remove test case">×</button>
           </div>
           
           <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
-                <label for="testInput${testCaseCount}">Input*</label>
-                <textarea id="testInput${testCaseCount}" name="testCases[${testCaseCount-1}][input]" required></textarea>
-              </div>
+            <div class="form-group">
+              <label for="testInput${testCaseCount}" class="form-label required">Input</label>
+              <textarea id="testInput${testCaseCount}" name="testCases[${testCaseCount-1}][input]" class="form-control" placeholder="Enter test input..." required></textarea>
             </div>
-            <div class="form-col">
-              <div class="form-group">
-                <label for="expectedOutput${testCaseCount}">Expected Output*</label>
-                <textarea id="expectedOutput${testCaseCount}" name="testCases[${testCaseCount-1}][expectedOutput]" required></textarea>
-              </div>
+            <div class="form-group">
+              <label for="expectedOutput${testCaseCount}" class="form-label required">Expected Output</label>
+              <textarea id="expectedOutput${testCaseCount}" name="testCases[${testCaseCount-1}][expectedOutput]" class="form-control" placeholder="Enter expected output..." required></textarea>
             </div>
           </div>
           
           <div class="form-row">
-            <div class="form-col">
-              <div class="form-group">
-                <label for="timeout${testCaseCount}">Timeout (seconds)</label>
-                <input type="number" id="timeout${testCaseCount}" name="testCases[${testCaseCount-1}][timeout]" value="2" min="1" max="30">
-              </div>
+            <div class="form-group">
+              <label for="timeout${testCaseCount}" class="form-label">Timeout (seconds)</label>
+              <input type="number" id="timeout${testCaseCount}" name="testCases[${testCaseCount-1}][timeout]" class="form-control" value="2" min="1" max="30" placeholder="2">
             </div>
-            <div class="form-col">
-              <div class="form-group">
-                <label for="memoryLimit${testCaseCount}">Memory Limit (MB)</label>
-                <input type="number" id="memoryLimit${testCaseCount}" name="testCases[${testCaseCount-1}][memoryLimit]" value="256" min="64" max="1024">
-              </div>
+            <div class="form-group">
+              <label for="memoryLimit${testCaseCount}" class="form-label">Memory Limit (MB)</label>
+              <input type="number" id="memoryLimit${testCaseCount}" name="testCases[${testCaseCount-1}][memoryLimit]" class="form-control" value="256" min="64" max="1024" placeholder="256">
             </div>
           </div>
           
           <div class="checkbox-group">
             <input type="checkbox" id="isPublic${testCaseCount}" name="testCases[${testCaseCount-1}][isPublic]" value="true">
-            <label for="isPublic${testCaseCount}">Make this test case visible to students</label>
+            <label for="isPublic${testCaseCount}">
+              <i class="fas fa-eye"></i>
+              Make this test case visible to students
+            </label>
           </div>
         `;
         
@@ -522,9 +790,12 @@
       window.removeTestCase = function(id) {
         const testCase = document.querySelector(`.test-case[data-id="${id}"]`);
         if (testCase) {
-          testCase.remove();
-          // Update remaining test case indices
-          updateTestCaseIndices();
+          testCase.style.opacity = '0';
+          testCase.style.transform = 'translateX(-100%)';
+          setTimeout(() => {
+            testCase.remove();
+            updateTestCaseIndices();
+          }, 200);
         }
       }
       
@@ -541,9 +812,9 @@
             }
           });
           
-          const header = testCase.querySelector('.test-case-header h3');
+          const header = testCase.querySelector('.test-case-title');
           if (header) {
-            header.textContent = `Test Case #${index + 1}`;
+            header.innerHTML = `<i class="fas fa-vial"></i> Test Case #${index + 1}`;
           }
         });
       }
@@ -561,6 +832,7 @@
           testCasesContainer.innerHTML = '';
           testCaseCount = 0;
           addTestCase(); // Add one default test case after clearing
+          successMessage.style.display = 'none';
         }
       });
       
@@ -575,19 +847,33 @@
             document.querySelectorAll('.accordion-collapse').forEach(collapse => {
               collapse.classList.remove('show');
             });
+            document.querySelectorAll('.accordion-button').forEach(btn => {
+              btn.classList.remove('active');
+            });
             
             // Open clicked accordion if it wasn't already open
             if (!isOpen) {
               target.classList.add('show');
+              this.classList.add('active');
             }
           }
         });
       });
       
-      // Form submission - Let the form submit normally to the backend
+      // Real-time validation
+      form.addEventListener('input', function(e) {
+        if (e.target.hasAttribute('required')) {
+          const errorMsg = e.target.parentNode.querySelector('.error');
+          if (e.target.value.trim() && errorMsg) {
+            errorMsg.remove();
+          }
+        }
+      });
+      
+      // Form submission
       form.addEventListener('submit', function(e) {
         // Show loading state
-        submitBtn.textContent = 'Submitting...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
         submitBtn.disabled = true;
         form.classList.add('loading');
         
@@ -595,24 +881,23 @@
         const requiredFields = form.querySelectorAll('[required]');
         let isValid = true;
         
+        // Remove existing error messages
+        document.querySelectorAll('.error').forEach(error => error.remove());
+        
         requiredFields.forEach(field => {
           if (!field.value.trim()) {
             isValid = false;
             e.preventDefault();
             
-            // Add error message if not already present
-            let errorMsgElement = field.nextElementSibling;
-            if (!errorMsgElement || !errorMsgElement.classList.contains('error')) {
-              errorMsgElement = document.createElement('div');
-              errorMsgElement.className = 'error';
-              errorMsgElement.textContent = 'This field is required';
-              field.parentNode.insertBefore(errorMsgElement, field.nextSibling);
-            }
-          } else {
-            // Remove error message if field is valid
-            const errorMsg = field.nextElementSibling;
-            if (errorMsg && errorMsg.classList.contains('error')) {
-              errorMsg.remove();
+            // Add error message
+            const errorMsgElement = document.createElement('div');
+            errorMsgElement.className = 'error';
+            errorMsgElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> This field is required';
+            field.parentNode.appendChild(errorMsgElement);
+            
+            // Focus first invalid field
+            if (isValid === false && field === requiredFields[0]) {
+              field.focus();
             }
           }
         });
@@ -621,18 +906,51 @@
         if (testCasesContainer.children.length === 0) {
           isValid = false;
           e.preventDefault();
-          alert('At least one test case is required.');
+          
+          // Show error message for test cases
+          const testCaseError = document.createElement('div');
+          testCaseError.className = 'error';
+          testCaseError.innerHTML = '<i class="fas fa-exclamation-circle"></i> At least one test case is required';
+          testCasesContainer.parentNode.insertBefore(testCaseError, testCasesContainer);
         }
         
         if (!isValid) {
           // Reset button state if validation fails
-          submitBtn.textContent = 'Submit Question';
+          submitBtn.innerHTML = '<i class="fas fa-save"></i> Submit Question';
           submitBtn.disabled = false;
           form.classList.remove('loading');
+          
+          // Scroll to first error
+          const firstError = document.querySelector('.error');
+          if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
         }
         
-        // If valid, let the form submit normally (don't prevent default)
-        // The backend will handle the redirect
+        // If valid, let the form submit normally
+      });
+      
+      // Auto-resize textareas
+      document.querySelectorAll('textarea').forEach(textarea => {
+        textarea.addEventListener('input', function() {
+          this.style.height = 'auto';
+          this.style.height = (this.scrollHeight) + 'px';
+        });
+      });
+      
+      // Add tooltips for difficulty levels
+      const difficultySelect = document.getElementById('level');
+      difficultySelect.addEventListener('change', function() {
+        const tooltips = {
+          'easy': 'Basic problems that can be solved with simple algorithms',
+          'medium': 'Moderate problems requiring some algorithmic knowledge',
+          'hard': 'Complex problems requiring advanced algorithms and optimization'
+        };
+        
+        if (tooltips[this.value]) {
+          // You can add a tooltip display here if needed
+          console.log(tooltips[this.value]);
+        }
       });
     });
   </script>

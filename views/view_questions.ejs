@@ -1,245 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Questions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --dark-bg: #111827;
+      --card-bg: #1f2937;
+      --light-text: #f9fafb;
+      --secondary-text: #9ca3af;
+      --border-color: #374151;
+      --row-hover: #2d3748;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --success: #10b981;
+      --input-bg: #374151;
+      --input-border: #4b5563;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: var(--dark-bg);
+      color: var(--light-text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    .header {
+      background-color: var(--card-bg);
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo-section img {
+      width: 36px;
+      height: 36px;
+      margin-right: 0.75rem;
+    }
+    
+    .logo-section h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      background: linear-gradient(to right, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--secondary-text);
+      font-size: 0.875rem;
+    }
+    
+    .breadcrumb-nav a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .breadcrumb-nav a:hover {
+      color: var(--primary-hover);
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--light-text);
+      margin-bottom: 0.5rem;
+    }
+    
+    .page-subtitle {
+      color: var(--secondary-text);
+      font-size: 1.125rem;
+    }
+    
+    .info-card {
+      background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(139, 92, 246, 0.05));
+      border: 1px solid rgba(79, 70, 229, 0.2);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .info-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary);
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.25rem;
+    }
+    
+    .info-content h3 {
+      font-size: 0.875rem;
+      color: var(--secondary-text);
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .info-content p {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--light-text);
+      margin: 0;
+    }
+    
+    .section {
+      margin-bottom: 3rem;
+    }
+    
+    .section-header {
+      background-color: var(--card-bg);
+      border-radius: 0.75rem 0.75rem 0 0;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--light-text);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .progress-badge {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: white;
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .progress-badge.incomplete {
+      background: linear-gradient(135deg, var(--warning), #d97706);
+    }
+    
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 1.5rem;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .btn {
+      border-radius: 0.5rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      border: 1px solid transparent;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background-color: var(--input-bg);
+      color: var(--light-text);
+      border: 1px solid var(--border-color);
+    }
+    
+    .btn-secondary:hover {
+      background-color: var(--row-hover);
+      color: var(--light-text);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+      border: 1px solid transparent;
+    }
+    
+    .btn-danger:hover {
+      background-color: #dc2626;
+      color: white;
+    }
+    
+    .btn-warning {
+      background-color: var(--warning);
+      color: #000;
+      border: 1px solid transparent;
+    }
+    
+    .btn-warning:hover {
+      background-color: #d97706;
+      color: #000;
+    }
+    
+    .btn-sm {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+    }
+    
+    .table-container {
+      background-color: var(--card-bg);
+      border-radius: 0 0 0.75rem 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      color: var(--light-text);
+      min-width: 800px;
+    }
+    
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    
+    th {
+      font-weight: 600;
+      color: var(--secondary-text);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      background-color: rgba(55, 65, 81, 0.5);
+    }
+    
+    tbody tr {
+      transition: background-color 0.2s;
+    }
+    
+    tbody tr:hover {
+      background-color: var(--row-hover);
+    }
+    
+    .question-cell {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .question-cell:hover {
+      white-space: normal;
+      word-wrap: break-word;
+    }
+    
+    .options-cell {
+      max-width: 250px;
+      font-size: 0.875rem;
+      color: var(--secondary-text);
+    }
+    
+    .correct-answer {
+      color: var(--success);
+      font-weight: 600;
+    }
+    
+    .code-block {
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.375rem;
+      padding: 0.75rem;
+      font-family: 'Fira Code', 'Consolas', monospace;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+      max-width: 200px;
+      max-height: 100px;
+      overflow: auto;
+      color: var(--light-text);
+    }
+    
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .actions form {
+      margin: 0;
+    }
+    
+    .empty-state {
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--secondary-text);
+      background-color: var(--card-bg);
+      border-radius: 0 0 0.75rem 0.75rem;
+    }
+    
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .back-section {
+      text-align: center;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    
+    .status-complete {
+      background-color: var(--success);
+    }
+    
+    .status-incomplete {
+      background-color: var(--warning);
+    }
+    
+    /* Mobile responsive styles */
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .info-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        justify-content: center;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+      
+      th, td {
+        padding: 0.75rem 0.5rem;
+        font-size: 0.875rem;
+      }
+      
+      .question-cell,
+      .options-cell,
+      .code-block {
+        max-width: 150px;
+      }
+      
+      .actions {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+      
+      .actions .btn {
+        width: 100%;
+        font-size: 0.75rem;
+        padding: 0.5rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .section-header,
+      .button-group {
+        padding: 1rem;
+      }
+      
+      th, td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+      }
+      
+      .code-block {
+        font-size: 0.7rem;
+        padding: 0.5rem;
+      }
+    }
+    
+    .complete-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-left: 0.75rem;
+    }
+    
+    .complete-indicator.complete {
+      background-color: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .complete-indicator.incomplete {
+      background-color: rgba(245, 158, 11, 0.1);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-section">
+      <img src="../uploads/unnamed-removebg-preview.png" alt="Logo">
+      <h1>PrepZer0</h1>
+    </div>
+    <div class="breadcrumb-nav">
+      <a href="/admin/dashboard">Dashboard</a>
+      <i class="fas fa-chevron-right"></i>
+      <a href="/admin/exams">Exams</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Manage Questions</span>
+    </div>
+  </div>
 
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Manage Questions</h1>
+      <p class="page-subtitle">Configure questions for <%= exam.name %></p>
+    </div>
+    
+    <div class="info-card">
+      <div class="info-item">
+        <div class="info-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="info-content">
+          <h3>Question Type</h3>
+          <p><%= exam.questionType %></p>
+        </div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <i class="fas fa-calculator"></i>
+        </div>
+        <div class="info-content">
+          <h3>Total Required</h3>
+          <p><%= exam.numTotalQuestions %> Questions</p>
+        </div>
+      </div>
+    </div>
 
- <!DOCTYPE html>
- <html lang="en">
- <head>
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-     <title>Manage Questions</title>
-     <style>
-         body {
-             font-family: Arial, sans-serif;
-             margin: 0;
-             padding: 20px;
-             background-color: #141D2F; /* Dark blue background */
-         }
-         h1, h2 {
-             color: #0056b3; /* Darker blue for headings */
-         }
-         .container {
-             background: white;
-             padding: 25px;
-             border-radius: 10px;
-             box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
-             border: 3px solid #1D4ED8;
-             max-width: 1200px;
-             margin: 30px auto;
-         }
-         table {
-             width: 100%;
-             border-collapse: collapse;
-             margin-top: 15px;
-             border-radius: 5px;
-             overflow: hidden;
-         }
-         table, th, td {
-             border: 1px solid #b3d1ff;
-         }
-         th, td {
-             padding: 12px;
-             text-align: left;
-         }
-         th {
-             background: #1D4ED8;
-             color: white;
-         }
-         tr:nth-child(even) {
-             background-color: #f0f7ff;
-         }
-         .actions a, .actions form button {
-             margin-right: 10px;
-             text-decoration: none;
-             padding: 6px 12px;
-             border-radius: 5px;
-             color: white;
-             display: inline-block;
-             border: none;
-             cursor: pointer;
-             font-size: 14px;
-         }
-         .edit-btn { 
-             background: #0d6efd; 
-         }
-         .edit-btn:hover { 
-             background: #0056b3; 
-         }
-         .delete-btn { 
-             background: #dc3545; 
-         }
-         .delete-btn:hover { 
-             background: #bb2d3b; 
-         }
-         .add-btn { 
-             background: #0d6efd; 
-             display: inline-block; 
-             padding: 8px 16px;
-             color: white;
-             text-decoration: none;
-             border-radius: 5px;
-             margin-bottom: 15px;
-             margin-right: 10px;
-         }
-         .add-btn:hover {
-             background: #0056b3;
-             color: white;
-         }
-         .back-btn { 
-             background: #6c757d; 
-             display: inline-block; 
-             padding: 8px 16px;
-             color: white;
-             text-decoration: none;
-             border-radius: 5px;
-             margin-top: 20px;
-         }
-         .back-btn:hover {
-             background: #5a6268;
-             color: white;
-         }
-         pre {
-             background: #f8f9fa;
-             padding: 10px;
-             border-radius: 5px;
-             white-space: pre-wrap;
-             border: 1px solid #b3d1ff;
-             font-size: 14px;
-         }
-         .info-box {
-             background-color: #e6f0ff;
-             border: 1px solid #b3d1ff;
-             border-radius: 5px;
-             padding: 15px;
-             margin-bottom: 20px;
-         }
-         .section-header {
-             background-color: #e6f0ff;
-             padding: 10px 15px;
-             border-radius: 5px;
-             margin: 25px 0 15px 0;
-             border-left: 5px solid #1D4ED8;
-         }
-         .button-group {
-             display: flex;
-             flex-wrap: wrap;
-             gap: 10px;
-             margin-bottom: 20px;
-         }
-     </style>
- </head>
- <body>
- 
- <div class="container">
-     <h1 class="text-center mb-4">Manage Questions for <%= exam.name %></h1>
-     
-     <div class="info-box">
-         <p class="mb-1"><strong>Question Type:</strong> <%= exam.questionType %></p>
-         <p class="mb-0"><strong>Total Questions Required:</strong> <%= exam.numTotalQuestions %></p>
-     </div>
- 
-     <% if (exam.questionType.includes("mcq")) { %>
-         <div class="section-header">
-             <h2 class="mb-0">MCQs (Added: <%= mcqQuestions.length %> / Required: <%= exam.numMCQs %>)</h2>
-         </div>
-         
-         <% if (mcqQuestions.length < exam.numMCQs) { %>
-             <div class="button-group">
-                 <a href="/admin/exam/<%= exam._id %>/add/mcq" class="add-btn">➕ Add MCQ</a>
-                 <a href="/admin/exam/<%= exam._id %>/csv" class="add-btn">➕ Add MCQ using CSV File</a>
-                 <a href="/admin/exam/<%= exam._id %>/database" class="add-btn">➕ Add from Database</a>
-             </div>
-         <% } %>
-         
-         <div class="table-responsive">
-             <table class="table table-bordered">
-                 <thead>
-                     <tr>
-                         <th>#</th>
-                         <th>Question</th>
-                         <th>Options</th>
-                         <th>Correct Answer</th>
-                         <th>Actions</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                     <% mcqQuestions.forEach((mcq, index) => { %>
-                         <tr>
-                             <td><%= index + 1 %></td>
-                             <td><%= mcq.question %></td>
-                             <td><%= mcq.options.join(", ") %></td>
-                             <td><strong><%= mcq.correctAnswer %></strong></td>
-                             <td class="actions">
-                                 <a href="/admin/exam/<%= exam._id %>/edit/mcq/<%= mcq._id %>" class="edit-btn">✏️ Edit</a>
-                                 <form action="/admin/exam/<%= exam._id %>/delete/mcq/<%= mcq._id %>" method="POST" style="display:inline;">
-                                     <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
-                                 </form>
-                             </td>
-                         </tr>
-                     <% }) %>
-                 </tbody>
-             </table>
-         </div>
-     <% } %>
- 
-     <% if (exam.questionType.includes("coding")) { %>
-         <div class="section-header">
-             <h2 class="mb-0">Coding Questions (Added: <%= codingQuestions.length %> / Required: <%= exam.numCoding %>)</h2>
-         </div>
-         
-         <% if (codingQuestions.length < exam.numCoding) { %>
-             <div class="button-group">
-                 <a href="/admin/exam/<%= exam._id %>/add/coding" class="add-btn">➕ Add Coding Question</a>
-                 <a href="/admin/exam/<%= exam._id %>/coding/csv" class="add-btn">➕ Add Coding Question using CSV File</a>
-                 <a href="/admin/exam/<%= exam._id %>/coding/database" class="add-btn">➕ Add from Database</a>
-             </div>
-         <% } %>
-         
-         <div class="table-responsive">
-             <table class="table table-bordered">
-                 <thead>
-                     <tr>
-                         <th>#</th>
-                         <th>Title</th>
-                         <th>Question</th>
-                         <th>Constraints</th>
-                         <th>Input Format</th>
-                         <th>Output Format</th>
-                         <th>Sample Input</th>
-                         <th>Sample Output</th>
-                         <th>Actions</th>
-                     </tr>
-                 </thead>
-                 <tbody>
-                     <% codingQuestions.forEach((coding, index) => { %>
-                         <tr>
-                             <td><%= index + 1 %></td>
-                             <td><strong><%= coding.questionTile %></strong></td>
-                             <td><pre><%= coding.questiontext %></pre></td>
-                             <td><pre><%= coding.constraits %></pre></td>
-                             <td><pre><%= coding.inputFormat %></pre></td>
-                             <td><pre><%= coding.outputFormat %></pre></td>
-                             <td><pre><%= coding.sampleInput %></pre></td>
-                             <td><pre><%= coding.sampleOutput %></pre></td>
-                             
-                             <td class="actions">
-                                 <div style="display: flex; gap: 8px;">
-                                     <a href="/admin/exam/<%= exam._id %>/edit/coding/<%= coding._id %>" class="edit-btn">✏️ Edit</a>
-                                     
-                                     <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST">
-                                         <button type="submit" class="delete-btn" onclick="return confirm('Delete this question?')">🗑 Delete</button>
-                                     </form>
-                                 </div>
-                             </td>
-                             
-                         </tr>
-                     <% }) %>
-                 </tbody>
-             </table>
-         </div>
-     <% } %>
- 
-     <div class="text-center mt-4">
-         <a href="/admin" class="back-btn">⬅ Back to Exams</a>
-     </div>
- </div>
- 
- </body>
- </html>
+    <% if (exam.questionType.includes("mcq")) { %>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-list-ul"></i>
+            Multiple Choice Questions
+            <div class="complete-indicator <%= mcqQuestions.length >= exam.numMCQs ? 'complete' : 'incomplete' %>">
+              <span class="status-indicator <%= mcqQuestions.length >= exam.numMCQs ? 'status-complete' : 'status-incomplete' %>"></span>
+              <%= mcqQuestions.length %> / <%= exam.numMCQs %> Added
+              <% if (mcqQuestions.length >= exam.numMCQs) { %>
+                <i class="fas fa-check"></i>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <% if (mcqQuestions.length < exam.numMCQs) { %>
+          <div class="button-group">
+            <a href="/admin/exam/<%= exam._id %>/add/mcq" class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              Add MCQ
+            </a>
+            <a href="/admin/exam/<%= exam._id %>/csv" class="btn btn-secondary">
+              <i class="fas fa-file-csv"></i>
+              Import from CSV
+            </a>
+            <a href="/admin/exam/<%= exam._id %>/database" class="btn btn-secondary">
+              <i class="fas fa-database"></i>
+              Add from Database
+            </a>
+          </div>
+        <% } %>
+        
+        <div class="table-container">
+          <% if (mcqQuestions.length > 0) { %>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Options</th>
+                    <th>Correct Answer</th>
+                    <th>Classification</th>
+                    <th>Level</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% mcqQuestions.forEach((mcq, index) => { %>
+                    <tr>
+                      <td><strong><%= index + 1 %></strong></td>
+                      <td class="question-cell" title="<%= mcq.question %>">
+                        <%= mcq.question %>
+                      </td>
+                      <td class="options-cell">
+                        <% mcq.options.forEach((option, idx) => { %>
+                          <div><%= String.fromCharCode(65 + idx) %>. <%= option %></div>
+                        <% }) %>
+                      </td>
+                      <td class="correct-answer">
+                        <i class="fas fa-check-circle"></i>
+                        <%= mcq.correctAnswer %>
+                      </td>
+                      <td>
+                        <span class="badge badge-info">
+                          <%= mcq.classification || 'General' %>
+                        </span>
+                      </td>
+                      <td>
+                        <% if (mcq.level === 'easy') { %>
+                          <span style="color: var(--success)">🟢 Easy</span>
+                        <% } else if (mcq.level === 'medium') { %>
+                          <span style="color: var(--warning)">🟡 Medium</span>
+                        <% } else if (mcq.level === 'hard') { %>
+                          <span style="color: var(--danger)">🔴 Hard</span>
+                        <% } else { %>
+                          <span style="color: var(--secondary-text)">⚪ Unknown</span>
+                        <% } %>
+                      </td>
+                      <td class="actions">
+                        <a href="/admin/exam/<%= exam._id %>/edit/mcq/<%= mcq._id %>" class="btn btn-warning btn-sm">
+                          <i class="fas fa-edit"></i>
+                          Edit
+                        </a>
+                        <form action="/admin/exam/<%= exam._id %>/delete/mcq/<%= mcq._id %>" method="POST">
+                          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this question?')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <i class="fas fa-list-ul"></i>
+              <h3>No MCQ Questions Added</h3>
+              <p>Start by adding your first multiple choice question</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <% if (exam.questionType.includes("coding")) { %>
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">
+            <i class="fas fa-code"></i>
+            Coding Questions
+            <div class="complete-indicator <%= codingQuestions.length >= exam.numCoding ? 'complete' : 'incomplete' %>">
+              <span class="status-indicator <%= codingQuestions.length >= exam.numCoding ? 'status-complete' : 'status-incomplete' %>"></span>
+              <%= codingQuestions.length %> / <%= exam.numCoding %> Added
+              <% if (codingQuestions.length >= exam.numCoding) { %>
+                <i class="fas fa-check"></i>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <% if (codingQuestions.length < exam.numCoding) { %>
+          <div class="button-group">
+            <a href="/admin/exam/<%= exam._id %>/add/coding" class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              Add Coding Question
+            </a>
+            <a href="/admin/exam/<%= exam._id %>/coding/csv" class="btn btn-secondary">
+              <i class="fas fa-file-csv"></i>
+              Import from CSV
+            </a>
+            <a href="/admin/exam/<%= exam._id %>/coding/database" class="btn btn-secondary">
+              <i class="fas fa-database"></i>
+              Add from Database
+            </a>
+          </div>
+        <% } %>
+        
+        <div class="table-container">
+          <% if (codingQuestions.length > 0) { %>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Question</th>
+                    <th>Level</th>
+                    <th>Sample I/O</th>
+                    <th>Test Cases</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% codingQuestions.forEach((coding, index) => { %>
+                    <tr>
+                      <td><strong><%= index + 1 %></strong></td>
+                      <td>
+                        <strong><%= coding.questionTile %></strong>
+                        <div style="font-size: 0.8rem; color: var(--secondary-text); margin-top: 0.25rem;">
+                          <span class="badge badge-info"><%= coding.classification || 'General' %></span>
+                        </div>
+                      </td>
+                      <td class="question-cell" title="<%= coding.questiontext %>">
+                        <div class="code-block"><%= coding.questiontext %></div>
+                      </td>
+                      <td>
+                        <% if (coding.level === 'easy') { %>
+                          <span style="color: var(--success)">🟢 Easy</span>
+                        <% } else if (coding.level === 'medium') { %>
+                          <span style="color: var(--warning)">🟡 Medium</span>
+                        <% } else if (coding.level === 'hard') { %>
+                          <span style="color: var(--danger)">🔴 Hard</span>
+                        <% } else { %>
+                          <span style="color: var(--secondary-text)">⚪ Unknown</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <div style="margin-bottom: 0.5rem;">
+                          <strong style="color: var(--info); font-size: 0.8rem;">Input:</strong>
+                          <div class="code-block"><%= coding.sampleInput %></div>
+                        </div>
+                        <div>
+                          <strong style="color: var(--success); font-size: 0.8rem;">Output:</strong>
+                          <div class="code-block"><%= coding.sampleOutput %></div>
+                        </div>
+                      </td>
+                      <td>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <i class="fas fa-flask" style="color: var(--info);"></i>
+                          <span><%= coding.testCases ? coding.testCases.length : 0 %> test cases</span>
+                        </div>
+                      </td>
+                      <td class="actions">
+                        <a href="/admin/exam/<%= exam._id %>/edit/coding/<%= coding._id %>" class="btn btn-warning btn-sm">
+                          <i class="fas fa-edit"></i>
+                          Edit
+                        </a>
+                        <form action="/admin/exam/<%= exam._id %>/delete/coding/<%= coding._id %>" method="POST">
+                          <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this question?')">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <div class="empty-state">
+              <i class="fas fa-code"></i>
+              <h3>No Coding Questions Added</h3>
+              <p>Start by adding your first coding challenge</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="back-section">
+      <a href="/admin" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Back to Exams
+      </a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Add smooth scrolling to sections
+    document.addEventListener('DOMContentLoaded', function() {
+      // Auto-scroll to incomplete sections
+      const incompleteSection = document.querySelector('.complete-indicator.incomplete');
+      if (incompleteSection) {
+        setTimeout(() => {
+          incompleteSection.closest('.section').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+          });
+        }, 500);
+      }
+      
+      // Add confirmation for bulk actions
+      const deleteButtons = document.querySelectorAll('.btn-danger');
+      deleteButtons.forEach(button => {
+        if (button.textContent.includes('Delete')) {
+          button.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
+              e.preventDefault();
+            }
+          });
+        }
+      });
+      
+      // Add tooltips for truncated content
+      const cells = document.querySelectorAll('.question-cell, .code-block');
+      cells.forEach(cell => {
+        cell.addEventListener('mouseenter', function() {
+          if (this.scrollWidth > this.clientWidth || this.scrollHeight > this.clientHeight) {
+            this.style.zIndex = '1000';
+            this.style.position = 'relative';
+            this.style.maxWidth = 'none';
+            this.style.maxHeight = 'none';
+            this.style.backgroundColor = 'var(--card-bg)';
+            this.style.border = '1px solid var(--border-color)';
+            this.style.borderRadius = '0.375rem';
+            this.style.padding = '0.75rem';
+            this.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+          }
+        });
+        
+        cell.addEventListener('mouseleave', function() {
+          this.style.zIndex = '';
+          this.style.position = '';
+          this.style.maxWidth = '';
+          this.style.maxHeight = '';
+          this.style.backgroundColor = '';
+          this.style.border = '';
+          this.style.borderRadius = '';
+          this.style.padding = '';
+          this.style.boxShadow = '';
+        });
+      });
+    });
+  </script>
+</body>
+</html>
