@@ -7,207 +7,342 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             background-color: #141D2F;
         }
-        .container {
+        .main-container {
             background: white;
-            padding: 25px;
             border-radius: 10px;
             box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
             border: 3px solid #1D4ED8;
-            max-width: 1200px;
-            margin: 30px auto;
+            max-width: 1400px;
+            margin: 20px auto;
         }
-        .info-box {
-            background-color: #e6f0ff;
-            border: 1px solid #b3d1ff;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
+        .header-section {
+            background: linear-gradient(135deg, #1D4ED8, #3B82F6);
+            color: white;
+            padding: 20px;
+            border-radius: 7px 7px 0 0;
+        }
+        .sticky-controls {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 100;
+            border-bottom: 2px solid #e9ecef;
+            padding: 15px 20px;
+        }
+        .content-area {
+            padding: 0 20px 20px 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .info-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .filters-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+        .checkbox-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .checkbox-group .form-check {
+            margin: 0;
+            padding: 5px 10px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+            transition: all 0.2s;
+        }
+        .checkbox-group .form-check:hover {
+            background: #e9ecef;
+        }
+        .checkbox-group .form-check-input:checked + .form-check-label {
+            color: #1D4ED8;
+            font-weight: 600;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn-sm-custom {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+        .submit-area {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            border-top: 2px solid #e9ecef;
+            padding: 15px 20px;
+            text-align: center;
         }
         .category-section {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border: 1px solid #dee2e6;
             border-radius: 8px;
-            padding: 15px;
+            overflow: hidden;
         }
         .category-header {
-            background-color: #e6f0ff;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            border-left: 5px solid #1D4ED8;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 12px 20px;
+            border-bottom: 1px solid #dee2e6;
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .category-title {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #495057;
+        }
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 15px;
+            padding: 20px;
         }
         .question-card {
             border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 15px;
-            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .question-card:hover {
+            border-color: #1D4ED8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
         .question-card.selected {
             border-color: #1D4ED8;
-            background-color: #f0f7ff;
+            background: linear-gradient(135deg, #f0f7ff, #e6f0ff);
+            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.2);
         }
-        .difficulty-easy {
-            color: #28a745;
-            font-weight: bold;
+        .question-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
         }
-        .difficulty-medium {
-            color: #fd7e14;
-            font-weight: bold;
+        .question-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+            line-height: 1.3;
         }
-        .difficulty-hard {
-            color: #dc3545;
-            font-weight: bold;
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
         }
-        .filter-panel {
-            background-color: #f8f9fa;
-            padding: 15px;
+        .difficulty-easy { color: #28a745; font-weight: bold; }
+        .difficulty-medium { color: #fd7e14; font-weight: bold; }
+        .difficulty-hard { color: #dc3545; font-weight: bold; }
+        .question-description {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .hidden { display: none !important; }
+        .selection-summary {
+            background: #e6f0ff;
+            border: 1px solid #b3d1ff;
             border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .badge-custom {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+        }
+        .compact-filters {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
             border: 1px solid #dee2e6;
         }
-        .submit-btn {
-            background: #0d6efd;
-            display: inline-block;
-            padding: 8px 16px;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
-            border: none;
-            cursor: pointer;
-        }
-        .back-btn { 
-            background: #6c757d; 
-            display: inline-block; 
-            padding: 8px 16px;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-        .hidden {
-            display: none !important;
+        @media (max-width: 768px) {
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+            .filters-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-buttons {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 class="text-center mb-4">Select Coding Questions from Database</h1>
-    
-    <div class="info-box">
-        <p class="mb-1"><strong>Exam:</strong> <%= exam.name %></p>
-        <p class="mb-1"><strong>Required Questions:</strong> <span id="requiredCount"><%= exam.numCoding - codingQuestions.length %></span></p>
-        <p class="mb-0"><strong>Currently Selected:</strong> <span id="selectedCount">0</span></p>
+<div class="main-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <h1 class="mb-3 text-center">Select Coding Questions from Database</h1>
+        <div class="info-stats">
+            <div class="stat-box">
+                <div><strong>Exam:</strong> <%= exam.name %></div>
+            </div>
+            <div class="stat-box">
+                <div><strong>Required:</strong> <span id="requiredCount"><%= exam.numCoding - codingQuestions.length %></span></div>
+            </div>
+            <div class="stat-box">
+                <div><strong>Selected:</strong> <span id="selectedCount">0</span></div>
+            </div>
+        </div>
     </div>
-    
-    <div class="filter-panel">
-        <div class="row">
-            <div class="col-md-12">
-                <h3>Filters</h3>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <h5>Categories</h5>
-                        <div id="categoryFilters">
-                            <!-- Category checkboxes will be populated dynamically -->
-                        </div>
+
+    <!-- Sticky Controls -->
+    <div class="sticky-controls">
+        <div class="selection-summary">
+            <strong>Selection Progress:</strong> <span id="progressText">0 of <%= exam.numCoding - codingQuestions.length %> questions selected</span>
+        </div>
+        
+        <div class="compact-filters">
+            <div class="filters-row">
+                <!-- Categories Filter -->
+                <div class="filter-group">
+                    <label>Categories</label>
+                    <div class="checkbox-group" id="categoryFilters">
+                        <!-- Will be populated dynamically -->
                     </div>
-                    <div class="col-md-6">
-                        <h5>Difficulty</h5>
-                        <div class="form-check form-check-inline">
+                </div>
+                
+                <!-- Difficulty Filter -->
+                <div class="filter-group">
+                    <label>Difficulty</label>
+                    <div class="checkbox-group">
+                        <div class="form-check">
                             <input class="form-check-input difficulty-filter" type="checkbox" id="easyFilter" value="easy" checked>
                             <label class="form-check-label difficulty-easy" for="easyFilter">Easy</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check">
                             <input class="form-check-input difficulty-filter" type="checkbox" id="mediumFilter" value="medium" checked>
                             <label class="form-check-label difficulty-medium" for="mediumFilter">Medium</label>
                         </div>
-                        <div class="form-check form-check-inline">
+                        <div class="form-check">
                             <input class="form-check-input difficulty-filter" type="checkbox" id="hardFilter" value="hard" checked>
                             <label class="form-check-label difficulty-hard" for="hardFilter">Hard</label>
                         </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <h5>Selection Tools</h5>
-                        <button id="autoSelectBtn" class="btn btn-success">Auto Select Required Questions from Filtered Categories</button>
-                        <button id="autoCompleteBtn" class="btn btn-warning ms-2">Auto Complete Selection (Fill Remaining)</button>
-                        <button id="clearAllBtn" class="btn btn-outline-danger ms-2">Clear All Selections</button>
+                
+                <!-- Action Buttons -->
+                <div class="filter-group">
+                    <label>Actions</label>
+                    <div class="action-buttons">
+                        <button id="autoSelectBtn" class="btn btn-success btn-sm-custom">Auto Select All</button>
+                        <button id="autoCompleteBtn" class="btn btn-warning btn-sm-custom">Complete Selection</button>
+                        <button id="clearAllBtn" class="btn btn-outline-danger btn-sm-custom">Clear All</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <form id="questionSelectionForm" action="/admin/<%= exam._id %>/add/coding/from-database" method="POST">
-        <div id="categorySections">
-            <!-- Dynamic category sections will be populated here -->
-            <% 
-            // Group questions by category
-            const questionsByCategory = {};
-            dbQuestions.forEach(question => {
-                if (!questionsByCategory[question.classification]) {
-                    questionsByCategory[question.classification] = [];
-                }
-                questionsByCategory[question.classification].push(question);
-            });
-            
-            // Display questions by category
-            Object.keys(questionsByCategory).sort().forEach(category => {
-                const questions = questionsByCategory[category];
-            %>
-                <div class="category-section" data-category="<%= category %>">
-                    <div class="category-header">
-                        <div>
-                            <h3 class="d-inline"><%= category %> (<%= questions.length %> questions)</h3>
-                            <button type="button" class="btn btn-sm btn-primary ms-2 select-all-category-btn" data-category="<%= category %>">Select All</button>
-                        </div>
-                        <div class="distribution">
-                            <span class="badge bg-success">Easy: <%= questions.filter(q => q.level === 'easy').length %></span>
-                            <span class="badge bg-warning">Medium: <%= questions.filter(q => q.level === 'medium').length %></span>
-                            <span class="badge bg-danger">Hard: <%= questions.filter(q => q.level === 'hard').length %></span>
-                        </div>
-                    </div>
-                    
-                    <div class="questions-container">
-                        <% questions.forEach(question => { %>
-                            <div class="question-card" data-difficulty="<%= question.level %>" data-category="<%= category %>">
-                                <div class="form-check">
-                                    <input class="form-check-input question-checkbox" type="checkbox" name="selectedQuestions" value="<%= question._id %>" id="question_<%= question._id %>">
-                                    <label class="form-check-label" for="question_<%= question._id %>">
-                                        <h4><%= question.questionTile %></h4>
-                                    </label>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <p><strong>Description:</strong> <%= question.questiontext.substring(0, 150) %><%= question.questiontext.length > 150 ? '...' : '' %></p>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <p><strong>Difficulty:</strong> <span class="difficulty-<%= question.level %>"><%= question.level.charAt(0).toUpperCase() + question.level.slice(1) %></span></p>
-                                        <p><strong>Max Marks:</strong> <%= question.maxMarks %></p>
-                                        <p><strong>Test Cases:</strong> <%= question.testCases.length %></p>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-sm btn-outline-primary preview-btn" data-bs-toggle="modal" data-bs-target="#previewModal" data-question-id="<%= question._id %>">Preview Question</button>
+    <!-- Content Area -->
+    <div class="content-area">
+        <form id="questionSelectionForm" action="/admin/<%= exam._id %>/add/coding/from-database" method="POST">
+            <div id="categorySections">
+                <% 
+                // Group questions by category
+                const questionsByCategory = {};
+                dbQuestions.forEach(question => {
+                    if (!questionsByCategory[question.classification]) {
+                        questionsByCategory[question.classification] = [];
+                    }
+                    questionsByCategory[question.classification].push(question);
+                });
+                
+                // Display questions by category
+                Object.keys(questionsByCategory).sort().forEach(category => {
+                    const questions = questionsByCategory[category];
+                %>
+                    <div class="category-section" data-category="<%= category %>">
+                        <div class="category-header">
+                            <div>
+                                <h3 class="category-title"><%= category %> (<%= questions.length %> questions)</h3>
                             </div>
-                        <% }); %>
+                            <div class="d-flex gap-2 align-items-center">
+                                <span class="badge bg-success badge-custom">Easy: <%= questions.filter(q => q.level === 'easy').length %></span>
+                                <span class="badge bg-warning badge-custom">Medium: <%= questions.filter(q => q.level === 'medium').length %></span>
+                                <span class="badge bg-danger badge-custom">Hard: <%= questions.filter(q => q.level === 'hard').length %></span>
+                                <button type="button" class="btn btn-primary btn-sm select-all-category-btn" data-category="<%= category %>">Toggle All</button>
+                            </div>
+                        </div>
+                        
+                        <div class="questions-grid">
+                            <% questions.forEach(question => { %>
+                                <div class="question-card" data-difficulty="<%= question.level %>" data-category="<%= category %>">
+                                    <div class="question-header">
+                                        <input class="form-check-input question-checkbox" type="checkbox" name="selectedQuestions" value="<%= question._id %>" id="question_<%= question._id %>">
+                                        <h4 class="question-title"><%= question.questionTile %></h4>
+                                    </div>
+                                    
+                                    <div class="question-meta">
+                                        <span class="difficulty-<%= question.level %>"><%= question.level.charAt(0).toUpperCase() + question.level.slice(1) %></span>
+                                        <span><strong><%= question.maxMarks %></strong> marks</span>
+                                        <span><%= question.testCases.length %> tests</span>
+                                    </div>
+                                    
+                                    <div class="question-description">
+                                        <%= question.questiontext.substring(0, 120) %><%= question.questiontext.length > 120 ? '...' : '' %>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-outline-primary btn-sm preview-btn" data-bs-toggle="modal" data-bs-target="#previewModal" data-question-id="<%= question._id %>">
+                                        Preview
+                                    </button>
+                                </div>
+                            <% }); %>
+                        </div>
                     </div>
-                </div>
-            <% }); %>
-        </div>
-        
-        <div class="text-center mt-4">
-            <button type="submit" class="submit-btn" id="addSelectedQuestionsBtn">Add Selected Questions</button>
-            <a href="/admin/exam/<%= exam._id %>/questions" class="back-btn ms-3">⬅ Back</a>
-        </div>
-    </form>
+                <% }); %>
+            </div>
+        </form>
+    </div>
+
+    <!-- Submit Area (Sticky Bottom) -->
+    <div class="submit-area">
+        <button type="submit" form="questionSelectionForm" class="btn btn-primary btn-lg" id="addSelectedQuestionsBtn">
+            Add <span id="submitBtnCount">0</span> Selected Questions
+        </button>
+        <a href="/admin/exam/<%= exam._id %>/questions" class="btn btn-secondary btn-lg ms-3">⬅ Back</a>
+    </div>
 </div>
 
 <!-- Question Preview Modal -->
@@ -234,6 +369,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         const requiredCount = parseInt(document.getElementById('requiredCount').textContent);
         const selectedCountEl = document.getElementById('selectedCount');
+        const submitBtnCount = document.getElementById('submitBtnCount');
+        const progressText = document.getElementById('progressText');
         const addSelectedBtn = document.getElementById('addSelectedQuestionsBtn');
         const autoSelectBtn = document.getElementById('autoSelectBtn');
         const autoCompleteBtn = document.getElementById('autoCompleteBtn');
@@ -300,14 +437,14 @@
                 updateQuestionCardStyle(checkbox);
             });
             
-            // Get all visible questions (respect filters)
+            // Get all visible questions from all categories (respect filters)
             const visibleQuestions = Array.from(allQuestionCards)
                 .filter(card => !card.classList.contains('hidden'))
                 .map(card => card.querySelector('.question-checkbox'));
             
             // Only select exactly the required number
             if (visibleQuestions.length >= requiredCount) {
-                // Shuffle array to randomize selection
+                // Shuffle array to randomize selection across all categories
                 const shuffled = visibleQuestions.sort(() => 0.5 - Math.random());
                 
                 // Select exactly the required number
@@ -339,13 +476,13 @@
                 return;
             }
             
-            // Get all visible questions that are not yet selected
+            // Get all visible questions that are not yet selected from all categories
             const visibleUnselectedQuestions = Array.from(document.querySelectorAll('.question-card:not(.hidden) .question-checkbox'))
                 .filter(qCheckbox => !qCheckbox.checked);
             
             // Only select the exact number we need
             if (visibleUnselectedQuestions.length >= remainingToSelect) {
-                // Shuffle array to randomize selection
+                // Shuffle array to randomize selection across categories
                 const shuffled = visibleUnselectedQuestions.sort(() => 0.5 - Math.random());
                 
                 // Select exactly the required number
@@ -400,10 +537,8 @@
                 const questionId = this.getAttribute('data-question-id');
                 currentPreviewQuestionId = questionId;
                 
-                // Here you would normally fetch the question details from the server
-                // For this example, we'll simulate a response with the data we have
                 const questionCard = this.closest('.question-card');
-                const title = questionCard.querySelector('h4').textContent;
+                const title = questionCard.querySelector('.question-title').textContent;
                 
                 // Populate modal with question details
                 document.getElementById('previewModalLabel').textContent = title;
@@ -412,10 +547,10 @@
                     <h4>${title}</h4>
                     <p><strong>Difficulty:</strong> ${questionCard.getAttribute('data-difficulty')}</p>
                     <p><strong>Category:</strong> ${questionCard.getAttribute('data-category')}</p>
-                    <p><strong>Description:</strong> ${questionCard.querySelector('p').textContent.replace('Description: ', '')}</p>
+                    <p><strong>Description:</strong> ${questionCard.querySelector('.question-description').textContent}</p>
                 `;
                 
-                // Update the select button state based on whether this question is already selected
+                // Update the select button state
                 const checkbox = document.getElementById(`question_${questionId}`);
                 const selectBtn = document.getElementById('selectFromPreviewBtn');
                 selectBtn.textContent = checkbox.checked ? 'Unselect Question' : 'Select Question';
@@ -440,6 +575,17 @@
         function updateSelectionCount() {
             const selectedCount = document.querySelectorAll('.question-checkbox:checked').length;
             selectedCountEl.textContent = selectedCount;
+            submitBtnCount.textContent = selectedCount;
+            progressText.textContent = `${selectedCount} of ${requiredCount} questions selected`;
+            
+            // Update submit button state
+            if (selectedCount === 0) {
+                addSelectedBtn.disabled = true;
+                addSelectedBtn.textContent = 'Select Questions First';
+            } else {
+                addSelectedBtn.disabled = false;
+                addSelectedBtn.innerHTML = `Add ${selectedCount} Selected Question${selectedCount !== 1 ? 's' : ''}`;
+            }
         }
         
         function updateQuestionCardStyle(checkbox) {
@@ -495,6 +641,9 @@
         
         // Initial filter application
         applyFilters();
+        
+        // Initial submit button state
+        updateSelectionCount();
     });
 </script>
 
