@@ -13,14 +13,16 @@ const {
   getEvaluationResults,
   getAllEvaluationResults
 } = require('../services/evaluationService');
+
 const EvaluationResult = require('../models/EvaluationResultSchema')
 
 exports.getcontrol = async(req,res)=>{
     if(req.isAuthenticated()){
+
         console.log("authenticated")
         const Userprofile = await User.findById({_id : req.user.id})
 
-        if(Userprofile.usertype == "admin" || Userprofile.usertype == "teacher"){
+        if( Userprofile.usertype == "teacher"){
             const exams = await Exam.find().populate("createdBy", "name");
             res.render('admin', {
                 pic: Userprofile.imageurl,
@@ -50,7 +52,7 @@ exports.logingetcontrol = async(req,res)=>{
 exports.loginpostcontrol = async(req,res)=>{
 
     try {
-        if(req.body.role == "admin" || req.body.role == "teacher" ){
+        if( req.body.role == "teacher" ){
             const user =new User({
                 email : req.body.email,
                 password : req.body.password,
@@ -65,6 +67,26 @@ exports.loginpostcontrol = async(req,res)=>{
                     passport.authenticate('local')(req,res,function(){
                         console.log("sessions loged  in sucessfully")
                         res.redirect('/admin')
+                    })
+                }
+            })       
+
+        }
+                else if( req.body.role == "admin" ){
+            const user =new User({
+                email : req.body.email,
+                password : req.body.password,
+                usertype : req.body.role,
+            })
+           await req.login(user,function(err){
+                if(err){
+                    console.log(err)
+                    res.render("invalid email or password ")
+                }
+                else{
+                    passport.authenticate('local')(req,res,function(){
+                        console.log("sessions loged  in sucessfully")
+                        res.redirect('/supadmin')
                     })
                 }
             })       
@@ -113,10 +135,10 @@ exports.signuppostcontrol = async(req,res)=>{
                }
                console.log("whats happening")
 
-        await  User.register({email : req.body.email,randomurl : randurl ,usertype : req.body.role, Department : req.body.department }, req.body.password,(err,user)=>{
+        await  User.register({email : req.body.email,randomurl : randurl  ,usertype : req.body.role}, req.body.password ,(err,user)=>{
             if(err){   
                 console.log(err)
-                res.render('signup',{errormsg : "email already taken"})
+                res.render('adminsignup',{errormsg : "email already taken"})
             }
             else{
 
@@ -541,20 +563,14 @@ const evalbatchcod =  async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
 // exports.examCandidates = async(req, res) => {
 //     try {
 //         const examId = req.params.examId;
 
-//         // Fetch the exam details
-//         const exam = await Exam.findById(examId);
+//         // Fetch the exam details with populated questions
+//         const exam = await Exam.findById(examId)
+//             .populate('mcqQuestions')
+//             .populate('codingQuestions');
         
 //         if (!exam) {
 //             return res.status(404).render('error', { 
@@ -566,6 +582,17 @@ const evalbatchcod =  async (req, res) => {
 //         // Determine if this exam has MCQ questions, coding questions, or both
 //         const hasMCQ = exam.questionType === 'mcq' || exam.questionType === 'mcq&coding';
 //         const hasCoding = exam.questionType === 'coding' || exam.questionType === 'mcq&coding';
+        
+//         // Calculate maximum possible scores
+//         let maxMCQScore = 0;
+//         if (hasMCQ && exam.mcqQuestions && exam.mcqQuestions.length > 0) {
+//             maxMCQScore = exam.mcqQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
+//         }
+        
+//         let maxCodingScore = 0;
+//         if (hasCoding && exam.codingQuestions && exam.codingQuestions.length > 0) {
+//             maxCodingScore = exam.codingQuestions.reduce((sum, q) => sum + (q.maxMarks || 0), 0);
+//         }
         
 //         // Fetch all submissions related to this exam
 //         const submissions = await Submission.find({ exam: examId })
@@ -591,10 +618,7 @@ const evalbatchcod =  async (req, res) => {
             
 //             // Check which students already have evaluation results
 //             const EvaluationResult = mongoose.models.EvaluationResult || 
-//                 mongoose.model('EvaluationResult', new mongoose.Schema({
-//                     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-//                     examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true }
-//                 }));
+//                 mongoose.model('EvaluationResult', evaluationResultSchema);
             
 //             const existingEvaluations = await EvaluationResult.find({
 //                 examId: examId,
@@ -700,7 +724,6 @@ const evalbatchcod =  async (req, res) => {
                 
 //                 // Get MCQ score using ReportModel
 //                 let mcqScore = 0;
-//                 let maxMCQScore = 0;
 //                 let report = null;
                 
 //                 if (hasMCQ && submission._id) {
@@ -709,7 +732,6 @@ const evalbatchcod =  async (req, res) => {
 //                         report = await ReportModel.getAssessmentReport(submission._id);
 //                         if (report && report.score) {
 //                             mcqScore = report.score.obtained;
-//                             maxMCQScore = report.score.total;
 //                         }
 //                     } catch (error) {
 //                         console.error(`Error getting report for submission ${submission._id}:`, error);
@@ -718,27 +740,26 @@ const evalbatchcod =  async (req, res) => {
                 
 //                 // Get coding evaluation score
 //                 let codingScore = 0;
-//                 let maxCodingScore = 100; // Assuming coding evaluations are out of 100
 //                 let isEvaluated = false;
                 
 //                 if (hasCoding) {
 //                     const evaluation = evaluationMap.get(studentId);
 //                     if (evaluation) {
-//                         codingScore = evaluation.totalScore || evaluation.results?.totalScore || 0;
+//                         // Use totalScore from the evaluation result
+//                         codingScore = evaluation.totalScore || 0;
 //                         isEvaluated = true;
 //                     }
 //                 }
                 
 //                 // Calculate total score
 //                 const totalScore = mcqScore + codingScore;
-//                 const totalPossible = hasMCQ && hasCoding ? maxMCQScore + maxCodingScore : 
-//                                      hasMCQ ? maxMCQScore : maxCodingScore;
+//                 const totalPossible = maxMCQScore + maxCodingScore;
                 
 //                 // Format display score
 //                 let displayScore = '';
 //                 if (hasMCQ && hasCoding) {
 //                     if (isEvaluated) {
-//                         displayScore = `${totalScore}/${totalPossible} (MCQ: ${mcqScore}, Code: ${codingScore})`;
+//                         displayScore = `${totalScore}/${totalPossible} (MCQ: ${mcqScore}/${maxMCQScore}, Code: ${codingScore}/${maxCodingScore})`;
 //                     } else {
 //                         displayScore = `MCQ: ${mcqScore}/${maxMCQScore}, Code: Pending Evaluation`;
 //                     }
@@ -761,6 +782,9 @@ const evalbatchcod =  async (req, res) => {
 //                     mcqScore: mcqScore,
 //                     codingScore: codingScore,
 //                     totalScore: totalScore,
+//                     maxMCQScore: maxMCQScore,
+//                     maxCodingScore: maxCodingScore,
+//                     maxTotalScore: maxCodingScore+maxMCQScore,
 //                     evaluationStatus: hasCoding ? 
 //                         (isEvaluated ? 'Evaluated' : 'Pending Evaluation') : 'N/A',
 //                     submittedAt: submission.submittedAt,
@@ -784,6 +808,9 @@ const evalbatchcod =  async (req, res) => {
 //                     mcqScore: 0,
 //                     codingScore: 0,
 //                     totalScore: 0,
+//                     maxMCQScore: maxMCQScore,
+//                     maxCodingScore: maxCodingScore,
+//                     maxTotalScore: maxMCQScore+maxCodingScore,
 //                     evaluationStatus: 'Not submitted',
 //                     submittedAt: null,
 //                     activityStatus: session.status,
@@ -832,6 +859,11 @@ const evalbatchcod =  async (req, res) => {
 //             candidates: candidates,
 //             hasMCQ: hasMCQ,
 //             hasCoding: hasCoding,
+//             scoreSummary: {
+//                 maxMCQScore: maxMCQScore,
+//                 maxCodingScore: maxCodingScore,
+//                 maxTotalScore: maxMCQScore + maxCodingScore
+//             },
 //             evaluationResults: {
 //                 total: submissions.length,
 //                 evaluated: hasCoding ? submissions.filter(s => 
@@ -852,14 +884,7 @@ const evalbatchcod =  async (req, res) => {
 //     }
 // }
 
-
-
-
-
-
-
-
-
+// Fixed version of examCandidates function
 exports.examCandidates = async(req, res) => {
     try {
         const examId = req.params.examId;
@@ -920,7 +945,7 @@ exports.examCandidates = async(req, res) => {
             const existingEvaluations = await EvaluationResult.find({
                 examId: examId,
                 userId: { $in: submissionUserIds }
-            }).select('userId');
+            }).select('userId totalScore');
             
             // Create a set of user IDs that already have evaluations
             const evaluatedUserIds = new Set(
@@ -1032,6 +1057,22 @@ exports.examCandidates = async(req, res) => {
                         }
                     } catch (error) {
                         console.error(`Error getting report for submission ${submission._id}:`, error);
+                        // Fallback: If ReportModel fails, try to calculate MCQ score manually
+                        if (submission.mcqAnswers && submission.mcqAnswers.length > 0) {
+                            // Calculate MCQ score from submission data
+                            let calculatedMCQScore = 0;
+                            for (const answer of submission.mcqAnswers) {
+                                try {
+                                    const question = await mongoose.model('MCQ').findById(answer.questionId);
+                                    if (question && answer.selectedOption === question.correctAnswer) {
+                                        calculatedMCQScore += question.marks || 0;
+                                    }
+                                } catch (err) {
+                                    console.error('Error calculating MCQ score:', err);
+                                }
+                            }
+                            mcqScore = calculatedMCQScore;
+                        }
                     }
                 }
                 
@@ -1056,9 +1097,9 @@ exports.examCandidates = async(req, res) => {
                 let displayScore = '';
                 if (hasMCQ && hasCoding) {
                     if (isEvaluated) {
-                        displayScore = `${totalScore}/${totalPossible} (MCQ: ${mcqScore}/${maxMCQScore}, Code: ${codingScore}/${maxCodingScore})`;
+                        displayScore = `${totalScore}/${totalPossible}`;
                     } else {
-                        displayScore = `MCQ: ${mcqScore}/${maxMCQScore}, Code: Pending Evaluation`;
+                        displayScore = `${mcqScore}/${maxMCQScore} + Pending`;
                     }
                 } else if (hasMCQ) {
                     displayScore = `${mcqScore}/${maxMCQScore}`;
@@ -1107,7 +1148,7 @@ exports.examCandidates = async(req, res) => {
                     totalScore: 0,
                     maxMCQScore: maxMCQScore,
                     maxCodingScore: maxCodingScore,
-                    maxTotalScore: totalPossible,
+                    maxTotalScore: maxMCQScore + maxCodingScore,
                     evaluationStatus: 'Not submitted',
                     submittedAt: null,
                     activityStatus: session.status,
@@ -1180,5 +1221,9 @@ exports.examCandidates = async(req, res) => {
         });
     }
 }
+
+
+
+
 
 

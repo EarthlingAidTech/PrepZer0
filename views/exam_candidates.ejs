@@ -532,39 +532,43 @@
                                     </td>
                                     
                                     <!-- Score display -->
-                                    <!-- <td>
-                                        <% if (candidate.score === 'In progress') { %>
-                                            <span class="badge badge-info">In progress</span>
-                                        <% } else if (candidate.score === 'N/A' || !candidate.score) { %>
-                                            <span class="badge badge-secondary">N/A</span>
-                                        <% } else { %>
-                                            <span class="badge badge-success">
-                                                <%= candidate.score %>
-                                            </span>
-                                        <% } %>
-                                    </td> -->
+<td>
+    <% if (candidate.score === 'In progress') { %>
+        <span class="badge badge-info">In progress</span>
+    <% } else if (candidate.score === 'N/A' || !candidate.score) { %>
+        <span class="badge badge-secondary">N/A</span>
+    <% } else { %>
+        <strong><%= candidate.score %></strong>
+        <% if (hasMCQ && hasCoding) { %>
+            <div class="score-breakdown">
+                MCQ: <%= candidate.mcqScore %>/<%= candidate.maxMCQScore %> | 
+                Coding: <%= candidate.codingScore %>/<%= candidate.maxCodingScore %>
+            </div>
+        <% } %>
+    <% } %>
+</td>
                                     
                                     <!-- MCQ and Coding score breakdown for combined exams -->
-                                    <% if (hasMCQ && hasCoding) { %>
-                                        <td>
-                                            <% if (candidate.hasSubmitted && candidate.mcqScore !== undefined) { %>
-                                                <span class="badge badge-info"><%= candidate.mcqScore %></span>
-                                            <% } else { %>
-                                                <span class="badge badge-secondary">N/A</span>
-                                            <% } %>
-                                        </td>
-                                        <td>
-                                            <% if (candidate.hasSubmitted && candidate.codingScore !== undefined) { %>
-                                                <% if (candidate.evaluationStatus === 'Evaluated') { %>
-                                                    <span class="badge badge-success"><%= candidate.codingScore %></span>
-                                                <% } else { %>
-                                                    <span class="badge badge-warning">Pending</span>
-                                                <% } %>
-                                            <% } else { %>
-                                                <span class="badge badge-secondary">N/A</span>
-                                            <% } %>
-                                        </td>
-                                    <% } %>
+<% if (hasMCQ && hasCoding) { %>
+    <td>
+        <% if (candidate.hasSubmitted) { %>
+            <span class="badge badge-info"><%= candidate.mcqScore %>/<%= candidate.maxMCQScore %></span>
+        <% } else { %>
+            <span class="badge badge-secondary">-/-</span>
+        <% } %>
+    </td>
+    <td>
+        <% if (candidate.hasSubmitted) { %>
+            <% if (candidate.evaluationStatus === 'Evaluated') { %>
+                <span class="badge badge-success"><%= candidate.codingScore %>/<%= candidate.maxCodingScore %></span>
+            <% } else { %>
+                <span class="badge badge-warning">Pending</span>
+            <% } %>
+        <% } else { %>
+            <span class="badge badge-secondary">-/-</span>
+        <% } %>
+    </td>
+<% } %>
                                     
                                     <!-- Evaluation status for coding exams -->
                                     <% if (hasCoding) { %>

@@ -105,6 +105,9 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, async (email, passwor
       if (user.usertype === 'teacher' && !user.active) {
           return done(null, false, { message: 'Please verify your email before logging in' });
       }
+      if (user.usertype === 'admin' && !user.admin_access) {
+          return done(null, false, { message: 'login access not allowwed' });
+      }
 
       
       // Check if user is allowed to access the platform
@@ -151,6 +154,8 @@ const admin = require('./routes/admin')
 const authenticateing = require('./routes/authenticate')
 const profile = require('./routes/profile')
 const userauth = require('./routes/userauth')
+const supadmin = require('./routes/supadmin')
+
 app.get('/logout', (req, res, next) => {
   // Clear both the session and authentication
   req.logout((err) => {
@@ -239,6 +244,7 @@ app.post('/save-image', upload.single('image'), async (req, res) => {
 });
 
 app.use('/',home )
+app.use('/supadmin', supadmin)
 app.use('/dashboard',dashboard)
 app.use('/admin' ,admin)
 app.use('/authenticate',authenticateing)

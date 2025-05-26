@@ -1377,12 +1377,93 @@ public class Main {
  * @param {Object} results - The evaluation results
  * @returns {Object} The stored evaluation result document
  */
+// async function storeEvaluationResults(userId, examId, results) {
+//   try {
+//     // Check connection state
+//     if (mongoose.connection.readyState !== 1) {
+//       console.warn('MongoDB connection is not ready. Attempting to reconnect...');
+//       // You might want to implement reconnection logic here if needed
+//     }
+    
+//     const submission = await Submission.findOne({ student: userId, exam: examId });
+    
+//     if (!submission) {
+//       throw new Error('Submission not found');
+//     }
+    
+//     // Get the exam type to determine how to handle scores
+//     const exam = await Exam.findById(examId);
+//     const examType = exam.questionType;
+//     debugLog(`Exam type: ${examType}, current submission score: ${submission.score}`);
+    
+//     // Calculate the total score based on exam type
+//     let updatedScore;
+//     if (examType === 'mcq&coding') {
+//       // For combined exams, add coding score to the existing score (which should be MCQ score)
+//       const mcqScore = submission.score || 0; // Using a new field or calculating it
+//       updatedScore = mcqScore + results.totalScore;
+//     } else {
+//       // For pure coding exams, just use the coding score
+//       updatedScore = results.totalScore;
+//     }
+    
+//     debugLog(`Updating submission score: ${updatedScore} (coding: ${results.totalScore})`);
+    
+//     // Update the submission with the combined score
+//     await Submission.findOneAndUpdate(
+//       { student: userId, exam: examId },
+//       { 
+//         score: updatedScore,
+//         codingScore: results.totalScore // Save coding score separately (requires schema update)
+//       }
+//     );
+    
+//     // First, try to find an existing evaluation result
+//     let evaluationResult = await EvaluationResult.findOne({ userId, examId });
+    
+//     if (evaluationResult) {
+//       // Update existing result
+//       evaluationResult.totalScore = results.totalScore;
+//       evaluationResult.maxPossibleScore = results.maxPossibleScore;
+//       evaluationResult.percentage = results.percentage;
+//       evaluationResult.questions = results.questions;
+//       evaluationResult.summary = results.summary;
+//       evaluationResult.evaluatedAt = new Date();
+//       evaluationResult.updatedAt = new Date();
+      
+//       await evaluationResult.save();
+//       console.log(`Updated evaluation result for user ${userId} in exam ${examId}`);
+//     } else {
+//       // Create new result
+//       evaluationResult = new EvaluationResult({
+//         userId,
+//         examId,
+//         studentName: results.studentName,
+//         usn: results.usn,
+//         totalScore: results.totalScore,
+//         maxPossibleScore: results.maxPossibleScore,
+//         percentage: results.percentage,
+//         submittedAt: results.submittedAt,
+//         evaluatedAt: results.evaluatedAt,
+//         questions: results.questions,
+//         summary: results.summary
+//       });
+      
+//       await evaluationResult.save();
+//       console.log(`Created new evaluation result for user ${userId} in exam ${examId}`);
+//     }
+    
+//     return evaluationResult;
+//   } catch (error) {
+//     console.error('Failed to store evaluation results:', error);
+//     throw new Error(`Database error: ${error.message}`);
+//   }
+// }
 async function storeEvaluationResults(userId, examId, results) {
   try {
     // Check connection state
     if (mongoose.connection.readyState !== 1) {
       console.warn('MongoDB connection is not ready. Attempting to reconnect...');
-      // You might want to implement reconnection logic here if needed
     }
     
     const submission = await Submission.findOne({ student: userId, exam: examId });
@@ -1391,36 +1472,69 @@ async function storeEvaluationResults(userId, examId, results) {
       throw new Error('Submission not found');
     }
     
-    // Get the exam type to determine how to handle scores
-    const exam = await Exam.findById(examId);
+    // Get the exam to determine type and calculate MCQ score
+    const exam = await Exam.findById(examId).populate('mcqQuestions');
     const examType = exam.questionType;
     debugLog(`Exam type: ${examType}, current submission score: ${submission.score}`);
+    
+    // Calculate MCQ score if it's a combined exam
+    let mcqScore = 0;
+    if (examType === 'mcq&coding' || examType === 'mcq') {
+      // Try to get MCQ score from ReportModel first
+      try {
+        const report = await ReportModel.getAssessmentReport(submission._id);
+        if (report && report.score) {
+          mcqScore = report.score.obtained;
+        }
+      } catch (error) {
+        console.error('Error getting MCQ score from ReportModel:', error);
+        
+        // Fallback: Calculate MCQ score manually
+        if (submission.mcqAnswers && submission.mcqAnswers.length > 0) {
+          for (const answer of submission.mcqAnswers) {
+            try {
+              const question = await mongoose.model('MCQ').findById(answer.questionId);
+              if (question && answer.selectedOption === question.correctAnswer) {
+                mcqScore += question.marks || 0;
+              }
+            } catch (err) {
+              console.error('Error calculating MCQ score:', err);
+            }
+          }
+        }
+      }
+    }
     
     // Calculate the total score based on exam type
     let updatedScore;
     if (examType === 'mcq&coding') {
-      // For combined exams, add coding score to the existing score (which should be MCQ score)
-      const mcqScore = submission.score || 0; // Using a new field or calculating it
+      // For combined exams, total = MCQ score + coding score
       updatedScore = mcqScore + results.totalScore;
-    } else {
+    } else if (examType === 'coding') {
       // For pure coding exams, just use the coding score
+      updatedScore = results.totalScore;
+    } else if (examType === 'mcq') {
+      // For pure MCQ exams, just use the MCQ score
+      updatedScore = mcqScore;
+    } else {
       updatedScore = results.totalScore;
     }
     
-    debugLog(`Updating submission score: ${updatedScore} (coding: ${results.totalScore})`);
+    debugLog(`Updating submission score: ${updatedScore} (MCQ: ${mcqScore}, Coding: ${results.totalScore})`);
     
-    // Update the submission with the combined score
+    // Update the submission with the total score and individual scores
     await Submission.findOneAndUpdate(
       { student: userId, exam: examId },
       { 
         score: updatedScore,
-        codingScore: results.totalScore // Save coding score separately (requires schema update)
+        codingScore: results.totalScore, // Save coding score separately
+        mcqScore: mcqScore // Save MCQ score separately (you may need to add this field to schema)
       }
     );
     
     // First, try to find an existing evaluation result
     let evaluationResult = await EvaluationResult.findOne({ userId, examId });
-    
+
     if (evaluationResult) {
       // Update existing result
       evaluationResult.totalScore = results.totalScore;
@@ -1459,6 +1573,8 @@ async function storeEvaluationResults(userId, examId, results) {
     throw new Error(`Database error: ${error.message}`);
   }
 }
+
+
 
 /**
  * Batch evaluation function that processes submissions for multiple students
@@ -1574,7 +1690,7 @@ async function getEvaluationResults(userId, examId) {
   try {
     const result = await EvaluationResult.findOne({ userId, examId })
       .populate('examId', 'name scheduledAt duration')
-      .populate('userId', 'fname lname USN');
+      .populate('userId', 'fname  USN');
       
     if (!result) {
       throw new Error('No evaluation results found');
