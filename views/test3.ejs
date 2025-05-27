@@ -2252,7 +2252,7 @@ const examIntegrity = (function() {
 
     <script>
     // Judge0 API base URL
-const JUDGE0_API_URL = 'https://1594-14-97-164-222.ngrok-free.app /submissions';
+const JUDGE0_API_URL = 'https://b86c-119-226-236-129.ngrok-free.app/submissions';
     
     // Store the exam data in localStorage when the page loads
     window.addEventListener('DOMContentLoaded', () => {
@@ -3282,53 +3282,65 @@ function loadQuestion(index) {
         editorSection.appendChild(editorTitle);
         
         // Language selector
-        const languageSelector = document.createElement('div');
-        languageSelector.classList.add('language-selector');
-        
-        const languageLabel = document.createElement('label');
-        languageLabel.htmlFor = `language-select-${question._id}`;
-        languageLabel.textContent = 'Select Language:';
-        languageSelector.appendChild(languageLabel);
-        
-        const languageSelect = document.createElement('select');
-        languageSelect.id = `language-select-${question._id}`;
-        languageSelect.classList.add('language-select');
-        
-        const languages = [
-            { id: '71', name: 'Python (3.10.0)' },
-            { id: '62', name: 'Java (OpenJDK 17)' },
-            { id: '54', name: 'C++ (GCC 11.2.0)' },
-            { id: '63', name: 'JavaScript (Node.js 16.13.0)' },
-            { id: '51', name: 'C# (Mono 6.12.0)' },
-            { id: '50', name: 'C (GCC 11.2.0)' }
-        ];
-        
-        languages.forEach(lang => {
-            const option = document.createElement('option');
-            option.value = lang.id;
-            option.textContent = lang.name;
-            if (lang.id === '71') { // Default to Python
-                option.selected = true;
-            }
-            languageSelect.appendChild(option);
-        });
-        
-        languageSelector.appendChild(languageSelect);
-        editorSection.appendChild(languageSelector);
-        
-        // Code editor
-        const codeEditorContainer = document.createElement('div');
-        codeEditorContainer.classList.add('code-editor');
-        
-        const codeTextarea = document.createElement('textarea');
-        codeTextarea.id = `codeEditor-${question._id}`;
-        codeTextarea.classList.add('code-textarea');
-        codeTextarea.spellcheck = false;
-        codeTextarea.value = getSavedCodingAnswer(question._id) || getStarterCode(question, "71");
-        
-        codeEditorContainer.appendChild(codeTextarea);
-        editorSection.appendChild(codeEditorContainer);
-        
+   const languageSelector = document.createElement('div');
+    languageSelector.classList.add('language-selector');
+    
+    const languageLabel = document.createElement('label');
+    languageLabel.htmlFor = `language-select-${question._id}`;
+    languageLabel.textContent = 'Select Language:';
+    languageSelector.appendChild(languageLabel);
+    
+    const languageSelect = document.createElement('select');
+    languageSelect.id = `language-select-${question._id}`;
+    languageSelect.classList.add('language-select');
+    
+    const languages = [
+        { id: '71', name: 'Python (3.10.0)' },
+        { id: '62', name: 'Java (OpenJDK 17)' },
+        { id: '54', name: 'C++ (GCC 11.2.0)' },
+        { id: '63', name: 'JavaScript (Node.js 16.13.0)' },
+        { id: '51', name: 'C# (Mono 6.12.0)' },
+        { id: '50', name: 'C (GCC 11.2.0)' }
+    ];
+    
+    // Get the previously selected language for this question
+    const selectedLanguageId = getSelectedLanguageForQuestion(question._id);
+    
+    languages.forEach(lang => {
+        const option = document.createElement('option');
+        option.value = lang.id;
+        option.textContent = lang.name;
+        if (lang.id === selectedLanguageId) {
+            option.selected = true;
+        }
+        languageSelect.appendChild(option);
+    });
+    
+    // Set the previous language tracker
+    languageSelect.dataset.previousLanguage = selectedLanguageId;
+    
+    languageSelector.appendChild(languageSelect);
+    editorSection.appendChild(languageSelector);
+    
+    // Code editor with proper initialization
+    const codeEditorContainer = document.createElement('div');
+    codeEditorContainer.classList.add('code-editor');
+    
+    const codeTextarea = document.createElement('textarea');
+    codeTextarea.id = `codeEditor-${question._id}`;
+    codeTextarea.classList.add('code-textarea');
+    codeTextarea.spellcheck = false;
+    
+    // Load saved code for the selected language or use starter code
+    const savedCode = getCodeForLanguage(question._id, selectedLanguageId);
+    if (savedCode && savedCode.trim() !== '') {
+        codeTextarea.value = savedCode;
+    } else {
+        codeTextarea.value = getStarterCode(question, selectedLanguageId);
+    }
+    
+    codeEditorContainer.appendChild(codeTextarea);
+    editorSection.appendChild(codeEditorContainer);
         // Editor buttons
            const editorButtons = document.createElement('div');
     editorButtons.classList.add('editor-buttons');
@@ -3444,19 +3456,65 @@ function loadQuestion(index) {
         
         // Add event listener for language selection to update the starter code
         const langSelect = document.getElementById(`language-select-${question._id}`);
-        langSelect.addEventListener('change', () => {
-            const selectedLanguage = langSelect.value;
-            const codeEditor = document.getElementById(`codeEditor-${question._id}`);
-            const currentCode = codeEditor.value;
-            
-            // Check if current code is any starter code
-            if (isStarterCode(currentCode, question, selectedLanguage)) {
-                codeEditor.value = getStarterCode(question, selectedLanguage);
-                saveCodingAnswer(question._id, codeEditor.value);
-            }
-        });
-    }
+    languageSelect.addEventListener('change', () => {
+        const selectedLanguage = languageSelect.value;
+        const codeEditor = document.getElementById(`codeEditor-${question._id}`);
+        const currentCode = codeEditor.value;
+        
+        // Save current code for the previously selected language
+        const previousLanguage = languageSelect.dataset.previousLanguage || '71';
+        saveCodeForLanguage(question._id, previousLanguage, currentCode);
+        
+        // Load code for the newly selected language
+        const savedCodeForNewLang = getCodeForLanguage(question._id, selectedLanguage);
+        
+        if (savedCodeForNewLang && savedCodeForNewLang.trim() !== '') {
+            // Use saved code if it exists and is not empty
+            codeEditor.value = savedCodeForNewLang;
+        } else {
+            // Use starter code for the new language
+            codeEditor.value = getStarterCode(question, selectedLanguage);
+        }
+        
+        // Update the previous language tracker
+        languageSelect.dataset.previousLanguage = selectedLanguage;
+        
+        // Save the new code and language selection
+        saveCodeForLanguage(question._id, selectedLanguage, codeEditor.value);
+    });}
 
+
+function saveCodeForLanguage(questionId, languageId, code) {
+    const answers = JSON.parse(localStorage.getItem('examAnswers')) || { mcq: {}, coding: {} };
+    
+    if (!answers.codingByLanguage) {
+        answers.codingByLanguage = {};
+    }
+    
+    if (!answers.codingByLanguage[questionId]) {
+        answers.codingByLanguage[questionId] = {};
+    }
+    
+    // Save code for specific language
+    answers.codingByLanguage[questionId][languageId] = code;
+    
+    // Also save the currently selected language
+    answers.codingByLanguage[questionId].selectedLanguage = languageId;
+    
+    localStorage.setItem('examAnswers', JSON.stringify(answers));
+}
+function getCodeForLanguage(questionId, languageId) {
+    const answers = JSON.parse(localStorage.getItem('examAnswers'));
+    
+    if (answers && 
+        answers.codingByLanguage && 
+        answers.codingByLanguage[questionId] && 
+        answers.codingByLanguage[questionId][languageId]) {
+        return answers.codingByLanguage[questionId][languageId];
+    }
+    
+    return null;
+}
     // Function to set up code editor
     function setupCodeEditor(questionId) {
         const codeEditor = document.getElementById(`codeEditor-${questionId}`);
@@ -3728,7 +3786,19 @@ function loadQuestion(index) {
     //     // Check for unanswered questions
     //     checkUnansweredQuestions();
     // }
-function setupQuestionNavigation() {
+function getSelectedLanguageForQuestion(questionId) {
+    const answers = JSON.parse(localStorage.getItem('examAnswers'));
+    
+    if (answers && 
+        answers.codingByLanguage && 
+        answers.codingByLanguage[questionId] && 
+        answers.codingByLanguage[questionId].selectedLanguage) {
+        return answers.codingByLanguage[questionId].selectedLanguage;
+    }
+    
+    return '71'; // Default to Python
+}
+    function setupQuestionNavigation() {
     const examData = JSON.parse(localStorage.getItem('currentExam'));
     const navigationContainer = document.getElementById('questionNavigation');
     
@@ -3929,19 +3999,21 @@ function updateQuestionNavigation(currentIndex) {
         }
         
         // Process coding answers
-        if (answers.coding && Object.keys(answers.coding).length > 0) {
-            for (const questionId in answers.coding) {
-                // Get the selected language for each coding question
-                const languageSelect = document.getElementById(`language-select-${questionId}`);
-                const languageId = languageSelect ? parseInt(languageSelect.value) : 71; // Default to Python (71) if not found
-                
+          if (answers.codingByLanguage && Object.keys(answers.codingByLanguage).length > 0) {
+        for (const questionId in answers.codingByLanguage) {
+            const questionData = answers.codingByLanguage[questionId];
+            const selectedLanguage = questionData.selectedLanguage || '71';
+            const codeForSelectedLanguage = questionData[selectedLanguage];
+            
+            if (codeForSelectedLanguage && codeForSelectedLanguage.trim() !== '') {
                 submissionData.codingAnswers.push({
                     questionId: questionId,
-                    code: answers.coding[questionId],
-                    language: languageId
+                    code: codeForSelectedLanguage,
+                    language: parseInt(selectedLanguage)
                 });
             }
         }
+    }
            const userId = document.getElementById('user').textContent;
     const examId = document.getElementById('exam').textContent;
             const integrity = examIntegrity.init({
@@ -4079,14 +4151,14 @@ function updateQuestionNavigation(currentIndex) {
     }
 
     // Helper function to clear exam data
-    function clearExamData() {
-        localStorage.removeItem('currentExam');
-        localStorage.removeItem('mcqQuestions');
-        localStorage.removeItem('codingQuestions');
-        localStorage.removeItem('currentQuestionIndex');
-        localStorage.removeItem('examEndTime');
-        localStorage.removeItem('examAnswers');
-    }
+function clearExamData() {
+    localStorage.removeItem('currentExam');
+    localStorage.removeItem('mcqQuestions');
+    localStorage.removeItem('codingQuestions');
+    localStorage.removeItem('currentQuestionIndex');
+    localStorage.removeItem('examEndTime');
+    localStorage.removeItem('examAnswers');
+}
 
     // Function to confirm submission
     function confirmSubmitExam() {

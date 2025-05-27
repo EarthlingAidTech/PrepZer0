@@ -7,7 +7,7 @@ const User = require('../models/usermodel');
 const EvaluationResult = require('../models/EvaluationResultSchema');
 
 // Config for Judge0 API - make sure this URL is correct
-const JUDGE0_API = process.env.JUDGE0_API || 'https://1594-14-97-164-222.ngrok-free.app/';
+const JUDGE0_API = process.env.JUDGE0_API || 'https://b86c-119-226-236-129.ngrok-free.app/';
 
 // Enable debugging mode
 const DEBUG = true;

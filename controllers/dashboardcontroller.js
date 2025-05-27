@@ -129,7 +129,7 @@ exports.getStartExam = async(req,res)=>{
 exports.postStartExam = async (req, res) => {
   try {
     const { exam: examId, mcqAnswers, codingAnswers } = req.body;
-    console.log(examId)
+    console.log(codingAnswers)
       const studentId = req.user._id;
     console.log(studentId)
     // Validate exam ID
