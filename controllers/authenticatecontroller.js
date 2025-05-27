@@ -3,87 +3,80 @@ const User = require('./../models/usermodel')
 const passport =  require('passport')
 const { random } = require('lodash')
 const { v4: uuidv4 } = require('uuid');
-exports.getlogincontrol = (req,res)=>{
+exports.getlogincontrol = (req, res) => {
     try {
-        if(req.isAuthenticated()){
-            res.redirect('/')
-        }else{
-            res.render('login' , {errormsg : "", isStudentPage: true})
+        if (req.isAuthenticated()) {
+            return res.redirect('/');
         }
-    } catch (error) {
-        console.log(error)
-    }   
- }
- exports.logincontrol = async (req,res,next)=>{
-     
-    try {
-        const user =new User({
-            email: req.body.email, 
-            password: req.body.password
-        })
-        const test = User.findOne({})
-
-       await req.login(user,function(err){
-            if(err){
-                console.log(err)
-                res.render("invalid email or password ")
-            }
-            else{
-                passport.authenticate('local')(req,res,function(){
-                    res.redirect('/')
-                })
-            }
-        })
-    }catch(error){
-        console.log(error)
-        res.redirect('/')
-    }
-     
-}
-exports.logincontrol = async (req, res, next) => {
-  console.log('Login attempt for:', req.body.email);
-  
-  passport.authenticate('local', (err, user, info) => {
-    if (err) {
-      console.error('Authentication error:', err);
-      return res.status(500).render('login', { 
-        errormsg: "An error occurred during login. Please try again.", 
-        isStudentPage: true 
-      });
-    }
-    
-    if (!user) {
-      console.log('Authentication failed:', info?.message || 'Invalid credentials');
-      return res.render('login', { 
-        errormsg: info?.message || "Invalid email or password", 
-        isStudentPage: true 
-      });
-    }
-    
-    // Successful authentication, now log in
-    req.login(user, (loginErr) => {
-      if (loginErr) {
-        console.error('Login error after authentication:', loginErr);
-        return res.status(500).render('login', { 
-          errormsg: "Error during login. Please try again.", 
-          isStudentPage: true 
+        res.render('login', { 
+            errormsg: "", 
+            isStudentPage: true 
         });
-      }
-      
-      // Set important session data
-      req.session.userId = user._id;
-      req.session.userEmail = user.email;
-      
-      // Save the session before redirecting
-      req.session.save((saveErr) => {
-        if (saveErr) {
-          console.error('Session save error:', saveErr);
+    } catch (error) {
+        console.error('Error in getlogincontrol:', error);
+        res.status(500).render('login', { 
+            errormsg: "An error occurred. Please try again.", 
+            isStudentPage: true 
+        });
+    }   
+};
+exports.logincontrol = async (req, res, next) => {
+    console.log('Login attempt for:', req.body.email);
+    
+    // Input validation
+    if (!req.body.email || !req.body.password) {
+        return res.render('login', { 
+            errormsg: "Please provide both email and password", 
+            isStudentPage: true 
+        });
+    }
+    
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error('Authentication error:', err);
+            return res.status(500).render('login', { 
+                errormsg: "An error occurred during login. Please try again.", 
+                isStudentPage: true 
+            });
         }
-        console.log('Login successful for:', user.email);
-        return res.redirect('/');
-      });
-    });
-  })(req, res, next);
+        
+        if (!user) {
+            console.log('Authentication failed for:', req.body.email, 'Reason:', info?.message);
+            return res.render('login', { 
+                errormsg: "Invalid email or password", 
+                isStudentPage: true 
+            });
+        }
+        
+        // Successful authentication, now log in the user
+        req.login(user, (loginErr) => {
+            if (loginErr) {
+                console.error('Login error after authentication:', loginErr);
+                return res.status(500).render('login', { 
+                    errormsg: "Error during login. Please try again.", 
+                    isStudentPage: true 
+                });
+            }
+            
+            // Set session data
+            req.session.userId = user._id;
+            req.session.userEmail = user.email;
+            
+            // Save session and redirect
+            req.session.save((saveErr) => {
+                if (saveErr) {
+                    console.error('Session save error:', saveErr);
+                    return res.status(500).render('login', { 
+                        errormsg: "Session error. Please try logging in again.", 
+                        isStudentPage: true 
+                    });
+                }
+                
+                console.log('Login successful for:', user.email);
+                return res.redirect('/');
+            });
+        });
+    })(req, res, next);
 };
 
  exports.getsignupcontrol = (req,res)=>{

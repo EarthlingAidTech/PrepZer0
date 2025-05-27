@@ -804,7 +804,254 @@
 
 
 
+<script>
+    // Camera Permission Check Module
+const cameraPermissionManager = (function() {
+    let hasPermission = false;
+    let checkingPermission = false;
 
+    /**
+     * Check camera permission status
+     */
+    async function checkCameraPermission() {
+        if (checkingPermission) return hasPermission;
+        checkingPermission = true;
+
+        try {
+            // Check if media devices API is supported
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showPermissionMessage("Your browser doesn't support camera access. Please use a modern browser.", 'error');
+                disableStartButton();
+                checkingPermission = false;
+                return false;
+            }
+
+            // Try to get camera permission
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 320 },
+                    height: { ideal: 240 },
+                    facingMode: "user"
+                } 
+            });
+            
+            // If we get here, permission was granted
+            hasPermission = true;
+            
+            // Stop the stream immediately as we just needed to check permission
+            stream.getTracks().forEach(track => track.stop());
+            
+            hidePermissionMessage();
+            enableStartButton();
+            checkingPermission = false;
+            return true;
+            
+        } catch (error) {
+            console.error("Camera permission error:", error);
+            hasPermission = false;
+            
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                showPermissionMessage("Camera access denied. Please click 'Allow Camera Access' to enable the exam.", 'warning');
+            } else if (error.name === 'NotFoundError') {
+                showPermissionMessage("No camera found. Please connect a camera to start the exam.", 'error');
+            } else {
+                showPermissionMessage("Unable to access camera. Please check your camera settings and try again.", 'error');
+            }
+            
+            disableStartButton();
+            checkingPermission = false;
+            return false;
+        }
+    }
+
+    /**
+     * Show permission message
+     */
+    function showPermissionMessage(message, type = 'warning') {
+        // Remove existing message if any
+        hidePermissionMessage();
+        
+        const messageContainer = document.createElement('div');
+        messageContainer.id = 'cameraPermissionMessage';
+        messageContainer.style.cssText = `
+            background-color: ${type === 'error' ? '#f8d7da' : '#fff3cd'};
+            color: ${type === 'error' ? '#721c24' : '#856404'};
+            border: 1px solid ${type === 'error' ? '#f5c6cb' : '#ffeaa7'};
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        `;
+        
+        messageContainer.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'camera'}" style="font-size: 1.2em;"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Find a good place to insert the message (before the start button or in main container)
+        const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
+        if (startButton && startButton.parentNode) {
+            startButton.parentNode.insertBefore(messageContainer, startButton);
+        } else {
+            const mainContainer = document.querySelector('.main-container') || document.body;
+            mainContainer.insertBefore(messageContainer, mainContainer.firstChild);
+        }
+    }
+
+    /**
+     * Hide permission message
+     */
+    function hidePermissionMessage() {
+        const existingMessage = document.getElementById('cameraPermissionMessage');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+    }
+
+    /**
+     * Disable start exam button
+     */
+    function disableStartButton() {
+        const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
+        if (startButton) {
+            startButton.disabled = true;
+            startButton.style.opacity = '0.5';
+            startButton.style.cursor = 'not-allowed';
+            startButton.title = 'Camera access required to start exam';
+            
+            // Change button text to indicate camera is needed
+            const originalText = startButton.textContent;
+            if (!originalText.includes('Camera')) {
+                startButton.setAttribute('data-original-text', originalText);
+                startButton.innerHTML = '<i class="fas fa-camera"></i> Allow Camera Access First';
+            }
+        }
+    }
+
+    /**
+     * Enable start exam button
+     */
+    function enableStartButton() {
+        const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
+        if (startButton) {
+            startButton.disabled = false;
+            startButton.style.opacity = '1';
+            startButton.style.cursor = 'pointer';
+            startButton.title = '';
+            
+            // Restore original button text
+            const originalText = startButton.getAttribute('data-original-text');
+            if (originalText) {
+                startButton.innerHTML = originalText;
+                startButton.removeAttribute('data-original-text');
+            }
+        }
+    }
+
+    /**
+     * Add camera permission button
+     */
+    function addCameraPermissionButton() {
+        if (document.getElementById('cameraPermissionBtn')) return;
+        
+        const permissionBtn = document.createElement('button');
+        permissionBtn.id = 'cameraPermissionBtn';
+        permissionBtn.className = 'btn btn-primary';
+        permissionBtn.style.cssText = `
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        `;
+        
+        permissionBtn.innerHTML = '<i class="fas fa-camera"></i> Allow Camera Access';
+        
+        permissionBtn.onclick = async function() {
+            permissionBtn.disabled = true;
+            permissionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Camera...';
+            
+            const granted = await checkCameraPermission();
+            
+            if (granted) {
+                permissionBtn.remove();
+            } else {
+                permissionBtn.disabled = false;
+                permissionBtn.innerHTML = '<i class="fas fa-camera"></i> Allow Camera Access';
+            }
+        };
+        
+        // Add button near the permission message or start button
+        const messageContainer = document.getElementById('cameraPermissionMessage');
+        if (messageContainer) {
+            messageContainer.appendChild(permissionBtn);
+        } else {
+            const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
+            if (startButton && startButton.parentNode) {
+                startButton.parentNode.insertBefore(permissionBtn, startButton);
+            }
+        }
+    }
+
+    /**
+     * Initialize camera permission check
+     */
+    function init() {
+        // Initial permission check
+        checkCameraPermission().then(granted => {
+            if (!granted) {
+                addCameraPermissionButton();
+            }
+        });
+        
+        // Also check when the page gains focus (handles tab switching issues)
+        window.addEventListener('focus', () => {
+            if (!hasPermission) {
+                setTimeout(() => checkCameraPermission(), 500);
+            }
+        });
+    }
+
+    /**
+     * Force recheck permission (useful for manual triggers)
+     */
+    function recheckPermission() {
+        hasPermission = false;
+        return checkCameraPermission();
+    }
+
+    // Public API
+    return {
+        init,
+        checkCameraPermission,
+        recheckPermission,
+        hasPermission: () => hasPermission
+    };
+})();
+
+// Initialize camera permission check when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    cameraPermissionManager.init();
+});
+
+// Also initialize if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', cameraPermissionManager.init);
+} else {
+    cameraPermissionManager.init();
+}
+</script>
 
 
 
