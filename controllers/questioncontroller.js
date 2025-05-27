@@ -335,7 +335,7 @@ exports.postcoding_from_db = async (req, res) => {
                     constraits: dbQuestion.constraits,
                     inputFormat: dbQuestion.inputFormat,
                     outputFormat: dbQuestion.outputFormat,
-                    solutionTemplate: dbQuestion.solutionTemplate,
+                    
                     maxMarks: dbQuestion.maxMarks,
                     testCases: dbQuestion.testCases,
                     level: dbQuestion.level,
@@ -389,7 +389,7 @@ exports.postaddcodingQuestion = async (req, res) => {
             constraits, 
             inputFormat, 
             outputFormat, 
-            solutionTemplate, 
+             
             maxMarks, 
             level, 
             classification, 
@@ -485,7 +485,6 @@ exports.postaddcodingQuestion = async (req, res) => {
             constraits,
             inputFormat,
             outputFormat,
-            solutionTemplate,
             maxMarks: parseInt(maxMarks),
             testCases,
             level,
@@ -519,7 +518,6 @@ exports.postaddcodingQuestion = async (req, res) => {
                     constraits,
                     inputFormat,
                     outputFormat,
-                    solutionTemplate,
                     maxMarks: parseInt(maxMarks),
                     testCases,
                     level,
@@ -561,7 +559,7 @@ exports.postaddcodingQuestion = async (req, res) => {
 // exports.postaddcodingQuestion = async (req, res) => {
    
 //     try {
-//         const { questionTile, questiontext, constraits, inputFormat, outputFormat, solutionTemplate, maxMarks, level, classification, testCases, starterCode } = req.body;
+//         const { questionTile, questiontext, constraits, inputFormat, outputFormat,  maxMarks, level, classification, testCases, starterCode } = req.body;
 //         console.log(req.body);
 
 //         // Create and save the new coding question
@@ -571,7 +569,7 @@ exports.postaddcodingQuestion = async (req, res) => {
 //             constraits,
 //             inputFormat,
 //             outputFormat,
-//             solutionTemplate,
+//             
 //             maxMarks,
 //             testCases,
 //             level,
@@ -603,7 +601,7 @@ exports.postaddcodingQuestion = async (req, res) => {
 //                     constraits,
 //                     inputFormat,
 //                     outputFormat,
-//                     solutionTemplate,
+//                     
 //                     maxMarks,
 //                     testCases,
 //                     level,
