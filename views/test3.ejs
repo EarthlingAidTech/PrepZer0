@@ -768,65 +768,52 @@
             </div>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script>
-    // Camera Permission Check Module
-const cameraPermissionManager = (function() {
-    let hasPermission = false;
-    let checkingPermission = false;
 
     /**
-     * Check camera permission status
+ * Camera Permission Handler for Exam Portal
+ * 
+ * This script handles camera permission checking and requesting
+ * before allowing users to start the exam.
+ */
+
+const CameraPermissionHandler = (function() {
+    let cameraStream = null;
+    let permissionGranted = false;
+    
+    /**
+     * Check if camera permissions are granted
      */
     async function checkCameraPermission() {
-        if (checkingPermission) return hasPermission;
-        checkingPermission = true;
-
         try {
-            // Check if media devices API is supported
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showPermissionMessage("Your browser doesn't support camera access. Please use a modern browser.", 'error');
-                disableStartButton();
-                checkingPermission = false;
-                return false;
+            // First check if navigator.permissions is supported (not available in all browsers)
+            if (navigator.permissions && navigator.permissions.query) {
+                const permissionStatus = await navigator.permissions.query({ name: 'camera' });
+                console.log('Camera permission status:', permissionStatus.state);
+                
+                if (permissionStatus.state === 'granted') {
+                    return await testCameraAccess();
+                } else if (permissionStatus.state === 'denied') {
+                    return false;
+                } else {
+                    // Permission is 'prompt' - need to request access
+                    return await requestCameraAccess();
+                }
+            } else {
+                // Fallback: Try to access camera directly
+                return await testCameraAccess();
             }
-
-            // Try to get camera permission
+        } catch (error) {
+            console.error('Error checking camera permission:', error);
+            return false;
+        }
+    }
+    
+    /**
+     * Test camera access by trying to get media stream
+     */
+    async function testCameraAccess() {
+        try {
             const stream = await navigator.mediaDevices.getUserMedia({ 
                 video: { 
                     width: { ideal: 320 },
@@ -835,224 +822,527 @@ const cameraPermissionManager = (function() {
                 } 
             });
             
-            // If we get here, permission was granted
-            hasPermission = true;
-            
-            // Stop the stream immediately as we just needed to check permission
+            // Stop the stream immediately after testing
             stream.getTracks().forEach(track => track.stop());
-            
-            hidePermissionMessage();
-            enableStartButton();
-            checkingPermission = false;
+            console.log('Camera access test successful');
             return true;
-            
         } catch (error) {
-            console.error("Camera permission error:", error);
-            hasPermission = false;
-            
-            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                showPermissionMessage("Camera access denied. Please click 'Allow Camera Access' to enable the exam.", 'warning');
-            } else if (error.name === 'NotFoundError') {
-                showPermissionMessage("No camera found. Please connect a camera to start the exam.", 'error');
-            } else {
-                showPermissionMessage("Unable to access camera. Please check your camera settings and try again.", 'error');
-            }
-            
-            disableStartButton();
-            checkingPermission = false;
+            console.error('Camera access test failed:', error);
             return false;
         }
     }
-
+    
     /**
-     * Show permission message
+     * Request camera access from user
      */
-    function showPermissionMessage(message, type = 'warning') {
-        // Remove existing message if any
-        hidePermissionMessage();
-        
-        const messageContainer = document.createElement('div');
-        messageContainer.id = 'cameraPermissionMessage';
-        messageContainer.style.cssText = `
-            background-color: ${type === 'error' ? '#f8d7da' : '#fff3cd'};
-            color: ${type === 'error' ? '#721c24' : '#856404'};
-            border: 1px solid ${type === 'error' ? '#f5c6cb' : '#ffeaa7'};
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    async function requestCameraAccess() {
+        try {
+            showCameraRequestModal();
+            
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    width: { ideal: 320 },
+                    height: { ideal: 240 },
+                    facingMode: "user"
+                } 
+            });
+            
+            // Store the stream for later use
+            cameraStream = stream;
+            permissionGranted = true;
+            
+            hideCameraRequestModal();
+            showSuccessMessage('Camera access granted successfully!');
+            
+            return true;
+        } catch (error) {
+            console.error('Camera access request failed:', error);
+            hideCameraRequestModal();
+            
+            if (error.name === 'NotAllowedError') {
+                showCameraErrorModal('Camera access denied. Please enable camera access in your browser settings and refresh the page.');
+            } else if (error.name === 'NotFoundError') {
+                showCameraErrorModal('No camera found. Please connect a camera and try again.');
+            } else if (error.name === 'NotReadableError') {
+                showCameraErrorModal('Camera is being used by another application. Please close other applications and try again.');
+            } else {
+                showCameraErrorModal('Failed to access camera. Please check your camera settings and try again.');
+            }
+            
+            return false;
+        }
+    }
+    
+    /**
+     * Show camera request modal
+     */
+    function showCameraRequestModal() {
+        const modal = document.createElement('div');
+        modal.id = 'cameraRequestModal';
+        modal.className = 'camera-modal-overlay';
+        modal.innerHTML = `
+            <div class="camera-modal-content">
+                <div class="camera-modal-header">
+                    <h3><i class="fas fa-video"></i> Camera Access Required</h3>
+                </div>
+                <div class="camera-modal-body">
+                    <p>This exam requires camera access for monitoring purposes.</p>
+                    <p>Please allow camera access when prompted by your browser.</p>
+                    <div class="camera-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Requesting camera access...</span>
+                    </div>
+                </div>
+            </div>
         `;
+        document.body.appendChild(modal);
+    }
+    
+    /**
+     * Hide camera request modal
+     */
+    function hideCameraRequestModal() {
+        const modal = document.getElementById('cameraRequestModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+    
+    /**
+     * Show camera error modal
+     */
+    function showCameraErrorModal(message) {
+        const modal = document.createElement('div');
+        modal.id = 'cameraErrorModal';
+        modal.className = 'camera-modal-overlay';
+        modal.innerHTML = `
+            <div class="camera-modal-content camera-error">
+                <div class="camera-modal-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Camera Access Error</h3>
+                </div>
+                <div class="camera-modal-body">
+                    <p>${message}</p>
+                    <div class="camera-instructions">
+                        <h4>To enable camera access:</h4>
+                        <ul>
+                            <li><strong>Chrome/Safari:</strong> Click the camera icon in the address bar</li>
+                            <li><strong>Firefox:</strong> Click on the shield icon in the address bar</li>
+                            <li><strong>Edge:</strong> Click on the lock icon in the address bar</li>
+                        </ul>
+                        <p>After enabling camera access, please refresh the page and try again.</p>
+                    </div>
+                </div>
+                <div class="camera-modal-footer">
+                    <button id="tryAgainBtn" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                    <button id="refreshPageBtn" class="btn btn-secondary">
+                        <i class="fas fa-refresh"></i> Refresh Page
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
         
-        messageContainer.innerHTML = `
-            <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
-                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : 'camera'}" style="font-size: 1.2em;"></i>
+        // Add event listeners
+        document.getElementById('tryAgainBtn').addEventListener('click', async () => {
+            modal.remove();
+            await initializeCameraCheck();
+        });
+        
+        document.getElementById('refreshPageBtn').addEventListener('click', () => {
+            window.location.reload();
+        });
+    }
+    
+    /**
+     * Show success message
+     */
+    function showSuccessMessage(message) {
+        const notification = document.createElement('div');
+        notification.className = 'camera-notification camera-success';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas fa-check-circle"></i>
                 <span>${message}</span>
             </div>
         `;
+        document.body.appendChild(notification);
         
-        // Find a good place to insert the message (before the start button or in main container)
-        const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
-        if (startButton && startButton.parentNode) {
-            startButton.parentNode.insertBefore(messageContainer, startButton);
-        } else {
-            const mainContainer = document.querySelector('.main-container') || document.body;
-            mainContainer.insertBefore(messageContainer, mainContainer.firstChild);
-        }
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
     }
-
+    
     /**
-     * Hide permission message
+     * Update start exam button state
      */
-    function hidePermissionMessage() {
-        const existingMessage = document.getElementById('cameraPermissionMessage');
-        if (existingMessage) {
-            existingMessage.remove();
-        }
-    }
-
-    /**
-     * Disable start exam button
-     */
-    function disableStartButton() {
-        const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
+    function updateStartExamButton(enabled) {
+        const startButton = document.getElementById('startExamButton');
         if (startButton) {
-            startButton.disabled = true;
-            startButton.style.opacity = '0.5';
-            startButton.style.cursor = 'not-allowed';
-            startButton.title = 'Camera access required to start exam';
+            startButton.disabled = !enabled;
             
-            // Change button text to indicate camera is needed
-            const originalText = startButton.textContent;
-            if (!originalText.includes('Camera')) {
-                startButton.setAttribute('data-original-text', originalText);
-                startButton.innerHTML = '<i class="fas fa-camera"></i> Allow Camera Access First';
-            }
-        }
-    }
-
-    /**
-     * Enable start exam button
-     */
-    function enableStartButton() {
-        const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
-        if (startButton) {
-            startButton.disabled = false;
-            startButton.style.opacity = '1';
-            startButton.style.cursor = 'pointer';
-            startButton.title = '';
-            
-            // Restore original button text
-            const originalText = startButton.getAttribute('data-original-text');
-            if (originalText) {
-                startButton.innerHTML = originalText;
-                startButton.removeAttribute('data-original-text');
-            }
-        }
-    }
-
-    /**
-     * Add camera permission button
-     */
-    function addCameraPermissionButton() {
-        if (document.getElementById('cameraPermissionBtn')) return;
-        
-        const permissionBtn = document.createElement('button');
-        permissionBtn.id = 'cameraPermissionBtn';
-        permissionBtn.className = 'btn btn-primary';
-        permissionBtn.style.cssText = `
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: center;
-        `;
-        
-        permissionBtn.innerHTML = '<i class="fas fa-camera"></i> Allow Camera Access';
-        
-        permissionBtn.onclick = async function() {
-            permissionBtn.disabled = true;
-            permissionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking Camera...';
-            
-            const granted = await checkCameraPermission();
-            
-            if (granted) {
-                permissionBtn.remove();
+            if (enabled) {
+                startButton.innerHTML = '<i class="fas fa-play"></i> Start Exam';
+                startButton.classList.remove('disabled');
             } else {
-                permissionBtn.disabled = false;
-                permissionBtn.innerHTML = '<i class="fas fa-camera"></i> Allow Camera Access';
-            }
-        };
-        
-        // Add button near the permission message or start button
-        const messageContainer = document.getElementById('cameraPermissionMessage');
-        if (messageContainer) {
-            messageContainer.appendChild(permissionBtn);
-        } else {
-            const startButton = document.getElementById('submitExam') || document.querySelector('.submit-btn');
-            if (startButton && startButton.parentNode) {
-                startButton.parentNode.insertBefore(permissionBtn, startButton);
+                startButton.innerHTML = '<i class="fas fa-video"></i> Camera Access Required';
+                startButton.classList.add('disabled');
             }
         }
     }
-
+    
+    /**
+     * Show camera status in the UI
+     */
+    function updateCameraStatus(status, message) {
+        let statusElement = document.getElementById('cameraStatus');
+        
+        if (!statusElement) {
+            statusElement = document.createElement('div');
+            statusElement.id = 'cameraStatus';
+            statusElement.className = 'camera-status';
+            
+            // Insert before the start button
+            const startButton = document.getElementById('startExamButton');
+            if (startButton && startButton.parentNode) {
+                startButton.parentNode.insertBefore(statusElement, startButton);
+            }
+        }
+        
+        const iconClass = status === 'success' ? 'fa-check-circle' : 
+                         status === 'error' ? 'fa-exclamation-circle' : 'fa-spinner fa-spin';
+        
+        statusElement.className = `camera-status camera-status-${status}`;
+        statusElement.innerHTML = `
+            <i class="fas ${iconClass}"></i>
+            <span>${message}</span>
+        `;
+    }
+    
     /**
      * Initialize camera permission check
      */
-    function init() {
-        // Initial permission check
-        checkCameraPermission().then(granted => {
-            if (!granted) {
-                addCameraPermissionButton();
-            }
-        });
+    async function initializeCameraCheck() {
+        updateCameraStatus('checking', 'Checking camera access...');
+        updateStartExamButton(false);
         
-        // Also check when the page gains focus (handles tab switching issues)
-        window.addEventListener('focus', () => {
-            if (!hasPermission) {
-                setTimeout(() => checkCameraPermission(), 500);
+        try {
+            const hasPermission = await checkCameraPermission();
+            
+            if (hasPermission) {
+                permissionGranted = true;
+                updateCameraStatus('success', 'Camera access granted');
+                updateStartExamButton(true);
+                return true;
+            } else {
+                updateCameraStatus('error', 'Camera access required');
+                updateStartExamButton(false);
+                return false;
             }
-        });
+        } catch (error) {
+            console.error('Error during camera initialization:', error);
+            updateCameraStatus('error', 'Camera access error');
+            updateStartExamButton(false);
+            return false;
+        }
     }
-
+    
     /**
-     * Force recheck permission (useful for manual triggers)
+     * Get the camera stream (if already granted)
      */
-    function recheckPermission() {
-        hasPermission = false;
-        return checkCameraPermission();
+    function getCameraStream() {
+        return cameraStream;
     }
-
-    // Public API
+    
+    /**
+     * Check if permission is granted
+     */
+    function isPermissionGranted() {
+        return permissionGranted;
+    }
+    
+    /**
+     * Clean up camera resources
+     */
+    function cleanup() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        permissionGranted = false;
+    }
+    
+    // Return public API
     return {
-        init,
-        checkCameraPermission,
-        recheckPermission,
-        hasPermission: () => hasPermission
+        initialize: initializeCameraCheck,
+        checkPermission: checkCameraPermission,
+        requestAccess: requestCameraAccess,
+        getCameraStream: getCameraStream,
+        isPermissionGranted: isPermissionGranted,
+        cleanup: cleanup
     };
 })();
 
-// Initialize camera permission check when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    cameraPermissionManager.init();
-});
+// CSS Styles for camera permission modals and notifications
+const cameraStyles = `
+    .camera-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .camera-modal-content {
+        background-color: white;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+    
+    .camera-modal-content.camera-error {
+        max-width: 600px;
+    }
+    
+    .camera-modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        background-color: #f9fafb;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .camera-modal-header h3 {
+        margin: 0;
+        color: #1f2937;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .camera-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .camera-modal-body p {
+        margin-bottom: 1rem;
+        color: #4b5563;
+        line-height: 1.6;
+    }
+    
+    .camera-loading {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #2563eb;
+        font-weight: 500;
+        margin-top: 1rem;
+    }
+    
+    .camera-instructions {
+        background-color: #f3f4f6;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+    }
+    
+    .camera-instructions h4 {
+        margin: 0 0 0.75rem 0;
+        color: #1f2937;
+    }
+    
+    .camera-instructions ul {
+        margin: 0.5rem 0;
+        padding-left: 1.5rem;
+    }
+    
+    .camera-instructions li {
+        margin-bottom: 0.5rem;
+        color: #4b5563;
+    }
+    
+    .camera-modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+    }
+    
+    .camera-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+    
+    .camera-status-checking {
+        background-color: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+    }
+    
+    .camera-status-success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    
+    .camera-status-error {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    
+    .camera-notification {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        max-width: 300px;
+        z-index: 9999;
+        border-radius: 6px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transform: translateX(110%);
+        transition: transform 0.3s ease;
+    }
+    
+    .camera-notification.show {
+        transform: translateX(0);
+    }
+    
+    .camera-notification .notification-content {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .camera-success .notification-content {
+        background-color: #ecfdf5;
+        color: #064e3b;
+        border-left: 4px solid #10b981;
+    }
+    
+    .start-exam-button.disabled {
+        background-color: #9ca3af !important;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+    
+    .start-exam-button.disabled:hover {
+        background-color: #9ca3af !important;
+        transform: none !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Dark theme styles */
+    body.dark-theme .camera-modal-content {
+        background-color: #1f2937;
+        color: #e5e7eb;
+    }
+    
+    body.dark-theme .camera-modal-header {
+        background-color: #374151;
+        border-color: #4b5563;
+    }
+    
+    body.dark-theme .camera-modal-header h3 {
+        color: #e5e7eb;
+    }
+    
+    body.dark-theme .camera-modal-body p {
+        color: #d1d5db;
+    }
+    
+    body.dark-theme .camera-instructions {
+        background-color: #374151;
+    }
+    
+    body.dark-theme .camera-instructions h4 {
+        color: #e5e7eb;
+    }
+    
+    body.dark-theme .camera-instructions li {
+        color: #d1d5db;
+    }
+    
+    body.dark-theme .camera-modal-footer {
+        border-color: #4b5563;
+    }
+`;
 
-// Also initialize if DOM is already loaded
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', cameraPermissionManager.init);
-} else {
-    cameraPermissionManager.init();
+// Add styles to document
+const cameraStyleElement = document.createElement('style');
+cameraStyleElement.textContent = cameraStyles;
+document.head.appendChild(cameraStyleElement);
+// Integration function to modify the existing startExam function
+function integrateWithExistingExam() {
+    // Store the original startExam function
+    const originalStartExam = window.startExam;
+    
+    // Override the startExam function
+    window.startExam = function() {
+        // Check if camera permission is granted before starting
+        if (!CameraPermissionHandler.isPermissionGranted()) {
+            alert('Camera access is required to start the exam. Please grant camera permission first.');
+            return;
+        }
+        
+        // Call the original startExam function
+        if (originalStartExam) {
+            originalStartExam.call(this);
+        }
+    };
+    
+    // Initialize camera check when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Wait a bit for the start overlay to be created
+        setTimeout(() => {
+            CameraPermissionHandler.initialize();
+        }, 500);
+    });
+}
+
+if (typeof window !== 'undefined') {
+    integrateWithExistingExam();
 }
 </script>
-
 
 
     <script>
