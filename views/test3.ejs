@@ -2260,16 +2260,29 @@ document.head.appendChild(styleElement);
     }
 
     // Helper function to get total questions
-    function getTotalQuestions(examData) {
-        if (examData.questionType === "mcq") {
-            return examData.numMCQs;
-        } else if (examData.questionType === "coding") {
-            return examData.numCoding;
-        } else if (examData.questionType === "mcq&coding") {
-            return examData.numTotalQuestions;
-        }
+function getTotalQuestions(examData) {
+    if (!examData) {
+        console.error('No exam data provided to getTotalQuestions');
         return 0;
     }
+    
+    let total = 0;
+    
+    if (examData.questionType === "mcq") {
+        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
+        total = mcqQuestions.length; // Use actual array length instead of examData.numMCQs
+    } else if (examData.questionType === "coding") {
+        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
+        total = codingQuestions.length; // Use actual array length instead of examData.numCoding
+    } else if (examData.questionType === "mcq&coding") {
+        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
+        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
+        total = mcqQuestions.length + codingQuestions.length; // Calculate from actual arrays
+    }
+    
+    console.log(`Total questions calculated: ${total} for type: ${examData.questionType}`); // Debug log
+    return total;
+}
 
     // Function to set up auto-save
     function setupAutoSave() {
@@ -2357,52 +2370,137 @@ document.head.appendChild(styleElement);
     }
 
     // Function to load a specific question
-    function loadQuestion(index) {
-        const examData = JSON.parse(localStorage.getItem('currentExam'));
-        let question;
-        let questionType;
+    // function loadQuestion(index) {
+    //     const examData = JSON.parse(localStorage.getItem('currentExam'));
+    //     let question;
+    //     let questionType;
         
-        // Get the appropriate question based on question type and index
-        if (examData.questionType === "mcq") {
-            const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+    //     // Get the appropriate question based on question type and index
+    //     if (examData.questionType === "mcq") {
+    //         const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+    //         question = mcqQuestions[index];
+    //         questionType = "mcq";
+    //     } 
+    //     else if (examData.questionType === "coding") {
+    //         const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+    //         question = codingQuestions[index];
+    //         questionType = "coding";
+    //     } 
+    //     else if (examData.questionType === "mcq&coding") {
+    //         // For mixed exams, determine if we're showing MCQ or coding based on index
+    //         const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+    //         const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+            
+    //         if (index < mcqQuestions.length) {
+    //             question = mcqQuestions[index];
+    //             questionType = "mcq";
+    //         } else {
+    //             question = codingQuestions[index - mcqQuestions.length];
+    //             questionType = "coding";
+    //         }
+    //     }
+        
+    //     // Update the current question index
+    //     localStorage.setItem('currentQuestionIndex', index.toString());
+        
+    //     // Update question number display
+    //     document.getElementById('questionNumber').textContent = `Question ${index + 1}`;
+        
+    //     // Display the question based on type
+    //     if (questionType === "mcq") {
+    //         displayMCQQuestion(question, index);
+    //     } else {
+    //         displayCodingQuestion(question, index);
+    //     }
+        
+    //     // Update the question navigation UI
+    //     updateQuestionNavigation(index);
+    // }
+function loadQuestion(index) {
+    console.log(`Loading question at index: ${index}`); // Debug log
+    
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    if (!examData) {
+        console.error('No exam data found');
+        return;
+    }
+    
+    let question;
+    let questionType;
+    let totalQuestions = getTotalQuestions(examData);
+    
+    // Validate index
+    if (index < 0 || index >= totalQuestions) {
+        console.error(`Invalid question index: ${index}. Total questions: ${totalQuestions}`);
+        return;
+    }
+    
+    // Get the appropriate question based on question type and index
+    if (examData.questionType === "mcq") {
+        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
+        if (!mcqQuestions || index >= mcqQuestions.length) {
+            console.error(`MCQ question not found at index: ${index}`);
+            return;
+        }
+        question = mcqQuestions[index];
+        questionType = "mcq";
+    } 
+    else if (examData.questionType === "coding") {
+        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+        if (!codingQuestions || index >= codingQuestions.length) {
+            console.error(`Coding question not found at index: ${index}`);
+            return;
+        }
+        question = codingQuestions[index];
+        questionType = "coding";
+    } 
+    else if (examData.questionType === "mcq&coding") {
+        // For mixed exams, determine if we're showing MCQ or coding based on index
+        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
+        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
+        
+        console.log(`Mixed exam: MCQ count: ${mcqQuestions.length}, Coding count: ${codingQuestions.length}, Index: ${index}`); // Debug log
+        
+        if (index < mcqQuestions.length) {
             question = mcqQuestions[index];
             questionType = "mcq";
-        } 
-        else if (examData.questionType === "coding") {
-            const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-            question = codingQuestions[index];
-            questionType = "coding";
-        } 
-        else if (examData.questionType === "mcq&coding") {
-            // For mixed exams, determine if we're showing MCQ or coding based on index
-            const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions'));
-            const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-            
-            if (index < mcqQuestions.length) {
-                question = mcqQuestions[index];
-                questionType = "mcq";
-            } else {
-                question = codingQuestions[index - mcqQuestions.length];
-                questionType = "coding";
-            }
-        }
-        
-        // Update the current question index
-        localStorage.setItem('currentQuestionIndex', index.toString());
-        
-        // Update question number display
-        document.getElementById('questionNumber').textContent = `Question ${index + 1}`;
-        
-        // Display the question based on type
-        if (questionType === "mcq") {
-            displayMCQQuestion(question, index);
         } else {
-            displayCodingQuestion(question, index);
+            const codingIndex = index - mcqQuestions.length;
+            if (codingIndex >= codingQuestions.length) {
+                console.error(`Coding question not found at adjusted index: ${codingIndex}`);
+                return;
+            }
+            question = codingQuestions[codingIndex];
+            questionType = "coding";
         }
-        
-        // Update the question navigation UI
-        updateQuestionNavigation(index);
     }
+    
+    if (!question) {
+        console.error(`Question not found at index: ${index}`);
+        return;
+    }
+    
+    console.log(`Question loaded: ${question._id}, Type: ${questionType}`); // Debug log
+    
+    // Update the current question index BEFORE displaying the question
+    localStorage.setItem('currentQuestionIndex', index.toString());
+    
+    // Update question number display
+    const questionNumberElement = document.getElementById('questionNumber');
+    if (questionNumberElement) {
+        questionNumberElement.textContent = `Question ${index + 1}`;
+    }
+    
+    // Display the question based on type
+    if (questionType === "mcq") {
+        displayMCQQuestion(question, index);
+    } else {
+        displayCodingQuestion(question, index);
+    }
+    
+    // Update the question navigation UI
+    updateQuestionNavigation(index);
+}
 
     // Function to display an MCQ question
     function displayMCQQuestion(question, index) {
@@ -3046,87 +3144,186 @@ document.head.appendChild(styleElement);
     }
 
     // Function to setup question navigation
-    function setupQuestionNavigation() {
-        const examData = JSON.parse(localStorage.getItem('currentExam'));
-        const navigationContainer = document.getElementById('questionNavigation');
+    // function setupQuestionNavigation() {
+    //     const examData = JSON.parse(localStorage.getItem('currentExam'));
+    //     const navigationContainer = document.getElementById('questionNavigation');
         
-        // Clear previous navigation
-        navigationContainer.innerHTML = '';
+    //     // Clear previous navigation
+    //     navigationContainer.innerHTML = '';
         
-        // Determine total questions
-        let totalQuestions = getTotalQuestions(examData);
+    //     // Determine total questions
+    //     let totalQuestions = getTotalQuestions(examData);
         
-        // Create navigation buttons
-        for (let i = 0; i < totalQuestions; i++) {
-            const navButton = document.createElement('button');
-            navButton.textContent = i + 1;
-            navButton.classList.add('nav-button');
-            navButton.dataset.index = i;
-            navButton.addEventListener('click', () => {
-                loadQuestion(i);
-            });
-            navigationContainer.appendChild(navButton);
-        }
+    //     // Create navigation buttons
+    //     for (let i = 0; i < totalQuestions; i++) {
+    //         const navButton = document.createElement('button');
+    //         navButton.textContent = i + 1;
+    //         navButton.classList.add('nav-button');
+    //         navButton.dataset.index = i;
+    //         navButton.addEventListener('click', () => {
+    //             loadQuestion(i);
+    //         });
+    //         navigationContainer.appendChild(navButton);
+    //     }
         
-        // Set up next/prev buttons
-        const prevButton = document.getElementById('prevQuestion');
-        const nextButton = document.getElementById('nextQuestion');
+    //     // Set up next/prev buttons
+    //     const prevButton = document.getElementById('prevQuestion');
+    //     const nextButton = document.getElementById('nextQuestion');
         
-        prevButton.addEventListener('click', () => {
-            const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+    //     prevButton.addEventListener('click', () => {
+    //         const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+    //         if (currentIndex > 0) {
+    //             loadQuestion(currentIndex - 1);
+    //         }
+    //     });
+        
+    //     nextButton.addEventListener('click', () => {
+    //         const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+    //         if (currentIndex < totalQuestions - 1) {
+    //             loadQuestion(currentIndex + 1);
+    //         }
+    //     });
+        
+    //     // Set up the submit button
+    //     const submitButton = document.getElementById('submitExam');
+    //     submitButton.addEventListener('click', confirmSubmitExam);
+        
+    //     // Check for unanswered questions
+    //     checkUnansweredQuestions();
+    // }
+function setupQuestionNavigation() {
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    const navigationContainer = document.getElementById('questionNavigation');
+    
+    // Clear previous navigation
+    navigationContainer.innerHTML = '';
+    
+    // Determine total questions
+    let totalQuestions = getTotalQuestions(examData);
+    
+    // Create navigation buttons
+    for (let i = 0; i < totalQuestions; i++) {
+        const navButton = document.createElement('button');
+        navButton.textContent = i + 1;
+        navButton.classList.add('nav-button');
+        navButton.dataset.index = i;
+        navButton.addEventListener('click', () => {
+            console.log(`Navigation button clicked: ${i}`); // Debug log
+            loadQuestion(i);
+        });
+        navigationContainer.appendChild(navButton);
+    }
+    
+    // Set up next/prev buttons with better error handling
+    const prevButton = document.getElementById('prevQuestion');
+    const nextButton = document.getElementById('nextQuestion');
+    
+    // Remove any existing event listeners
+    if (prevButton) {
+        const newPrevButton = prevButton.cloneNode(true);
+        prevButton.parentNode.replaceChild(newPrevButton, prevButton);
+        
+        newPrevButton.addEventListener('click', () => {
+            const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
+            console.log(`Previous button clicked. Current index: ${currentIndex}`); // Debug log
             if (currentIndex > 0) {
                 loadQuestion(currentIndex - 1);
             }
         });
+    }
+    
+    if (nextButton) {
+        const newNextButton = nextButton.cloneNode(true);
+        nextButton.parentNode.replaceChild(newNextButton, nextButton);
         
-        nextButton.addEventListener('click', () => {
-            const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex'));
+        newNextButton.addEventListener('click', () => {
+            const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
+            console.log(`Next button clicked. Current index: ${currentIndex}, Total: ${totalQuestions}`); // Debug log
             if (currentIndex < totalQuestions - 1) {
                 loadQuestion(currentIndex + 1);
             }
         });
-        
-        // Set up the submit button
-        const submitButton = document.getElementById('submitExam');
-        submitButton.addEventListener('click', confirmSubmitExam);
-        
-        // Check for unanswered questions
-        checkUnansweredQuestions();
     }
-
+    
+    // Set up the submit button
+    const submitButton = document.getElementById('submitExam');
+    if (submitButton) {
+        // Remove existing listener and add new one
+        const newSubmitButton = submitButton.cloneNode(true);
+        submitButton.parentNode.replaceChild(newSubmitButton, submitButton);
+        newSubmitButton.addEventListener('click', confirmSubmitExam);
+    }
+    
+    // Check for unanswered questions
+    checkUnansweredQuestions();
+}
     // Function to update question navigation UI
-    function updateQuestionNavigation(currentIndex) {
-        // If currentIndex is not provided, get it from localStorage
-        if (currentIndex === undefined) {
-            currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
-        }
+    // function updateQuestionNavigation(currentIndex) {
+    //     // If currentIndex is not provided, get it from localStorage
+    //     if (currentIndex === undefined) {
+    //         currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
+    //     }
         
-        const navButtons = document.querySelectorAll('.nav-button');
-        navButtons.forEach(button => {
-            button.classList.remove('active');
-            if (parseInt(button.dataset.index) === currentIndex) {
-                button.classList.add('active');
-            }
-        });
+    //     const navButtons = document.querySelectorAll('.nav-button');
+    //     navButtons.forEach(button => {
+    //         button.classList.remove('active');
+    //         if (parseInt(button.dataset.index) === currentIndex) {
+    //             button.classList.add('active');
+    //         }
+    //     });
         
-        // Update next/prev button states
-        const examData = JSON.parse(localStorage.getItem('currentExam'));
-        let totalQuestions = getTotalQuestions(examData);
+    //     // Update next/prev button states
+    //     const examData = JSON.parse(localStorage.getItem('currentExam'));
+    //     let totalQuestions = getTotalQuestions(examData);
         
-        const prevButton = document.getElementById('prevQuestion');
-        const nextButton = document.getElementById('nextQuestion');
+    //     const prevButton = document.getElementById('prevQuestion');
+    //     const nextButton = document.getElementById('nextQuestion');
         
-        if (prevButton) {
-            prevButton.disabled = currentIndex === 0;
-        }
+    //     if (prevButton) {
+    //         prevButton.disabled = currentIndex === 0;
+    //     }
         
-        if (nextButton) {
-            nextButton.disabled = currentIndex === totalQuestions - 1;
-        }
+    //     if (nextButton) {
+    //         nextButton.disabled = currentIndex === totalQuestions - 1;
+    //     }
         
-        // Check for unanswered questions
-        checkUnansweredQuestions();
+    //     // Check for unanswered questions
+    //     checkUnansweredQuestions();
+    // }
+function updateQuestionNavigation(currentIndex) {
+    // If currentIndex is not provided, get it from localStorage
+    if (currentIndex === undefined) {
+        currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
     }
+    
+    console.log(`Updating navigation for index: ${currentIndex}`); // Debug log
+    
+    const navButtons = document.querySelectorAll('.nav-button');
+    navButtons.forEach((button, buttonIndex) => {
+        button.classList.remove('active');
+        if (buttonIndex === currentIndex) {
+            button.classList.add('active');
+        }
+    });
+    
+    // Update next/prev button states
+    const examData = JSON.parse(localStorage.getItem('currentExam'));
+    let totalQuestions = getTotalQuestions(examData);
+    
+    const prevButton = document.getElementById('prevQuestion');
+    const nextButton = document.getElementById('nextQuestion');
+    
+    if (prevButton) {
+        prevButton.disabled = currentIndex === 0;
+    }
+    
+    if (nextButton) {
+        nextButton.disabled = currentIndex === totalQuestions - 1;
+    }
+    
+    // Check for unanswered questions
+    checkUnansweredQuestions();
+}
 
     // Function to start exam timer
     function startExamTimer() {
