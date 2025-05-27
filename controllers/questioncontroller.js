@@ -470,7 +470,7 @@ exports.postaddcodingQuestion = async (req, res) => {
         console.log('Processed starterCode:', starterCode);
 
         // Validate required fields
-        if (!questionTile || !questiontext || !solutionTemplate || !maxMarks || !classification || !level) {
+        if (!questionTile || !questiontext || !maxMarks || !classification || !level) {
             return res.status(400).send("Required fields are missing.");
         }
 
