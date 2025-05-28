@@ -720,7 +720,11 @@
         </div>
         <div class="info-item">
           <span class="info-label">Test Duration:</span>
-          <span class="info-value"><%= report.timeAnalysis.duration %></span>
+          <span class="info-value"><%= report.timeAnalysis.duration %>
+            <% if (report.timeAnalysis.durationInMinutes > 0) { %>
+              <small class="text-muted">(<%= report.timeAnalysis.durationInMinutes %> minutes)</small>
+            <% } %>
+      </span>
         </div>
       </div>
     </section>

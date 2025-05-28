@@ -3,6 +3,7 @@ const Submission = require("./../models/SubmissionSchema");
 const Integrity = require("./../models/Integrity");
 const mongoose = require('mongoose');
 const EvaluationResult = require('../models/EvaluationResultSchema');
+const ActivityTracker = require('./../models/ActiveSession');
 
 exports.viewAssessmentReport = async(req,res) => {
   try {
@@ -24,6 +25,63 @@ exports.viewAssessmentReport = async(req,res) => {
         throw new Error('Submission not found');
       }
       
+      // Fetch start time from ActivityTracker using examId and userId
+      const activityTracker = await ActivityTracker.findOne({
+        examId: submission.exam._id,
+        userId: submission.student._id
+      }).select('startedAt').lean();
+
+      reportData.startTime = activityTracker ? activityTracker.startedAt : null;
+
+
+       // Get end time from submission
+      reportData.endTime = submission.submittedAt || null;
+      
+      // Calculate duration and create timeAnalysis object
+      reportData.timeAnalysis = {
+        startTime: reportData.startTime,
+        endTime: reportData.endTime,
+        duration: 'Not Available',
+        durationInMinutes: 0,
+        durationInSeconds: 0
+      };
+      
+      if (reportData.startTime && reportData.endTime) {
+        const startTime = new Date(reportData.startTime);
+        const endTime = new Date(reportData.endTime);
+        const durationMs = endTime - startTime;
+        
+        if (durationMs > 0) {
+          const durationInSeconds = Math.floor(durationMs / 1000);
+          const durationInMinutes = Math.floor(durationInSeconds / 60);
+          const hours = Math.floor(durationInMinutes / 60);
+          const minutes = durationInMinutes % 60;
+          const seconds = durationInSeconds % 60;
+          
+          // Format duration
+          let formattedDuration = '';
+          if (hours > 0) {
+            formattedDuration = `${hours}h ${minutes}m`;
+          } else if (minutes > 0) {
+            formattedDuration = `${minutes}m ${seconds}s`;
+          } else {
+            formattedDuration = `${seconds}s`;
+          }
+          
+          reportData.timeAnalysis = {
+            startTime: reportData.startTime,
+            endTime: reportData.endTime,
+            duration: formattedDuration,
+            durationInMinutes: durationInMinutes,
+            durationInSeconds: durationInSeconds,
+            durationMs: durationMs
+          };
+        }
+      }
+
+
+
+
       // Check if this is a coding exam or has coding questions
       const hasCoding = submission.exam.questionType === 'coding' || 
                        submission.exam.questionType === 'mcq&coding';
