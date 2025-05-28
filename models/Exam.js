@@ -17,7 +17,14 @@ const ExamSchema = new mongoose.Schema({
     duration: { type: Number },
     integrityCheck: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
-    testStatus: { type: String, enum: ["draft", "ongoing", "completed"], default: "ongoing" }
+    testStatus: { type: String, enum: ["draft", "ongoing", "completed"], default: "ongoing" },
+    settings:{
+        camera: { type: Boolean, default: false },
+        phone: { type: Boolean, default: true },
+        showResults: { type: Boolean, default: false },
+
+
+    }
 });
 
 // Validation before saving the exam

@@ -753,16 +753,18 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-8">
-                                            <h5 class="card-title"><i class="fas fa-book me-2"></i><%= exam.name %></h5>
+                                            <h5 class="card-title"><i class="fas fa-book me-2"></i><%= exam.name %>   </h5>
                                             <p class="card-text mb-1">
                                                 <span class="badge badge-info badge-custom"><i class="fas fa-tag me-1"></i><%= exam.questionType.toUpperCase() %></span>
                                                 <span class="ms-2"><i class="fas fa-clock me-1"></i> <%= exam.duration %> minutes</span>
                                             </p>
+                                            
                                             <p class="card-text mb-1"><i class="fas fa-calendar-day me-1"></i> Scheduled At: <%= exam.scheduledAt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Kolkata'}) %></p>
                                             <p class="card-text mb-1"><i class="fas fa-calendar-check me-1"></i> Scheduled Till: <%= exam.scheduleTill.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', timeZone: 'Asia/Kolkata'}) %></p>
                                         </div>
                                         <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
-                                            <button class="btn btn-primary start-test-btn" data-exam-id="<%= exam._id %>">
+                                            <button class="btn btn-primary start-test-btn" data-exam-id="<%= exam._id %>" data-exam-cam="<%= exam.settings.camera %>">
+                                                
                                                 <i class="fas fa-play"></i> Start Test
                                             </button>
                                         </div>
@@ -853,6 +855,7 @@
                                         </div>
                                         <div class="col-md-4 text-md-end d-flex align-items-center justify-content-md-end mt-3 mt-md-0">
                                             <button class="btn btn-outline-secondary contact-instructor-btn" data-exam-id="<%= exam._id %>">
+                                               
                                                 <i class="fas fa-envelope"></i> Contact Instructor
                                             </button>
                                         </div>
@@ -1185,9 +1188,26 @@
                     this.classList.remove('animate__animated', 'animate__pulse');
                 }, 500);
                 
-                selectedExamId = this.getAttribute('data-exam-id');
-                let myModal = new bootstrap.Modal(document.getElementById('examRulesModal'));
+                selectedExamId = this.getAttribute('data-exam-id'); 
+                selectedExamCam = this.getAttribute('data-exam-cam');
+              
+                if(selectedExamCam === 'true') {
+                    let myModal = new bootstrap.Modal(document.getElementById('examRulesModal'));
                 myModal.show();
+                } else {
+                                    setTimeout(() => {
+                    // Open in new tab and keep reference
+                    examWindowRef = window.open(`/dashboard/start-test/${selectedExamId}`, '_blank');
+                    
+                    // Start monitoring the exam window
+                    checkInterval = setInterval(monitorExamWindow, 1000);
+                    
+                    // Reset this button state after opening
+                    this.innerHTML = '<i class="fas fa-play me-2"></i>Start Test';
+                    this.disabled = true; // Keep disabled until refresh
+                }, 500);
+                }
+                
             });
         });
 
