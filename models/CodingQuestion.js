@@ -41,7 +41,7 @@ const starterCodeSchema = new mongoose.Schema({
 
 const CodingQuestionSchema = new mongoose.Schema({
   
-    solutionTemplate: { type: String, required: true }, 
+  
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now },
     marks: { type: Number, default: 0 }, 

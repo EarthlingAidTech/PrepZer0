@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const ExamSchema = new mongoose.Schema({
     name: { type: String, required: true },
-    departments: [{ type: String, enum: ["mc", "is", "cs", "et", "ec", "ai", "cv"], required: true }],
+    departments: [{ type: String, enum: ["me", "is", "cs", "et", "ec", "ai", "cv", "ee"], required: true }],
     semester: { type: Number, min: 1, max: 8, required: true },
     questionType: { type: String, enum: ["mcq", "coding", "mcq&coding"], required: true },
     numTotalQuestions: { type: Number, default: 0 },

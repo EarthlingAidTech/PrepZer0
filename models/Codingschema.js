@@ -75,7 +75,7 @@ const codingQuestionSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  solutionTemplate: { type: String, required: true }, 
+
   classification: {
     type: String,
     required: true,
