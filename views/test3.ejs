@@ -669,6 +669,7 @@
     </style>
 </head>
 <body>
+    <p id="camneed"><%=exam.settings.camera%></p>
     <p id="user" hidden><%=user._id%></p>
 <p id="exam" hidden><%=exam._id%></p>
     <!-- Header -->
@@ -1333,14 +1334,23 @@ function integrateWithExistingExam() {
     // Initialize camera check when page loads
     document.addEventListener('DOMContentLoaded', function() {
         // Wait a bit for the start overlay to be created
+        needcam =document.getElementById('camneed').innerHTML;
+        if(needcam === 'false') {
+            
+        }else{
         setTimeout(() => {
             CameraPermissionHandler.initialize();
         }, 500);
+        }
+
     });
 }
 
 if (typeof window !== 'undefined') {
-    integrateWithExistingExam();
+    if(document.getElementById("camneed").innerHTML == 'true'){
+        integrateWithExistingExam();
+    }
+    
 }
 </script>
 
@@ -1460,7 +1470,10 @@ const examIntegrity = (function() {
             startActivityPing();
             
             if (options.startWebcam) {
-                startWebcamCapture();
+                if(document.getElementById('camneed').innerHTML == 'true'){
+                    startWebcamCapture();
+                }
+                
             }
         }
         
@@ -2448,7 +2461,10 @@ if (examData) {
         integrity.start();
         
         // Start webcam capture if not auto-started
-        integrity.startWebcamCapture();
+        if(document.getElementById('camneed').innerHTML == "false") {
+            integrity.startWebcamCapture();
+        }
+        
         
         // Enter fullscreen mode
         integrity.enterFullscreen();
@@ -4877,7 +4893,7 @@ function clearExamData() {
         }
     `;
     document.head.appendChild(styleElement);
-    
+
     </script>
 </body>
 </html>
