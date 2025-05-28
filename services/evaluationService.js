@@ -5,6 +5,7 @@ const Submission = require('../models/SubmissionSchema');
 const CodingQuestion = require('../models/CodingQuestion');
 const User = require('../models/usermodel');
 const EvaluationResult = require('../models/EvaluationResultSchema');
+const ReportModel = require('./../models/reportModel')
 
 // Config for Judge0 API - make sure this URL is correct
 const JUDGE0_API = process.env.JUDGE0_API || 'http://172.16.6.47:2358/';
