@@ -343,6 +343,229 @@ exports.deleteExam = async (req, res) => {
 
 
 
+// exports.exportExamReport = async (req, res) => {
+//     try {
+//         const examId = req.params.examId;
+        
+//         // Fetch the exam details
+//         const exam = await Exam.findById(examId);
+        
+//         if (!exam) {
+//             return res.status(404).send('Exam not found');
+//         }
+        
+//         // Fetch all submissions related to this exam
+//         const submissions = await Submission.find({ exam: examId })
+//             .populate('student', 'USN fname email Department Semester Rollno _id')
+//             .sort({ submittedAt: -1 });
+        
+//         // Fetch active sessions for this exam
+//         const activeSessions = await ActivityTracker.find({ examId: examId })
+//             .populate('userId', 'USN name email Department Semester Rollno _id')
+//             .select('userId status lastPingTimestamp startTimestamp');
+        
+//         // Create a map of active sessions for lookup
+//         const activeSessionsMap = new Map();
+//         activeSessions.forEach(session => {
+//             if (session.userId && session.userId._id) {
+//                 activeSessionsMap.set(session.userId._id.toString(), {
+//                     status: session.status,
+//                     startedAt: session.startTimestamp || null
+//                 });
+//             }
+//         });
+        
+//         // Prepare data for the spreadsheet
+//         const reportData = [];
+//         let serialNumber = 1;
+        
+//         // Process each submission
+//         for (const submission of submissions) {
+//             if (submission.student && submission.student._id) {
+//                 try {
+//                     // Get detailed report data if available
+//                     let detailedReport = null;
+//                     try {
+//                         detailedReport = await ReportModel.getAssessmentReport(submission._id);
+//                     } catch (reportError) {
+//                         console.log(`Could not fetch detailed report for submission ${submission._id}: ${reportError.message}`);
+//                         // Continue with basic data if detailed report fails
+//                     }
+                    
+//                     const studentId = submission.student._id.toString();
+//                     const sessionInfo = activeSessionsMap.get(studentId) || {};
+                    
+//                     // Determine the student name - handle different student schema formats
+//                     let studentName = 'N/A';
+//                     if (submission.student.name) {
+//                         studentName = submission.student.name;
+//                     } else if (submission.student.fname && submission.student.lname) {
+//                         studentName = `${submission.student.fname} ${submission.student.lname}`;
+//                     }
+                    
+//                     // Calculate maximum possible score and obtained score
+//                     let maxScore = 100; // Default fallback
+//                     let obtainedScore = submission.score;
+                    
+//                     // Use detailed report data if available
+//                     if (detailedReport && detailedReport.score) {
+//                         maxScore = detailedReport.score.total;
+//                         obtainedScore = detailedReport.score.obtained;
+//                     } else {
+//                         // Fallback to exam total marks or calculate from submission
+//                         maxScore = exam.totalMarks || 
+//                             (submission.mcqAnswers?.length + (submission.codingAnswers?.length || 0)) * 10 || 
+//                             100;
+//                     }
+                    
+//                     // Calculate percentage
+//                     const percentage = obtainedScore !== undefined && maxScore > 0 ? 
+//                         ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
+                    
+//                     // Get integrity score - either from detailed report or submission
+//                     let integrityScore = submission.integrityScore || 'N/A';
+//                     if (detailedReport && detailedReport.integrity) {
+//                         integrityScore = detailedReport.integrity.status || integrityScore``;
+//                     }
+                    
+
+//                     let st = await activityTracker.findOne(
+//                                 { examId: examId, userId: submission.student._id }
+//                             ).select('startedAt -_id');
+//                     // Get time information
+//                     let startedAt = st.startedAt ? 
+//                         new Date(st.startedAt).toLocaleString() : 'N/A';
+//                     let submittedAt = submission.submittedAt ? 
+//                         new Date(submission.submittedAt).toLocaleString() : 'N/A';
+                    
+//                     // Use detailed report time data if available
+//                     if (detailedReport && detailedReport.timeAnalysis) {
+//                         // if (detailedReport.timeAnalysis.startTime) {
+//                         //     startedAt = new Date(detailedReport.timeAnalysis.startTime).toLocaleString();
+//                         // }
+//                         if (detailedReport.timeAnalysis.endTime) {
+//                             submittedAt = new Date(detailedReport.timeAnalysis.endTime).toLocaleString();
+//                         }
+//                     }
+//                     console.log(detailedReport.integrity.status);
+                    
+//                     // Add this student's data to the report
+//                     reportData.push({
+//                         'SN': serialNumber++,
+//                         'USN': submission.student.USN || 'N/A',
+//                         'Name': submission.student.fname,
+//                         'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
+//                         'Maximum Score': maxScore,
+//                         'Total Percentage': percentage,
+//                         'Started At': startedAt,
+//                         'Submitted At': submittedAt,
+//                         'Integrity Score': integrityScore,
+//                         'Copy Atempts': detailedReport.integrity.data.copyAttempts,
+//                         'Focus Changes': detailedReport.integrity.data.focusChanges,
+//                         'Full Screen Exits': detailedReport.integrity.data.fullscreenExits,
+//                         'Mouse Outs': detailedReport.integrity.data.mouseOuts,
+//                         'Paste Attempts': detailedReport.integrity.data.pasteAttempts,
+//                         'Tab Changes': detailedReport.integrity.data.tabChanges,
+//                     });
+//                 } catch (submissionError) {
+//                     console.error(`Error processing submission ${submission._id}:`, submissionError);
+//                     // Continue with next submission
+//                 }
+//             }
+//         }
+        
+//         // Create Excel workbook using ExcelJS
+//         const ExcelJS = require('exceljs');
+//         const workbook = new ExcelJS.Workbook();
+//         const worksheet = workbook.addWorksheet('Exam Report');
+        
+//         // Define columns
+//         worksheet.columns = [
+//             { header: 'SN', key: 'SN', width: 5 },
+//             { header: 'USN', key: 'USN', width: 15 },
+//             { header: 'Name', key: 'Name', width: 25 },
+//             { header: 'Total Score', key: 'Total Score', width: 12 },
+//             { header: 'Maximum Score', key: 'Maximum Score', width: 15 },
+//             { header: 'Total Percentage', key: 'Total Percentage', width: 18 },
+//             { header: 'Started At', key: 'Started At', width: 25 },
+//             { header: 'Submitted At', key: 'Submitted At', width: 25 },
+//             { header: 'Integrity Score', key: 'Integrity Score', width: 15 },
+//             { header: 'Copy Atempts', key: 'Copy Atempts', width: 15 },
+//             { header: 'Focus Changes', key: 'Focus Changes', width: 15 },
+//             { header: 'Full Screen Exits', key: 'Full Screen Exits', width: 15 },
+//             { header: 'Mouse Outs', key: 'Mouse Outs', width: 15 },
+//             { header: 'Paste Attempts', key: 'Paste Attempts', width: 15 },
+//             { header: 'Tab Changes', key: 'Tab Changes', width: 15 },
+//         ];
+        
+//         // Add header row styling
+//         worksheet.getRow(1).font = { bold: true };
+//         worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
+//         worksheet.getRow(1).fill = {
+//             type: 'pattern',
+//             pattern: 'solid',
+//             fgColor: { argb: '4F46E5' } // Primary color from your theme
+//         };
+//         worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFF' } };
+        
+//         // Add data rows
+//         reportData.forEach(data => {
+//             worksheet.addRow(data);
+//         });
+        
+//         // Apply border styling to all cells
+//         worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+//             row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+//                 cell.border = {
+//                     top: { style: 'thin' },
+//                     left: { style: 'thin' },
+//                     bottom: { style: 'thin' },
+//                     right: { style: 'thin' }
+//                 };
+                
+//                 // Center align numeric cells - use column number instead of header
+//                 // Column numbers are 1-based in ExcelJS
+//                 if ([1, 4, 5, 9].includes(colNumber)) { // SN, Total Score, Maximum Score, Integrity Score
+//                     cell.alignment = { horizontal: 'center' };
+//                 }
+//             });
+//         });
+        
+//         // Set filename
+//         const filename = `${exam.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report_${Date.now()}.xlsx`;
+        
+//         // Set response headers
+//         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        
+//         // Write to response stream
+//         await workbook.xlsx.write(res);
+//         res.end();
+        
+//     } catch (error) {
+//         console.error('Error generating exam report:', error);
+//         res.status(500).send('Error generating report: ' + error.message);
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.exportExamReport = async (req, res) => {
     try {
         const examId = req.params.examId;
@@ -354,17 +577,27 @@ exports.exportExamReport = async (req, res) => {
             return res.status(404).send('Exam not found');
         }
         
-        // Fetch all submissions related to this exam
-        const submissions = await Submission.find({ exam: examId })
-            .populate('student', 'USN fname email Department Semester Rollno _id')
-            .sort({ submittedAt: -1 });
+        // Use Promise.all to fetch data in parallel instead of sequentially
+        const [submissions, activeSessions, activityTrackers] = await Promise.all([
+            // Fetch submissions with only required fields to reduce memory usage
+            Submission.find({ exam: examId })
+                .populate('student', 'USN fname lname name email Department Semester Rollno _id')
+                .select('student score submittedAt mcqAnswers codingAnswers integrityScore _id')
+                .lean(), // Use lean() for better performance - removed sort here as we'll sort by rank later
+            
+            // Fetch active sessions
+            ActivityTracker.find({ examId: examId })
+                .populate('userId', 'USN name email Department Semester Rollno _id')
+                .select('userId status lastPingTimestamp startTimestamp')
+                .lean(),
+            
+            // Fetch all activity trackers for start times in one query
+            activityTracker.find({ examId: examId })
+                .select('userId startedAt -_id')
+                .lean()
+        ]);
         
-        // Fetch active sessions for this exam
-        const activeSessions = await ActivityTracker.find({ examId: examId })
-            .populate('userId', 'USN name email Department Semester Rollno _id')
-            .select('userId status lastPingTimestamp startTimestamp');
-        
-        // Create a map of active sessions for lookup
+        // Create maps for O(1) lookups instead of repeated database queries
         const activeSessionsMap = new Map();
         activeSessions.forEach(session => {
             if (session.userId && session.userId._id) {
@@ -375,112 +608,194 @@ exports.exportExamReport = async (req, res) => {
             }
         });
         
-        // Prepare data for the spreadsheet
-        const reportData = [];
-        let serialNumber = 1;
+        const activityTrackersMap = new Map();
+        activityTrackers.forEach(tracker => {
+            if (tracker.userId) {
+                activityTrackersMap.set(tracker.userId.toString(), tracker.startedAt);
+            }
+        });
         
-        // Process each submission
-        for (const submission of submissions) {
-            if (submission.student && submission.student._id) {
+        // Batch fetch all detailed reports at once instead of one by one
+        const submissionIds = submissions.map(s => s._id);
+        let detailedReports = new Map();
+        
+        try {
+            // If ReportModel supports batch operations, use it
+            const reports = await ReportModel.find({ submissionId: { $in: submissionIds } }).lean();
+            reports.forEach(report => {
+                detailedReports.set(report.submissionId.toString(), report);
+            });
+        } catch (batchError) {
+            console.log('Batch report fetch failed, falling back to individual queries');
+            // Fallback: fetch reports in smaller batches to avoid overwhelming the system
+            const batchSize = 50;
+            for (let i = 0; i < submissionIds.length; i += batchSize) {
+                const batch = submissionIds.slice(i, i + batchSize);
                 try {
-                    // Get detailed report data if available
-                    let detailedReport = null;
-                    try {
-                        detailedReport = await ReportModel.getAssessmentReport(submission._id);
-                    } catch (reportError) {
-                        console.log(`Could not fetch detailed report for submission ${submission._id}: ${reportError.message}`);
-                        // Continue with basic data if detailed report fails
-                    }
+                    const batchReports = await Promise.all(
+                        batch.map(async (id) => {
+                            try {
+                                const report = await ReportModel.getAssessmentReport(id);
+                                return { id, report };
+                            } catch (error) {
+                                return { id, report: null };
+                            }
+                        })
+                    );
                     
-                    const studentId = submission.student._id.toString();
-                    const sessionInfo = activeSessionsMap.get(studentId) || {};
-                    
-                    // Determine the student name - handle different student schema formats
-                    let studentName = 'N/A';
-                    if (submission.student.name) {
-                        studentName = submission.student.name;
-                    } else if (submission.student.fname && submission.student.lname) {
-                        studentName = `${submission.student.fname} ${submission.student.lname}`;
-                    }
-                    
-                    // Calculate maximum possible score and obtained score
-                    let maxScore = 100; // Default fallback
-                    let obtainedScore = submission.score;
-                    
-                    // Use detailed report data if available
-                    if (detailedReport && detailedReport.score) {
-                        maxScore = detailedReport.score.total;
-                        obtainedScore = detailedReport.score.obtained;
-                    } else {
-                        // Fallback to exam total marks or calculate from submission
-                        maxScore = exam.totalMarks || 
-                            (submission.mcqAnswers?.length + (submission.codingAnswers?.length || 0)) * 10 || 
-                            100;
-                    }
-                    
-                    // Calculate percentage
-                    const percentage = obtainedScore !== undefined && maxScore > 0 ? 
-                        ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
-                    
-                    // Get integrity score - either from detailed report or submission
-                    let integrityScore = submission.integrityScore || 'N/A';
-                    if (detailedReport && detailedReport.integrity) {
-                        integrityScore = detailedReport.integrity.status || integrityScore``;
-                    }
-                    
-
-                    let st = await activityTracker.findOne(
-                                { examId: examId, userId: submission.student._id }
-                            ).select('startedAt -_id');
-                    // Get time information
-                    let startedAt = st.startedAt ? 
-                        new Date(st.startedAt).toLocaleString() : 'N/A';
-                    let submittedAt = submission.submittedAt ? 
-                        new Date(submission.submittedAt).toLocaleString() : 'N/A';
-                    
-                    // Use detailed report time data if available
-                    if (detailedReport && detailedReport.timeAnalysis) {
-                        // if (detailedReport.timeAnalysis.startTime) {
-                        //     startedAt = new Date(detailedReport.timeAnalysis.startTime).toLocaleString();
-                        // }
-                        if (detailedReport.timeAnalysis.endTime) {
-                            submittedAt = new Date(detailedReport.timeAnalysis.endTime).toLocaleString();
+                    batchReports.forEach(({ id, report }) => {
+                        if (report) {
+                            detailedReports.set(id.toString(), report);
                         }
-                    }
-                    console.log(detailedReport.integrity.status);
-                    
-                    // Add this student's data to the report
-                    reportData.push({
-                        'SN': serialNumber++,
-                        'USN': submission.student.USN || 'N/A',
-                        'Name': submission.student.fname,
-                        'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
-                        'Maximum Score': maxScore,
-                        'Total Percentage': percentage,
-                        'Started At': startedAt,
-                        'Submitted At': submittedAt,
-                        'Integrity Score': integrityScore,
-                        'Copy Atempts': detailedReport.integrity.data.copyAttempts,
-                        'Focus Changes': detailedReport.integrity.data.focusChanges,
-                        'Full Screen Exits': detailedReport.integrity.data.fullscreenExits,
-                        'Mouse Outs': detailedReport.integrity.data.mouseOuts,
-                        'Paste Attempts': detailedReport.integrity.data.pasteAttempts,
-                        'Tab Changes': detailedReport.integrity.data.tabChanges,
                     });
-                } catch (submissionError) {
-                    console.error(`Error processing submission ${submission._id}:`, submissionError);
-                    // Continue with next submission
+                } catch (error) {
+                    console.error(`Error fetching batch ${i}-${i + batchSize}:`, error);
                 }
             }
         }
         
-        // Create Excel workbook using ExcelJS
+        // Pre-calculate common values
+        const defaultMaxScore = exam.totalMarks || 100;
+        
+        // Process data more efficiently and collect rank information
+        const reportData = [];
+        const submissionsWithRanks = [];
+        
+        // First pass: collect all submission data with ranks
+        for (const submission of submissions) {
+            if (!submission.student || !submission.student._id) continue;
+            
+            try {
+                const detailedReport = detailedReports.get(submission._id.toString());
+                
+                // Get rank from detailed report
+                const rank = detailedReport && detailedReport.ranking ? 
+                    detailedReport.ranking.rank : null;
+                
+                submissionsWithRanks.push({
+                    submission,
+                    detailedReport,
+                    rank
+                });
+            } catch (error) {
+                console.error(`Error processing submission ${submission._id}:`, error);
+                continue;
+            }
+        }
+        
+        // Sort by rank (lowest rank number first, nulls last)
+        submissionsWithRanks.sort((a, b) => {
+            if (a.rank === null && b.rank === null) return 0;
+            if (a.rank === null) return 1;
+            if (b.rank === null) return -1;
+            return a.rank - b.rank;
+        });
+        
+        // Second pass: create report data in rank order
+        let serialNumber = 1;
+        
+        for (const { submission, detailedReport } of submissionsWithRanks) {
+            try {
+                const studentId = submission.student._id.toString();
+                const sessionInfo = activeSessionsMap.get(studentId) || {};
+                
+                // Determine student name efficiently
+                const studentName = submission.student.name || 
+                    (submission.student.fname && submission.student.lname ? 
+                        `${submission.student.fname} ${submission.student.lname}` : 
+                        submission.student.fname || 'N/A');
+                
+                // Calculate scores
+                let maxScore = defaultMaxScore;
+                let obtainedScore = submission.score;
+                
+                if (detailedReport && detailedReport.score) {
+                    maxScore = detailedReport.score.total;
+                    obtainedScore = detailedReport.score.obtained;
+                } else if (!obtainedScore) {
+                    maxScore = (submission.mcqAnswers?.length || 0) + (submission.codingAnswers?.length || 0) * 10 || defaultMaxScore;
+                }
+                
+                // Calculate percentage
+                const percentage = obtainedScore !== undefined && maxScore > 0 ? 
+                    ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
+                
+                // Get integrity data
+                let integrityScore = submission.integrityScore || 'N/A';
+                let integrityStatus = 'Acceptable'; // Default status
+                let integrityData = {
+                    copyAttempts: 'N/A',
+                    focusChanges: 'N/A',
+                    fullscreenExits: 'N/A',
+                    mouseOuts: 'N/A',
+                    pasteAttempts: 'N/A',
+                    tabChanges: 'N/A'
+                };
+                
+                if (detailedReport && detailedReport.integrity) {
+                    integrityStatus = detailedReport.integrity.status || 'Acceptable';
+                    integrityScore = integrityStatus;
+                    if (detailedReport.integrity.data) {
+                        const data = detailedReport.integrity.data;
+                        integrityData = {
+                            copyAttempts: data.copyAttempts || 0,
+                            focusChanges: data.focusChanges || 0,
+                            fullscreenExits: data.fullscreenExits || 0,
+                            mouseOuts: data.mouseOuts || 0,
+                            pasteAttempts: data.pasteAttempts || 0,
+                            tabChanges: data.tabChanges || 0
+                        };
+                    }
+                }
+                
+                // Get rank from detailed report
+                const rank = detailedReport && detailedReport.ranking ? 
+                    detailedReport.ranking.rank : 'N/A';
+                
+                // Get time information using the pre-fetched map
+                const startedAt = activityTrackersMap.get(studentId) ? 
+                    new Date(activityTrackersMap.get(studentId)).toLocaleString() : 'N/A';
+                
+                let submittedAt = submission.submittedAt ? 
+                    new Date(submission.submittedAt).toLocaleString() : 'N/A';
+                
+                if (detailedReport && detailedReport.timeAnalysis && detailedReport.timeAnalysis.endTime) {
+                    submittedAt = new Date(detailedReport.timeAnalysis.endTime).toLocaleString();
+                }
+                
+                // Add to report data
+                reportData.push({
+                    'SN': serialNumber++,
+                    'USN': submission.student.USN || 'N/A',
+                    'Name': submission.student.fname || studentName,
+                    'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
+                    'Maximum Score': maxScore,
+                    'Total Percentage': percentage,
+                    'Started At': startedAt,
+                    'Submitted At': submittedAt,
+                    'Integrity Score': integrityScore,
+                    'Copy Attempts': integrityData.copyAttempts,
+                    'Focus Changes': integrityData.focusChanges,
+                    'Full Screen Exits': integrityData.fullscreenExits,
+                    'Mouse Outs': integrityData.mouseOuts,
+                    'Paste Attempts': integrityData.pasteAttempts,
+                    'Tab Changes': integrityData.tabChanges,
+                    'Rank': rank,
+                    'IntegrityStatus': integrityStatus // Store for styling
+                });
+            } catch (submissionError) {
+                console.error(`Error processing submission ${submission._id}:`, submissionError);
+                continue;
+            }
+        }
+        
+        // Create Excel workbook efficiently
         const ExcelJS = require('exceljs');
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Exam Report');
         
         // Define columns
-        worksheet.columns = [
+        const columns = [
             { header: 'SN', key: 'SN', width: 5 },
             { header: 'USN', key: 'USN', width: 15 },
             { header: 'Name', key: 'Name', width: 25 },
@@ -490,31 +805,51 @@ exports.exportExamReport = async (req, res) => {
             { header: 'Started At', key: 'Started At', width: 25 },
             { header: 'Submitted At', key: 'Submitted At', width: 25 },
             { header: 'Integrity Score', key: 'Integrity Score', width: 15 },
-            { header: 'Copy Atempts', key: 'Copy Atempts', width: 15 },
+            { header: 'Copy Attempts', key: 'Copy Attempts', width: 15 },
             { header: 'Focus Changes', key: 'Focus Changes', width: 15 },
-            { header: 'Full Screen Exits', key: 'Full Screen Exits', width: 15 },
+            { header: 'Full Screen Exits', key: 'Full Screen Exits', width: 18 },
             { header: 'Mouse Outs', key: 'Mouse Outs', width: 15 },
             { header: 'Paste Attempts', key: 'Paste Attempts', width: 15 },
             { header: 'Tab Changes', key: 'Tab Changes', width: 15 },
+            { header: 'Rank', key: 'Rank', width: 8 },
         ];
         
-        // Add header row styling
-        worksheet.getRow(1).font = { bold: true };
-        worksheet.getRow(1).alignment = { vertical: 'middle', horizontal: 'center' };
-        worksheet.getRow(1).fill = {
+        worksheet.columns = columns;
+        
+        // Add data in batches for better memory management
+        const batchSize = 100;
+        for (let i = 0; i < reportData.length; i += batchSize) {
+            const batch = reportData.slice(i, i + batchSize);
+            // Remove IntegrityStatus from the data before adding to worksheet
+            const cleanBatch = batch.map(row => {
+                const { IntegrityStatus, ...cleanRow } = row;
+                return cleanRow;
+            });
+            worksheet.addRows(cleanBatch);
+        }
+        
+        // Apply styling efficiently
+        // Header styling
+        const headerRow = worksheet.getRow(1);
+        headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
+        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+        headerRow.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: '4F46E5' } // Primary color from your theme
+            fgColor: { argb: '4F46E5' }
         };
-        worksheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFF' } };
         
-        // Add data rows
-        reportData.forEach(data => {
-            worksheet.addRow(data);
-        });
-        
-        // Apply border styling to all cells
-        worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+        // Apply borders and alignment in batches
+        const totalRows = worksheet.rowCount;
+        for (let rowNum = 1; rowNum <= totalRows; rowNum++) {
+            const row = worksheet.getRow(rowNum);
+            
+            // Check if this row should have red background (unacceptable integrity)
+            const dataRowIndex = rowNum - 2; // Subtract 2 (header row + 0-based index)
+            const isUnacceptableIntegrity = dataRowIndex >= 0 && 
+                reportData[dataRowIndex] && 
+                reportData[dataRowIndex].IntegrityStatus === 'Unacceptable';
+            
             row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
                 cell.border = {
                     top: { style: 'thin' },
@@ -523,20 +858,30 @@ exports.exportExamReport = async (req, res) => {
                     right: { style: 'thin' }
                 };
                 
-                // Center align numeric cells - use column number instead of header
-                // Column numbers are 1-based in ExcelJS
-                if ([1, 4, 5, 9].includes(colNumber)) { // SN, Total Score, Maximum Score, Integrity Score
+                // Apply red background for unacceptable integrity rows (except header)
+                if (rowNum > 1 && isUnacceptableIntegrity) {
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: 'FFCCCB' } // Light red background
+                    };
+                }
+                
+                // Center align numeric columns (including new Rank column)
+                if ([1, 4, 5, 9, 10, 11, 12, 13, 14, 15, 16].includes(colNumber)) {
                     cell.alignment = { horizontal: 'center' };
                 }
             });
-        });
+        }
         
         // Set filename
-        const filename = `${exam.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report_${Date.now()}.xlsx`;
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        const filename = `${exam.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report_${timestamp}.xlsx`;
         
         // Set response headers
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('Cache-Control', 'no-cache');
         
         // Write to response stream
         await workbook.xlsx.write(res);
@@ -544,6 +889,11 @@ exports.exportExamReport = async (req, res) => {
         
     } catch (error) {
         console.error('Error generating exam report:', error);
-        res.status(500).send('Error generating report: ' + error.message);
+        if (!res.headersSent) {
+            res.status(500).json({ 
+                error: 'Error generating report', 
+                message: error.message 
+            });
+        }
     }
 };
