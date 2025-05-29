@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require("uuid");
 const passport = require("passport");
 const moment = require("moment-timezone");
 const { scheduleExamReminder, cancelExamReminder } = require("../utils/examreminder");
+const activityTracker = require("../models/ActiveSession");
 
 function ensureAdmin(req, res, next) {
     if (req.isAuthenticated() && req.user.role === "admin") {
@@ -424,24 +425,29 @@ exports.exportExamReport = async (req, res) => {
                     // Get integrity score - either from detailed report or submission
                     let integrityScore = submission.integrityScore || 'N/A';
                     if (detailedReport && detailedReport.integrity) {
-                        integrityScore = detailedReport.integrity.status || integrityScore;
+                        integrityScore = detailedReport.integrity.status || integrityScore``;
                     }
                     
+
+                    let st = await activityTracker.findOne(
+                                { examId: examId, userId: submission.student._id }
+                            ).select('startedAt -_id');
                     // Get time information
-                    let startedAt = sessionInfo.startedAt ? 
-                        new Date(sessionInfo.startedAt).toLocaleString() : 'N/A';
+                    let startedAt = st.startedAt ? 
+                        new Date(st.startedAt).toLocaleString() : 'N/A';
                     let submittedAt = submission.submittedAt ? 
                         new Date(submission.submittedAt).toLocaleString() : 'N/A';
                     
                     // Use detailed report time data if available
                     if (detailedReport && detailedReport.timeAnalysis) {
-                        if (detailedReport.timeAnalysis.startTime) {
-                            startedAt = new Date(detailedReport.timeAnalysis.startTime).toLocaleString();
-                        }
+                        // if (detailedReport.timeAnalysis.startTime) {
+                        //     startedAt = new Date(detailedReport.timeAnalysis.startTime).toLocaleString();
+                        // }
                         if (detailedReport.timeAnalysis.endTime) {
                             submittedAt = new Date(detailedReport.timeAnalysis.endTime).toLocaleString();
                         }
                     }
+                    console.log(detailedReport.integrity.status);
                     
                     // Add this student's data to the report
                     reportData.push({
@@ -453,7 +459,13 @@ exports.exportExamReport = async (req, res) => {
                         'Total Percentage': percentage,
                         'Started At': startedAt,
                         'Submitted At': submittedAt,
-                        'Integrity Score': integrityScore
+                        'Integrity Score': integrityScore,
+                        'Copy Atempts': detailedReport.integrity.data.copyAttempts,
+                        'Focus Changes': detailedReport.integrity.data.focusChanges,
+                        'Full Screen Exits': detailedReport.integrity.data.fullscreenExits,
+                        'Mouse Outs': detailedReport.integrity.data.mouseOuts,
+                        'Paste Attempts': detailedReport.integrity.data.pasteAttempts,
+                        'Tab Changes': detailedReport.integrity.data.tabChanges,
                     });
                 } catch (submissionError) {
                     console.error(`Error processing submission ${submission._id}:`, submissionError);
@@ -475,9 +487,15 @@ exports.exportExamReport = async (req, res) => {
             { header: 'Total Score', key: 'Total Score', width: 12 },
             { header: 'Maximum Score', key: 'Maximum Score', width: 15 },
             { header: 'Total Percentage', key: 'Total Percentage', width: 18 },
-            { header: 'Started At', key: 'Started At', width: 20 },
-            { header: 'Submitted At', key: 'Submitted At', width: 20 },
-            { header: 'Integrity Score', key: 'Integrity Score', width: 15 }
+            { header: 'Started At', key: 'Started At', width: 25 },
+            { header: 'Submitted At', key: 'Submitted At', width: 25 },
+            { header: 'Integrity Score', key: 'Integrity Score', width: 15 },
+            { header: 'Copy Atempts', key: 'Copy Atempts', width: 15 },
+            { header: 'Focus Changes', key: 'Focus Changes', width: 15 },
+            { header: 'Full Screen Exits', key: 'Full Screen Exits', width: 15 },
+            { header: 'Mouse Outs', key: 'Mouse Outs', width: 15 },
+            { header: 'Paste Attempts', key: 'Paste Attempts', width: 15 },
+            { header: 'Tab Changes', key: 'Tab Changes', width: 15 },
         ];
         
         // Add header row styling

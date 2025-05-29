@@ -49,15 +49,57 @@ class ReportModel {
       const maxScore = mcqQuestions.reduce((sum, q) => sum + q.marks, 0);
 
       // Calculate integrity index
-      const integrityViolations = integrityData ? 
-        (integrityData.tabChanges + 
-         integrityData.mouseOuts + 
-         integrityData.fullscreenExits + 
-         integrityData.copyAttempts + 
-         integrityData.pasteAttempts + 
-         integrityData.focusChanges) : 0;
+      // const integrityViolations = integrityData ? 
+      //   (integrityData.tabChanges + 
+      //    integrityData.mouseOuts + 
+      //    integrityData.fullscreenExits + 
+      //    integrityData.copyAttempts + 
+      //    integrityData.pasteAttempts + 
+      //    integrityData.focusChanges) : 0;
       
+      // const integrityStatus = integrityViolations >= 3 ? 'Unacceptable' : 'Acceptable';
+
+      // Calculate integrity index with proper data handling
+      let integrityViolations = 0;
+      let processedIntegrityData = null;
+
+      if (integrityData) {
+        integrityViolations = (integrityData.tabChanges || 0) + 
+                            (integrityData.mouseOuts || 0) + 
+                            (integrityData.fullscreenExits || 0) + 
+                            (integrityData.copyAttempts || 0) + 
+                            (integrityData.pasteAttempts || 0) + 
+                            (integrityData.focusChanges || 0);
+        
+        // Return the actual data with proper structure
+        processedIntegrityData = {
+          tabChanges: integrityData.tabChanges || 0,
+          mouseOuts: integrityData.mouseOuts || 0,
+          fullscreenExits: integrityData.fullscreenExits || 0,
+          copyAttempts: integrityData.copyAttempts || 0,
+          pasteAttempts: integrityData.pasteAttempts || 0,
+          focusChanges: integrityData.focusChanges || 0,
+          screenConfiguration: integrityData.screenConfiguration || "Unknown",
+          lastEvent: integrityData.lastEvent || "N/A",
+          timestamps: integrityData.timestamps
+        };
+      } else {
+        // When no integrity data exists, return a proper structure
+        processedIntegrityData = {
+          tabChanges: 0,
+          mouseOuts: 0,
+          fullscreenExits: 0,
+          copyAttempts: 0,
+          pasteAttempts: 0,
+          focusChanges: 0,
+          screenConfiguration: "No data available",
+          lastEvent: "No monitoring data",
+          timestamps: null
+        };
+      }
+
       const integrityStatus = integrityViolations >= 3 ? 'Unacceptable' : 'Acceptable';
+
 
       // Format test duration
       const startTime = new Date(submission.exam.startTime);
@@ -127,7 +169,7 @@ class ReportModel {
           duration: usedTime
         },
         integrity: {
-          data: integrityData || {},
+          data: processedIntegrityData,
           status: integrityStatus,
           violations: integrityViolations
         },
