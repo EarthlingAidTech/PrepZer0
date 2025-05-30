@@ -120,7 +120,7 @@ exports.signuppostcontrol = async(req,res)=>{
             randurl = uuidv4()
 
           
-           badhttp = "https://prepzer0.co.in/authenticate/verify/"+randurl
+           badhttp = "https://bmsit.prepzer0.co.in/authenticate/verify/"+randurl
             try{
                 await sendEmails({
                     email  : req.body.email ,

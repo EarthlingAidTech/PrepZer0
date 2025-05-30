@@ -1396,8 +1396,8 @@ const examIntegrity = (function() {
             tabChangeCount: 0,
             mouseOutCount: 0,
             fullscreenExitCount: 0,
-            copyAttemptCount: 0,
-            pasteAttemptCount: 0,
+            // copyAttemptCount: 0,
+            // pasteAttemptCount: 0,
             focusChangeCount: 0,
             refreshViolationCount: 0
         },
@@ -1812,8 +1812,6 @@ const examIntegrity = (function() {
         if (!state.examStarted) return;
         
         e.preventDefault();
-        state.violations.copyAttemptCount++;
-        state.totalViolations++;
         sendIntegrityUpdate("copyAttempts");
         updateStatus("Copy attempt detected");
         updateUI();
@@ -1827,8 +1825,8 @@ const examIntegrity = (function() {
         if (!state.examStarted) return;
         
         e.preventDefault();
-        state.violations.pasteAttemptCount++;
-        state.totalViolations++;
+        // state.violations.pasteAttemptCount++;
+        // state.totalViolations++;
         sendIntegrityUpdate("pasteAttempts");
         updateStatus("Paste attempt detected");
         updateUI();
