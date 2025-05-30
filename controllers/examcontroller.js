@@ -583,7 +583,7 @@ exports.exportExamReport = async (req, res) => {
             Submission.find({ exam: examId })
                 .populate('student', 'USN fname lname name email Department Semester Rollno _id')
                 .select('student score submittedAt mcqAnswers codingAnswers integrityScore _id')
-                .lean(), // Use lean() for better performance - removed sort here as we'll sort by rank later
+                .lean(), // Use lean() for better performance
             
             // Fetch active sessions
             ActivityTracker.find({ examId: examId })
