@@ -27,6 +27,9 @@ router.route("/exam/:examId/edit/mcq/:mcqId").get(questionController.getEditmcqQ
 router.route("/exam/:examId/delete/mcq/:mcqId").post(questionController.deleteMCQ)
 router.route("/exam/:examId/edit/coding/:codingId").get(questionController.getEditcodingQuestion).post(questionController.postEditcodingQuestion)
 router.route("/exam/:examId/delete/coding/:codingId").post(questionController.deleteCoding)
+router.get('/exam/:examId/evaluate-all', admincontroller.evaluateAllSubmissions);
+router.get('/exam/:examId/evaluation-status', admincontroller.getEvaluationStatus);
+router.post('/exam/:examId/re-evaluate', admincontroller.reEvaluateSubmissions);
 
 
 

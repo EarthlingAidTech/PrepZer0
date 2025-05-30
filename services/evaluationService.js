@@ -8,7 +8,7 @@ const EvaluationResult = require('../models/EvaluationResultSchema');
 const ReportModel = require('./../models/reportModel')
 
 // Config for Judge0 API - make sure this URL is correct
-const JUDGE0_API = process.env.JUDGE0_API || 'http://172.16.6.47:2358/';
+const JUDGE0_API = process.env.JUDGE0_API || 'https://a01f-14-97-164-222.ngrok-free.app/';
 
 // Enable debugging mode
 const DEBUG = true;
@@ -32,7 +32,7 @@ function debugLog(...args) {
  */
 async function evaluateSubmission(userId, examId, storeResults = true) {
   try {
-    debugLog(`Starting evaluation for user ${userId} in exam ${examId}`);
+   
     
     // Validate inputs
     if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(examId)) {
@@ -59,7 +59,7 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
     }
     
     // Debug log the full submission
-    debugLog('Submission found:', JSON.stringify(submission, null, 2));
+
     
     // CRITICAL FIX: Fetch the coding questions directly using populate with explicit select for testCases
     const examWithQuestions = await Exam.findById(examId)
@@ -77,7 +77,7 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
       
       // If we have questions but all are missing test cases, fetch them directly
       if (missingTestCases.length === examWithQuestions.codingQuestions.length) {
-        debugLog('All questions missing test cases in populate, fetching directly');
+       
         
         // Get all question IDs
         const questionIds = examWithQuestions.codingQuestions.map(q => q._id);
@@ -90,22 +90,13 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
         // Replace the questions in our exam object with the full ones
         if (fullQuestions.length > 0) {
           examWithQuestions.codingQuestions = fullQuestions;
-          debugLog('Successfully fetched questions directly:', fullQuestions.map(q => 
-            `${q._id}: ${q.testCases?.length || 0} test cases`
-          ));
+
         }
       }
     }
     
     // Log the test cases we have
-    if (examWithQuestions.codingQuestions?.length > 0) {
-      examWithQuestions.codingQuestions.forEach((q, i) => {
-        debugLog(`Question ${i+1} (${q._id}) has ${q.testCases?.length || 0} test cases`);
-        if (q.testCases && q.testCases.length > 0) {
-          debugLog(`First test case: input="${q.testCases[0].input}", expected="${q.testCases[0].expectedOutput}"`);
-        }
-      });
-    }
+
     
     // If there are no coding questions, return empty results
     if (!examWithQuestions.codingQuestions || examWithQuestions.codingQuestions.length === 0) {
@@ -170,12 +161,11 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
       }
       
       const questionId = question._id;
-      debugLog('Looking for questionId:', questionId.toString());
+
       
       // Get all submitted answer IDs for easy comparison
       const submittedAnswerIds = submission.codingAnswers?.map(a => a.questionId?.toString()) || [];
-      debugLog('Submitted answer IDs:', submittedAnswerIds);
-      
+
       // Enhanced matching logic
       const studentAnswer = submission.codingAnswers?.find(answer => {
         if (!answer || !answer.questionId) return false;
@@ -183,14 +173,12 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
         const questionIdStr = questionId.toString();
         const isMatch = answerIdStr === questionIdStr;
         
-        if (isMatch) {
-          debugLog('Found matching answer for question:', questionIdStr);
-        }
+       
         return isMatch;
       });
       
       // Log whether we found an answer
-      debugLog('Student answer found:', studentAnswer ? `Yes, code: ${studentAnswer.code?.substring(0, 20)}...` : 'No matching answer found');
+  
 
       // Handle case where no answer is found, or answer has no code
       if (!studentAnswer || !studentAnswer.code || studentAnswer.code.trim() === '') {
@@ -228,11 +216,10 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
       console.log(`Using language ID: ${languageId}`);
 
       // Generate a clean version of the code for logging
-      debugLog('Prepared code:', studentAnswer.code);
-
+ 
       // CRITICAL FIX: Ensure test cases exist or create default ones
       if (!question.testCases || question.testCases.length === 0) {
-        debugLog('WARNING: Question has no test cases, creating default ones');
+    
         
         // Create default test cases based on the sample input/output
         if (question.sampleInput && question.sampleOutput) {
@@ -243,7 +230,7 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
             timeout: 2,
             memoryLimit: 128000
           }];
-          debugLog('Created default test case from sample input/output');
+       
         } else {
           // If no sample input/output, create a simple test case
           const needsInput = studentAnswer.code.includes('input(') || 
@@ -279,7 +266,7 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
             timeout: 2,
             memoryLimit: 128000
           }];
-          debugLog('Created minimal default test case');
+          
         }
       }
 
@@ -328,13 +315,15 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
         }
       }
 
+// Complete fixed section - replace the scoring part in your evaluateSubmission function
+
       // Calculate score based on test cases
       const testCasesPassed = questionEvaluation.testCases.filter(tc => tc.passed).length;
       const totalTestCases = question.testCases.length;
       const scorePercentage = totalTestCases > 0 ? testCasesPassed / totalTestCases : 0;
       const score = Math.round(scorePercentage * question.maxMarks * 100) / 100;
       
-      console.log(`Score calculation: ${testCasesPassed}/${totalTestCases} test cases passed, ${score}/${question.maxMarks} points`);
+      console.log(`Score calculation for question ${questionId}: ${testCasesPassed}/${totalTestCases} test cases passed, ${score}/${question.maxMarks} points (${(scorePercentage * 100).toFixed(1)}%)`);
       
       // Create an array of only failed test cases with their details
       const failedTestCases = questionEvaluation.testCases
@@ -376,12 +365,17 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
         failedTestCases: failedTestCases,
         errorSummary: generateErrorSummary(questionEvaluation)
       });
+      
+      // *** CRITICAL FIX: Actually accumulate the scores! ***
+      evaluationResults.totalScore += score;
       evaluationResults.maxPossibleScore += question.maxMarks;
       evaluationResults.summary.totalTestCases += totalTestCases;
       evaluationResults.summary.passedTestCases += testCasesPassed;
+      
+      console.log(`Running totals: totalScore=${evaluationResults.totalScore}, maxPossible=${evaluationResults.maxPossibleScore}`);
     }
 
-    // Calculate percentage score
+    // Calculate percentage score - AFTER processing all questions
     evaluationResults.percentage = evaluationResults.maxPossibleScore > 0 ? 
       parseFloat((evaluationResults.totalScore / evaluationResults.maxPossibleScore * 100).toFixed(2)) : 0;
 
@@ -391,7 +385,15 @@ async function evaluateSubmission(userId, examId, storeResults = true) {
       maxPossible: evaluationResults.maxPossibleScore,
       percentage: evaluationResults.percentage,
       questionsAttempted: evaluationResults.summary.attempted,
-      questionsCorrect: evaluationResults.summary.correct
+      questionsCorrect: evaluationResults.summary.correct,
+      questionsPartial: evaluationResults.summary.partial,
+      questionsIncorrect: evaluationResults.summary.incorrect
+    });
+
+    // Detailed breakdown by question for debugging
+    console.log('Question-by-question breakdown:');
+    evaluationResults.questions.forEach((q, index) => {
+      console.log(`  Question ${index + 1} (${q.questionId}): ${q.score}/${q.maxScore} points (${q.testCasesPassed}/${q.testCasesTotal} tests) - Status: ${q.status}`);
     });
 
     // Store results if requested
@@ -452,7 +454,7 @@ async function fallbackEvaluate(code, languageId, question) {
         }
         
         if (outputPattern) {
-          debugLog(`Detected simple print output: "${outputPattern}"`);
+      
         }
       }
       
@@ -509,7 +511,7 @@ async function fallbackEvaluate(code, languageId, question) {
         if ((code.includes('max_current') || code.includes('curr_sum')) && 
             (code.includes('max_global') || code.includes('max_so_far'))) {
           
-          debugLog(`Detected Kadane's algorithm pattern, using analytical evaluation`);
+     
           
           // Implement a simplified version of the algorithm
           const maxSubArray = (nums) => {
@@ -587,7 +589,7 @@ async function fallbackEvaluate(code, languageId, question) {
     
     // If we reach here, we couldn't determine a specific pattern
     // Return a generic failure result
-    debugLog("Fallback couldn't determine code pattern, using generic failure result");
+ 
     
     for (const testCase of question.testCases) {
       results.testCases.push({
@@ -674,6 +676,335 @@ function generateErrorSummary(questionEvaluation) {
  * @param {Object} question - The coding question with test cases
  * @returns {Object} Evaluation results for this question
  */
+// async function evaluateCode(code, languageId, question) {
+//   const results = {
+//     executionDetails: {
+//       status: 'pending',
+//       compilationError: null,
+//       runtimeError: null,
+//       executionTime: 0,
+//       memoryUsage: 0
+//     },
+//     testCases: []
+//   };
+
+//   try {
+//     // Check if code is empty
+//     if (!code || code.trim() === '') {
+//       throw new Error('Empty submission');
+//     }
+
+//     // CRITICAL FIX: Ensure test cases exist
+//     if (!question.testCases || question.testCases.length === 0) {
+//       throw new Error('No test cases provided for evaluation');
+//     }
+
+//     // First, check for compilation (use a reduced version of the code with imports to avoid issues)
+//     const safeCode = sanitizeCodeForJudge0(code, languageId);
+    
+//     // FIXED: Provide a default input for compilation check if code expects input
+//     let compilationInput = '';
+//     if (languageId === 71 && safeCode.includes('input(')) {
+//       // If Python code uses input(), provide a simple value to prevent hanging
+//       compilationInput = '1';
+//     }
+    
+//     const compilationCheck = await submitToJudge0(
+//       safeCode, 
+//       languageId,
+//       compilationInput,
+//       question.testCases[0]?.timeout || 2,
+//       question.testCases[0]?.memoryLimit || 128000 // FIXED: Use higher memory limit
+//     );
+
+//     // Handle compilation errors
+//     if (compilationCheck.status.id >= 6) { // Compilation error codes in Judge0
+//       results.executionDetails.status = 'compilation_error';
+//       results.executionDetails.compilationError = compilationCheck.compile_output || 
+//                                                  compilationCheck.stderr || 
+//                                                  'Compilation error';
+    
+      
+//       // Add placeholder failed test cases since we couldn't even compile
+//       question.testCases.forEach(testCase => {
+//         results.testCases.push({
+//           input: testCase.input,
+//           expectedOutput: testCase.expectedOutput,
+//           actualOutput: null,
+//           passed: false,
+//           error: 'Compilation error - code did not compile',
+//           executionTime: null,
+//           memoryUsage: null
+//         });
+//       });
+      
+//       return results;
+//     }
+
+//     results.executionDetails.status = 'executed';
+
+
+//     // Process each test case
+//     for (const [index, testCase] of question.testCases.entries()) {
+
+      
+//       const testCaseResult = {
+//         input: testCase.input,
+//         expectedOutput: testCase.expectedOutput,
+//         actualOutput: null,
+//         passed: false,
+//         error: null,
+//         executionTime: null,
+//         memoryUsage: null
+//       };
+
+//       try {
+//         // CRITICAL FIX: Ensure input is not empty for code that expects input
+//         let testInput = testCase.input || '';
+        
+//         // If code contains input() but test case input is empty, provide default input
+//         if (testInput.trim() === '' && 
+//             ((languageId === 71 && safeCode.includes('input(')) || 
+//              (languageId === 62 && safeCode.includes('Scanner')) ||
+//              (languageId === 54 && safeCode.includes('cin')) ||
+//              (languageId === 63 && safeCode.includes('readline')))) {
+          
+//           testInput = '10'; // Simple default input
+      
+//         }
+        
+//         // Submit to Judge0 with increased memory limit
+//         const execution = await submitToJudge0(
+//           safeCode,
+//           languageId,
+//           testInput,
+//           testCase.timeout || 5, // Increased timeout
+//           testCase.memoryLimit || 128000 // FIXED: Use higher memory limit (128MB)
+//         );
+
+//         // Update execution stats (use the max values across all test cases)
+//         results.executionDetails.executionTime = Math.max(
+//           results.executionDetails.executionTime,
+//           execution.time || 0
+//         );
+//         results.executionDetails.memoryUsage = Math.max(
+//           results.executionDetails.memoryUsage,
+//           execution.memory || 0
+//         );
+
+//         // Check for runtime errors or killed processes
+//         if (execution.status.id >= 7) { // Runtime error codes in Judge0
+//           const errorMessage = translateJudge0Error(execution);
+//           testCaseResult.error = errorMessage;
+//           testCaseResult.passed = false;
+//           results.executionDetails.status = 'runtime_error';
+       
+          
+//           // Check if process was killed (status.id === 11 often means killed)
+//           if (errorMessage.includes('Process Killed') || execution.status.id === 11) {
+        
+            
+//             // For killed processes, try to extract the expected output directly from the code
+//             // This is a generalized approach that works for many simple problems
+//             const staticAnalysisResult = staticCodeAnalysis(code, languageId, testCase);
+            
+//             if (staticAnalysisResult.validOutput) {
+//               testCaseResult.actualOutput = staticAnalysisResult.output;
+//               testCaseResult.passed = staticAnalysisResult.passed;
+//               testCaseResult.error = staticAnalysisResult.passed ? null : 'Wrong Answer';
+              
+          
+//             } else {
+//               // If static analysis didn't work, try one more time with lower limits
+//               try {
+              
+//                 const retryExecution = await submitToJudge0(
+//                   safeCode,
+//                   languageId,
+//                   testInput,
+//                   1, // 1 second timeout
+//                   32000 // 32MB memory limit
+//                 );
+                
+//                 if (retryExecution.status.id < 7) {
+//                   // Process output from the retry
+//                   testCaseResult.actualOutput = retryExecution.stdout ? retryExecution.stdout.trim() : '';
+//                   testCaseResult.expectedOutput = testCase.expectedOutput.trim();
+                  
+//                   // Clean Python-specific output issues
+//                   if (languageId == 71) {
+//                     testCaseResult.actualOutput = cleanPythonOutput(testCaseResult.actualOutput);
+//                   }
+                  
+//                   // Compare outputs
+//                   const isOutputMatching = compareOutputs(testCaseResult.actualOutput, testCaseResult.expectedOutput);
+//                   testCaseResult.passed = isOutputMatching;
+//                   testCaseResult.error = isOutputMatching ? null : 'Wrong Answer';
+                  
+//                   // Record execution details
+//                   testCaseResult.executionTime = retryExecution.time;
+//                   testCaseResult.memoryUsage = retryExecution.memory;
+                  
+
+//                 }
+//               } catch (retryError) {
+              
+//               }
+//             }
+//           }
+          
+//           // Only set the runtime error once (use the first one we encounter)
+//           if (!results.executionDetails.runtimeError) {
+//             results.executionDetails.runtimeError = testCaseResult.error;
+//           }
+//         } else {
+//           // Process output
+//           testCaseResult.actualOutput = execution.stdout ? execution.stdout.trim() : '';
+//           testCaseResult.expectedOutput = testCase.expectedOutput.trim();
+          
+//           // Process Python-specific output issues
+//           if (languageId == 71) {
+//             // Python sometimes adds quotes to string outputs that should be removed
+//             testCaseResult.actualOutput = cleanPythonOutput(testCaseResult.actualOutput);
+//           }
+          
+//           // Compare outputs with whitespace handling
+//           const isOutputMatching = compareOutputs(testCaseResult.actualOutput, testCaseResult.expectedOutput);
+//           testCaseResult.passed = isOutputMatching;
+          
+//           // Debug output comparison
+
+          
+//           if (!isOutputMatching) {
+//             // Detailed debugging for mismatched outputs
+
+            
+//             // Convert to buffer to see exact byte values
+//             const expectedBuffer = Buffer.from(testCaseResult.expectedOutput);
+//             const actualBuffer = Buffer.from(testCaseResult.actualOutput);
+   
+            
+//             // Show normalized versions
+//             const normalizeOutput = (output) => {
+//               return output
+//                 .replace(/\r\n/g, '\\n')
+//                 .replace(/\n/g, '\\n')
+//                 .replace(/\r/g, '\\r')
+//                 .replace(/\t/g, '\\t');
+//             };
+            
+       
+            
+//             testCaseResult.error = 'Wrong Answer';
+//           }
+          
+//           // Record execution details
+//           testCaseResult.executionTime = execution.time;
+//           testCaseResult.memoryUsage = execution.memory;
+//         }
+//       } catch (error) {
+//         testCaseResult.error = `Test case execution error: ${error.message}`;
+//         testCaseResult.passed = false;
+//         results.executionDetails.status = 'execution_error';
+     
+//       }
+
+//       results.testCases.push(testCaseResult);
+//     }
+
+//     // Log test case summary
+//     const passedCount = results.testCases.filter(tc => tc.passed).length;
+//     console.log(`Test case summary: ${passedCount}/${results.testCases.length} passed`);
+    
+//     return results;
+//   } catch (error) {
+//     console.error('Code evaluation error:', error);
+//     results.executionDetails.status = 'error';
+//     results.executionDetails.runtimeError = error.message;
+//     return results;
+//   }
+// }
+async function submitToJudge0(code, languageId, input, timeout, memoryLimit) {
+  try {
+    const numericLanguageId = parseInt(languageId, 10);
+    
+    // MATCH FRONTEND EXACTLY - Don't set any resource limits like frontend
+    const requestData = {
+      source_code: code,
+      language_id: numericLanguageId,
+      stdin: input || '',
+      expected_output: null  // Match frontend exactly
+      // Remove all the extra limits that frontend doesn't set:
+      // cpu_time_limit, memory_limit, stdout_max_chars
+    };
+    
+    console.log('Backend submission payload (matching frontend):', requestData);
+    
+    // Submit the code - same as frontend
+    const submissionResponse = await fetch(`${JUDGE0_API}submissions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    });
+    
+    const responseText = await submissionResponse.text();
+    console.log('Judge0 response:', responseText);
+    
+    if (!submissionResponse.ok) {
+      throw new Error(`Judge0 submission failed: ${submissionResponse.statusText}. Response: ${responseText}`);
+    }
+    
+    const submissionData = JSON.parse(responseText);
+    const token = submissionData.token;
+    console.log('Got token:', token);
+    
+    // Poll for results - same as frontend
+    let result;
+    let retries = 0;
+    const maxRetries = 20;  // Match frontend retries
+    
+    while (retries < maxRetries) {
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Match frontend interval
+      
+      const resultResponse = await fetch(`${JUDGE0_API}submissions/${token}`, {
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      const resultText = await resultResponse.text();
+      
+      if (!resultResponse.ok) {
+        throw new Error(`Failed to fetch submission result: ${resultResponse.statusText}`);
+      }
+      
+      result = JSON.parse(resultText);
+      console.log(`Polling attempt ${retries + 1}, Status: ${result.status?.description}`);
+      
+      // Check if processing is complete (same as frontend)
+      if (result.status.id !== 1 && result.status.id !== 2) {
+        break;
+      }
+      
+      retries++;
+    }
+    
+    if (retries >= maxRetries) {
+      throw new Error('Judge0 execution timed out');
+    }
+    
+    console.log('Final result:', result);
+    return result;
+  } catch (error) {
+    console.error('Judge0 API error:', error);
+    throw new Error(`Judge0 submission failed: ${error.message}`);
+  }
+}
+
+// ALSO: Simplify your evaluateCode to use the same input handling as frontend
 async function evaluateCode(code, languageId, question) {
   const results = {
     executionDetails: {
@@ -687,66 +1018,22 @@ async function evaluateCode(code, languageId, question) {
   };
 
   try {
-    // Check if code is empty
     if (!code || code.trim() === '') {
       throw new Error('Empty submission');
     }
 
-    // CRITICAL FIX: Ensure test cases exist
     if (!question.testCases || question.testCases.length === 0) {
       throw new Error('No test cases provided for evaluation');
     }
 
-    // First, check for compilation (use a reduced version of the code with imports to avoid issues)
     const safeCode = sanitizeCodeForJudge0(code, languageId);
-    
-    // FIXED: Provide a default input for compilation check if code expects input
-    let compilationInput = '';
-    if (languageId === 71 && safeCode.includes('input(')) {
-      // If Python code uses input(), provide a simple value to prevent hanging
-      compilationInput = '1';
-    }
-    
-    const compilationCheck = await submitToJudge0(
-      safeCode, 
-      languageId,
-      compilationInput,
-      question.testCases[0]?.timeout || 2,
-      question.testCases[0]?.memoryLimit || 128000 // FIXED: Use higher memory limit
-    );
+    console.log(`Evaluating ${question.testCases.length} test cases for language ${languageId}`);
 
-    // Handle compilation errors
-    if (compilationCheck.status.id >= 6) { // Compilation error codes in Judge0
-      results.executionDetails.status = 'compilation_error';
-      results.executionDetails.compilationError = compilationCheck.compile_output || 
-                                                 compilationCheck.stderr || 
-                                                 'Compilation error';
-      debugLog('Compilation error:', results.executionDetails.compilationError);
-      
-      // Add placeholder failed test cases since we couldn't even compile
-      question.testCases.forEach(testCase => {
-        results.testCases.push({
-          input: testCase.input,
-          expectedOutput: testCase.expectedOutput,
-          actualOutput: null,
-          passed: false,
-          error: 'Compilation error - code did not compile',
-          executionTime: null,
-          memoryUsage: null
-        });
-      });
-      
-      return results;
-    }
-
-    results.executionDetails.status = 'executed';
-    debugLog('Compilation successful, running test cases');
-
-    // Process each test case
+    // Process each test case with MINIMAL input processing (like frontend)
     for (const [index, testCase] of question.testCases.entries()) {
-      debugLog(`Executing test case ${index + 1}/${question.testCases.length}`);
-      debugLog(`Test input: "${testCase.input}"`);
-      debugLog(`Expected output: "${testCase.expectedOutput}"`);
+      console.log(`\n=== Test Case ${index + 1} ===`);
+      console.log(`Input: "${testCase.input}"`);
+      console.log(`Expected: "${testCase.expectedOutput}"`);
       
       const testCaseResult = {
         input: testCase.input,
@@ -759,30 +1046,26 @@ async function evaluateCode(code, languageId, question) {
       };
 
       try {
-        // CRITICAL FIX: Ensure input is not empty for code that expects input
+        // SIMPLE: Use the input as-is, just like the frontend does
         let testInput = testCase.input || '';
         
-        // If code contains input() but test case input is empty, provide default input
-        if (testInput.trim() === '' && 
-            ((languageId === 71 && safeCode.includes('input(')) || 
-             (languageId === 62 && safeCode.includes('Scanner')) ||
-             (languageId === 54 && safeCode.includes('cin')) ||
-             (languageId === 63 && safeCode.includes('readline')))) {
-          
-          testInput = '10'; // Simple default input
-          debugLog('WARNING: Empty test input for code that expects input, using default:', testInput);
+        // ONLY add newline if needed and input exists
+        if (testInput && !testInput.endsWith('\n')) {
+          testInput += '\n';
         }
         
-        // Submit to Judge0 with increased memory limit
+        console.log(`Sending to Judge0: "${testInput}"`);
+        
+        // Call Judge0 with NO extra limits (like frontend)
         const execution = await submitToJudge0(
           safeCode,
           languageId,
           testInput,
-          testCase.timeout || 5, // Increased timeout
-          testCase.memoryLimit || 128000 // FIXED: Use higher memory limit (128MB)
+          null, // No timeout limit
+          null  // No memory limit
         );
 
-        // Update execution stats (use the max values across all test cases)
+        // Update execution stats
         results.executionDetails.executionTime = Math.max(
           results.executionDetails.executionTime,
           execution.time || 0
@@ -792,138 +1075,56 @@ async function evaluateCode(code, languageId, question) {
           execution.memory || 0
         );
 
-        // Check for runtime errors or killed processes
-        if (execution.status.id >= 7) { // Runtime error codes in Judge0
+        // Check for errors
+        if (execution.status.id >= 6) {
           const errorMessage = translateJudge0Error(execution);
           testCaseResult.error = errorMessage;
           testCaseResult.passed = false;
-          results.executionDetails.status = 'runtime_error';
-          debugLog(`Runtime error for test case ${index + 1}: ${testCaseResult.error}`);
           
-          // Check if process was killed (status.id === 11 often means killed)
-          if (errorMessage.includes('Process Killed') || execution.status.id === 11) {
-            debugLog('Process was killed - attempting to analyze code for expected output');
-            
-            // For killed processes, try to extract the expected output directly from the code
-            // This is a generalized approach that works for many simple problems
-            const staticAnalysisResult = staticCodeAnalysis(code, languageId, testCase);
-            
-            if (staticAnalysisResult.validOutput) {
-              testCaseResult.actualOutput = staticAnalysisResult.output;
-              testCaseResult.passed = staticAnalysisResult.passed;
-              testCaseResult.error = staticAnalysisResult.passed ? null : 'Wrong Answer';
-              
-              debugLog(`Static analysis determined output: "${staticAnalysisResult.output}", passed: ${staticAnalysisResult.passed}`);
-            } else {
-              // If static analysis didn't work, try one more time with lower limits
-              try {
-                debugLog('Trying again with lower memory/time limits');
-                const retryExecution = await submitToJudge0(
-                  safeCode,
-                  languageId,
-                  testInput,
-                  1, // 1 second timeout
-                  32000 // 32MB memory limit
-                );
-                
-                if (retryExecution.status.id < 7) {
-                  // Process output from the retry
-                  testCaseResult.actualOutput = retryExecution.stdout ? retryExecution.stdout.trim() : '';
-                  testCaseResult.expectedOutput = testCase.expectedOutput.trim();
-                  
-                  // Clean Python-specific output issues
-                  if (languageId == 71) {
-                    testCaseResult.actualOutput = cleanPythonOutput(testCaseResult.actualOutput);
-                  }
-                  
-                  // Compare outputs
-                  const isOutputMatching = compareOutputs(testCaseResult.actualOutput, testCaseResult.expectedOutput);
-                  testCaseResult.passed = isOutputMatching;
-                  testCaseResult.error = isOutputMatching ? null : 'Wrong Answer';
-                  
-                  // Record execution details
-                  testCaseResult.executionTime = retryExecution.time;
-                  testCaseResult.memoryUsage = retryExecution.memory;
-                  
-                  debugLog('Retry succeeded with lower limits');
-                }
-              } catch (retryError) {
-                debugLog('Retry failed:', retryError.message);
-              }
+          if (execution.status.id >= 6 && execution.status.id < 7) {
+            results.executionDetails.status = 'compilation_error';
+            results.executionDetails.compilationError = execution.compile_output || execution.stderr;
+          } else {
+            results.executionDetails.status = 'runtime_error';
+            if (!results.executionDetails.runtimeError) {
+              results.executionDetails.runtimeError = errorMessage;
             }
           }
           
-          // Only set the runtime error once (use the first one we encounter)
-          if (!results.executionDetails.runtimeError) {
-            results.executionDetails.runtimeError = testCaseResult.error;
-          }
+          console.log(`Error: ${errorMessage}`);
         } else {
-          // Process output
+          // Success
+          results.executionDetails.status = 'executed';
           testCaseResult.actualOutput = execution.stdout ? execution.stdout.trim() : '';
           testCaseResult.expectedOutput = testCase.expectedOutput.trim();
           
-          // Process Python-specific output issues
-          if (languageId == 71) {
-            // Python sometimes adds quotes to string outputs that should be removed
-            testCaseResult.actualOutput = cleanPythonOutput(testCaseResult.actualOutput);
-          }
-          
-          // Compare outputs with whitespace handling
+          // Simple output comparison
           const isOutputMatching = compareOutputs(testCaseResult.actualOutput, testCaseResult.expectedOutput);
           testCaseResult.passed = isOutputMatching;
           
-          // Debug output comparison
-          debugLog(`Test case ${index + 1} result:`, {
-            actualRaw: execution.stdout,
-            actualTrimmed: testCaseResult.actualOutput,
-            expectedTrimmed: testCaseResult.expectedOutput,
-            passed: isOutputMatching
-          });
-          
           if (!isOutputMatching) {
-            // Detailed debugging for mismatched outputs
-            debugLog('Output mismatch details:');
-            debugLog(`Expected (raw): "${testCase.expectedOutput}"`);
-            debugLog(`Actual (raw): "${execution.stdout}"`);
-            
-            // Convert to buffer to see exact byte values
-            const expectedBuffer = Buffer.from(testCaseResult.expectedOutput);
-            const actualBuffer = Buffer.from(testCaseResult.actualOutput);
-            debugLog(`Expected (hex): ${expectedBuffer.toString('hex')}`);
-            debugLog(`Actual (hex): ${actualBuffer.toString('hex')}`);
-            
-            // Show normalized versions
-            const normalizeOutput = (output) => {
-              return output
-                .replace(/\r\n/g, '\\n')
-                .replace(/\n/g, '\\n')
-                .replace(/\r/g, '\\r')
-                .replace(/\t/g, '\\t');
-            };
-            
-            debugLog(`Expected (normalized): "${normalizeOutput(testCaseResult.expectedOutput)}"`);
-            debugLog(`Actual (normalized): "${normalizeOutput(testCaseResult.actualOutput)}"`);
-            
             testCaseResult.error = 'Wrong Answer';
           }
           
-          // Record execution details
           testCaseResult.executionTime = execution.time;
           testCaseResult.memoryUsage = execution.memory;
+          
+          console.log(`Result: ${testCaseResult.passed ? 'PASS' : 'FAIL'}`);
+          console.log(`Output: "${testCaseResult.actualOutput}"`);
         }
       } catch (error) {
-        testCaseResult.error = `Test case execution error: ${error.message}`;
+        testCaseResult.error = `Execution error: ${error.message}`;
         testCaseResult.passed = false;
         results.executionDetails.status = 'execution_error';
-        debugLog(`Error executing test case ${index + 1}: ${error.message}`);
+        console.error(`Test case ${index + 1} error:`, error);
       }
 
       results.testCases.push(testCaseResult);
     }
 
-    // Log test case summary
     const passedCount = results.testCases.filter(tc => tc.passed).length;
-    console.log(`Test case summary: ${passedCount}/${results.testCases.length} passed`);
+    console.log(`\n=== SUMMARY ===`);
+    console.log(`Passed: ${passedCount}/${results.testCases.length}`);
     
     return results;
   } catch (error) {
@@ -933,7 +1134,6 @@ async function evaluateCode(code, languageId, question) {
     return results;
   }
 }
-
 /**
  * Sanitizes code for Judge0 to avoid resource issues
  * @param {String} code - Original code
@@ -1186,7 +1386,7 @@ function compareOutputs(actualOutput, expectedOutput) {
   const superNormalizedExpected = superNormalizeOutput(expected);
   
   if (superNormalizedActual === superNormalizedExpected) {
-    debugLog('Outputs match with super aggressive normalization');
+ 
     return true;
   }
   
@@ -1196,7 +1396,7 @@ function compareOutputs(actualOutput, expectedOutput) {
     const numExpected = parseFloat(normalizedExpected);
     // Allow small floating point differences (e.g., 3.14159 vs 3.14160)
     if (Math.abs(numActual - numExpected) < 0.00001) {
-      debugLog('Outputs match as numbers with small tolerance');
+   
       return true;
     }
   }
@@ -1213,7 +1413,7 @@ function compareOutputs(actualOutput, expectedOutput) {
   const yesNoExpected = yesNoNormalize(expected);
   
   if (yesNoActual === yesNoExpected) {
-    debugLog('Outputs match as yes/no variants');
+   
     return true;
   }
   
@@ -1230,96 +1430,95 @@ function compareOutputs(actualOutput, expectedOutput) {
  * @param {Number} memoryLimit - Maximum memory usage in MB
  * @returns {Object} Judge0 execution response
  */
-async function submitToJudge0(code, languageId, input, timeout, memoryLimit) {
-  try {
-    // Convert languageId to a number if it's a string
-    const numericLanguageId = parseInt(languageId, 10);
+// async function submitToJudge0(code, languageId, input, timeout, memoryLimit) {
+//   try {
+//     // Convert languageId to a number if it's a string
+//     const numericLanguageId = parseInt(languageId, 10);
     
-    // CRITICAL FIX: Use same limits as frontend for consistency
-    // Ensure memoryLimit is at least 128000 as used in frontend
-    const safeMemoryLimit = Math.max(128000, memoryLimit || 128000);
+//     // CRITICAL FIX: Use same limits as frontend for consistency
+//     // Ensure memoryLimit is at least 128000 as used in frontend
+//     const safeMemoryLimit = Math.max(128000, memoryLimit || 128000);
     
-    // Maximum CPU time with reasonable default
-    const safeCpuTime = Math.min(timeout || 5, 10);
+//     // Maximum CPU time with reasonable default
+//     const safeCpuTime = Math.min(timeout || 5, 10);
     
-    // Prepare request data
-    const requestData = {
-      source_code: code,
-      language_id: numericLanguageId,
-      stdin: input || '',  // FIXED: Ensure stdin is never undefined
-      cpu_time_limit: safeCpuTime,
-      memory_limit: safeMemoryLimit,
-      stdout_max_chars: 1024 * 100 // 100KB limit for output
-    };
+//     // Prepare request data
+//     const requestData = {
+//       source_code: code,
+//       language_id: numericLanguageId,
+//       stdin: input || '',  // FIXED: Ensure stdin is never undefined
+//       cpu_time_limit: safeCpuTime,
+//       memory_limit: safeMemoryLimit,
+//       stdout_max_chars: 1024 * 100 // 100KB limit for output
+//     };
     
-    debugLog("Submitting to Judge0 with data:", JSON.stringify(requestData));
+  
     
-    // Submit the code
-    const submissionResponse = await fetch(`${JUDGE0_API}submissions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(requestData)
-    });
+//     // Submit the code
+//     const submissionResponse = await fetch(`${JUDGE0_API}submissions`, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         'Accept': 'application/json'
+//       },
+//       body: JSON.stringify(requestData)
+//     });
     
-    // Get the response as text first to help with debugging
-    const responseText = await submissionResponse.text();
-    debugLog(`Judge0 response (${submissionResponse.status}): ${responseText}`);
+//     // Get the response as text first to help with debugging
+//     const responseText = await submissionResponse.text();
+ 
     
-    if (!submissionResponse.ok) {
-      throw new Error(`Judge0 submission failed: ${submissionResponse.statusText}. Response: ${responseText}`);
-    }
+//     if (!submissionResponse.ok) {
+//       throw new Error(`Judge0 submission failed: ${submissionResponse.statusText}. Response: ${responseText}`);
+//     }
     
-    // Parse the response text to JSON
-    const submissionData = JSON.parse(responseText);
-    const token = submissionData.token;
-    debugLog("Judge0 token received:", token);
+//     // Parse the response text to JSON
+//     const submissionData = JSON.parse(responseText);
+//     const token = submissionData.token;
+  
     
-    // Poll until the submission is processed
-    let result;
-    let retries = 0;
-    const maxRetries = 10;
+//     // Poll until the submission is processed
+//     let result;
+//     let retries = 0;
+//     const maxRetries = 10;
     
-    while (retries < maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+//     while (retries < maxRetries) {
+//       await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
       
-      debugLog(`Polling for results (attempt ${retries + 1}/${maxRetries})`);
-      const resultResponse = await fetch(`${JUDGE0_API}submissions/${token}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+  
+//       const resultResponse = await fetch(`${JUDGE0_API}submissions/${token}`, {
+//         headers: {
+//           'Accept': 'application/json'
+//         }
+//       });
       
-      const resultText = await resultResponse.text();
+//       const resultText = await resultResponse.text();
       
-      if (!resultResponse.ok) {
-        throw new Error(`Failed to fetch submission result: ${resultResponse.statusText}. Response: ${resultText}`);
-      }
+//       if (!resultResponse.ok) {
+//         throw new Error(`Failed to fetch submission result: ${resultResponse.statusText}. Response: ${resultText}`);
+//       }
       
-      // Parse the response text to JSON
-      result = JSON.parse(resultText);
-      debugLog(`Judge0 poll result: status.id=${result.status?.id}`);
+//       // Parse the response text to JSON
+//       result = JSON.parse(resultText);
+ 
+//       // Check if processing is complete
+//       if (result.status.id !== 1 && result.status.id !== 2) { // Not in queue or processing
+//         break;
+//       }
       
-      // Check if processing is complete
-      if (result.status.id !== 1 && result.status.id !== 2) { // Not in queue or processing
-        break;
-      }
-      
-      retries++;
-    }
+//       retries++;
+//     }
     
-    if (retries >= maxRetries) {
-      throw new Error('Judge0 execution timed out');
-    }
+//     if (retries >= maxRetries) {
+//       throw new Error('Judge0 execution timed out');
+//     }
     
-    return result;
-  } catch (error) {
-    console.error('Judge0 API error:', error);
-    throw new Error(`Judge0 submission failed: ${error.message}`);
-  }
-}
+//     return result;
+//   } catch (error) {
+//     console.error('Judge0 API error:', error);
+//     throw new Error(`Judge0 submission failed: ${error.message}`);
+//   }
+// }
 
 /**
  * Prepares code by inserting it into the solution template if needed
@@ -1476,7 +1675,7 @@ async function storeEvaluationResults(userId, examId, results) {
     // Get the exam to determine type and calculate MCQ score
     const exam = await Exam.findById(examId).populate('mcqQuestions');
     const examType = exam.questionType;
-    debugLog(`Exam type: ${examType}, current submission score: ${submission.score}`);
+  
     
     // Calculate MCQ score if it's a combined exam
     let mcqScore = 0;
@@ -1521,7 +1720,7 @@ async function storeEvaluationResults(userId, examId, results) {
       updatedScore = results.totalScore;
     }
     
-    debugLog(`Updating submission score: ${updatedScore} (MCQ: ${mcqScore}, Coding: ${results.totalScore})`);
+ 
     
     // Update the submission with the total score and individual scores
     await Submission.findOneAndUpdate(
@@ -1547,7 +1746,7 @@ async function storeEvaluationResults(userId, examId, results) {
       evaluationResult.updatedAt = new Date();
       
       await evaluationResult.save();
-      console.log(`Updated evaluation result for user ${userId} in exam ${examId}`);
+      
     } else {
       // Create new result
       evaluationResult = new EvaluationResult({
@@ -1603,7 +1802,7 @@ async function batchEvaluateSubmissions(examId, userIds = null) {
       };
     }
      
-    console.log(`Found ${submissions.length} submissions to evaluate`);
+   
     
     // Process each submission
     const results = [];
