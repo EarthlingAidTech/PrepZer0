@@ -1,6 +1,5 @@
-<!DOCTYPE
-html >
-  <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -60,6 +59,27 @@ html >
             background-color: rgba(0, 0, 0, 0.25);
         }
         
+        .settings-button {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.15);
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        .settings-button:hover {
+            background-color: rgba(0, 0, 0, 0.25);
+            color: white;
+        }
+        
         .form-card {
             background-color: var(--card-background);
             border-radius: var(--border-radius);
@@ -76,6 +96,14 @@ html >
             padding: 18px 25px;
             font-size: 1.2rem;
             border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header-buttons {
+            display: flex;
+            gap: 10px;
         }
         
         .card-body {
@@ -345,6 +373,55 @@ html >
             font-size: 0.9rem;
         }
         
+        /* Settings modal specific styles */
+        .settings-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+        
+        .settings-option-info {
+            flex-grow: 1;
+        }
+        
+        .settings-option-title {
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 5px;
+        }
+        
+        .settings-option-desc {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        
+        .form-switch {
+            padding-left: 2.5em;
+        }
+        
+        .form-switch .form-check-input {
+            width: 2em;
+            margin-left: -2.5em;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280,0,0,.25%29'/%3e%3c/svg%3e");
+            background-position: left center;
+            background-size: contain;
+            border-radius: 2em;
+            transition: background-position .15s ease-in-out;
+        }
+        
+        .form-switch .form-check-input:checked {
+            background-position: right center;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255,255,255,1.0%29'/%3e%3c/svg%3e");
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
         /* Flatpickr custom styles */
         .flatpickr-calendar {
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
@@ -436,19 +513,33 @@ html >
                 align-items: flex-start;
                 gap: 10px;
             }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .card-header-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
- 
-        
         <div class="card form-card">
             <div class="card-header">
-                Exam Details
-            <a href="/admin" class="back-button" style="display: inline; float: right;" >
-                <i class="bi bi-arrow-left"></i> Back to Admin Dashboard
-            </a>
+                <span>Exam Details</span>
+                <div class="card-header-buttons">
+                    <button type="button" class="settings-button" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <i class="bi bi-gear"></i> Settings
+                    </button>
+                    <a href="/admin" class="back-button">
+                        <i class="bi bi-arrow-left"></i> Back to Admin Dashboard
+                    </a>
+                </div>
             </div>
 
             <div class="card-body">
@@ -595,7 +686,61 @@ html >
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Hidden inputs for settings -->
+                    <input type="hidden" id="cameraSettingInput" name="settings[camera]" value="false">
+                    <input type="hidden" id="phoneSettingInput" name="settings[phone]" value="true">
+                    <input type="hidden" id="showResultsSettingInput" name="settings[showResults]" value="false">
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">
+                        <i class="bi bi-gear me-2"></i>Exam Settings
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <div class="settings-option-title">Camera Monitoring</div>
+                            <div class="settings-option-desc">Enable camera access to monitor students during the exam</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="cameraSetting" onchange="updateSettingsInputs()">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <div class="settings-option-title">Phone Detection</div>
+                            <div class="settings-option-desc">Block or warn students when phone usage is detected</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="phoneSetting" checked onchange="updateSettingsInputs()">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <div class="settings-option-title">Show Results</div>
+                            <div class="settings-option-desc">Display exam results to students immediately after completion</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showResultsSetting" onchange="updateSettingsInputs()">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save Settings</button>
+                </div>
             </div>
         </div>
     </div>
@@ -652,6 +797,13 @@ html >
         let selectedCandidates = [];
         let startDatePicker, endDatePicker;
         
+        // Settings object to track current settings
+        let examSettings = {
+            camera: false,
+            phone: true,
+            showResults: false
+        };
+        
         function toggleQuestionFields() {
             const type = document.getElementById("questionType").value;
             document.getElementById("mcqFields").style.display = type === "mcq" || type === "mcq&coding" ? "block" : "none";
@@ -660,6 +812,18 @@ html >
             
             // Auto-update total questions when toggle happens
             updateTotalQuestions();
+        }
+        
+        // Function to update settings inputs
+        function updateSettingsInputs() {
+            examSettings.camera = document.getElementById('cameraSetting').checked;
+            examSettings.phone = document.getElementById('phoneSetting').checked;
+            examSettings.showResults = document.getElementById('showResultsSetting').checked;
+            
+            // Update hidden inputs
+            document.getElementById('cameraSettingInput').value = examSettings.camera;
+            document.getElementById('phoneSettingInput').value = examSettings.phone;
+            document.getElementById('showResultsSettingInput').value = examSettings.showResults;
         }
         
         // Function to show past date warning modal
@@ -704,6 +868,7 @@ html >
         
         document.addEventListener('DOMContentLoaded', function() {
             toggleQuestionFields();
+            updateSettingsInputs(); // Initialize settings inputs
             
             // Initialize Flatpickr date pickers
             const commonConfig = {
@@ -813,6 +978,9 @@ html >
                 // Prepare selected candidates for form submission
                 document.getElementById('selectedCandidatesInput').value = JSON.stringify(selectedCandidates);
                 
+                // Update settings inputs before submission
+                updateSettingsInputs();
+                
                 // Validate form
                 if (!validateForm()) {
                     e.preventDefault();
@@ -823,6 +991,11 @@ html >
             // Add event listeners for MCQ and Coding inputs to update total
             document.getElementById('numMCQs').addEventListener('input', updateTotalQuestions);
             document.getElementById('numCoding').addEventListener('input', updateTotalQuestions);
+            
+            // Add event listeners for settings toggles
+            document.getElementById('cameraSetting').addEventListener('change', updateSettingsInputs);
+            document.getElementById('phoneSetting').addEventListener('change', updateSettingsInputs);
+            document.getElementById('showResultsSetting').addEventListener('change', updateSettingsInputs);
         });
         
         // Function to update the duration display

@@ -5,11 +5,11 @@ ROOT_DIR = r"C:\Users\debis\Downloads\Projects\Prep0\codingplatform"
   # Replace this with your actual project path
 
 # File types you want to count (adjust as needed)
-included_extensions = ['.js', '.ts', '.py', '.jsx', '.tsx' ,".ejs"]
+included_extensions = ['.js', '.ts', '.py', '.jsx', '.tsx' ,".ejs" ,".html"]
 
 # Directories and files to exclude
 excluded_dirs = {'node_modules' }
-excluded_files = {'package.json', 'package-lock.json'}
+excluded_files = {}
 
 def count_lines_of_code(root_dir):
     total_lines = 0

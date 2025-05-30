@@ -81,7 +81,12 @@ exports.searchStudent = async (req, res) => {
 
 exports.createExam = async (req, res) => {
     try {
-        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill,additionalCandidates, draft } = req.body;
+        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill,additionalCandidates, draft ,  settings  } = req.body;
+            const examSettings = {
+            camera: settings?.camera === 'true',
+            phone: settings?.phone === 'true', 
+            showResults: settings?.showResults === 'true'
+        };
         if(!scheduleTill || !scheduledAt){
             console.log("what the fuck")
             const newExamss = new Exam({
@@ -94,7 +99,8 @@ exports.createExam = async (req, res) => {
                 numCoding: parseInt(numCoding) || 0,
                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
                 createdBy: req.user.id,
-                testStatus:"draft"
+                testStatus:"draft" ,
+                settings: examSettings 
 
             });
             await newExamss.save();
@@ -115,7 +121,8 @@ exports.createExam = async (req, res) => {
                 numCoding: parseInt(numCoding) || 0,
                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
                 createdBy: req.user.id,
-                testStatus: "draft"
+                testStatus: "draft",
+                settings: examSettings 
             });
             await newExam.save();
         } else {
@@ -138,6 +145,7 @@ exports.createExam = async (req, res) => {
                 numCoding: parseInt(numCoding) || 0,
                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
                 createdBy: req.user.id,
+                settings: examSettings 
             });
 
             await newExam.save();
