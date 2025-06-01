@@ -1,0 +1,534 @@
+[
+  {
+    "classification": "other",
+    "question": "Candid is to indirect as honest is to",
+    "options": [
+      "Frank",
+      "Wicked",
+      "Truthful",
+      "Untruthful"
+    ],
+    "correctAnswer": "Untruthful",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Oar is to rowboat as foot is to",
+    "options": [
+      "Running",
+      "Sneaker",
+      "Skateboard",
+      "Jumping"
+    ],
+    "correctAnswer": "Skateboard",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "In a college, 150 students of the MBA are enrolled. The ratio of boys and girls is 7: 8 respectively. There are three disciplines, namely marketing, HR, and finance, in the college. In the marketing discipline, there are 50% girls of their total number and the boys are 40% of their total number. In HR discipline, girls are 30% of their total number. Finance discipline has girls 20% of its total number and boys 30% of their total number. 7 boys and 9 girls are in HR and marketing both. 6 boys and 7 girls are in HR and finance both. 5 boys and 8 girls are in marketing and finance both. 2 boys and 3 girls are enrolled in all three disciplines.\n\nQ) What percentage of students are enrolled in all three disciplines?",
+    "options": [
+      "3.33%",
+      "7.28%",
+      "8.56%",
+      "3.67%"
+    ],
+    "correctAnswer": "3.33%",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "In a college, 150 students of the MBA are enrolled. The ratio of boys and girls is 7: 8 respectively. There are three disciplines, namely marketing, HR, and finance, in the college. In the marketing discipline, there are 50% girls of their total number and the boys are 40% of their total number. In HR discipline, girls are 30% of their total number. Finance discipline has girls 20% of its total number and boys 30% of their total number. 7 boys and 9 girls are in HR and marketing both. 6 boys and 7 girls are in HR and finance both. 5 boys and 8 girls are in marketing and finance both. 2 boys and 3 girls are enrolled in all three disciplines.\n\nQ) What is the respective ratio of boys and girls in the marketing discipline only?",
+    "options": [
+      "13:9",
+      "9:13",
+      "9:11",
+      "11:9"
+    ],
+    "correctAnswer": "13:9",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "In a college, 150 students of the MBA are enrolled. The ratio of boys and girls is 7: 8 respectively. There are three disciplines, namely marketing, HR, and finance, in the college. In the marketing discipline, there are 50% girls of their total number and the boys are 40% of their total number. In HR discipline, girls are 30% of their total number. Finance discipline has girls 20% of its total number and boys 30% of their total number. 7 boys and 9 girls are in HR and marketing both. 6 boys and 7 girls are in HR and finance both. 5 boys and 8 girls are in marketing and finance both. 2 boys and 3 girls are enrolled in all three disciplines.\n\nQ) Find the difference in the number of boys and girls in Marketing and HR disciplines only.",
+    "options": [
+      "4",
+      "12",
+      "8",
+      "1"
+    ],
+    "correctAnswer": "4",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Statement: Stop drinking before it ends you.A notice issued in public interest by the drugs and health ministry.Assumptions:I. People feel afraid of being devastated II. Alcohol destroys the whole family.",
+    "options": [
+      "Only assumption I is implicit",
+      "Only assumption II is implicit",
+      "Either I or II is implicit",
+      "Neither I nor II is implicit"
+    ],
+    "correctAnswer": "Only assumption I is implicit",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Statement: Repeat your Matrimonial ads on Sunday for just 100 per sq. cm. An advertisement in a newspaper Assumption: I. People want advertisements at no cost II. There are some people who want to repeat their matrimonial advertisement.",
+    "options": [
+      "Only assumption I is implicit",
+      "Only assumption II is implicit",
+      "Either I or II is implicit",
+      "Neither I nor II is implicit"
+    ],
+    "correctAnswer": "Only assumption II is implicit",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Statements: The Industrial Revolution, which first of all started in Europe, has brought about the modern age.\nConclusions:\n1. The disparity between the rich and the poor results in revolution.\n2. Revolution overhauls society.",
+    "options": [
+      "Only conclusion I is implicit",
+      "Only conclusion II is implicit",
+      "Either I or II is implicit",
+      "Neither I nor II is implicit"
+    ],
+    "correctAnswer": "Either I or II is implicit",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Statements: Until our country achieves economic equality, political freedom and democracy would be meaningless.\nConclusions:\n\tI. Political freedom and democracy go hand in hand.\n\tII. Economic equality leads to real political freedom and democracy.",
+    "options": [
+      "Only conclusion I is implicit",
+      "Only conclusion II is implicit",
+      "Either I or II is implicit",
+      "Neither I nor II is implicit"
+    ],
+    "correctAnswer": "Only conclusion II is implicit",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Eight students  B, D, G, J, K, M, R, and S – from eight different colleges  Q, T, U, V, W, X, Y, and Z  meet at an inter-college fest. They are sitting around a square table facing the centre, two on each si Who studies in College W?       J is from College V and he is sitting third to the left of D, who is from College U.       J and G sit on the same side of the table.       B is from College Z.\n       M, who is from College Y, is sitting between D and K.      R and J are immediate neighbours.\n       K is from College Q, and he is sitting second to the left of R, who is from College T.       The student from College W is a neighbour of GQ) Who studies in College W?",
+    "options": [
+      "J",
+      "B",
+      "S",
+      "R"
+    ],
+    "correctAnswer": "S",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Eight students – B, D, G, J, K, M, R, and S – from eight different colleges – Q, T, U, V, W, X, Y, and Z – meet at an inter-college fest. They are sitting around a square table facing the centre, two on each side.\n       J is from College V and he is sitting third to the left of D, who is from College U.\n       J and G sit on the same side of the table.\n       B is from College Z.\n       M, who is from College Y, is sitting between D and K.\n       R and J are immediate neighbours.\n       K is from College Q, and he is sitting second to the left of R, who is from College T.\n       The student from College W is a neighbour of G.\n\nQ) Which college does G study in?",
+    "options": [
+      "College U",
+      "College V",
+      "College W",
+      "College X"
+    ],
+    "correctAnswer": "College X",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Eight students – B, D, G, J, K, M, R, and S – from eight different colleges – Q, T, U, V, W, X, Y, and Z – meet at an inter-college fest. They are sitting around a square table facing the centre, two on each side.\n       J is from College V and he is sitting third to the left of D, who is from College U.\n       J and G sit on the same side of the table.\n       B is from College Z.\n       M, who is from College Y, is sitting between D and K.\n       R and J are immediate neighbours.\n       K is from College Q, and he is sitting second to the left of R, who is from College T.\n       The student from College W is a neighbour of G.\n\nQ) Who sits third to the right of the student, who is facing the one from College T?",
+    "options": [
+      "R",
+      "J",
+      "M",
+      "K"
+    ],
+    "correctAnswer": "K",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Eight students – B, D, G, J, K, M, R, and S – from eight different colleges – Q, T, U, V, W, X, Y, and Z – meet at an inter-college fest. They are sitting around a square table facing the centre, two on each side.\n       J is from College V and he is sitting third to the left of D, who is from College U.\n       J and G sit on the same side of the table.\n       B is from College Z.\n       M, who is from College Y, is sitting between D and K.\n       R and J are immediate neighbours.\n       K is from College Q, and he is sitting second to the left of R, who is from College T.\n       The student from College W is a neighbour of G.\n\nWho sits on the same side of the table as S?",
+    "options": [
+      "D",
+      "B",
+      "G",
+      "J"
+    ],
+    "correctAnswer": "D",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Eight students – B, D, G, J, K, M, R, and S – from eight different colleges – Q, T, U, V, W, X, Y, and Z – meet at an inter-college fest. They are sitting around a square table facing the centre, two on each side.\n       J is from College V and he is sitting third to the left of D, who is from College U.\n       J and G sit on the same side of the table.\n       B is from College Z.\n       M, who is from College Y, is sitting between D and K.\n       R and J are immediate neighbours.\n       K is from College Q, and he is sitting second to the left of R, who is from College T.\n       The student from College W is a neighbour of G.\n\nWhich of the following combinations is true?",
+    "options": [
+      "J-College",
+      "K- College Q",
+      "M- College U",
+      ""
+    ],
+    "correctAnswer": "K- College Q",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Statements:\nNo crow is a pigeon.\nAll pigeons are doves.\nConclusions:\n I. Some pigeons are crows.\n II. Some doves may be crows.",
+    "options": [
+      "Only conclusion II follows.",
+      "Both conclusions I and II follow.",
+      "Neither conclusion follows.",
+      "Only conclusion I follow"
+    ],
+    "correctAnswer": "Neither conclusion follows.",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Statement: The government has decided to disinvest a large chunk of its equity in select public sector undertakings for better fiscal management.\nAssumptions:\n\tI. The amount generated out of the disinvestment process may substantially reduce the mounting fiscal deficits.\n\tII. There will be enough demand in the market for the shares of these undertakings.",
+    "options": [
+      "(A) If only assumption I is implicit",
+      "(B) If only assumption II is implicit",
+      "(C) If either I or II is implicit",
+      "(D) If neither I nor II is implicit"
+    ],
+    "correctAnswer": "(A) If only assumption I is implicit",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Ram lives along with his wife, son, and daughter-in-law. The average age of Ram's family 3 years ago was 40 years. Three years later, Ram died due to illness at the age of 53 years, and at the same time, his daughter-in-law gave birth to Ram's grandson. If all ages are always taken as integral values, now what is the average age of Ram's family?",
+    "options": [
+      "24.80years",
+      "26.45years",
+      "29.75years",
+      "31.90 years"
+    ],
+    "correctAnswer": "29.75years",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "The average weight of 5 men is decreased by 3 kg when one of them weighing 150 kg is replaced by another person. This new person is again replaced by another person whose weight is 30 kg lower than the person he replaced. What is the overall change in the average due to this dual change?",
+    "options": [
+      "6 kgs",
+      "9kgs",
+      "12 kgs",
+      "15kg"
+    ],
+    "correctAnswer": "9kgs",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A company sold 230, 240, and 205 units of a product in three months, respectively. The profit margin on the product is 60%, and it costs 15 Rs to make the product. The company makes 300 units of the product each month. Considering the unsold units, calculate the profit percent earned over the three-month period.",
+    "options": [
+      "40%",
+      "15%",
+      "20%",
+      "30%"
+    ],
+    "correctAnswer": "20%",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A store sells smartphones at 60% of their original price. Rohit wants to buy 4 smartphones that originally cost 36000 a piece. The store has an additional offer where if the total purchase is a multiple of 24, they give an extra 10% discount. How much does Rohit have to pay?",
+    "options": [
+      "86,400",
+      "77,760",
+      "1,44,000",
+      "89,600"
+    ],
+    "correctAnswer": "86,400",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Two merchants, Ram and Sham, buy two goods for Rs. 400 and Rs. 600 respectively. Ram marks his goods up by x%, while Sham marks his goods up by 2x% and offers a discount of Rs. 80. If both make the same non-zero profit, find x.",
+    "options": [
+      "25%",
+      "12.5%",
+      "10%",
+      "20%"
+    ],
+    "correctAnswer": "25%",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A bank offers 5% compound interest calculated on half-yearly basis. A customer deposits Rs. 1600 each on 1st January and 1st July of a year. At the end of the year, the amount he would have gained by way of interest is:",
+    "options": [
+      "Rs. 120",
+      "Rs. 121",
+      "Rs. 122",
+      "Rs. 123"
+    ],
+    "correctAnswer": "Rs. 120",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "The difference between simple and compound interests compounded annually on a certain sum of money for 2 years at 4% per annum is Re. 1. The sum (in Rs.) is:",
+    "options": [
+      "625",
+      "630",
+      "640",
+      "650"
+    ],
+    "correctAnswer": "625",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "The LCM of two numbers is 500 and their HCF is 50. If one of the numbers is 100, the other number is?",
+    "options": [
+      "250",
+      "400",
+      "500",
+      "None"
+    ],
+    "correctAnswer": "250",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "What is the least number which when divided by 48, 36, and 72 leaves the remainder of 3 in each case?",
+    "options": [
+      "154",
+      "147",
+      "125",
+      "130"
+    ],
+    "correctAnswer": "154",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A, B, and C invested ?50,000, ?70,000, and ?90,000, respectively. After 4 months, A withdrew ?20,000, and B added ?10,000. C withdrew ?30,000 after the 6th month. If the total profit after a year is ?1,08,000, what is the ratio of A and B's share?",
+    "options": [
+      "4:9",
+      "11:23",
+      "45:46",
+      "1:2"
+    ],
+    "correctAnswer": "4:9",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Find the greatest possible value of n when 9n < 108",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "correctAnswer": "7",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A group of men can complete the work in 60 days. After 12 days, 1/4th of the group leaves. Due to a deadline, the remaining men increase their efficiency by 50%. In how many more days will they complete the remaining work?",
+    "options": [
+      "28 days",
+      "30 days",
+      "32 days",
+      "36 days"
+    ],
+    "correctAnswer": "28 days",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "Binod is twice as efficient as Anil. Anil can complete a piece of work in 15 days. Anil started the work and Binod joined him after a few days. The work was completed in 11 days. For how many days did Anil work alone?",
+    "options": [
+      "8",
+      "9",
+      "10",
+      "11"
+    ],
+    "correctAnswer": "8",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A and B run around a circular track. A beats B by one round or 10 minutes. In this race, they had completed 4 rounds. If the race were of only one round, find A's time over the course.",
+    "options": [
+      "8 min",
+      "7.5 min",
+      "12.5 min",
+      "12 min"
+    ],
+    "correctAnswer": "8 min",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "The distance between two towns is 24 kms. A certain stretch of it is uphill and rest of the stretch is downhill. A man takes 20/3 hrs to travel from one town to other, if he travels 3 at a speed of 3 km/hr and 6 km/hr for uphill and downhill respectively. How long is the uphill stretch?",
+    "options": [
+      "10 km",
+      "8 km",
+      "16 km",
+      "12 km"
+    ],
+    "correctAnswer": "10 km",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A train P starts from Delhi at 9 a.m. and reaches Ambala at 10.30 a.m., while another train Q starts from Ambala at 9 a.m. and reaches Delhi at 11 a.m. The two trains will cross each other at around:",
+    "options": [
+      "9:31 a.m.",
+      "9:45 a.m.",
+      "9.51 a.m.",
+      "10:13 a.m."
+    ],
+    "correctAnswer": "9:31 a.m.",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "In how many ways 4 men and 4 women can be seated along a circular table for lunch so that they are alternate?",
+    "options": [
+      "144",
+      "576",
+      "36",
+      "504"
+    ],
+    "correctAnswer": "144",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "A lady gives a dinner party to 5 guests to be selected from nine friends. The number of ways of forming a party of 5, given that two particular friends, A and ,B will not attend the party together?",
+    "options": [
+      "56",
+      "126",
+      "91",
+      "None of these"
+    ],
+    "correctAnswer": "56",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "The probability that A, B and C will live for more than 60 years is ½, 1/3, 1/4 respectively. What is the probability that at least one of them will be alive after 60 years of age?",
+    "options": [
+      "5/12",
+      "5/3",
+      "1/24",
+      "3/4"
+    ],
+    "correctAnswer": "5/12",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "36a is equal to 2k, where k is odd. What is the value of 36a",
+    "options": [
+      "9",
+      "18",
+      "36",
+      "45"
+    ],
+    "correctAnswer": "9",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "If a number not equal to zero were to have its decimal point moved two places to the left, the result would quadruple the square of the original number. What is the original number?",
+    "options": [
+      "0.25",
+      "0.025",
+      "0.0025",
+      "2.5"
+    ],
+    "correctAnswer": "0.25",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  },
+  {
+    "classification": "other",
+    "question": "66 cubic centimetres of silver is drawn into a wire 1 mm in diameter. The length of the wire in metres will be:",
+    "options": [
+      "84",
+      "90",
+      "168",
+      "336"
+    ],
+    "correctAnswer": "84",
+    "level": "easy",
+    "marks": 1,
+    "createdBy": "AdminUser"
+  }
+]

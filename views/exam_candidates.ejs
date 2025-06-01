@@ -362,6 +362,9 @@
             color: var(--secondary-text);
             margin-top: 3px;
         }
+        .totalsubmission{
+            color: #fff;
+        }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -456,7 +459,7 @@
     <div class="p-4">
         <div class="d-flex justify-content-between">
             <div>
-                <h4>Total Submissions: <%= evaluationResults.total %></h4>
+                <h4 class="totalsubmission">Total Submissions: <%= evaluationResults.total %></h4>
                 <div class="mt-2">
                     <span class="badge badge-success">Evaluated: <span id="evaluated-count"><%= evaluationResults.evaluated %></span></span>
                     <span class="badge badge-warning">Pending: <span id="pending-count"><%= evaluationResults.pending %></span></span>
