@@ -1,8 +1,9 @@
 const ActivityTracker = require('../models/ActiveSession');
 const Exam = require('../models/Exam');
 const User = require('../models/usermodel');
+
 exports.trackUserActivity = async (req, res) => {
-    console.log("active seesion pages")
+    console.log("active session pages")
     try {
         const { examId, userId, timestamp, status = 'active' } = req.body;
         console.log(req.body)
@@ -18,15 +19,28 @@ exports.trackUserActivity = async (req, res) => {
             });
         }
 
+        // First, check if there's an existing activity record
+        const existingRecord = await ActivityTracker.findOne({ examId, userId });
+        
+        let updateData = {
+            examId,
+            userId,
+            lastPingTimestamp: timestamp,
+            status
+        };
+
+        // Check if allowedResubmit is true and update accordingly
+        if (existingRecord && existingRecord.isAllowedResubmit === true) {
+            console.log('Resubmit allowed: updating StartedAt and setting allowedResubmit to false');
+            updateData.startedAt = timestamp; // Update startedAt time
+            updateData.isAllowedResubmit = false; // Set allowedResubmit to false
+            console.log('Resubmit detected: updating startedAt and setting allowedResubmit to false');
+        }
+
         // Record the activity ping
         const activityRecord = await ActivityTracker.findOneAndUpdate(
             { examId, userId },
-            { 
-                examId,
-                userId,
-                lastPingTimestamp: timestamp,
-                status
-            },
+            updateData,
             { 
                 upsert: true,  // Create if doesn't exist
                 new: true,     // Return updated document
@@ -40,7 +54,9 @@ exports.trackUserActivity = async (req, res) => {
                 userId: activityRecord.userId,
                 examId: activityRecord.examId,
                 status: activityRecord.status,
-                lastPing: activityRecord.lastPingTimestamp
+                lastPing: activityRecord.lastPingTimestamp,
+                startedAt: activityRecord.startedAt,
+                isAllowedResubmit: activityRecord.isAllowedResubmit
             }
         });
 

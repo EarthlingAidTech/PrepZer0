@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const EvaluationResult = require('../models/EvaluationResultSchema');
 const ActivityTracker = require('./../models/ActiveSession');
 
+
 exports.viewAssessmentReport = async(req,res) => {
   try {
       const submissionId = req.params.submissionId;
@@ -204,16 +205,57 @@ exports.deleteSubmission = async (req, res) => {
       examId: examId,
       userId: userId
     });
+
+
+      const deletedEvaluationResult = await EvaluationResult.findOneAndDelete({
+      examId: examId,
+      userId: userId
+    });
+        const deletedBatchStats = await mongoose.connection.db.collection('batchstatistics').deleteOne({
+      examId: new mongoose.Types.ObjectId(examId),
+      'statistics.userResults.userId': new mongoose.Types.ObjectId(userId)
+    });
     
+    // Delete or update batch statistics
+    // Option 1: Delete the entire batch statistics (if you want to regenerate completely)
+     const updatedActivityTracker = await ActivityTracker.findOneAndUpdate(
+      {
+        examId: examId,
+        userId: userId
+      },
+      {
+        $set: {
+          isAllowedResubmit: true,
+          status: "inactive", // Reset status
+          lastPingTimestamp: new Date(),
+          // Optionally reset startedAt if you want them to get a fresh start time
+          // startedAt: null, // Uncomment if you want to reset start time
+        },
+        $push: {
+          pingHistory: {
+            timestamp: new Date(),
+            status: "inactive"
+          }
+        }
+      },
+      { 
+        new: true,
+        upsert: true // Create if doesn't exist
+      }
+    );
     // Send success response even if integrity record wasn't found
     // (since the main goal was to delete the submission)
-    return res.status(200).json({
+  return res.status(200).json({
       success: true,
       message: 'Records deleted successfully',
       deletedSubmission: deletedSubmission._id,
       deletedIntegrity: deletedIntegrity ? deletedIntegrity._id : 'Not found',
+      deletedEvaluationResult: deletedEvaluationResult ? deletedEvaluationResult._id : 'Not found',
+      deletedBatchStats: deletedBatchStats.deletedCount > 0 ? 'Deleted' : 'Not found',
+      updatedActivityTracker: updatedActivityTracker ? updatedActivityTracker._id : 'Not found',
       redirectUrl: `/admin/exam/candidates/${examId}`
     });
+
     
   } catch (error) {
     console.error('Error deleting submission:', error);

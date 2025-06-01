@@ -8,7 +8,7 @@ const EvaluationResult = require('../models/EvaluationResultSchema');
 const ReportModel = require('./../models/reportModel')
 
 // Config for Judge0 API - make sure this URL is correct
-const JUDGE0_API = process.env.JUDGE0_API || 'https://a01f-14-97-164-222.ngrok-free.app/';
+const JUDGE0_API = process.env.JUDGE0_API || 'https://101c-14-97-164-222.ngrok-free.app/';
 
 // Enable debugging mode
 const DEBUG = true;
@@ -1792,7 +1792,7 @@ async function batchEvaluateSubmissions(examId, userIds = null) {
       query.student = { $in: userIds };
     }
     
-    const submissions = await Submission.find(query);
+    const submissions = await Submission.find(query).populate('student', 'fname lname USN');
     
     if (submissions.length === 0) {
       return { 
@@ -1802,38 +1802,77 @@ async function batchEvaluateSubmissions(examId, userIds = null) {
       };
     }
      
-   
+    console.log(`Found ${submissions.length} submissions to evaluate`);
     
     // Process each submission
     const results = [];
     const errors = [];
+    const userDetails = []; // Track user details for batch statistics
     
     for (let i = 0; i < submissions.length; i++) {
       const submission = submissions[i];
       try {
-        console.log(`Evaluating submission ${i+1}/${submissions.length} for student ${submission.student}`);
-        const result = await evaluateSubmission(submission.student, examId);
+        console.log(`Evaluating submission ${i+1}/${submissions.length} for student ${submission.student._id}`);
+        const result = await evaluateSubmission(submission.student._id, examId);
         results.push(result);
+        
+        // Add user details to tracking array
+        userDetails.push({
+          userId: submission.student._id,
+          name: `${submission.student.fname} ${submission.student.lname}`,
+          usn: submission.student.USN,
+          score: result.totalScore,
+          maxScore: result.maxPossibleScore,
+          percentage: result.percentage,
+          attempted: result.summary.attempted,
+          correct: result.summary.correct,
+          partial: result.summary.partial,
+          incorrect: result.summary.incorrect
+        });
+        
       } catch (error) {
-        console.error(`Error evaluating submission for student ${submission.student}:`, error);
+        console.error(`Error evaluating submission for student ${submission.student._id}:`, error);
         errors.push({
-          studentId: submission.student,
+          studentId: submission.student._id,
+          studentName: `${submission.student.fname} ${submission.student.lname}`,
+          usn: submission.student.USN,
           error: error.message
         });
       }
     }
     
-    // Calculate batch statistics
+    // Calculate batch statistics with user details
     const batchStats = {
       totalSubmissions: submissions.length,
       successfulEvaluations: results.length,
       failedEvaluations: errors.length,
       averageScore: results.length > 0 ? 
-        (results.reduce((sum, r) => sum + r.totalScore, 0) / results.length).toFixed(2) : 0,
+        parseFloat((results.reduce((sum, r) => sum + r.totalScore, 0) / results.length).toFixed(2)) : 0,
       highestScore: results.length > 0 ? 
         Math.max(...results.map(r => r.totalScore)) : 0,
       lowestScore: results.length > 0 ? 
-        Math.min(...results.map(r => r.totalScore)) : 0
+        Math.min(...results.map(r => r.totalScore)) : 0,
+      averagePercentage: results.length > 0 ? 
+        parseFloat((results.reduce((sum, r) => sum + r.percentage, 0) / results.length).toFixed(2)) : 0,
+      // Add user-specific details
+      userResults: userDetails,
+      topPerformers: userDetails
+        .sort((a, b) => b.percentage - a.percentage)
+        .slice(0, 5), // Top 5 performers
+      evaluatedUsers: userDetails.map(user => ({
+        userId: user.userId,
+        name: user.name,
+        usn: user.usn
+      })),
+      // Additional analytics
+      passedStudents: userDetails.filter(user => user.percentage >= 50).length,
+      failedStudents: userDetails.filter(user => user.percentage < 50).length,
+      scoreDistribution: {
+        excellent: userDetails.filter(user => user.percentage >= 90).length, // 90-100%
+        good: userDetails.filter(user => user.percentage >= 70 && user.percentage < 90).length, // 70-89%
+        average: userDetails.filter(user => user.percentage >= 50 && user.percentage < 70).length, // 50-69%
+        poor: userDetails.filter(user => user.percentage < 50).length // Below 50%
+      }
     };
     
     // Store batch statistics in a new collection for analytics
@@ -1851,7 +1890,70 @@ async function batchEvaluateSubmissions(examId, userIds = null) {
     throw new Error(`Batch evaluation failed: ${error.message}`);
   }
 }
-
+/**
+ * Gets summary of all batch evaluations (for admin dashboard)
+ * @returns {Array} Summary of all batch statistics
+ */
+// async function getAllBatchStatisticsSummary() {
+//   try {
+//     const BatchStatistics = mongoose.models.BatchStatistics || 
+//       mongoose.model('BatchStatistics', new mongoose.Schema({
+//         examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true },
+//         statistics: { type: Object },
+//         createdAt: { type: Date, default: Date.now },
+//         updatedAt: { type: Date, default: Date.now }
+//       }));
+    
+//     const allStats = await BatchStatistics.find({})
+//       .populate('examId', 'name scheduledAt duration questionType')
+//       .sort({ updatedAt: -1 });
+      
+//     return allStats.map(stat => ({
+//       examId: stat.examId._id,
+//       examName: stat.examId.name,
+//       examScheduledAt: stat.examId.scheduledAt,
+//       examType: stat.examId.questionType,
+//       totalSubmissions: stat.statistics.totalSubmissions,
+//       successfulEvaluations: stat.statistics.successfulEvaluations,
+//       averageScore: stat.statistics.averageScore,
+//       averagePercentage: stat.statistics.averagePercentage,
+//       passedStudents: stat.statistics.passedStudents,
+//       failedStudents: stat.statistics.failedStudents,
+//       lastUpdated: stat.updatedAt,
+//       topPerformer: stat.statistics.topPerformers?.[0] || null
+//     }));
+//   } catch (error) {
+//     console.error('Failed to get all batch statistics summary:', error);
+//     throw new Error(`Failed to get all batch statistics summary: ${error.message}`);
+//   }
+// }
+/**
+ * Gets batch statistics for a specific exam
+ * @param {String} examId - The exam ID
+ * @returns {Object} The batch statistics including user details
+ */
+// async function getBatchStatistics(examId) {
+//   try {
+//     const BatchStatistics = mongoose.models.BatchStatistics || 
+//       mongoose.model('BatchStatistics', new mongoose.Schema({
+//         examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true },
+//         statistics: { type: Object },
+//         createdAt: { type: Date, default: Date.now },
+//         updatedAt: { type: Date, default: Date.now }
+//       }));
+    
+//     const stats = await BatchStatistics.findOne({ examId })
+//       .populate('examId', 'name scheduledAt duration')
+//       .populate('statistics.userResults.userId', 'fname lname USN')
+//       .populate('statistics.topPerformers.userId', 'fname lname USN')
+//       .populate('statistics.evaluatedUsers.userId', 'fname lname USN');
+      
+//     return stats;
+//   } catch (error) {
+//     console.error('Failed to get batch statistics:', error);
+//     throw new Error(`Failed to get batch statistics: ${error.message}`);
+//   }
+// }
 /**
  * Stores batch evaluation statistics
  * @param {String} examId - The exam ID
@@ -1859,26 +1961,88 @@ async function batchEvaluateSubmissions(examId, userIds = null) {
  */
 async function storeBatchStatistics(examId, statistics) {
   try {
-    // Define schema if it doesn't exist
-    const BatchStatistics = mongoose.models.BatchStatistics || 
-      mongoose.model('BatchStatistics', new mongoose.Schema({
-        examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true },
-        statistics: { type: Object },
-        createdAt: { type: Date, default: Date.now }
-      }));
-    
-    await BatchStatistics.create({
-      examId,
-      statistics,
-      createdAt: new Date()
+    // Define enhanced schema if it doesn't exist
+    const batchStatisticsSchema = new mongoose.Schema({
+      examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', required: true },
+      statistics: {
+        totalSubmissions: Number,
+        successfulEvaluations: Number,
+        failedEvaluations: Number,
+        averageScore: Number,
+        highestScore: Number,
+        lowestScore: Number,
+        averagePercentage: Number,
+        passedStudents: Number,
+        failedStudents: Number,
+        scoreDistribution: {
+          excellent: Number,
+          good: Number,
+          average: Number,
+          poor: Number
+        },
+        userResults: [{
+          userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          name: String,
+          usn: String,
+          score: Number,
+          maxScore: Number,
+          percentage: Number,
+          attempted: Number,
+          correct: Number,
+          partial: Number,
+          incorrect: Number
+        }],
+        topPerformers: [{
+          userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          name: String,
+          usn: String,
+          score: Number,
+          maxScore: Number,
+          percentage: Number,
+          attempted: Number,
+          correct: Number,
+          partial: Number,
+          incorrect: Number
+        }],
+        evaluatedUsers: [{
+          userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+          name: String,
+          usn: String
+        }]
+      },
+      createdAt: { type: Date, default: Date.now },
+      updatedAt: { type: Date, default: Date.now }
     });
+
+    const BatchStatistics = mongoose.models.BatchStatistics || 
+      mongoose.model('BatchStatistics', batchStatisticsSchema);
     
-    console.log(`Stored batch statistics for exam ${examId}`);
+    // Check if statistics already exist for this exam
+    const existingStats = await BatchStatistics.findOne({ examId });
+    
+    if (existingStats) {
+      // Update existing statistics
+      existingStats.statistics = statistics;
+      existingStats.updatedAt = new Date();
+      await existingStats.save();
+      console.log(`Updated batch statistics for exam ${examId}`);
+    } else {
+      // Create new statistics
+      await BatchStatistics.create({
+        examId,
+        statistics,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      console.log(`Created new batch statistics for exam ${examId}`);
+    }
+    
   } catch (error) {
     console.error('Failed to store batch statistics:', error);
     // Don't throw - this shouldn't stop the process
   }
 }
+
 
 /**
  * Gets evaluation results for a specific user and exam

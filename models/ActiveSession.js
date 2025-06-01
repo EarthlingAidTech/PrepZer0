@@ -16,6 +16,10 @@ const ActivityTrackerSchema = new mongoose.Schema({
         enum: ["active", "inactive", "offline"],
         default: "inactive"
     },
+    isAllowedResubmit: {
+        type: Boolean,
+        default: false,
+    },
     lastPingTimestamp: {
         type: Date,
         default: Date.now

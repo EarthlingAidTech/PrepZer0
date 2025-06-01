@@ -769,6 +769,602 @@
             </div>
         </div>
     </div>
+    <script>
+        const CopyPasteControl = (function() {
+    let isExamActive = false;
+    let allowedClipboardContent = null;
+    const CLIPBOARD_KEY = 'examAllowedClipboard';
+    
+    /**
+     * Initialize copy-paste control system
+     */
+    function init() {
+        console.log('Initializing copy-paste control system...');
+        
+        // Clear any existing clipboard data
+        localStorage.removeItem(CLIPBOARD_KEY);
+        
+        // Add global event listeners immediately
+        setupGlobalListeners();
+        
+        return {
+            start: startControl,
+            stop: stopControl,
+            setupCodeEditor: setupCodeEditorControl
+        };
+    }
+    
+    /**
+     * Start copy-paste control (when exam begins)
+     */
+    function startControl() {
+        isExamActive = true;
+        allowedClipboardContent = null;
+        localStorage.removeItem(CLIPBOARD_KEY);
+        console.log('Copy-paste control activated');
+        
+        // Show notification about copy-paste restrictions
+        if (typeof examIntegrity !== 'undefined' && examIntegrity.showNotification) {
+            examIntegrity.showNotification(
+                'Copy-paste is restricted during the exam. You can only copy/paste within code editors.',
+                'warning'
+            );
+        }
+    }
+    
+    /**
+     * Stop copy-paste control (when exam ends)
+     */
+    function stopControl() {
+        isExamActive = false;
+        allowedClipboardContent = null;
+        localStorage.removeItem(CLIPBOARD_KEY);
+        console.log('Copy-paste control deactivated');
+    }
+    
+    /**
+     * Set up global event listeners for copy-paste prevention
+     */
+    function setupGlobalListeners() {
+        // Use capture phase (true) to intercept events before they reach targets
+        document.addEventListener('copy', handleGlobalCopy, true);
+        document.addEventListener('paste', handleGlobalPaste, true);
+        document.addEventListener('cut', handleGlobalCut, true);
+        document.addEventListener('keydown', handleKeyboardShortcuts, true);
+        
+        // Prevent context menu globally
+        document.addEventListener('contextmenu', (e) => {
+            if (isExamActive && !isCodeEditor(e.target)) {
+                e.preventDefault();
+                showCopyPasteWarning('Right-click context menu is disabled during the exam.');
+            }
+        });
+        
+        // Clear clipboard when focus leaves code editor
+        document.addEventListener('focusout', handleFocusOut);
+        
+        console.log('Global copy-paste event listeners set up');
+    }
+    
+    /**
+     * Handle global copy events
+     */
+    function handleGlobalCopy(e) {
+        if (!isExamActive) return;
+        
+        const target = e.target;
+        console.log('Copy event detected on:', target.tagName, target.className, target.id);
+        
+        // Check if the copy is from a code editor
+        if (isCodeEditor(target)) {
+            console.log('Copy allowed from code editor');
+            // Allow copy from code editor and store the content
+            handleCodeEditorCopy(e, target);
+            return;
+        }
+        
+        // Block copy from anywhere else
+        console.log('Copy blocked - not from code editor');
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        showCopyPasteWarning('Copying is only allowed from code editors during the exam.');
+        logCopyPasteViolation('copy_attempt');
+        
+        return false;
+    }
+    
+    /**
+     * Handle global paste events
+     */
+    function handleGlobalPaste(e) {
+        if (!isExamActive) return;
+        
+        const target = e.target;
+        console.log('Paste event detected on:', target.tagName, target.className, target.id);
+        
+        // Check if the paste is into a code editor
+        if (isCodeEditor(target)) {
+            console.log('Paste allowed into code editor');
+            // Allow paste into code editor but validate content
+            return handleCodeEditorPaste(e, target);
+        }
+        
+        // Block paste anywhere else
+        console.log('Paste blocked - not into code editor');
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        showCopyPasteWarning('Pasting is only allowed into code editors during the exam.');
+        logCopyPasteViolation('paste_attempt');
+        
+        return false;
+    }
+    
+    /**
+     * Handle global cut events
+     */
+    function handleGlobalCut(e) {
+        if (!isExamActive) return;
+        
+        const target = e.target;
+        console.log('Cut event detected on:', target.tagName, target.className, target.id);
+        
+        // Check if the cut is from a code editor
+        if (isCodeEditor(target)) {
+            console.log('Cut allowed from code editor');
+            // Allow cut from code editor and store the content
+            handleCodeEditorCut(e, target);
+            return;
+        }
+        
+        // Block cut from anywhere else
+        console.log('Cut blocked - not from code editor');
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        
+        showCopyPasteWarning('Cutting text is only allowed from code editors during the exam.');
+        logCopyPasteViolation('cut_attempt');
+        
+        return false;
+    }
+    
+    /**
+     * Handle keyboard shortcuts for copy/paste
+     */
+    function handleKeyboardShortcuts(e) {
+        if (!isExamActive) return;
+        
+        const target = e.target;
+        const isCtrlC = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c';
+        const isCtrlV = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v';
+        const isCtrlX = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x';
+        const isCtrlA = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a';
+        
+        if (isCtrlC || isCtrlV || isCtrlX) {
+            console.log('Keyboard shortcut detected:', e.key, 'on', target.tagName, target.className);
+            
+            // If it's not a code editor, prevent the action
+            if (!isCodeEditor(target)) {
+                console.log('Keyboard shortcut blocked - not in code editor');
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                const action = isCtrlC ? 'copying' : isCtrlV ? 'pasting' : 'cutting';
+                showCopyPasteWarning(`Keyboard ${action} is only allowed in code editors during the exam.`);
+                logCopyPasteViolation(`keyboard_${action.replace('ing', '')}_attempt`);
+                
+                return false;
+            } else {
+                console.log('Keyboard shortcut allowed in code editor');
+            }
+        }
+        
+        // Allow Ctrl+A everywhere for better UX (selecting all text)
+        if (isCtrlA) {
+            return true;
+        }
+    }
+    
+    /**
+     * Check if the target element is a code editor
+     */
+    function isCodeEditor(element) {
+        if (!element) return false;
+        
+        // More comprehensive check for code editor
+        const isCodeTextarea = element.classList.contains('code-textarea');
+        const hasCodeEditorId = element.id && element.id.startsWith('codeEditor-');
+        const isInCodeEditor = element.closest('.code-editor') !== null;
+        const isInEditorSection = element.closest('.editor-section') !== null;
+        const isCustomInput = element.classList.contains('custom-input-textarea') || 
+                            (element.id && element.id.startsWith('custom-input-'));
+        
+        const result = isCodeTextarea || hasCodeEditorId || isInCodeEditor || isInEditorSection || isCustomInput;
+        
+        if (result) {
+            console.log('Element identified as code editor:', {
+                tagName: element.tagName,
+                className: element.className,
+                id: element.id,
+                isCodeTextarea,
+                hasCodeEditorId,
+                isInCodeEditor,
+                isInEditorSection,
+                isCustomInput
+            });
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Handle copy operation from code editor
+     */
+    function handleCodeEditorCopy(e, target) {
+        setTimeout(() => {
+            try {
+                // Get the selected text
+                const selectedText = target.value.substring(target.selectionStart, target.selectionEnd);
+                
+                if (selectedText) {
+                    // Store the allowed clipboard content
+                    allowedClipboardContent = selectedText;
+                    localStorage.setItem(CLIPBOARD_KEY, JSON.stringify({
+                        content: selectedText,
+                        timestamp: Date.now(),
+                        questionId: extractQuestionId(target)
+                    }));
+                    
+                    console.log('Allowed copy from code editor:', selectedText.substring(0, 50) + '...');
+                    showCopyPasteSuccess('Code copied successfully!');
+                }
+            } catch (error) {
+                console.error('Error handling code editor copy:', error);
+            }
+        }, 10);
+    }
+    
+    /**
+     * Handle cut operation from code editor
+     */
+    function handleCodeEditorCut(e, target) {
+        setTimeout(() => {
+            try {
+                // Get the selected text before it's cut
+                const selectedText = target.value.substring(target.selectionStart, target.selectionEnd);
+                
+                if (selectedText) {
+                    // Store the allowed clipboard content
+                    allowedClipboardContent = selectedText;
+                    localStorage.setItem(CLIPBOARD_KEY, JSON.stringify({
+                        content: selectedText,
+                        timestamp: Date.now(),
+                        questionId: extractQuestionId(target)
+                    }));
+                    
+                    console.log('Allowed cut from code editor:', selectedText.substring(0, 50) + '...');
+                    showCopyPasteSuccess('Code cut successfully!');
+                }
+            } catch (error) {
+                console.error('Error handling code editor cut:', error);
+            }
+        }, 10);
+    }
+    
+    /**
+     * Handle paste operation into code editor
+     */
+    function handleCodeEditorPaste(e, target) {
+        e.preventDefault();
+        
+        try {
+            // Get clipboard data
+            const clipboardData = e.clipboardData || window.clipboardData;
+            const pastedContent = clipboardData.getData('text/plain');
+            
+            console.log('Attempting to paste into code editor:', pastedContent.substring(0, 50) + '...');
+            
+            // Check if the pasted content is allowed
+            if (!isContentAllowed(pastedContent)) {
+                showCopyPasteWarning('You can only paste content that was copied from a code editor during this exam.');
+                logCopyPasteViolation('unauthorized_paste_attempt');
+                return false;
+            }
+            
+            // Insert the content at cursor position
+            const startPos = target.selectionStart;
+            const endPos = target.selectionEnd;
+            const beforeText = target.value.substring(0, startPos);
+            const afterText = target.value.substring(endPos);
+            
+            target.value = beforeText + pastedContent + afterText;
+            
+            // Set cursor position after pasted content
+            const newCursorPos = startPos + pastedContent.length;
+            target.setSelectionRange(newCursorPos, newCursorPos);
+            
+            // Trigger input event to save changes
+            const inputEvent = new Event('input', { bubbles: true });
+            target.dispatchEvent(inputEvent);
+            
+            console.log('Allowed paste into code editor:', pastedContent.substring(0, 50) + '...');
+            showCopyPasteSuccess('Code pasted successfully!');
+            
+            return true;
+            
+        } catch (error) {
+            console.error('Error handling code editor paste:', error);
+            showCopyPasteWarning('Failed to paste content. Please try again.');
+            return false;
+        }
+    }
+    
+    /**
+     * Check if content is allowed to be pasted
+     */
+    function isContentAllowed(content) {
+        if (!content) return false;
+        
+        // Check against stored allowed content
+        if (allowedClipboardContent === content) {
+            return true;
+        }
+        
+        // Check against localStorage stored content
+        try {
+            const storedData = localStorage.getItem(CLIPBOARD_KEY);
+            if (storedData) {
+                const parsed = JSON.parse(storedData);
+                
+                // Check if content matches and is not too old (within 1 hour)
+                const isRecent = (Date.now() - parsed.timestamp) < (60 * 60 * 1000);
+                
+                if (parsed.content === content && isRecent) {
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking stored clipboard content:', error);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Extract question ID from target element
+     */
+    function extractQuestionId(target) {
+        if (target.id && target.id.startsWith('codeEditor-')) {
+            return target.id.replace('codeEditor-', '');
+        }
+        return 'unknown';
+    }
+    
+    /**
+     * Handle focus out events
+     */
+    function handleFocusOut(e) {
+        if (!isExamActive) return;
+        
+        const target = e.target;
+        
+        // If focus is leaving a code editor
+        if (isCodeEditor(target)) {
+            setTimeout(() => {
+                const activeElement = document.activeElement;
+                if (!isCodeEditor(activeElement)) {
+                    // Optional: Clear allowed clipboard content when leaving code editor area
+                    // Uncomment the lines below if you want to clear clipboard when leaving code editor
+                    // allowedClipboardContent = null;
+                    // localStorage.removeItem(CLIPBOARD_KEY);
+                    // console.log('Cleared allowed clipboard content on focus out');
+                }
+            }, 100);
+        }
+    }
+    
+    /**
+     * Set up individual code editor controls
+     */
+    function setupCodeEditorControl(questionId) {
+        const codeEditor = document.getElementById(`codeEditor-${questionId}`);
+        
+        if (!codeEditor) {
+            console.error(`Code editor not found for question: ${questionId}`);
+            return;
+        }
+        
+        console.log(`Setting up copy-paste control for code editor: ${questionId}`);
+        
+        // Mark this element as a code editor (additional safety)
+        codeEditor.dataset.isCodeEditor = 'true';
+        
+        // No need to add specific event listeners here since global listeners handle everything
+        console.log(`Copy-paste control set up for code editor: ${questionId}`);
+    }
+    
+    /**
+     * Show copy-paste warning message
+     */
+    function showCopyPasteWarning(message) {
+        console.log('Showing copy-paste warning:', message);
+        
+        // Try to use existing notification system
+        if (typeof examIntegrity !== 'undefined' && examIntegrity.showNotification) {
+            examIntegrity.showNotification(message, 'error');
+        } else {
+            // Fallback notification
+            const notification = createNotification(message, 'warning');
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 4000);
+        }
+    }
+    
+    /**
+     * Show copy-paste success message
+     */
+    function showCopyPasteSuccess(message) {
+        console.log('Showing copy-paste success:', message);
+        
+        // Try to use existing notification system
+        if (typeof examIntegrity !== 'undefined' && examIntegrity.showNotification) {
+            examIntegrity.showNotification(message, 'success');
+        } else {
+            // Fallback notification
+            const notification = createNotification(message, 'success');
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 2000);
+        }
+    }
+    
+    /**
+     * Create notification element
+     */
+    function createNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `copy-paste-notification ${type}`;
+        
+        const bgColor = type === 'warning' ? '#fff3cd' : type === 'success' ? '#d1fae5' : '#fee2e2';
+        const textColor = type === 'warning' ? '#856404' : type === 'success' ? '#065f46' : '#991b1b';
+        const borderColor = type === 'warning' ? '#ffeeba' : type === 'success' ? '#6ee7b7' : '#fca5a5';
+        
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: ${bgColor};
+            color: ${textColor};
+            border: 1px solid ${borderColor};
+            padding: 12px 16px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            max-width: 350px;
+            transform: translateX(110%);
+            transition: transform 0.3s ease;
+            font-size: 14px;
+            line-height: 1.4;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'times-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add show class for animation
+        notification.classList.add = function(className) {
+            if (className === 'show') {
+                this.style.transform = 'translateX(0)';
+            }
+        };
+        
+        notification.classList.remove = function(className) {
+            if (className === 'show') {
+                this.style.transform = 'translateX(110%)';
+            }
+        };
+        
+        return notification;
+    }
+    
+    /**
+     * Log copy-paste violations
+     */
+    function logCopyPasteViolation(violationType) {
+        console.log(`Copy-paste violation: ${violationType}`);
+        
+        // Try to use existing integrity system
+        if (typeof examIntegrity !== 'undefined' && examIntegrity.getViolationCounts) {
+            // You can extend the integrity system to handle copy-paste violations
+        }
+        
+        // Send to server
+        try {
+            const examId = document.getElementById('exam')?.textContent;
+            const userId = document.getElementById('user')?.textContent;
+            
+            if (examId && userId) {
+                fetch('/update-integrity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        examId: examId,
+                        userId: userId,
+                        eventType: `copyPaste_${violationType}`
+                    })
+                }).catch(error => {
+                    console.error('Error logging copy-paste violation:', error);
+                });
+            }
+        } catch (error) {
+            console.error('Error sending copy-paste violation log:', error);
+        }
+    }
+    
+    /**
+     * Get current clipboard status (for debugging)
+     */
+    function getClipboardStatus() {
+        return {
+            isExamActive,
+            hasAllowedContent: !!allowedClipboardContent,
+            allowedContentPreview: allowedClipboardContent ? allowedClipboardContent.substring(0, 50) + '...' : null,
+            storedData: localStorage.getItem(CLIPBOARD_KEY)
+        };
+    }
+    
+    // Public API
+    return {
+        init,
+        startControl,
+        stopControl,
+        setupCodeEditorControl,
+        getClipboardStatus
+    };
+})();
+
+// Initialize the system when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.copyPasteControl = CopyPasteControl.init();
+    });
+} else {
+    window.copyPasteControl = CopyPasteControl.init();
+}
+    </script>
 <script>
 
     /**
@@ -1589,7 +2185,10 @@ const examIntegrity = (function() {
         // Copy/paste prevention
         document.addEventListener('copy', handleCopyAttempt);
         document.addEventListener('paste', handlePasteAttempt);
-        
+        if (!window.copyPasteControl) {
+        document.addEventListener('copy', handleCopyAttempt);
+        document.addEventListener('paste', handlePasteAttempt);
+    }
         // Keyboard shortcuts prevention
         document.addEventListener('keydown', preventKeyboardShortcuts);
         
@@ -1808,30 +2407,45 @@ const examIntegrity = (function() {
     /**
      * Handle copy attempts
      */
-    function handleCopyAttempt(e) {
-        if (!state.examStarted) return;
-        
-        e.preventDefault();
+   // 1. Update the integrity monitoring copy/paste handlers
+function handleCopyAttempt(e) {
+    if (!state.examStarted) return;
+    
+    const target = e.target;
+    const isCodeEditor = target.classList.contains('code-textarea') || 
+                        target.id.startsWith('codeEditor-') ||
+                        target.closest('.code-editor') !== null;
+    
+    if (!isCodeEditor) {
+        // Only count violations for non-code-editor attempts
+        state.violations.copyAttemptCount++;
+        state.totalViolations++;
         sendIntegrityUpdate("copyAttempts");
-        updateStatus("Copy attempt detected");
+        updateStatus("Copy attempt detected outside code editor");
         updateUI();
         checkAndTriggerAutoSubmit();
     }
+}
 
-    /**
-     * Handle paste attempts
-     */
-    function handlePasteAttempt(e) {
-        if (!state.examStarted) return;
-        
-        e.preventDefault();
-        // state.violations.pasteAttemptCount++;
-        // state.totalViolations++;
+function handlePasteAttempt(e) {
+    if (!state.examStarted) return;
+    
+    const target = e.target;
+    const isCodeEditor = target.classList.contains('code-textarea') || 
+                        target.id.startsWith('codeEditor-') ||
+                        target.closest('.code-editor') !== null;
+    
+    if (!isCodeEditor) {
+        // Only count violations for non-code-editor attempts
+        state.violations.pasteAttemptCount++;
+        state.totalViolations++;
         sendIntegrityUpdate("pasteAttempts");
-        updateStatus("Paste attempt detected");
+        updateStatus("Paste attempt detected outside code editor");
         updateUI();
         checkAndTriggerAutoSubmit();
     }
+}
+
 
     /**
      * Handle resize events (potential DevTools)
@@ -2263,7 +2877,7 @@ const examIntegrity = (function() {
 
     <script>
     // Judge0 API base URL
-const JUDGE0_API_URL = 'https://a01f-14-97-164-222.ngrok-free.app/submissions';
+const JUDGE0_API_URL = 'https://101c-14-97-164-222.ngrok-free.app/submissions';
     
     // Store the exam data in localStorage when the page loads
     window.addEventListener('DOMContentLoaded', () => {
@@ -2399,7 +3013,10 @@ if (examData) {
     if (startOverlay) {
         startOverlay.remove();
     }
-    
+       if (window.copyPasteControl) {
+        window.copyPasteControl.start();
+        console.log('Copy-paste control started');
+    }
     // Show the main content
     const mainContainer = document.querySelector('.main-container');
     const header = document.querySelector('.header');
@@ -3551,7 +4168,10 @@ function getCodeForLanguage(questionId, languageId) {
             }
         });
     }
-
+ if (window.copyPasteControl) {
+        window.copyPasteControl.setupCodeEditor(questionId);
+        console.log(`Copy-paste control set up for editor: ${questionId}`);
+    }
     // Function to set up code execution buttons
     function setupCodeExecutionButtons(questionId) {
         // Run code button
@@ -4062,7 +4682,11 @@ function submitExam() {
     
     // Refresh answers after saving current code
     const updatedAnswers = JSON.parse(localStorage.getItem('examAnswers'));
-    
+        if (window.copyPasteControl) {
+        window.copyPasteControl.stop();
+        console.log('Copy-paste control stopped');
+    }
+
     // Prepare submission data
     const submissionData = {
         exam: examData._id,
@@ -4263,164 +4887,6 @@ function submitExam() {
     });
 }
 
-
-// function submitExam() {
-//     const examData = JSON.parse(localStorage.getItem('currentExam'));
-//     const answers = JSON.parse(localStorage.getItem('examAnswers'));
-    
-//     // Show loading indicator
-//     const submitButton = document.getElementById('submitExam');
-//     const originalButtonText = submitButton.innerHTML;
-//     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-//     submitButton.disabled = true;
-    
-//     // Prepare submission data according to Mongoose schema format
-//     const submissionData = {
-//         exam: examData._id,
-//         mcqAnswers: [],
-//         codingAnswers: []
-//     };
-    
-//     // Process MCQ answers
-//     if (answers.mcq && Object.keys(answers.mcq).length > 0) {
-//         for (const questionId in answers.mcq) {
-//             const answerData = answers.mcq[questionId];
-            
-//             // Send the actual option text (value) instead of just the index
-//             submissionData.mcqAnswers.push({
-//                 questionId: questionId,
-//                 selectedOption: answerData.value || answerData.index.toString()
-//             });
-//         }
-//     }
-    
-//     // Process coding answers - FIXED VERSION
-//     const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
-    
-//     for (const question of codingQuestions) {
-//         const questionId = question._id;
-//         let codeToSubmit = null;
-//         let languageToSubmit = '71'; // Default to Python
-        
-//         // Check if code exists in the new language-specific structure
-//         if (answers.codingByLanguage && 
-//             answers.codingByLanguage[questionId]) {
-            
-//             const questionData = answers.codingByLanguage[questionId];
-//             const selectedLanguage = questionData.selectedLanguage || '71';
-//             const codeForSelectedLanguage = questionData[selectedLanguage];
-            
-//             if (codeForSelectedLanguage && codeForSelectedLanguage.trim() !== '') {
-//                 // Check if it's not just starter code
-//                 if (!isStarterCode(codeForSelectedLanguage, question, selectedLanguage)) {
-//                     codeToSubmit = codeForSelectedLanguage;
-//                     languageToSubmit = selectedLanguage;
-//                 }
-//             }
-//         }
-        
-//         // Fallback: Check the old coding structure
-//         if (!codeToSubmit && answers.coding && answers.coding[questionId]) {
-//             const fallbackCode = answers.coding[questionId];
-//             if (fallbackCode && fallbackCode.trim() !== '' && 
-//                 !isStarterCode(fallbackCode, question)) {
-//                 codeToSubmit = fallbackCode;
-//                 languageToSubmit = '71'; // Default language
-//             }
-//         }
-        
-//         // If we have valid code, add it to submission
-//         if (codeToSubmit) {
-//             submissionData.codingAnswers.push({
-//                 questionId: questionId,
-//                 code: codeToSubmit,
-//                 language: parseInt(languageToSubmit)
-//             });
-//             console.log(`Added coding answer for question ${questionId}:`, {
-//                 codeLength: codeToSubmit.length,
-//                 language: languageToSubmit
-//             });
-//         } else {
-//             console.log(`No valid code found for question ${questionId}`);
-//         }
-//     }
-    
-//     console.log('Final submission data:', submissionData);
-//     console.log(`Submitting ${submissionData.mcqAnswers.length} MCQ answers and ${submissionData.codingAnswers.length} coding answers`);
-    
-//     const userId = document.getElementById('user').textContent;
-//     const examId = document.getElementById('exam').textContent;
-    
-//     const integrity = examIntegrity.init({
-//         examId: examId,
-//         userId: userId,
-//         apiEndpoints: {
-//             integrityUpdate: '/update-integrity',
-//             activityPing: '/dashboard/see-active',
-//             saveImage: '/save-image'
-//         },
-//         config: {
-//             maxViolations: 5,
-//             maxRefreshes: 3,
-//             pingInterval: 30000,
-//             webcamCaptureInterval: 10000
-//         },
-//         onAutoSubmit: function(reason) {
-//             console.log(`Auto-submitting exam due to: ${reason}`);
-//             document.getElementById('examForm').submit();
-//             setTimeout(() => {
-//                 window.location.href = '/exam-complete';
-//             }, 1000);
-//         },
-//         startWebcam: false
-//     });
-    
-//     const violations = integrity.getViolationCounts();
-//     console.log('Final violation counts:', violations);
-    
-//     // Stop integrity monitoring
-//     integrity.stop();
-    
-//     // Send submission to server using fetch API with JSON
-//     fetch('/dashboard/submit-test', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify(submissionData)
-//     })
-//     .then(response => {
-//         if (!response.ok) {
-//             if (response.redirected) {
-//                 window.location.href = response.url;
-//                 return;
-//             }
-//             return response.text().then(text => {
-//                 throw new Error(text || 'Submission failed');
-//             });
-//         }
-//         return response.json();
-//     })
-//     .then(data => {
-//         showSuccessMessage('Exam submitted successfully!');
-        
-//         // Clear exam data from localStorage
-//         clearExamData();
-        
-//         // Redirect to dashboard or results page after a short delay
-//         setTimeout(() => {
-//             window.close();
-//         }, 1500);
-//     })
-//     .catch(error => {
-//         console.error('Error submitting exam:', error);
-//         showErrorMessage(`There was an error submitting your exam: ${error.message}`);
-        
-//         // Reset button state
-//         submitButton.innerHTML = originalButtonText;
-//         submitButton.disabled = false;
-//     });
-// }
 //     // Function to show success message
     function showSuccessMessage(message) {
         const messageContainer = document.createElement('div');
@@ -4541,7 +5007,7 @@ function clearExamData() {
     // Judge0 API Functions
 // Judge0 API Configuration - Updated and Fixed
 const JUDGE0_CONFIG = {
-    baseUrl: 'https://a01f-14-97-164-222.ngrok-free.app',
+    baseUrl: 'https://101c-14-97-164-222.ngrok-free.app',
     endpoints: {
         submissions: '/submissions',
         status: '/submissions'
