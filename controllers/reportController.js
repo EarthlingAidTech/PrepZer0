@@ -97,14 +97,17 @@ exports.viewAssessmentReport = async(req,res) => {
         // Add coding evaluation data to the report
         if (codingEvaluation) {
           reportData.codingEvaluation = codingEvaluation;
+
           
           // Add a combined score (MCQ + Coding)
           const mcqScore = reportData.score.obtained || 0;
           const mcqTotal = reportData.score.total || 0;
           
+          
           const codingScore = codingEvaluation.totalScore || 
                              (codingEvaluation.results && codingEvaluation.results.totalScore) || 0;
-          const codingTotal = 100; // Assuming coding is out of 100
+
+          const codingTotal = codingEvaluation.maxPossibleScore;
           
           reportData.combinedScore = {
             obtained: mcqScore + codingScore,
