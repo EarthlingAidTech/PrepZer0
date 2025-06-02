@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Exam Portal</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!-- Add these lines in the <head> section, after the Font Awesome link -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/monokai.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/selection/active-line.min.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -263,46 +274,140 @@
             padding-top: 1.5rem;
         }
 
-        .language-selector {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
+.language-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+}
+body.dark-theme .language-selector {
+    background-color: #2d2d3f;
+    border-color: #374151;
+}
 
-        .language-selector select {
-            padding: 0.5rem;
-            border: 1px solid var(--border);
-            border-radius: var(--border-radius);
-            background-color: var(--white);
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
+      .language-selector label {
+    font-weight: 600;
+    color: var(--dark);
+    white-space: nowrap;
+}
 
-        .code-editor {
-            border: 1px solid var(--border);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
+body.dark-theme .language-selector label {
+    color: #e5e7eb;
+}
 
-        .code-textarea {
-            width: 100%;
-            min-height: 300px;
-            padding: 1rem;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            border: none;
-            resize: vertical;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-        }
+.language-selector select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    background-color: var(--white);
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-width: 200px;
+    transition: all 0.2s ease;
+}
 
-        .editor-buttons {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1rem;
-        }
+   .language-selector select:hover {
+    border-color: var(--primary);
+}
+
+.language-selector select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+body.dark-theme .language-selector select {
+    background-color: #374151;
+    color: #e5e7eb;
+    border-color: #4b5563;
+}
+
+/* Enhanced Code Editor Container */
+.code-editor {
+    border: 2px solid var(--border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background-color: var(--white);
+    transition: border-color 0.2s ease;
+    position: relative;
+}
+
+.code-editor:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+body.dark-theme .code-editor {
+    background-color: #1e1e1e;
+    border-color: #374151;
+}
+.code-textarea {
+    width: 100%;
+    min-height: 450px;
+    height: 450px;
+    max-height: 600px;
+    padding: 15px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', 'Fira Code', monospace;
+    font-size: 15px;
+    line-height: 1.5;
+    border: none;
+    resize: vertical;
+    background-color: #ffffff;
+    color: #1f2937;
+    outline: none;
+    tab-size: 4;
+    -moz-tab-size: 4;
+}
+
+.code-textarea:focus {
+    outline: none;
+}
+
+body.dark-theme .code-textarea {
+    background-color: #1e1e1e;
+    color: #e5e7eb;
+}
+
+/* Enhanced Editor Buttons */
+.editor-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border);
+}
+
+body.dark-theme .editor-buttons {
+    background-color: #2d2d3f;
+    border-color: #374151;
+}
+
+.editor-buttons .btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.editor-buttons .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.editor-buttons .btn:active {
+    transform: translateY(0);
+}
 
         /* Button Styles */
         .btn {
@@ -347,7 +452,6 @@
 
         .btn-danger {
             background-color: var(--danger);
-            color: var(--white);
         }
 
         .btn-danger:hover {
@@ -360,11 +464,20 @@
         }
 
         /* Test Results Styles */
-        .results-section {
-            margin-top: 2rem;
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-        }
+       .results-section {
+    margin-top: 2rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+}
+
+.result-output {
+    background-color: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
 
         .result-summary {
             background-color: #f8fafc;
@@ -597,6 +710,57 @@
             position: relative;
             display: inline-block;
         }
+body.dark-theme .result-output {
+    background-color: #2d2d3f;
+    border-color: #374151;
+}
+
+.execution-output {
+    background-color: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: 1rem 0;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+body.dark-theme .execution-output {
+    background-color: #1e1e1e;
+    color: #e5e7eb;
+    border-color: #374151;
+}
+
+.execution-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.execution-details {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.execution-details p {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
 
         .tooltip .tooltip-text {
             visibility: hidden;
@@ -667,9 +831,149 @@
             }
         }
     </style>
+    <style>
+    
+.CodeMirror {
+    height: 450px !important; /* Increased height */
+    min-height: 450px;
+    max-height: 600px; /* Allow some expansion */
+    border: none;
+    border-radius: var(--border-radius);
+    font-family: 'Consolas', 'Monaco', 'Courier New', 'Fira Code', monospace;
+    font-size: 15px; /* Slightly larger font */
+    line-height: 1.5;
+    resize: vertical; /* Allow vertical resizing */
+}
+
+.CodeMirror-scroll {
+    min-height: 450px;
+    padding: 10px 0; /* Add some padding */
+}
+
+.CodeMirror-lines {
+    padding: 10px 0; /* Better spacing */
+}
+
+.CodeMirror-line {
+    padding: 0 10px; /* Better horizontal padding */
+}
+
+/* Enhanced line numbers */
+.CodeMirror-gutters {
+    border-right: 1px solid #e1e5e9;
+    background-color: #f8fafc;
+    padding-right: 10px;
+}
+
+body.dark-theme .CodeMirror-gutters {
+    background-color: #2d2d2d;
+    border-color: #374151;
+    color: #6b7280;
+}
+
+.CodeMirror-linenumber {
+    color: #6b7280;
+    font-size: 13px;
+    padding: 0 8px 0 0;
+    text-align: right;
+    min-width: 30px;
+}
+
+body.dark-theme .CodeMirror-linenumber {
+    color: #9ca3af;
+}
+
+/* Active line highlighting */
+.CodeMirror-activeline-background {
+    background-color: rgba(37, 99, 235, 0.05) !important;
+}
+
+body.dark-theme .CodeMirror-activeline-background {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Selection highlighting */
+.CodeMirror-selected {
+    background-color: rgba(37, 99, 235, 0.2) !important;
+}
+
+body.dark-theme .CodeMirror-selected {
+    background-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Cursor */
+.CodeMirror-cursor {
+    border-left: 2px solid var(--primary);
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.CodeMirror-focused .CodeMirror-selected {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.CodeMirror-line {
+    padding: 0 4px;
+}
+
+/* Ensure CodeMirror works well with existing layout */
+.code-editor .CodeMirror {
+    margin-top: 0;
+}
+.code-editor-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #f1f5f9;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    color: var(--secondary);
+}
+
+body.dark-theme .code-editor-toolbar {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #9ca3af;
+}
+
+.code-editor-info {
+    display: flex;
+    gap: 1rem;
+}
+
+.code-editor-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.code-editor-actions button {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border);
+    background-color: var(--white);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+body.dark-theme .code-editor-actions button {
+    background-color: #4b5563;
+    border-color: #6b7280;
+    color: #e5e7eb;
+}
+
+.custom-input-textarea {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+}
+    </style>
 </head>
 <body>
-    <p id="camneed"><%=exam.settings.camera%></p>
+    <p id="camneed" hidden><%=exam.settings.camera%></p>
     <p id="user" hidden><%=user._id%></p>
 <p id="exam" hidden><%=exam._id%></p>
     <!-- Header -->
@@ -4042,32 +4346,75 @@ function loadQuestion(index) {
         
         // Add event listener for language selection to update the starter code
         const langSelect = document.getElementById(`language-select-${question._id}`);
-    languageSelect.addEventListener('change', () => {
-        const selectedLanguage = languageSelect.value;
-        const codeEditor = document.getElementById(`codeEditor-${question._id}`);
-        const currentCode = codeEditor.value;
+    // languageSelect.addEventListener('change', () => {
+    //     const selectedLanguage = languageSelect.value;
+    //     const codeEditor = document.getElementById(`codeEditor-${question._id}`);
+    //     const currentCode = codeEditor.value;
         
-        // Save current code for the previously selected language
-        const previousLanguage = languageSelect.dataset.previousLanguage || '71';
-        saveCodeForLanguage(question._id, previousLanguage, currentCode);
+    //     // Save current code for the previously selected language
+    //     const previousLanguage = languageSelect.dataset.previousLanguage || '71';
+    //     saveCodeForLanguage(question._id, previousLanguage, currentCode);
         
-        // Load code for the newly selected language
-        const savedCodeForNewLang = getCodeForLanguage(question._id, selectedLanguage);
+    //     // Load code for the newly selected language
+    //     const savedCodeForNewLang = getCodeForLanguage(question._id, selectedLanguage);
         
-        if (savedCodeForNewLang && savedCodeForNewLang.trim() !== '') {
-            // Use saved code if it exists and is not empty
-            codeEditor.value = savedCodeForNewLang;
-        } else {
-            // Use starter code for the new language
-            codeEditor.value = getStarterCode(question, selectedLanguage);
-        }
+    //     if (savedCodeForNewLang && savedCodeForNewLang.trim() !== '') {
+    //         // Use saved code if it exists and is not empty
+    //         codeEditor.value = savedCodeForNewLang;
+    //     } else {
+    //         // Use starter code for the new language
+    //         codeEditor.value = getStarterCode(question, selectedLanguage);
+    //     }
         
-        // Update the previous language tracker
-        languageSelect.dataset.previousLanguage = selectedLanguage;
+    //     // Update the previous language tracker
+    //     languageSelect.dataset.previousLanguage = selectedLanguage;
         
-        // Save the new code and language selection
-        saveCodeForLanguage(question._id, selectedLanguage, codeEditor.value);
-    });}
+    //     // Save the new code and language selection
+    //     saveCodeForLanguage(question._id, selectedLanguage, codeEditor.value);
+    // });
+    // Replace the existing language change event listener with this:
+languageSelect.addEventListener('change', () => {
+    const selectedLanguage = languageSelect.value;
+    const codeEditor = document.getElementById(`codeEditor-${question._id}`);
+    
+    let currentCode = '';
+    
+    // Get current code from CodeMirror if it exists, otherwise from textarea
+    if (codeEditor.codeMirrorInstance) {
+        currentCode = codeEditor.codeMirrorInstance.getValue();
+    } else {
+        currentCode = codeEditor.value;
+    }
+    
+    // Save current code for the previously selected language
+    const previousLanguage = languageSelect.dataset.previousLanguage || '71';
+    saveCodeForLanguage(question._id, previousLanguage, currentCode);
+    
+    // Load code for the newly selected language
+    const savedCodeForNewLang = getCodeForLanguage(question._id, selectedLanguage);
+    
+    let newCode = '';
+    if (savedCodeForNewLang && savedCodeForNewLang.trim() !== '') {
+        newCode = savedCodeForNewLang;
+    } else {
+        newCode = getStarterCode(question, selectedLanguage);
+    }
+    
+    // Update both CodeMirror and textarea
+    if (codeEditor.codeMirrorInstance) {
+        codeEditor.codeMirrorInstance.setValue(newCode);
+        codeEditor.codeMirrorInstance.setOption('mode', getCodeMirrorMode(selectedLanguage));
+    } else {
+        codeEditor.value = newCode;
+    }
+    
+    // Update the previous language tracker
+    languageSelect.dataset.previousLanguage = selectedLanguage;
+    
+    // Save the new code and language selection
+    saveCodeForLanguage(question._id, selectedLanguage, newCode);
+});
+    }
 
 
 // function saveCodeForLanguage(questionId, languageId, code) {
@@ -4140,38 +4487,333 @@ function getCodeForLanguage(questionId, languageId) {
     return null;
 }
     // Function to set up code editor
-    function setupCodeEditor(questionId) {
-        const codeEditor = document.getElementById(`codeEditor-${questionId}`);
+    // Function to set up code editor with CodeMirror
+// function setupCodeEditor(questionId) {
+//     const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+//     if (!codeTextarea) return;
+    
+//     // Get the language selector
+//     const languageSelect = document.getElementById(`language-select-${questionId}`);
+//     const selectedLanguageId = languageSelect ? languageSelect.value : '71';
+    
+//     // Hide the original textarea
+//     codeTextarea.style.display = 'none';
+    
+//     // Create CodeMirror instance
+//     const editor = CodeMirror(codeTextarea.parentNode, {
+//         value: codeTextarea.value,
+//         mode: getCodeMirrorMode(selectedLanguageId),
+//         theme: document.body.classList.contains('dark-theme') ? 'monokai' : 'github',
+//         lineNumbers: true,
+//         autoCloseBrackets: true,
+//         matchBrackets: true,
+//         styleActiveLine: true,
+//         indentUnit: 4,
+//         tabSize: 4,
+//         indentWithTabs: false,
+//         lineWrapping: false,
+//         extraKeys: {
+//             "Tab": function(cm) {
+//                 if (cm.somethingSelected()) {
+//                     cm.indentSelection("add");
+//                 } else {
+//                     cm.replaceSelection("    ");
+//                 }
+//             },
+//             "Shift-Tab": function(cm) {
+//                 cm.indentSelection("subtract");
+//             }
+//         }
+//     });
+    
+//     // Store reference to editor
+//     codeTextarea.codeMirrorInstance = editor;
+    
+//     // Update textarea value when editor changes
+//     editor.on('change', function() {
+//         codeTextarea.value = editor.getValue();
         
-        // Add event listener to save code when typing
-        codeEditor.addEventListener('input', () => {
-            // Debounce to avoid saving too frequently
-            clearTimeout(codeEditor.saveTimeout);
-            codeEditor.saveTimeout = setTimeout(() => {
-                saveCodingAnswer(questionId, codeEditor.value);
-                updateProgress();
-            }, 1000);
-        });
+//         // Debounce to avoid saving too frequently
+//         clearTimeout(codeTextarea.saveTimeout);
+//         codeTextarea.saveTimeout = setTimeout(() => {
+//             const currentLanguage = languageSelect ? languageSelect.value : '71';
+//             saveCodeForLanguage(questionId, currentLanguage, editor.getValue());
+//             updateProgress();
+//         }, 1000);
+//     });
+    
+//     // Handle language changes
+//     if (languageSelect) {
+//         const originalChangeHandler = languageSelect.onchange;
+//         languageSelect.onchange = function() {
+//             // Call original handler first
+//             if (originalChangeHandler) {
+//                 originalChangeHandler.call(this);
+//             }
+            
+//             // Update CodeMirror mode
+//             const newMode = getCodeMirrorMode(this.value);
+//             editor.setOption('mode', newMode);
+//         };
+//     }
+    
+//     // Handle theme changes
+//     const themeObserver = new MutationObserver(function(mutations) {
+//         mutations.forEach(function(mutation) {
+//             if (mutation.attributeName === 'class') {
+//                 const isDark = document.body.classList.contains('dark-theme');
+//                 editor.setOption('theme', isDark ? 'monokai' : 'github');
+//             }
+//         });
+//     });
+    
+//     themeObserver.observe(document.body, {
+//         attributes: true,
+//         attributeFilter: ['class']
+//     });
+    
+//     // Set up copy-paste control
+//     if (window.copyPasteControl) {
+//         window.copyPasteControl.setupCodeEditor(questionId);
+//         console.log(`Copy-paste control set up for editor: ${questionId}`);
+//     }
+    
+//     // Refresh editor after a short delay to ensure proper rendering
+//     setTimeout(() => {
+//         editor.refresh();
+//     }, 100);
+// }
+function setupCodeEditor(questionId) {
+    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+    if (!codeTextarea) return;
+    
+    // Get the language selector
+    const languageSelect = document.getElementById(`language-select-${questionId}`);
+    const selectedLanguageId = languageSelect ? languageSelect.value : '71';
+    
+    // Hide the original textarea
+    codeTextarea.style.display = 'none';
+    
+    // Create a toolbar for the editor (optional)
+    const toolbar = document.createElement('div');
+    toolbar.className = 'code-editor-toolbar';
+    toolbar.innerHTML = `
+        <div class="code-editor-info">
+            <span>Language: <strong>${LANGUAGE_CONFIG[selectedLanguageId]?.name || 'Python'}</strong></span>
+            <span>Lines: <span id="line-count-${questionId}">1</span></span>
+        </div>
+        <div class="code-editor-actions">
+            <button type="button" onclick="formatCode('${questionId}')" title="Format Code">
+                <i class="fas fa-indent"></i>
+            </button>
+            <button type="button" onclick="toggleWordWrap('${questionId}')" title="Toggle Word Wrap">
+                <i class="fas fa-align-left"></i>
+            </button>
+        </div>
+    `;
+    
+    // Insert toolbar before the code editor
+    codeTextarea.parentNode.insertBefore(toolbar, codeTextarea);
+    
+    // Create CodeMirror instance with enhanced options
+    const editor = CodeMirror(codeTextarea.parentNode, {
+        value: codeTextarea.value,
+        mode: getCodeMirrorMode(selectedLanguageId),
+        theme: document.body.classList.contains('dark-theme') ? 'monokai' : 'github',
+        lineNumbers: true,
+        autoCloseBrackets: true,
+        matchBrackets: true,
+        styleActiveLine: true,
+        indentUnit: 4,
+        tabSize: 5,
+        indentWithTabs: false,
+        lineWrapping: false,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
+        searchCursor: true,
+        autoRefresh: true,
+        viewportMargin: 10,
+        extraKeys: {
+            "Tab": function(cm) {
+                if (cm.somethingSelected()) {
+                    cm.indentSelection("add");
+                } else {
+                    cm.replaceSelection("    ");
+                }
+            },
+            "Shift-Tab": function(cm) {
+                cm.indentSelection("subtract");
+            },
+            "Ctrl-/": function(cm) {
+                cm.toggleComment();
+            },
+            "Cmd-/": function(cm) {
+                cm.toggleComment();
+            },
+            "F11": function(cm) {
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+            },
+            "Esc": function(cm) {
+                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", true);
+            }
+        }
+    });
+    
+    // Store reference to editor
+    codeTextarea.codeMirrorInstance = editor;
+    
+    // Update line count display
+    const updateLineCount = () => {
+        const lineCountSpan = document.getElementById(`line-count-${questionId}`);
+        if (lineCountSpan) {
+            lineCountSpan.textContent = editor.lineCount();
+        }
+    };
+    
+    // Update textarea value and line count when editor changes
+    editor.on('change', function() {
+        codeTextarea.value = editor.getValue();
+        updateLineCount();
         
-        // Add tab key support
-        codeEditor.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                
-                // Insert tab at the cursor position
-                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
-                
-                // Move the cursor position after the tab
-                this.selectionStart = this.selectionEnd = start + 4;
+        // Debounce to avoid saving too frequently
+        clearTimeout(codeTextarea.saveTimeout);
+        codeTextarea.saveTimeout = setTimeout(() => {
+            const currentLanguage = languageSelect ? languageSelect.value : '71';
+            saveCodeForLanguage(questionId, currentLanguage, editor.getValue());
+            updateProgress();
+        }, 1000);
+    });
+    
+    // Update line count initially
+    updateLineCount();
+    
+    // Handle language changes
+    if (languageSelect) {
+        const originalChangeHandler = languageSelect.onchange;
+        languageSelect.onchange = function() {
+            // Update toolbar info
+            const toolbarInfo = toolbar.querySelector('.code-editor-info span');
+            if (toolbarInfo) {
+                toolbarInfo.innerHTML = `Language: <strong>${LANGUAGE_CONFIG[this.value]?.name || 'Unknown'}</strong>`;
+            }
+            
+            // Call original handler
+            if (originalChangeHandler) {
+                originalChangeHandler.call(this);
+            }
+            
+            // Update CodeMirror mode
+            const newMode = getCodeMirrorMode(this.value);
+            editor.setOption('mode', newMode);
+        };
+    }
+    
+    // Handle theme changes
+    const themeObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                const isDark = document.body.classList.contains('dark-theme');
+                editor.setOption('theme', isDark ? 'monokai' : 'github');
             }
         });
-    }
- if (window.copyPasteControl) {
+    });
+    
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+    
+    // Set up copy-paste control
+    if (window.copyPasteControl) {
         window.copyPasteControl.setupCodeEditor(questionId);
         console.log(`Copy-paste control set up for editor: ${questionId}`);
     }
+    
+    // Make editor resizable
+    editor.on('refresh', function() {
+        const editorElement = editor.getWrapperElement();
+        if (editorElement) {
+            editorElement.style.resize = 'vertical';
+            editorElement.style.overflow = 'auto';
+        }
+    });
+    
+    // Refresh editor after a short delay to ensure proper rendering
+    setTimeout(() => {
+        editor.refresh();
+        editor.focus();
+    }, 100);
+    
+    // Add window resize listener to refresh editor
+    window.addEventListener('resize', () => {
+        setTimeout(() => editor.refresh(), 100);
+    });
+}
+
+// Utility functions for editor enhancements
+function formatCode(questionId) {
+    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+    if (codeTextarea && codeTextarea.codeMirrorInstance) {
+        const editor = codeTextarea.codeMirrorInstance;
+        const totalLines = editor.lineCount();
+        editor.autoFormatRange({line: 0, ch: 0}, {line: totalLines});
+    }
+}
+
+function toggleWordWrap(questionId) {
+    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
+    if (codeTextarea && codeTextarea.codeMirrorInstance) {
+        const editor = codeTextarea.codeMirrorInstance;
+        const currentWrap = editor.getOption('lineWrapping');
+        editor.setOption('lineWrapping', !currentWrap);
+    }
+}
+// Helper function to get CodeMirror mode based on language ID
+function getCodeMirrorMode(languageId) {
+    const modeMap = {
+        '71': 'python',           // Python
+        '62': 'text/x-java',      // Java
+        '54': 'text/x-c++src',    // C++
+        '63': 'javascript',       // JavaScript
+        '51': 'text/x-csharp',    // C#
+        '50': 'text/x-csrc'       // C
+    };
+    
+    return modeMap[languageId] || 'python';
+}
+//     function setupCodeEditor(questionId) {
+//         const codeEditor = document.getElementById(`codeEditor-${questionId}`);
+        
+//         // Add event listener to save code when typing
+//         codeEditor.addEventListener('input', () => {
+//             // Debounce to avoid saving too frequently
+//             clearTimeout(codeEditor.saveTimeout);
+//             codeEditor.saveTimeout = setTimeout(() => {
+//                 saveCodingAnswer(questionId, codeEditor.value);
+//                 updateProgress();
+//             }, 1000);
+//         });
+        
+//         // Add tab key support
+//         codeEditor.addEventListener('keydown', function(e) {
+//             if (e.key === 'Tab') {
+//                 e.preventDefault();
+//                 const start = this.selectionStart;
+//                 const end = this.selectionEnd;
+                
+//                 // Insert tab at the cursor position
+//                 this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                
+//                 // Move the cursor position after the tab
+//                 this.selectionStart = this.selectionEnd = start + 4;
+//             }
+//         });
+//     }
+//  if (window.copyPasteControl) {
+//         window.copyPasteControl.setupCodeEditor(questionId);
+//         console.log(`Copy-paste control set up for editor: ${questionId}`);
+//     }
     // Function to set up code execution buttons
     function setupCodeExecutionButtons(questionId) {
         // Run code button
@@ -5013,7 +5655,7 @@ const JUDGE0_CONFIG = {
         status: '/submissions'
     },
     limits: {
-        cpu_time_limit: 5,        // Use underscore format as per Judge0 API
+        cpu_time_limit: 2,        // Use underscore format as per Judge0 API
         memory_limit: 256000,     // 256MB in KB
         wall_time_limit: 10,      // Wall time limit
         max_processes_and_or_threads: 30,
@@ -5022,7 +5664,7 @@ const JUDGE0_CONFIG = {
         enable_per_process_and_thread_memory_limit: false
     },
     retries: {
-        maxAttempts: 20,
+        maxAttempts:3,
         interval: 1500
     }
 };
@@ -5082,7 +5724,7 @@ async function createSubmission(languageId, sourceCode, stdin = '') {
             const errorText = await response.text();
             console.error('Judge0 API Error Response:', errorText);
             
-            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            let errorMessage = `HTTPs ${response.status}: ${response.statusText}`;
             
             try {
                 const errorJson = JSON.parse(errorText);
