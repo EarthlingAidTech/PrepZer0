@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PrepZer0 - Student Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -33,13 +33,29 @@
             font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
         }
         
+        html, body {
+            height: 100%;
+        }
+        
         body {
             background-color: var(--dark-bg);
             color: var(--light-text);
-            min-height: 100vh;
             background-image: 
                 radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 20%),
                 radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 20%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-wrapper {
+            flex: 1 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content-wrapper {
+            flex: 1 0 auto;
+            padding-bottom: 2rem;
         }
         
         /* Navbar styling */
@@ -543,31 +559,21 @@
             color: var(--secondary-text) !important;
         }
 
-        /* Footer styling */
+        /* Footer styling - FIXED */
         footer {
+            flex-shrink: 0;
             background-color: rgba(31, 41, 55, 0.95) !important;
             color: var(--light-text);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(79, 70, 229, 0.1);
             padding: 1.25rem 0;
-            margin-top: auto; /* This pushes footer to bottom */
+            margin-top: auto;
             width: 100%;
         }
+
         /* Fix for video element */
         #video, #canvas {
             display: none;
-        }
-        @media (min-width: 1300px) {
-            footer {
-            background-color: rgba(31, 41, 55, 0.95) !important;
-            color: var(--light-text);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(79, 70, 229, 0.1);
-            padding: 1.25rem 0;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
         }
 
         /* Mobile responsive styles */
@@ -597,7 +603,6 @@
             .nav-tabs .nav-link {
                 white-space: nowrap;
             }
-
         }
 
         /* Page refresh animation */
