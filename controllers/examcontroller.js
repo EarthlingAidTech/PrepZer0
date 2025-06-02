@@ -10,6 +10,7 @@ const moment = require("moment-timezone");
 const { scheduleExamReminder, cancelExamReminder } = require("../utils/examreminder");
 const activityTracker = require("../models/ActiveSession");
 const EvaluationResult = require("../models/EvaluationResultSchema");
+const MCQ = require("../models/MCQQuestion");
 
 function ensureAdmin(req, res, next) {
     if (req.isAuthenticated() && req.user.role === "admin") {
@@ -932,6 +933,505 @@ exports.deleteExam = async (req, res) => {
 
 
 
+// exports.exportExamReport = async (req, res) => {
+//     try {
+//         const examId = req.params.examId;
+        
+//         // Fetch the exam details
+//         const exam = await Exam.findById(examId);
+        
+//         if (!exam) {
+//             return res.status(404).send('Exam not found');
+//         }
+        
+//         // Determine question type for column structure
+//         const questionType = exam.questionType || 'mcq'; // Default to MCQ if not specified
+        
+//         // Use Promise.all to fetch data in parallel instead of sequentially
+//         const dataQueries = [
+//             // Fetch submissions with only required fields to reduce memory usage
+//             Submission.find({ exam: examId })
+//                 .populate('student', 'USN fname lname name email Department Semester Rollno _id')
+//                 .select('student score submittedAt mcqAnswers codingAnswers integrityScore _id')
+//                 .lean(), // Use lean() for better performance
+            
+//             // Fetch active sessions
+//             ActivityTracker.find({ examId: examId })
+//                 .populate('userId', 'USN name email Department Semester Rollno _id')
+//                 .select('userId status lastPingTimestamp startTimestamp')
+//                 .lean(),
+            
+//             // Fetch all activity trackers for start times in one query
+//             activityTracker.find({ examId: examId })
+//                 .select('userId startedAt -_id')
+//                 .lean()
+//         ];
+        
+//         // Add EvaluationResult query if exam has coding questions
+//         if (questionType === 'coding' || questionType === 'mcq & coding') {
+//             dataQueries.push(
+//                 EvaluationResult.find({ examId: examId })
+//                     .populate('userId', '_id')
+//                     .select('userId totalScore maxPossibleScore submissionId')
+//                     .lean()
+//             );
+//         }
+        
+//         const results = await Promise.all(dataQueries);
+//         const [submissions, activeSessions, activityTrackers, evaluationResults = []] = results;
+        
+//         // Create maps for O(1) lookups instead of repeated database queries
+//         const activeSessionsMap = new Map();
+//         activeSessions.forEach(session => {
+//             if (session.userId && session.userId._id) {
+//                 activeSessionsMap.set(session.userId._id.toString(), {
+//                     status: session.status,
+//                     startedAt: session.startTimestamp || null
+//                 });
+//             }
+//         });
+        
+//         const activityTrackersMap = new Map();
+//         activityTrackers.forEach(tracker => {
+//             if (tracker.userId) {
+//                 activityTrackersMap.set(tracker.userId.toString(), tracker.startedAt);
+//             }
+//         });
+        
+//         // Create evaluation results map
+//         const evaluationResultsMap = new Map();
+//         evaluationResults.forEach(result => {
+//             if (result.userId && result.userId._id) {
+//                 evaluationResultsMap.set(result.userId._id.toString(), {
+//                     totalScore: result.totalScore || 0,
+//                     maxPossibleScore: result.maxPossibleScore || 0,
+//                     submissionId: result.submissionId
+//                 });
+//             }
+//         });
+        
+//         // Batch fetch all detailed reports at once instead of one by one
+//         const submissionIds = submissions.map(s => s._id);
+//         let detailedReports = new Map();
+        
+//         try {
+//             // If ReportModel supports batch operations, use it
+//             const reports = await ReportModel.find({ submissionId: { $in: submissionIds } }).lean();
+//             reports.forEach(report => {
+//                 detailedReports.set(report.submissionId.toString(), report);
+//             });
+//         } catch (batchError) {
+//             console.log('Batch report fetch failed, falling back to individual queries');
+//             // Fallback: fetch reports in smaller batches to avoid overwhelming the system
+//             const batchSize = 50;
+//             for (let i = 0; i < submissionIds.length; i += batchSize) {
+//                 const batch = submissionIds.slice(i, i + batchSize);
+//                 try {
+//                     const batchReports = await Promise.all(
+//                         batch.map(async (id) => {
+//                             try {
+//                                 const report = await ReportModel.getAssessmentReport(id);
+//                                 return { id, report };
+//                             } catch (error) {
+//                                 return { id, report: null };
+//                             }
+//                         })
+//                     );
+                    
+//                     batchReports.forEach(({ id, report }) => {
+//                         if (report) {
+//                             detailedReports.set(id.toString(), report);
+//                         }
+//                     });
+//                 } catch (error) {
+//                     console.error(`Error fetching batch ${i}-${i + batchSize}:`, error);
+//                 }
+//             }
+//         }
+        
+//         // Pre-calculate common values
+//         const defaultMaxScore = exam.totalMarks || 100;
+        
+//         // Process data more efficiently and collect rank information
+//         const reportData = [];
+//         const submissionsWithRanks = [];
+        
+//         // First pass: collect all submission data with ranks
+//         for (const submission of submissions) {
+//             if (!submission.student || !submission.student._id) continue;
+            
+//             try {
+//                 const detailedReport = detailedReports.get(submission._id.toString());
+                
+//                 // Get rank from detailed report
+//                 const rank = detailedReport && detailedReport.ranking ? 
+//                     detailedReport.ranking.rank : null;
+                
+//                 submissionsWithRanks.push({
+//                     submission,
+//                     detailedReport,
+//                     rank
+//                 });
+//             } catch (error) {
+//                 console.error(`Error processing submission ${submission._id}:`, error);
+//                 continue;
+//             }
+//         }
+        
+//         // Sort by rank (lowest rank number first, nulls last)
+//         submissionsWithRanks.sort((a, b) => {
+//             if (a.rank === null && b.rank === null) return 0;
+//             if (a.rank === null) return 1;
+//             if (b.rank === null) return -1;
+//             return a.rank - b.rank;
+//         });
+        
+//         // Second pass: create report data in rank order
+//         let serialNumber = 1;
+        
+//         for (const { submission, detailedReport } of submissionsWithRanks) {
+//             try {
+//                 const studentId = submission.student._id.toString();
+//                 const sessionInfo = activeSessionsMap.get(studentId) || {};
+//                 const evaluationResult = evaluationResultsMap.get(studentId) || {};
+                
+//                 // Determine student name efficiently
+//                 const studentName = submission.student.name || 
+//                     (submission.student.fname && submission.student.lname ? 
+//                         `${submission.student.fname} ${submission.student.lname}` : 
+//                         submission.student.fname || 'N/A');
+                
+//                 // Calculate scores based on question type
+//                 let maxScore = defaultMaxScore;
+//                 let obtainedScore = submission.score;
+//                 let mcqScore = 'N/A';
+//                 let codingScore = 'N/A';
+//                 let mcqMaxScore = 'N/A';
+//                 let codingMaxScore = 'N/A';
+                
+//                 if (questionType === 'mcq') {
+//                     // For MCQ only - use existing logic
+//                     if (detailedReport && detailedReport.score) {
+//                         maxScore = detailedReport.score.total;
+//                         obtainedScore = detailedReport.score.obtained;
+//                     } else if (!obtainedScore) {
+//                         maxScore = (submission.mcqAnswers?.length || 0) || defaultMaxScore;
+//                     }
+//                 } else if (questionType === 'coding') {
+//                     // For Coding only - use EvaluationResult totalScore
+//                     obtainedScore = evaluationResult.totalScore || 0;
+//                     maxScore = evaluationResult.maxPossibleScore || 100;
+//                 } else if (questionType === 'mcq & coding') {
+//                     // For Mixed type
+//                     // Get MCQ score using same logic as MCQ-only
+//                     if (detailedReport && detailedReport.score) {
+//                         mcqScore = detailedReport.score.obtained || submission.score || 0;
+//                         mcqMaxScore = detailedReport.score.total || (submission.mcqAnswers?.length || 0);
+//                     } else {
+//                         mcqScore = submission.score || 0;
+//                         mcqMaxScore = (submission.mcqAnswers?.length || 0);
+//                     }
+                    
+//                     // Get coding score from EvaluationResult
+//                     codingScore = evaluationResult.totalScore || 0;
+//                     codingMaxScore = evaluationResult.maxPossibleScore || 50;
+                    
+//                     // Calculate totals
+//                     obtainedScore = mcqScore + codingScore;
+//                     maxScore = mcqMaxScore + codingMaxScore;
+//                 }
+                
+//                 // Calculate percentage
+//                 const percentage = obtainedScore !== undefined && maxScore > 0 ? 
+//                     ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
+                
+//                 // Calculate individual percentages for mixed type
+//                 const mcqPercentage = questionType === 'mcq & coding' && mcqMaxScore > 0 ? 
+//                     ((mcqScore / mcqMaxScore) * 100).toFixed(2) + '%' : 'N/A';
+//                 const codingPercentage = questionType === 'mcq & coding' && codingMaxScore > 0 ? 
+//                     ((codingScore / codingMaxScore) * 100).toFixed(2) + '%' : 'N/A';
+                
+//                 // Get integrity data
+//                 let integrityScore = submission.integrityScore || 'N/A';
+//                 let integrityStatus = 'Acceptable'; // Default status
+//                 let integrityData = {
+//                     copyAttempts: 'N/A',
+//                     focusChanges: 'N/A',
+//                     fullscreenExits: 'N/A',
+//                     mouseOuts: 'N/A',
+//                     pasteAttempts: 'N/A',
+//                     tabChanges: 'N/A'
+//                 };
+                
+//                 if (detailedReport && detailedReport.integrity) {
+//                     integrityStatus = detailedReport.integrity.status || 'Acceptable';
+//                     integrityScore = integrityStatus;
+//                     if (detailedReport.integrity.data) {
+//                         const data = detailedReport.integrity.data;
+//                         integrityData = {
+//                             copyAttempts: data.copyAttempts || 0,
+//                             focusChanges: data.focusChanges || 0,
+//                             fullscreenExits: data.fullscreenExits || 0,
+//                             mouseOuts: data.mouseOuts || 0,
+//                             pasteAttempts: data.pasteAttempts || 0,
+//                             tabChanges: data.tabChanges || 0
+//                         };
+//                     }
+//                 }
+                
+//                 // Get rank from detailed report
+//                 const rank = detailedReport && detailedReport.ranking ? 
+//                     detailedReport.ranking.rank : 'N/A';
+                
+//                 // Get time information using the pre-fetched map
+//                 const startedAt = activityTrackersMap.get(studentId) ? 
+//                     new Date(activityTrackersMap.get(studentId)).toLocaleString() : 'N/A';
+                
+//                 let submittedAt = submission.submittedAt ? 
+//                     new Date(submission.submittedAt).toLocaleString() : 'N/A';
+                
+//                 if (detailedReport && detailedReport.timeAnalysis && detailedReport.timeAnalysis.endTime) {
+//                     submittedAt = new Date(detailedReport.timeAnalysis.endTime).toLocaleString();
+//                 }
+                
+//                 // Create row data based on question type
+//                 const baseRowData = {
+//                     'SN': serialNumber++,
+//                     'USN': submission.student.USN || 'N/A',
+//                     'Name': submission.student.fname || studentName,
+//                     'Started At': startedAt,
+//                     'Submitted At': submittedAt,
+//                     'Integrity Score': integrityScore,
+//                     'Copy Attempts': integrityData.copyAttempts,
+//                     'Focus Changes': integrityData.focusChanges,
+//                     'Full Screen Exits': integrityData.fullscreenExits,
+//                     'Mouse Outs': integrityData.mouseOuts,
+//                     'Paste Attempts': integrityData.pasteAttempts,
+//                     'Tab Changes': integrityData.tabChanges,
+//                     'Rank': rank,
+//                     'IntegrityStatus': integrityStatus // Store for styling
+//                 };
+                
+//                 // Add score columns based on question type
+//                 if (questionType === 'mcq') {
+//                     Object.assign(baseRowData, {
+//                         'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
+//                         'Maximum Score': maxScore,
+//                         'Total Percentage': percentage
+//                     });
+//                 } else if (questionType === 'coding') {
+//                     Object.assign(baseRowData, {
+//                         'Coding Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
+//                         'Coding Max Score': maxScore,
+//                         'Coding Percentage': percentage
+//                     });
+//                 } else if (questionType === 'mcq & coding') {
+//                     Object.assign(baseRowData, {
+//                         'MCQ Score': mcqScore,
+//                         'MCQ Max Score': mcqMaxScore,
+//                         'MCQ Percentage': mcqPercentage,
+//                         'Coding Score': codingScore,
+//                         'Coding Max Score': codingMaxScore,
+//                         'Coding Percentage': codingPercentage,
+//                         'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
+//                         'Total Max Score': maxScore,
+//                         'Total Percentage': percentage
+//                     });
+//                 }
+                
+//                 reportData.push(baseRowData);
+//             } catch (submissionError) {
+//                 console.error(`Error processing submission ${submission._id}:`, submissionError);
+//                 continue;
+//             }
+//         }
+        
+//         // Create Excel workbook efficiently
+//         const ExcelJS = require('exceljs');
+//         const workbook = new ExcelJS.Workbook();
+//         const worksheet = workbook.addWorksheet('Exam Report');
+        
+//         // Define columns based on question type
+//         let columns = [
+//             { header: 'SN', key: 'SN', width: 5 },
+//             { header: 'USN', key: 'USN', width: 15 },
+//             { header: 'Name', key: 'Name', width: 25 }
+//         ];
+        
+//         // Add score columns based on question type
+//         if (questionType === 'mcq') {
+//             columns.push(
+//                 { header: 'Total Score', key: 'Total Score', width: 12 },
+//                 { header: 'Maximum Score', key: 'Maximum Score', width: 15 },
+//                 { header: 'Total Percentage', key: 'Total Percentage', width: 18 }
+//             );
+//         } else if (questionType === 'coding') {
+//             columns.push(
+//                 { header: 'Coding Score', key: 'Coding Score', width: 12 },
+//                 { header: 'Coding Max Score', key: 'Coding Max Score', width: 15 },
+//                 { header: 'Coding Percentage', key: 'Coding Percentage', width: 18 }
+//             );
+//         } else if (questionType === 'mcq & coding') {
+//             columns.push(
+//                 { header: 'MCQ Score', key: 'MCQ Score', width: 12 },
+//                 { header: 'MCQ Max Score', key: 'MCQ Max Score', width: 15 },
+//                 { header: 'MCQ Percentage', key: 'MCQ Percentage', width: 15 },
+//                 { header: 'Coding Score', key: 'Coding Score', width: 12 },
+//                 { header: 'Coding Max Score', key: 'Coding Max Score', width: 15 },
+//                 { header: 'Coding Percentage', key: 'Coding Percentage', width: 15 },
+//                 { header: 'Total Score', key: 'Total Score', width: 12 },
+//                 { header: 'Total Max Score', key: 'Total Max Score', width: 15 },
+//                 { header: 'Total Percentage', key: 'Total Percentage', width: 18 }
+//             );
+//         }
+        
+//         // Add common columns
+//         columns.push(
+//             { header: 'Started At', key: 'Started At', width: 25 },
+//             { header: 'Submitted At', key: 'Submitted At', width: 25 },
+//             { header: 'Integrity Score', key: 'Integrity Score', width: 15 },
+//             { header: 'Copy Attempts', key: 'Copy Attempts', width: 15 },
+//             { header: 'Focus Changes', key: 'Focus Changes', width: 15 },
+//             { header: 'Full Screen Exits', key: 'Full Screen Exits', width: 18 },
+//             { header: 'Mouse Outs', key: 'Mouse Outs', width: 15 },
+//             { header: 'Paste Attempts', key: 'Paste Attempts', width: 15 },
+//             { header: 'Tab Changes', key: 'Tab Changes', width: 15 },
+//             { header: 'Rank', key: 'Rank', width: 8 }
+//         );
+        
+//         worksheet.columns = columns;
+        
+//         // Add data in batches for better memory management
+//         const batchSize = 100;
+//         for (let i = 0; i < reportData.length; i += batchSize) {
+//             const batch = reportData.slice(i, i + batchSize);
+//             // Remove IntegrityStatus from the data before adding to worksheet
+//             const cleanBatch = batch.map(row => {
+//                 const { IntegrityStatus, ...cleanRow } = row;
+//                 return cleanRow;
+//             });
+//             worksheet.addRows(cleanBatch);
+//         }
+        
+//         // Apply styling efficiently
+//         // Header styling
+//         const headerRow = worksheet.getRow(1);
+//         headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
+//         headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+//         headerRow.fill = {
+//             type: 'pattern',
+//             pattern: 'solid',
+//             fgColor: { argb: '4F46E5' }
+//         };
+        
+//         // Apply borders and alignment in batches
+//         const totalRows = worksheet.rowCount;
+//         for (let rowNum = 1; rowNum <= totalRows; rowNum++) {
+//             const row = worksheet.getRow(rowNum);
+            
+//             // Check if this row should have red background (unacceptable integrity)
+//             const dataRowIndex = rowNum - 2; // Subtract 2 (header row + 0-based index)
+//             const isUnacceptableIntegrity = dataRowIndex >= 0 && 
+//                 reportData[dataRowIndex] && 
+//                 reportData[dataRowIndex].IntegrityStatus === 'Unacceptable';
+            
+//             row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+//                 cell.border = {
+//                     top: { style: 'thin' },
+//                     left: { style: 'thin' },
+//                     bottom: { style: 'thin' },
+//                     right: { style: 'thin' }
+//                 };
+                
+//                 // Apply red background for unacceptable integrity rows (except header)
+//                 if (rowNum > 1 && isUnacceptableIntegrity) {
+//                     cell.fill = {
+//                         type: 'pattern',
+//                         pattern: 'solid',
+//                         fgColor: { argb: 'FFCCCB' } // Light red background
+//                     };
+//                 }
+                
+//                 // Center align numeric columns (SN, Score columns, Integrity data columns, Rank)
+//                 // This will need to be adjusted based on the actual column positions for each question type
+//                 const isNumericColumn = cell.value !== null && 
+//                     (typeof cell.value === 'number' || 
+//                      (typeof cell.value === 'string' && cell.value.includes('%')) ||
+//                      colNumber === 1 || // SN
+//                      colNumber === columns.length); // Rank (last column)
+                
+//                 if (isNumericColumn) {
+//                     cell.alignment = { horizontal: 'center' };
+//                 }
+//             });
+//         }
+        
+//         // Set filename
+//         const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+//         let examNameSafe = exam.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+//         const filename = `${examNameSafe}_${questionType.toLowerCase().replace(/\s+/g, '_')}_report_${timestamp}.xlsx`;
+        
+//         // Set response headers
+//         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+//         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+//         res.setHeader('Cache-Control', 'no-cache');
+        
+//         // Write to response stream
+//         await workbook.xlsx.write(res);
+//         res.end();
+        
+//     } catch (error) {
+//         console.error('Error generating exam report:', error);
+//         if (!res.headersSent) {
+//             res.status(500).json({ 
+//                 error: 'Error generating report', 
+//                 message: error.message 
+//             });
+//         }
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 exports.exportExamReport = async (req, res) => {
     try {
         const examId = req.params.examId;
@@ -967,7 +1467,7 @@ exports.exportExamReport = async (req, res) => {
         ];
         
         // Add EvaluationResult query if exam has coding questions
-        if (questionType === 'coding' || questionType === 'mcq & coding') {
+        if (questionType.toLowerCase() === 'coding' || questionType.toLowerCase() === 'mcq & coding') {
             dataQueries.push(
                 EvaluationResult.find({ examId: examId })
                     .populate('userId', '_id')
@@ -1008,6 +1508,51 @@ exports.exportExamReport = async (req, res) => {
                 });
             }
         });
+        
+        // Generate comprehensive ranking data using the enhanced ReportModel
+        let rankingData = new Map();
+        
+        try {
+            console.log(`Generating ranking for question type: ${questionType}`);
+            
+            if (questionType.toLowerCase() === 'mcq') {
+                // For MCQ, get MCQ questions and calculate ranking
+                const mcqQuestions = await MCQ.find({ examId: examId }).exec();
+                const ranking = await ReportModel.getMCQRanking(examId, null, mcqQuestions);
+                
+                // Create ranking map for quick lookup
+                if (ranking && ranking.allStudentsRanking) {
+                    ranking.allStudentsRanking.forEach((student, index) => {
+                        rankingData.set(student.studentId.toString(), index + 1);
+                    });
+                    console.log(`MCQ ranking generated for ${ranking.allStudentsRanking.length} students`);
+                }
+            } else if (questionType.toLowerCase() === 'coding') {
+                // For Coding, use evaluation results
+                const ranking = await ReportModel.getCodingRanking(examId, null);
+                
+                if (ranking && ranking.allStudentsRanking) {
+                    ranking.allStudentsRanking.forEach((student, index) => {
+                        rankingData.set(student.studentId.toString(), index + 1);
+                    });
+                    console.log(`Coding ranking generated for ${ranking.allStudentsRanking.length} students`);
+                }
+            } else if (questionType.toLowerCase() === 'mcq & coding') {
+                // For Mixed, use combined ranking
+                const mcqQuestions = await MCQ.find({ examId: examId }).exec();
+                const ranking = await ReportModel.getMixedRanking(examId, null, mcqQuestions);
+                
+                if (ranking && ranking.allStudentsRanking) {
+                    ranking.allStudentsRanking.forEach((student, index) => {
+                        rankingData.set(student.studentId.toString(), index + 1);
+                    });
+                    console.log(`Mixed ranking generated for ${ranking.allStudentsRanking.length} students`);
+                }
+            }
+        } catch (rankingError) {
+            console.error('Error generating comprehensive ranking data:', rankingError);
+            console.log('Falling back to individual report ranking...');
+        }
         
         // Batch fetch all detailed reports at once instead of one by one
         const submissionIds = submissions.map(s => s._id);
@@ -1061,10 +1606,18 @@ exports.exportExamReport = async (req, res) => {
             
             try {
                 const detailedReport = detailedReports.get(submission._id.toString());
+                const studentId = submission.student._id.toString();
                 
-                // Get rank from detailed report
-                const rank = detailedReport && detailedReport.ranking ? 
-                    detailedReport.ranking.rank : null;
+                // Priority order for ranking:
+                // 1. Enhanced ranking data (for all question types)
+                // 2. Detailed report ranking (fallback for MCQ)
+                // 3. null (no ranking available)
+                let rank = rankingData.get(studentId) || null;
+                
+                // Fallback to detailed report ranking if enhanced ranking failed
+                if (!rank && detailedReport && detailedReport.ranking) {
+                    rank = detailedReport.ranking.rank;
+                }
                 
                 submissionsWithRanks.push({
                     submission,
@@ -1078,6 +1631,7 @@ exports.exportExamReport = async (req, res) => {
         }
         
         // Sort by rank (lowest rank number first, nulls last)
+        // Note: Lower rank number = better performance (Rank 1 = best)
         submissionsWithRanks.sort((a, b) => {
             if (a.rank === null && b.rank === null) return 0;
             if (a.rank === null) return 1;
@@ -1085,10 +1639,21 @@ exports.exportExamReport = async (req, res) => {
             return a.rank - b.rank;
         });
         
+        console.log(`Sorted ${submissionsWithRanks.length} submissions by rank (lower rank number = better performance)`);
+        
+        // Log top 5 students for debugging
+        if (submissionsWithRanks.length > 0) {
+            console.log('Top 5 students by rank:');
+            submissionsWithRanks.slice(0, 5).forEach((item, index) => {
+                const student = item.submission.student;
+                console.log(`${index + 1}. ${student.fname} (USN: ${student.USN}) - Rank: ${item.rank}`);
+            });
+        }
+        
         // Second pass: create report data in rank order
         let serialNumber = 1;
         
-        for (const { submission, detailedReport } of submissionsWithRanks) {
+        for (const { submission, detailedReport, rank } of submissionsWithRanks) {
             try {
                 const studentId = submission.student._id.toString();
                 const sessionInfo = activeSessionsMap.get(studentId) || {};
@@ -1108,7 +1673,7 @@ exports.exportExamReport = async (req, res) => {
                 let mcqMaxScore = 'N/A';
                 let codingMaxScore = 'N/A';
                 
-                if (questionType === 'mcq') {
+                if (questionType.toLowerCase() === 'mcq') {
                     // For MCQ only - use existing logic
                     if (detailedReport && detailedReport.score) {
                         maxScore = detailedReport.score.total;
@@ -1116,11 +1681,11 @@ exports.exportExamReport = async (req, res) => {
                     } else if (!obtainedScore) {
                         maxScore = (submission.mcqAnswers?.length || 0) || defaultMaxScore;
                     }
-                } else if (questionType === 'coding') {
-                    // For Coding only - use EvaluationResult totalScore
+                } else if (questionType.toLowerCase() === 'coding') {
+                    // For Coding only - use EvaluationResult totalScore and maxPossibleScore
                     obtainedScore = evaluationResult.totalScore || 0;
-                    maxScore = evaluationResult.maxPossibleScore || 100;
-                } else if (questionType === 'mcq & coding') {
+                    maxScore = evaluationResult.maxPossibleScore || exam.totalMarks || 100;
+                } else if (questionType.toLowerCase() === 'mcq & coding') {
                     // For Mixed type
                     // Get MCQ score using same logic as MCQ-only
                     if (detailedReport && detailedReport.score) {
@@ -1131,9 +1696,9 @@ exports.exportExamReport = async (req, res) => {
                         mcqMaxScore = (submission.mcqAnswers?.length || 0);
                     }
                     
-                    // Get coding score from EvaluationResult
+                    // Get coding score and max score from EvaluationResult
                     codingScore = evaluationResult.totalScore || 0;
-                    codingMaxScore = evaluationResult.maxPossibleScore || 50;
+                    codingMaxScore = evaluationResult.maxPossibleScore || exam.codingMaxScore || 50;
                     
                     // Calculate totals
                     obtainedScore = mcqScore + codingScore;
@@ -1145,9 +1710,9 @@ exports.exportExamReport = async (req, res) => {
                     ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
                 
                 // Calculate individual percentages for mixed type
-                const mcqPercentage = questionType === 'mcq & coding' && mcqMaxScore > 0 ? 
+                const mcqPercentage = questionType.toLowerCase() === 'mcq & coding' && mcqMaxScore > 0 ? 
                     ((mcqScore / mcqMaxScore) * 100).toFixed(2) + '%' : 'N/A';
-                const codingPercentage = questionType === 'mcq & coding' && codingMaxScore > 0 ? 
+                const codingPercentage = questionType.toLowerCase() === 'mcq & coding' && codingMaxScore > 0 ? 
                     ((codingScore / codingMaxScore) * 100).toFixed(2) + '%' : 'N/A';
                 
                 // Get integrity data
@@ -1178,9 +1743,8 @@ exports.exportExamReport = async (req, res) => {
                     }
                 }
                 
-                // Get rank from detailed report
-                const rank = detailedReport && detailedReport.ranking ? 
-                    detailedReport.ranking.rank : 'N/A';
+                // Use the rank we calculated (either from enhanced ranking or detailed report)
+                const finalRank = rank || 'N/A';
                 
                 // Get time information using the pre-fetched map
                 const startedAt = activityTrackersMap.get(studentId) ? 
@@ -1207,24 +1771,24 @@ exports.exportExamReport = async (req, res) => {
                     'Mouse Outs': integrityData.mouseOuts,
                     'Paste Attempts': integrityData.pasteAttempts,
                     'Tab Changes': integrityData.tabChanges,
-                    'Rank': rank,
+                    'Rank': finalRank,
                     'IntegrityStatus': integrityStatus // Store for styling
                 };
                 
                 // Add score columns based on question type
-                if (questionType === 'mcq') {
+                if (questionType.toLowerCase() === 'mcq') {
                     Object.assign(baseRowData, {
                         'Total Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
                         'Maximum Score': maxScore,
                         'Total Percentage': percentage
                     });
-                } else if (questionType === 'coding') {
+                } else if (questionType.toLowerCase() === 'coding') {
                     Object.assign(baseRowData, {
                         'Coding Score': obtainedScore !== undefined ? obtainedScore : 'N/A',
                         'Coding Max Score': maxScore,
                         'Coding Percentage': percentage
                     });
-                } else if (questionType === 'mcq & coding') {
+                } else if (questionType.toLowerCase() === 'mcq & coding') {
                     Object.assign(baseRowData, {
                         'MCQ Score': mcqScore,
                         'MCQ Max Score': mcqMaxScore,
@@ -1245,6 +1809,8 @@ exports.exportExamReport = async (req, res) => {
             }
         }
         
+        console.log(`Generated report data for ${reportData.length} students`);
+        
         // Create Excel workbook efficiently
         const ExcelJS = require('exceljs');
         const workbook = new ExcelJS.Workbook();
@@ -1258,19 +1824,19 @@ exports.exportExamReport = async (req, res) => {
         ];
         
         // Add score columns based on question type
-        if (questionType === 'mcq') {
+        if (questionType.toLowerCase() === 'mcq') {
             columns.push(
                 { header: 'Total Score', key: 'Total Score', width: 12 },
                 { header: 'Maximum Score', key: 'Maximum Score', width: 15 },
                 { header: 'Total Percentage', key: 'Total Percentage', width: 18 }
             );
-        } else if (questionType === 'coding') {
+        } else if (questionType.toLowerCase() === 'coding') {
             columns.push(
                 { header: 'Coding Score', key: 'Coding Score', width: 12 },
                 { header: 'Coding Max Score', key: 'Coding Max Score', width: 15 },
                 { header: 'Coding Percentage', key: 'Coding Percentage', width: 18 }
             );
-        } else if (questionType === 'mcq & coding') {
+        } else if (questionType.toLowerCase() === 'mcq & coding') {
             columns.push(
                 { header: 'MCQ Score', key: 'MCQ Score', width: 12 },
                 { header: 'MCQ Max Score', key: 'MCQ Max Score', width: 15 },
