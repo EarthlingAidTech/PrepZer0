@@ -464,7 +464,7 @@ exports.signupcontrol = async (req, res) => {
     const randurl = crypto.randomBytes(32).toString('hex');
     
     // Create verification URL
-    const verificationUrl = `https://prepzer0.co.in/authenticate/verify/${randurl}`;
+    const verificationUrl = `https://bmsit.prepzer0.co.in/authenticate/verify/${randurl}`;
     
     // Create user first (to avoid race conditions)
     const userData = {
