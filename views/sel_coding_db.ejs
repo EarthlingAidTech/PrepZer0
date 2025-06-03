@@ -2,650 +2,1995 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <title>Select Questions from Database</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 10px;
-            background-color: #141D2F;
-        }
-        .main-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 123, 255, 0.1);
-            border: 3px solid #1D4ED8;
-            max-width: 1400px;
-            margin: 20px auto;
-        }
-        .header-section {
-            background: linear-gradient(135deg, #1D4ED8, #3B82F6);
-            color: white;
-            padding: 20px;
-            border-radius: 7px 7px 0 0;
-        }
-        .sticky-controls {
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 100;
-            border-bottom: 2px solid #e9ecef;
-            padding: 15px 20px;
-        }
-        .content-area {
-            padding: 0 20px 20px 20px;
-            max-height: 70vh;
-            overflow-y: auto;
-        }
-        .info-stats {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        .stat-box {
-            background: rgba(255,255,255,0.1);
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .filters-row {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .filter-group label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #495057;
-        }
-        .checkbox-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .checkbox-group .form-check {
-            margin: 0;
-            padding: 5px 10px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            border: 1px solid #dee2e6;
-            transition: all 0.2s;
-        }
-        .checkbox-group .form-check:hover {
-            background: #e9ecef;
-        }
-        .checkbox-group .form-check-input:checked + .form-check-label {
-            color: #1D4ED8;
-            font-weight: 600;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .btn-sm-custom {
-            padding: 6px 12px;
-            font-size: 0.85rem;
-        }
-        .submit-area {
-            position: sticky;
-            bottom: 0;
-            background: white;
-            border-top: 2px solid #e9ecef;
-            padding: 15px 20px;
-            text-align: center;
-        }
-        .category-section {
-            margin-bottom: 25px;
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .category-header {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 12px 20px;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .category-title {
-            margin: 0;
-            font-size: 1.1rem;
-            color: #495057;
-        }
-        .questions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 15px;
-            padding: 20px;
-        }
-        .question-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 15px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        .question-card:hover {
-            border-color: #1D4ED8;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .question-card.selected {
-            border-color: #1D4ED8;
-            background: linear-gradient(135deg, #f0f7ff, #e6f0ff);
-            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.2);
-        }
-        .question-header {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        .question-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0;
-            flex: 1;
-            line-height: 1.3;
-        }
-        .question-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-        }
-        .difficulty-easy { color: #28a745; font-weight: bold; }
-        .difficulty-medium { color: #fd7e14; font-weight: bold; }
-        .difficulty-hard { color: #dc3545; font-weight: bold; }
-        .question-description {
-            font-size: 0.9rem;
-            color: #6c757d;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        .hidden { display: none !important; }
-        .selection-summary {
-            background: #e6f0ff;
-            border: 1px solid #b3d1ff;
-            border-radius: 8px;
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-        .badge-custom {
-            font-size: 0.75rem;
-            padding: 4px 8px;
-        }
-        .compact-filters {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #dee2e6;
-        }
-        @media (max-width: 768px) {
-            .questions-grid {
-                grid-template-columns: 1fr;
-            }
-            .filters-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .action-buttons {
-                justify-content: center;
-            }
-        }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Question Database - <%= exam.name %></title>
+ <style>
+    :root {
+    --primary: #4f46e5;
+    --primary-dark: #4338ca;
+    --primary-hover: #4338ca;
+    --primary-gradient: linear-gradient(135deg, #4f46e5, #8b5cf6);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #3b82f6;
+    --dark-bg: #111827;
+    --card-bg: #1f2937;
+    --light-text: #f9fafb;
+    --secondary-text: #9ca3af;
+    --border-color: #374151;
+    --gray-50: #111827;
+    --gray-100: #1f2937;
+    --gray-200: #374151;
+    --gray-300: #4b5563;
+    --gray-400: #6b7280;
+    --gray-500: #9ca3af;
+    --gray-600: #d1d5db;
+    --gray-700: #e5e7eb;
+    --gray-800: #f3f4f6;
+    --gray-900: #f9fafb;
+    --white: #1f2937;
+    --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.3);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --btn-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 20%);
+    overflow-x: hidden;
+}
+
+/* App Layout - Maximum Efficiency */
+.app {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 60px 1fr 60px;
+}
+
+/* Compact Header */
+.header {
+    background: rgba(31, 41, 55, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(79, 70, 229, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    box-shadow: var(--shadow-sm);
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.app-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+}
+
+.exam-name {
+    font-size: 0.875rem;
+    color: var(--secondary-text);
+    padding: 0.25rem 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+}
+
+.header-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--secondary-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Main Content - Full Screen Usage */
+.main {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    background: var(--dark-bg);
+}
+
+/* Compact Sidebar */
+.sidebar {
+    background: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.controls {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-group {
+    margin-bottom: 1rem;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--light-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Difficulty Filters - Compact Pills */
+.difficulty-pills {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.difficulty-pill {
+    flex: 1;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    background: var(--dark-bg);
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    color: var(--secondary-text);
+}
+
+.difficulty-pill input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.difficulty-pill.easy.active {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.difficulty-pill.medium.active {
+    background: var(--warning);
+    color: white;
+    border-color: var(--warning);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.difficulty-pill.hard.active {
+    background: var(--danger);
+    color: white;
+    border-color: var(--danger);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.difficulty-pill:hover:not(.active) {
+    background: rgba(79, 70, 229, 0.1);
+    border-color: var(--primary);
+    color: var(--light-text);
+}
+
+/* Category Filter - Searchable Dropdown */
+.category-filter {
+    position: relative;
+}
+
+.category-search {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background: var(--dark-bg);
+    color: var(--light-text);
+    transition: all 0.3s ease;
+}
+
+.category-search:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+    outline: none;
+}
+
+.category-search::placeholder {
+    color: var(--secondary-text);
+}
+
+.category-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 0.375rem 0.375rem;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+    box-shadow: var(--shadow);
+}
+
+.category-dropdown.show {
+    display: block;
+}
+
+.category-option {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--light-text);
+    transition: all 0.2s ease;
+}
+
+.category-option:hover {
+    background: rgba(79, 70, 229, 0.1);
+}
+
+.category-option input {
+    margin: 0;
+}
+
+/* Action Buttons - Minimal */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.btn-action {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.btn-primary { 
+    background: var(--primary-gradient); 
+    color: white;
+    box-shadow: var(--btn-shadow);
+}
+
+.btn-success { 
+    background: var(--success); 
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-warning { 
+    background: var(--warning); 
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-outline { 
+    background: transparent; 
+    color: var(--secondary-text); 
+    border: 1px solid var(--border-color);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-outline:hover {
+    background: rgba(156, 163, 175, 0.1);
+    color: var(--light-text);
+}
+
+/* Questions Area - Maximum Space */
+.questions-area {
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--dark-bg);
+}
+
+/* Virtual Scrolling Container */
+.questions-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 0.75rem;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Ultra-Compact Question Cards */
+.question-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    padding: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    height: fit-content;
+    box-shadow: var(--card-shadow);
+}
+
+.question-card:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+}
+
+.question-card.selected {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(139, 92, 246, 0.05));
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.question-checkbox {
+    margin-top: 0.125rem;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+.question-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--light-text);
+    line-height: 1.3;
+    flex: 1;
+}
+
+.question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.category-tag {
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(79, 70, 229, 0.2);
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.difficulty-badge {
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.difficulty-badge.easy { 
+    background: rgba(16, 185, 129, 0.1); 
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.difficulty-badge.medium { 
+    background: rgba(245, 158, 11, 0.1); 
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.difficulty-badge.hard { 
+    background: rgba(239, 68, 68, 0.1); 
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.question-stats {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.6875rem;
+    color: var(--secondary-text);
+}
+
+.question-description {
+    color: var(--secondary-text);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    margin-bottom: 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.question-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-preview {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.6875rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.btn-preview:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(79, 70, 229, 0.1);
+}
+
+/* Footer - Compact */
+.footer {
+    background: rgba(31, 41, 55, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(79, 70, 229, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.progress-text {
+    font-size: 0.875rem;
+    color: var(--secondary-text);
+}
+
+.footer-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.btn-footer {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-footer.primary {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: var(--btn-shadow);
+}
+
+.btn-footer.primary:hover {
+    background: linear-gradient(135deg, #4338ca, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+}
+
+.btn-footer.secondary {
+    background: var(--secondary-text);
+    color: var(--dark-bg);
+}
+
+.btn-footer.secondary:hover {
+    background: var(--light-text);
+    transform: translateY(-2px);
+}
+
+.btn-footer:disabled {
+    background: var(--gray-400);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Hide categories with no visible questions */
+.hidden { display: none !important; }
+
+/* Smart Selection Modal Styles */
+.modal-content {
+    background-color: var(--card-bg);
+    color: var(--light-text);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.btn-close {
+    color: var(--light-text);
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.7;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.form-control, .form-select {
+    background-color: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    color: var(--light-text);
+    border-radius: 0.5rem;
+    padding: 0.625rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--dark-bg);
+    color: var(--light-text);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--secondary-text);
+    opacity: 0.7;
+}
+
+.form-label {
+    color: var(--light-text);
+    font-weight: 500;
+}
+
+.category-rules {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    background: var(--dark-bg);
+}
+
+.category-rule {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+}
+
+.category-rule:last-child {
+    margin-bottom: 0;
+}
+
+.category-rule select,
+.category-rule input {
+    font-size: 0.8rem;
+}
+
+.remove-rule {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-stats .stat-box {
+    transition: all 0.2s;
+    background: var(--dark-bg);
+    border: 1px solid var(--border-color) !important;
+    border-radius: 0.5rem;
+}
+
+.preview-stats .stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.category-breakdown-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    background: var(--dark-bg);
+}
+
+.category-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 0.25rem;
+    background: var(--card-bg);
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--light-text);
+}
+
+.category-breakdown-item:last-child {
+    margin-bottom: 0;
+}
+
+.breakdown-badges {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.breakdown-badge {
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.breakdown-badge.easy { 
+    background: rgba(16, 185, 129, 0.1); 
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.breakdown-badge.medium { 
+    background: rgba(245, 158, 11, 0.1); 
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.breakdown-badge.hard { 
+    background: rgba(239, 68, 68, 0.1); 
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.preset-btn {
+    transition: all 0.2s;
+    background: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+}
+
+.preset-btn:hover {
+    transform: translateY(-1px);
+    background: rgba(79, 70, 229, 0.1);
+    border-color: var(--primary);
+    color: var(--light-text);
+}
+
+.preset-btn.active {
+    background: var(--primary) !important;
+    color: white !important;
+    border-color: var(--primary) !important;
+    box-shadow: var(--btn-shadow);
+}
+
+.validation-message {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.validation-message.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.validation-message.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.validation-message.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    box-shadow: var(--btn-shadow);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #4338ca, #7c3aed);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.4);
+}
+
+.btn-secondary {
+    background: var(--secondary-text);
+    border: none;
+    color: var(--dark-bg);
+}
+
+.btn-secondary:hover {
+    background: var(--light-text);
+    transform: translateY(-2px);
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text);
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(156, 163, 175, 0.1);
+    border-color: var(--light-text);
+    color: var(--light-text);
+}
+
+.btn-outline-primary {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Text colors */
+.text-muted {
+    color: var(--secondary-text) !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-warning {
+    color: var(--warning) !important;
+}
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+.text-info {
+    color: var(--info) !important;
+}
+
+/* Background colors */
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.bg-success {
+    background-color: var(--success) !important;
+}
+
+.bg-warning {
+    background-color: var(--warning) !important;
+}
+
+.bg-danger {
+    background-color: var(--danger) !important;
+}
+
+.bg-info {
+    background-color: var(--info) !important;
+}
+
+/* Alert styling */
+.alert {
+    background-color: rgba(45, 55, 72, 0.6);
+    color: var(--light-text);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 0.5rem;
+    padding: 1rem 1.25rem;
+}
+
+.alert-info {
+    border-left: 4px solid var(--info);
+}
+
+.alert-success {
+    border-left: 4px solid var(--success);
+}
+
+.alert-warning {
+    border-left: 4px solid var(--warning);
+}
+
+.alert-danger {
+    border-left: 4px solid var(--danger);
+}
+
+/* Responsive - Mobile First */
+@media (max-width: 768px) {
+    .main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .questions-container {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .header-stats {
+        gap: 1rem;
+    }
+
+    .footer-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .app-title {
+        font-size: 1rem;
+    }
+
+    .exam-name {
+        font-size: 0.75rem;
+    }
+}
+
+@media (min-width: 1400px) {
+    .questions-container {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (min-width: 1800px) {
+    .questions-container {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+}
+
+/* Scrollbar styling for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* Custom scrollbar for Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--dark-bg);
+}
+</style>
 </head>
 <body>
-
-<div class="main-container">
-    <!-- Header Section -->
-    <div class="header-section">
-        <h1 class="mb-3 text-center">Select Coding Questions from Database</h1>
-        <div class="info-stats">
-            <div class="stat-box">
-                <div><strong>Exam:</strong> <%= exam.name %></div>
+    <div class="app">
+        <!-- Ultra-Compact Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="app-title">Question Database</div>
+                <div class="exam-name"><%= exam.name %></div>
             </div>
-            <div class="stat-box">
-                <div><strong>Required:</strong> <span id="requiredCount"><%= exam.numCoding - codingQuestions.length %></span></div>
-            </div>
-            <div class="stat-box">
-                <div><strong>Selected:</strong> <span id="selectedCount">0</span></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sticky Controls -->
-    <div class="sticky-controls">
-        <div class="selection-summary">
-            <strong>Selection Progress:</strong> <span id="progressText">0 of <%= exam.numCoding - codingQuestions.length %> questions selected</span>
-        </div>
-        
-        <div class="compact-filters">
-            <div class="filters-row">
-                <!-- Categories Filter -->
-                <div class="filter-group">
-                    <label>Categories</label>
-                    <div class="checkbox-group" id="categoryFilters">
-                        <!-- Will be populated dynamically -->
-                    </div>
+            <div class="header-stats">
+                <div class="stat">
+                    <div class="stat-value" id="requiredCount"><%= exam.numCoding - codingQuestions.length %></div>
+                    <div class="stat-label">Required</div>
                 </div>
-                
-                <!-- Difficulty Filter -->
-                <div class="filter-group">
-                    <label>Difficulty</label>
-                    <div class="checkbox-group">
-                        <div class="form-check">
-                            <input class="form-check-input difficulty-filter" type="checkbox" id="easyFilter" value="easy" checked>
-                            <label class="form-check-label difficulty-easy" for="easyFilter">Easy</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input difficulty-filter" type="checkbox" id="mediumFilter" value="medium" checked>
-                            <label class="form-check-label difficulty-medium" for="mediumFilter">Medium</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input difficulty-filter" type="checkbox" id="hardFilter" value="hard" checked>
-                            <label class="form-check-label difficulty-hard" for="hardFilter">Hard</label>
-                        </div>
-                    </div>
+                <div class="stat">
+                    <div class="stat-value" id="selectedCount">0</div>
+                    <div class="stat-label">Selected</div>
                 </div>
-                
-                <!-- Action Buttons -->
-                <div class="filter-group">
-                    <label>Actions</label>
-                    <div class="action-buttons">
-                        <button id="autoSelectBtn" class="btn btn-success btn-sm-custom">Auto Select All</button>
-                        <button id="autoCompleteBtn" class="btn btn-warning btn-sm-custom">Complete Selection</button>
-                        <button id="clearAllBtn" class="btn btn-outline-danger btn-sm-custom">Clear All</button>
-                    </div>
+                <div class="stat">
+                    <div class="stat-value" id="remainingCount"><%= exam.numCoding - codingQuestions.length %></div>
+                    <div class="stat-label">Remaining</div>
                 </div>
             </div>
-        </div>
-    </div>
+        </header>
 
-    <!-- Content Area -->
-    <div class="content-area">
-        <form id="questionSelectionForm" action="/admin/<%= exam._id %>/add/coding/from-database" method="POST">
-            <div id="categorySections">
-                <% 
-                // Group questions by category
-                const questionsByCategory = {};
-                dbQuestions.forEach(question => {
-                    if (!questionsByCategory[question.classification]) {
-                        questionsByCategory[question.classification] = [];
-                    }
-                    questionsByCategory[question.classification].push(question);
-                });
-                
-                // Display questions by category
-                Object.keys(questionsByCategory).sort().forEach(category => {
-                    const questions = questionsByCategory[category];
-                %>
-                    <div class="category-section" data-category="<%= category %>">
-                        <div class="category-header">
-                            <div>
-                                <h3 class="category-title"><%= category %> (<%= questions.length %> questions)</h3>
-                            </div>
-                            <div class="d-flex gap-2 align-items-center">
-                                <span class="badge bg-success badge-custom">Easy: <%= questions.filter(q => q.level === 'easy').length %></span>
-                                <span class="badge bg-warning badge-custom">Medium: <%= questions.filter(q => q.level === 'medium').length %></span>
-                                <span class="badge bg-danger badge-custom">Hard: <%= questions.filter(q => q.level === 'hard').length %></span>
-                                <button type="button" class="btn btn-primary btn-sm select-all-category-btn" data-category="<%= category %>">Toggle All</button>
+        <!-- Main Content Area -->
+        <main class="main">
+            <!-- Compact Sidebar -->
+            <aside class="sidebar">
+                <div class="controls">
+                    <!-- Difficulty Filter -->
+                    <div class="control-group">
+                        <label class="control-label">Difficulty</label>
+                        <div class="difficulty-pills">
+                            <label class="difficulty-pill easy active">
+                                <input class="difficulty-filter" type="checkbox" value="easy" checked>
+                                Easy
+                            </label>
+                            <label class="difficulty-pill medium active">
+                                <input class="difficulty-filter" type="checkbox" value="medium" checked>
+                                Med
+                            </label>
+                            <label class="difficulty-pill hard active">
+                                <input class="difficulty-filter" type="checkbox" value="hard" checked>
+                                Hard
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="control-group">
+                        <label class="control-label">Categories</label>
+                        <div class="category-filter">
+                            <input type="text" class="category-search" placeholder="Search categories..." id="categorySearch">
+                            <div class="category-dropdown" id="categoryDropdown">
+                                <!-- Categories populated by JS -->
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="control-group">
+                        <label class="control-label">Actions</label>
+                        <div class="actions">
+                            <button id="smartAutoSelectBtn" class="btn-action btn-success">Smart Auto Select</button>
+                            <button id="smartCompleteBtn" class="btn-action btn-warning">Smart Complete</button>
+                            <button id="clearAllBtn" class="btn-action btn-outline">Clear All</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Questions Display Area -->
+            <div class="questions-area">
+                <form id="questionSelectionForm" action="/admin/<%= exam._id %>/add/coding/from-database" method="POST">
+                    <div class="questions-container" id="questionsContainer">
+                        <% 
+                        // Flatten all questions for grid display
+                        const allQuestions = [];
+                        const questionsByCategory = {};
                         
-                        <div class="questions-grid">
-                            <% questions.forEach(question => { %>
-                                <div class="question-card" data-difficulty="<%= question.level %>" data-category="<%= category %>">
-                                    <div class="question-header">
-                                        <input class="form-check-input question-checkbox" type="checkbox" name="selectedQuestions" value="<%= question._id %>" id="question_<%= question._id %>">
-                                        <h4 class="question-title"><%= question.questionTile %></h4>
+                        dbQuestions.forEach(question => {
+                            if (!questionsByCategory[question.classification]) {
+                                questionsByCategory[question.classification] = [];
+                            }
+                            questionsByCategory[question.classification].push(question);
+                            allQuestions.push(question);
+                        });
+                        
+                        // Display all questions in a flat grid
+                        allQuestions.forEach(question => {
+                        %>
+                            <div class="question-card" 
+                                 data-difficulty="<%= question.level %>" 
+                                 data-category="<%= question.classification %>"
+                                 data-question-id="<%= question._id %>">
+                                
+                                <div class="question-header">
+                                    <input class="question-checkbox" 
+                                           type="checkbox" 
+                                           name="selectedQuestions" 
+                                           value="<%= question._id %>" 
+                                           id="question_<%= question._id %>">
+                                    <div class="question-title"><%= question.questionTile %></div>
+                                </div>
+                                
+                                <div class="question-meta">
+                                    <div class="category-tag" title="<%= question.classification %>">
+                                        <%= question.classification %>
                                     </div>
-                                    
-                                    <div class="question-meta">
-                                        <span class="difficulty-<%= question.level %>"><%= question.level.charAt(0).toUpperCase() + question.level.slice(1) %></span>
-                                        <span><strong><%= question.maxMarks %></strong> marks</span>
-                                        <span><%= question.testCases.length %> tests</span>
+                                    <div class="difficulty-badge <%= question.level %>">
+                                        <%= question.level %>
                                     </div>
-                                    
-                                    <div class="question-description">
-                                        <%= question.questiontext.substring(0, 120) %><%= question.questiontext.length > 120 ? '...' : '' %>
-                                    </div>
-                                    
-                                    <button type="button" class="btn btn-outline-primary btn-sm preview-btn" data-bs-toggle="modal" data-bs-target="#previewModal" data-question-id="<%= question._id %>">
+                                </div>
+                                
+                                <div class="question-description">
+                                    <%= question.questiontext %>
+                                </div>
+                                
+                                <div class="question-stats">
+                                    <span><i class="fas fa-star"></i> <%= question.maxMarks %>pts</span>
+                                    <span><i class="fas fa-vial"></i> <%= question.testCases.length %> tests</span>
+                                </div>
+                                
+                                <div class="question-actions">
+                                    <button type="button" 
+                                            class="btn-preview" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#previewModal" 
+                                            data-question-id="<%= question._id %>">
                                         Preview
                                     </button>
                                 </div>
-                            <% }); %>
+                            </div>
+                        <% }); %>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Compact Footer -->
+        <footer class="footer">
+            <div class="progress-text" id="progressText">
+                0 of <%= exam.numCoding - codingQuestions.length %> questions selected
+            </div>
+            <div class="footer-actions">
+                <a href="/admin/exam/<%= exam._id %>/questions" class="btn-footer secondary">
+                    ← Back
+                </a>
+                <button type="submit" 
+                        form="questionSelectionForm" 
+                        class="btn-footer primary" 
+                        id="addSelectedQuestionsBtn">
+                    Add <span id="submitBtnCount">0</span> Questions
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Smart Auto-Selection Modal -->
+    <div class="modal fade" id="smartAutoSelectModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Smart Auto Selection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Left Panel - Configuration -->
+                        <div class="col-md-6">
+                            <div class="selection-config">
+                                <h6 class="mb-3">Selection Configuration</h6>
+                                
+                                <!-- Quick Presets -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Quick Presets</label>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button type="button" class="btn btn-sm btn-outline-primary preset-btn" data-preset="balanced">Balanced Mix</button>
+                                        <button type="button" class="btn btn-sm btn-outline-success preset-btn" data-preset="easy-focus">Easy Focus</button>
+                                        <button type="button" class="btn btn-sm btn-outline-warning preset-btn" data-preset="medium-focus">Medium Focus</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger preset-btn" data-preset="hard-focus">Hard Focus</button>
+                                        <button type="button" class="btn btn-sm btn-outline-info preset-btn" data-preset="random">Random</button>
+                                    </div>
+                                </div>
+
+                                <!-- Category Distribution -->
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <label class="form-label fw-bold mb-0">Category Distribution</label>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="addCategoryRule">+ Add Category</button>
+                                    </div>
+                                    <div id="categoryRules" class="category-rules">
+                                        <!-- Category rules will be added here -->
+                                    </div>
+                                </div>
+
+                                <!-- Difficulty Distribution -->
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">Difficulty Distribution</label>
+                                    <div class="row g-2">
+                                        <div class="col-4">
+                                            <label class="form-label">Easy</label>
+                                            <input type="number" class="form-control form-control-sm" id="easyCount" min="0" value="0">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label">Medium</label>
+                                            <input type="number" class="form-control form-control-sm" id="mediumCount" min="0" value="0">
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label">Hard</label>
+                                            <input type="number" class="form-control form-control-sm" id="hardCount" min="0" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <small class="text-muted">Total: <span id="difficultyTotal">0</span> / <span id="requiredTotal">0</span></small>
+                                    </div>
+                                </div>
+
+                                <!-- Advanced Options -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Advanced Options</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="avoidDuplicateCategories">
+                                        <label class="form-check-label">Avoid duplicate categories when possible</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="prioritizeUnselected" checked>
+                                        <label class="form-check-label">Prioritize unselected questions</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="balanceMarks">
+                                        <label class="form-check-label">Balance total marks</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel - Preview -->
+                        <div class="col-md-6">
+                            <div class="selection-preview">
+                                <h6 class="mb-3">Selection Preview</h6>
+                                
+                                <!-- Statistics -->
+                                <div class="preview-stats mb-3">
+                                    <div class="row text-center">
+                                        <div class="col-3">
+                                            <div class="stat-box border rounded p-2">
+                                                <div class="fw-bold text-primary" id="previewTotal">0</div>
+                                                <small class="text-muted">Total</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="stat-box border rounded p-2">
+                                                <div class="fw-bold text-success" id="previewEasy">0</div>
+                                                <small class="text-muted">Easy</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="stat-box border rounded p-2">
+                                                <div class="fw-bold text-warning" id="previewMedium">0</div>
+                                                <small class="text-muted">Medium</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="stat-box border rounded p-2">
+                                                <div class="fw-bold text-danger" id="previewHard">0</div>
+                                                <small class="text-muted">Hard</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Category Breakdown -->
+                                <div class="category-breakdown">
+                                    <h6 class="fw-bold">Category Breakdown</h6>
+                                    <div id="categoryBreakdown" class="category-breakdown-list">
+                                        <!-- Will be populated by JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Validation Messages -->
+                                <div id="validationMessages" class="mt-3">
+                                    <!-- Validation messages will appear here -->
+                                </div>
+                            </div>
                         </div>
                     </div>
-                <% }); %>
-            </div>
-        </form>
-    </div>
-
-    <!-- Submit Area (Sticky Bottom) -->
-    <div class="submit-area">
-        <button type="submit" form="questionSelectionForm" class="btn btn-primary btn-lg" id="addSelectedQuestionsBtn">
-            Add <span id="submitBtnCount">0</span> Selected Questions
-        </button>
-        <a href="/admin/exam/<%= exam._id %>/questions" class="btn btn-secondary btn-lg ms-3">⬅ Back</a>
-    </div>
-</div>
-
-<!-- Question Preview Modal -->
-<div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="previewModalLabel">Question Preview</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="previewModalBody">
-                <!-- Question details will be loaded here -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="selectFromPreviewBtn">Select Question</button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="executeSmartSelection" disabled>Execute Selection</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const requiredCount = parseInt(document.getElementById('requiredCount').textContent);
-        const selectedCountEl = document.getElementById('selectedCount');
-        const submitBtnCount = document.getElementById('submitBtnCount');
-        const progressText = document.getElementById('progressText');
-        const addSelectedBtn = document.getElementById('addSelectedQuestionsBtn');
-        const autoSelectBtn = document.getElementById('autoSelectBtn');
-        const autoCompleteBtn = document.getElementById('autoCompleteBtn');
-        const clearAllBtn = document.getElementById('clearAllBtn');
-        const questionCheckboxes = document.querySelectorAll('.question-checkbox');
-        const selectAllCategoryBtns = document.querySelectorAll('.select-all-category-btn');
-        const difficultyFilters = document.querySelectorAll('.difficulty-filter');
-        const categoryFiltersContainer = document.getElementById('categoryFilters');
-        const allQuestionCards = document.querySelectorAll('.question-card');
-        let currentPreviewQuestionId = null;
-        
-        // Populate category filters
-        const categories = Array.from(document.querySelectorAll('.category-section')).map(section => 
-            section.getAttribute('data-category')
-        );
-        
-        categories.forEach(category => {
-            const categoryFilter = document.createElement('div');
-            categoryFilter.className = 'form-check';
-            categoryFilter.innerHTML = `
-                <input class="form-check-input category-filter" type="checkbox" id="category_filter_${category.replace(/\s+/g, '_')}" value="${category}" checked>
-                <label class="form-check-label" for="category_filter_${category.replace(/\s+/g, '_')}">${category}</label>
-            `;
-            categoryFiltersContainer.appendChild(categoryFilter);
-        });
-        
-        const categoryFilters = document.querySelectorAll('.category-filter');
-        
-        // Initialize selection count
-        updateSelectionCount();
-        
-        // Question checkbox change handler
-        questionCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                updateQuestionCardStyle(this);
+    <!-- Smart Complete Modal -->
+    <div class="modal fade" id="smartCompleteModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Smart Complete Selection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Current Status:</strong> 
+                        <span id="currentlySelected">0</span> selected, 
+                        <span id="stillNeeded">0</span> more needed
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Complete With:</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="completeStrategy" id="completeBalanced" value="balanced" checked>
+                                <label class="form-check-label">Balanced difficulty mix</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="completeStrategy" id="completeEasy" value="easy">
+                                <label class="form-check-label">Prefer easier questions</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="completeStrategy" id="completeHard" value="hard">
+                                <label class="form-check-label">Prefer harder questions</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="completeStrategy" id="completeRandom" value="random">
+                                <label class="form-check-label">Random selection</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="completeStrategy" id="completeCustom" value="custom">
+                                <label class="form-check-label">Custom distribution</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6" id="customCompleteOptions" style="display: none;">
+                            <h6>Custom Distribution:</h6>
+                            <div class="mb-2">
+                                <label class="form-label">Easy</label>
+                                <input type="number" class="form-control form-control-sm" id="completeEasyCount" min="0" value="0">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Medium</label>
+                                <input type="number" class="form-control form-control-sm" id="completeMediumCount" min="0" value="0">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Hard</label>
+                                <input type="number" class="form-control form-control-sm" id="completeHardCount" min="0" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="completeAvoidSelected">
+                            <label class="form-check-label">Avoid categories already heavily selected</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="executeSmartComplete">Complete Selection</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal fade" id="previewModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Question Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="previewModalBody">
+                    <!-- Content loaded by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="selectFromPreviewBtn">Select</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const requiredCount = parseInt(document.getElementById('requiredCount').textContent);
+            const selectedCountEl = document.getElementById('selectedCount');
+            const remainingCountEl = document.getElementById('remainingCount');
+            const submitBtnCount = document.getElementById('submitBtnCount');
+            const progressText = document.getElementById('progressText');
+            const addSelectedBtn = document.getElementById('addSelectedQuestionsBtn');
+            const smartAutoSelectBtn = document.getElementById('smartAutoSelectBtn');
+            const smartCompleteBtn = document.getElementById('smartCompleteBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const questionCheckboxes = document.querySelectorAll('.question-checkbox');
+            const difficultyFilters = document.querySelectorAll('.difficulty-filter');
+            const categorySearch = document.getElementById('categorySearch');
+            const categoryDropdown = document.getElementById('categoryDropdown');
+            const allQuestionCards = document.querySelectorAll('.question-card');
+            let currentPreviewQuestionId = null;
+            
+            // Get all unique categories
+            const categories = [...new Set(Array.from(allQuestionCards).map(card => 
+                card.getAttribute('data-category')
+            ))].sort();
+            
+            // Initialize
+            initializeCategoryDropdown();
+            setupEventListeners();
+            updateDifficultyPills();
+            updateSelectionCount();
+            applyFilters();
+            
+            // Populate category dropdown
+            function initializeCategoryDropdown() {
+                populateCategoryDropdown('');
+            }
+            
+            function populateCategoryDropdown(filter = '') {
+                categoryDropdown.innerHTML = '';
+                
+                const filteredCategories = categories.filter(cat => 
+                    cat.toLowerCase().includes(filter.toLowerCase())
+                );
+                
+                filteredCategories.forEach(category => {
+                    const option = document.createElement('div');
+                    option.className = 'category-option';
+                    option.innerHTML = `
+                        <input class="category-filter" type="checkbox" value="${category}" checked id="cat_${category.replace(/\s+/g, '_')}">
+                        <label for="cat_${category.replace(/\s+/g, '_')}">${category}</label>
+                    `;
+                    categoryDropdown.appendChild(option);
+                });
+                
+                // Add event listeners to new checkboxes
+                categoryDropdown.querySelectorAll('.category-filter').forEach(filter => {
+                    filter.addEventListener('change', applyFilters);
+                });
+            }
+            
+            function setupEventListeners() {
+                // Category search functionality
+                categorySearch.addEventListener('focus', () => {
+                    categoryDropdown.classList.add('show');
+                    populateCategoryDropdown(categorySearch.value);
+                });
+                
+                categorySearch.addEventListener('input', (e) => {
+                    populateCategoryDropdown(e.target.value);
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.category-filter')) {
+                        categoryDropdown.classList.remove('show');
+                    }
+                });
+                
+                // Question checkbox handlers
+                questionCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        updateQuestionCardStyle(this);
+                        updateSelectionCount();
+                    });
+                });
+                
+                // Difficulty filter handlers
+                difficultyFilters.forEach(filter => {
+                    filter.addEventListener('change', function() {
+                        updateDifficultyPills();
+                        applyFilters();
+                    });
+                });
+                
+                // Smart buttons
+                smartAutoSelectBtn.addEventListener('click', openSmartAutoSelectModal);
+                smartCompleteBtn.addEventListener('click', openSmartCompleteModal);
+                clearAllBtn.addEventListener('click', clearAllSelections);
+                
+                // Preview buttons
+                document.querySelectorAll('.btn-preview').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const questionId = this.getAttribute('data-question-id');
+                        currentPreviewQuestionId = questionId;
+                        
+                        const card = this.closest('.question-card');
+                        const title = card.querySelector('.question-title').textContent;
+                        const description = card.querySelector('.question-description').textContent;
+                        const category = card.getAttribute('data-category');
+                        const difficulty = card.getAttribute('data-difficulty');
+                        
+                        document.getElementById('previewModalLabel').textContent = title;
+                        document.getElementById('previewModalBody').innerHTML = `
+                            <div class="mb-3">
+                                <h6>${title}</h6>
+                                <p class="mb-2"><strong>Category:</strong> ${category}</p>
+                                <p class="mb-2"><strong>Difficulty:</strong> <span class="badge bg-primary">${difficulty}</span></p>
+                                <p>${description}</p>
+                            </div>
+                        `;
+                        
+                        const checkbox = document.getElementById(`question_${questionId}`);
+                        const selectBtn = document.getElementById('selectFromPreviewBtn');
+                        selectBtn.textContent = checkbox.checked ? 'Unselect' : 'Select';
+                    });
+                });
+                
+                // Select from preview
+                document.getElementById('selectFromPreviewBtn').addEventListener('click', function() {
+                    if (currentPreviewQuestionId) {
+                        const checkbox = document.getElementById(`question_${currentPreviewQuestionId}`);
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                        
+                        this.textContent = checkbox.checked ? 'Unselect' : 'Select';
+                    }
+                });
+                
+                // Smart modal event listeners
+                setupSmartModalListeners();
+            }
+            
+            function setupSmartModalListeners() {
+                // Preset buttons
+                document.querySelectorAll('.preset-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                        this.classList.add('active');
+                        applyPreset(this.dataset.preset);
+                    });
+                });
+
+                // Add category rule
+                document.getElementById('addCategoryRule').addEventListener('click', addCategoryRule);
+
+                // Execute smart selection
+                document.getElementById('executeSmartSelection').addEventListener('click', executeSmartSelection);
+
+                // Smart complete strategy change
+                document.querySelectorAll('input[name="completeStrategy"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const customOptions = document.getElementById('customCompleteOptions');
+                        if (this.value === 'custom') {
+                            customOptions.style.display = 'block';
+                        } else {
+                            customOptions.style.display = 'none';
+                        }
+                    });
+                });
+
+                // Execute smart complete
+                document.getElementById('executeSmartComplete').addEventListener('click', executeSmartComplete);
+
+                // Update totals on input change
+                ['easyCount', 'mediumCount', 'hardCount'].forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.addEventListener('input', updateDifficultyTotals);
+                    }
+                });
+            }
+            
+            // Helper Functions
+            function updateSelectionCount() {
+                const selectedCount = document.querySelectorAll('.question-checkbox:checked').length;
+                const remaining = Math.max(0, requiredCount - selectedCount);
+                
+                selectedCountEl.textContent = selectedCount;
+                remainingCountEl.textContent = remaining;
+                submitBtnCount.textContent = selectedCount;
+                progressText.textContent = `${selectedCount} of ${requiredCount} questions selected`;
+                
+                // Update button states
+                if (selectedCount === 0) {
+                    addSelectedBtn.disabled = true;
+                    addSelectedBtn.innerHTML = 'Select Questions First';
+                } else {
+                    addSelectedBtn.disabled = false;
+                    addSelectedBtn.innerHTML = `Add ${selectedCount} Question${selectedCount !== 1 ? 's' : ''}`;
+                }
+                
+                // Color coding for remaining count
+                if (remaining === 0) {
+                    remainingCountEl.style.color = 'var(--success)';
+                } else if (remaining <= requiredCount * 0.3) {
+                    remainingCountEl.style.color = 'var(--warning)';
+                } else {
+                    remainingCountEl.style.color = 'var(--primary)';
+                }
+            }
+            
+            function updateQuestionCardStyle(checkbox) {
+                const card = checkbox.closest('.question-card');
+                if (checkbox.checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            }
+            
+            function updateDifficultyPills() {
+                difficultyFilters.forEach(filter => {
+                    const pill = filter.closest('.difficulty-pill');
+                    if (filter.checked) {
+                        pill.classList.add('active');
+                    } else {
+                        pill.classList.remove('active');
+                    }
+                });
+            }
+            
+            function clearAllSelections() {
+                questionCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    updateQuestionCardStyle(checkbox);
+                });
                 updateSelectionCount();
-            });
-        });
-        
-        // Select All Category button handler
-        selectAllCategoryBtns.forEach(button => {
-            button.addEventListener('click', function() {
-                const category = this.getAttribute('data-category');
-                const categoryQuestionCheckboxes = document.querySelectorAll(`.question-card[data-category="${category}"]:not(.hidden) .question-checkbox`);
-                
-                // Check if any are currently checked
-                const anyChecked = Array.from(categoryQuestionCheckboxes).some(checkbox => checkbox.checked);
-                
-                // Toggle all checkboxes in this category
-                categoryQuestionCheckboxes.forEach(checkbox => {
-                    checkbox.checked = !anyChecked;
-                    updateQuestionCardStyle(checkbox);
-                });
-                
-                updateSelectionCount();
-            });
-        });
-        
-        // Auto-select button handler (clears all and selects required amount)
-        autoSelectBtn.addEventListener('click', function() {
-            // First clear all selections
-            questionCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-                updateQuestionCardStyle(checkbox);
-            });
-            
-            // Get all visible questions from all categories (respect filters)
-            const visibleQuestions = Array.from(allQuestionCards)
-                .filter(card => !card.classList.contains('hidden'))
-                .map(card => card.querySelector('.question-checkbox'));
-            
-            // Only select exactly the required number
-            if (visibleQuestions.length >= requiredCount) {
-                // Shuffle array to randomize selection across all categories
-                const shuffled = visibleQuestions.sort(() => 0.5 - Math.random());
-                
-                // Select exactly the required number
-                shuffled.slice(0, requiredCount).forEach(checkbox => {
-                    checkbox.checked = true;
-                    updateQuestionCardStyle(checkbox);
-                });
-            } else {
-                // If not enough visible questions, select all visible and alert user
-                visibleQuestions.forEach(checkbox => {
-                    checkbox.checked = true;
-                    updateQuestionCardStyle(checkbox);
-                });
-                
-                alert(`Only ${visibleQuestions.length} questions are available with current filters. Please adjust filters to select ${requiredCount} questions.`);
             }
             
-            updateSelectionCount();
-        });
-        
-        // Auto-complete button handler (fills remaining selections without clearing existing ones)
-        autoCompleteBtn.addEventListener('click', function() {
-            // Calculate how many more questions we need to select
-            const currentSelectedCount = document.querySelectorAll('.question-checkbox:checked').length;
-            const remainingToSelect = requiredCount - currentSelectedCount;
-            
-            if (remainingToSelect <= 0) {
-                alert(`You have already selected ${currentSelectedCount} questions. Required: ${requiredCount}`);
-                return;
-            }
-            
-            // Get all visible questions that are not yet selected from all categories
-            const visibleUnselectedQuestions = Array.from(document.querySelectorAll('.question-card:not(.hidden) .question-checkbox'))
-                .filter(qCheckbox => !qCheckbox.checked);
-            
-            // Only select the exact number we need
-            if (visibleUnselectedQuestions.length >= remainingToSelect) {
-                // Shuffle array to randomize selection across categories
-                const shuffled = visibleUnselectedQuestions.sort(() => 0.5 - Math.random());
+            function applyFilters() {
+                // Get selected categories from dropdown
+                const selectedCategories = Array.from(categoryDropdown.querySelectorAll('.category-filter:checked'))
+                    .map(filter => filter.value);
                 
-                // Select exactly the required number
-                shuffled.slice(0, remainingToSelect).forEach(qCheckbox => {
-                    qCheckbox.checked = true;
-                    updateQuestionCardStyle(qCheckbox);
+                // Get selected difficulties
+                const selectedDifficulties = Array.from(difficultyFilters)
+                    .filter(filter => filter.checked)
+                    .map(filter => filter.value);
+                
+                // Filter questions
+                allQuestionCards.forEach(card => {
+                    const category = card.getAttribute('data-category');
+                    const difficulty = card.getAttribute('data-difficulty');
+                    
+                    const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(category);
+                    const difficultyMatch = selectedDifficulties.includes(difficulty);
+                    
+                    if (categoryMatch && difficultyMatch) {
+                        card.classList.remove('hidden');
+                        card.style.display = '';
+                    } else {
+                        card.classList.add('hidden');
+                        card.style.display = 'none';
+                    }
                 });
                 
-                alert(`Successfully selected ${remainingToSelect} more questions to complete your requirement.`);
-            } else if (visibleUnselectedQuestions.length > 0) {
-                // Select all remaining visible questions if less than required
-                visibleUnselectedQuestions.forEach(qCheckbox => {
-                    qCheckbox.checked = true;
-                    updateQuestionCardStyle(qCheckbox);
-                });
-                
-                alert(`Selected all ${visibleUnselectedQuestions.length} remaining visible questions. Still need ${remainingToSelect - visibleUnselectedQuestions.length} more. Please adjust filters to see more questions.`);
-            } else {
-                alert('No more questions available with current filters. Please adjust filters to see more questions.');
+                // Update category search placeholder with count
+                const visibleCount = document.querySelectorAll('.question-card:not(.hidden)').length;
+                categorySearch.placeholder = `${visibleCount} questions visible`;
             }
             
-            updateSelectionCount();
-        });
-        
-        // Clear all selections button handler
-        clearAllBtn.addEventListener('click', function() {
-            questionCheckboxes.forEach(checkbox => {
-                checkbox.checked = false;
-                updateQuestionCardStyle(checkbox);
-            });
+            // Smart Selection Functions
+            function openSmartAutoSelectModal() {
+                resetSmartSelectionModal();
+                new bootstrap.Modal(document.getElementById('smartAutoSelectModal')).show();
+            }
             
-            updateSelectionCount();
-        });
-        
-        // Category filter handler
-        categoryFilters.forEach(filter => {
-            filter.addEventListener('change', function() {
-                applyFilters();
-            });
-        });
-        
-        // Difficulty filter handler
-        difficultyFilters.forEach(filter => {
-            filter.addEventListener('change', function() {
-                applyFilters();
-            });
-        });
-        
-        // Preview button handler
-        document.querySelectorAll('.preview-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const questionId = this.getAttribute('data-question-id');
-                currentPreviewQuestionId = questionId;
+            function openSmartCompleteModal() {
+                setupSmartCompleteModal();
+                new bootstrap.Modal(document.getElementById('smartCompleteModal')).show();
+            }
+            
+            function resetSmartSelectionModal() {
+                // Reset form
+                document.getElementById('easyCount').value = 0;
+                document.getElementById('mediumCount').value = 0;
+                document.getElementById('hardCount').value = 0;
+                document.getElementById('requiredTotal').textContent = requiredCount;
                 
-                const questionCard = this.closest('.question-card');
-                const title = questionCard.querySelector('.question-title').textContent;
+                // Clear category rules
+                document.getElementById('categoryRules').innerHTML = '';
                 
-                // Populate modal with question details
-                document.getElementById('previewModalLabel').textContent = title;
-                document.getElementById('previewModalBody').innerHTML = `
-                    <div class="alert alert-info">This is a preview of the full question. In a real implementation, this would show all question details.</div>
-                    <h4>${title}</h4>
-                    <p><strong>Difficulty:</strong> ${questionCard.getAttribute('data-difficulty')}</p>
-                    <p><strong>Category:</strong> ${questionCard.getAttribute('data-category')}</p>
-                    <p><strong>Description:</strong> ${questionCard.querySelector('.question-description').textContent}</p>
+                // Reset checkboxes
+                document.getElementById('avoidDuplicateCategories').checked = false;
+                document.getElementById('prioritizeUnselected').checked = true;
+                document.getElementById('balanceMarks').checked = false;
+                
+                // Clear presets
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+                
+                updateDifficultyTotals();
+                updateSelectionPreview();
+            }
+
+            function applyPreset(preset) {
+                const easy = document.getElementById('easyCount');
+                const medium = document.getElementById('mediumCount');
+                const hard = document.getElementById('hardCount');
+                
+                // Clear category rules first
+                document.getElementById('categoryRules').innerHTML = '';
+                
+                switch(preset) {
+                    case 'balanced':
+                        const third = Math.floor(requiredCount / 3);
+                        const remainder = requiredCount % 3;
+                        easy.value = third + (remainder > 0 ? 1 : 0);
+                        medium.value = third + (remainder > 1 ? 1 : 0);
+                        hard.value = third;
+                        break;
+                    case 'easy-focus':
+                        easy.value = Math.ceil(requiredCount * 0.6);
+                        medium.value = Math.ceil(requiredCount * 0.3);
+                        hard.value = requiredCount - parseInt(easy.value) - parseInt(medium.value);
+                        break;
+                    case 'medium-focus':
+                        medium.value = Math.ceil(requiredCount * 0.6);
+                        easy.value = Math.ceil(requiredCount * 0.25);
+                        hard.value = requiredCount - parseInt(easy.value) - parseInt(medium.value);
+                        break;
+                    case 'hard-focus':
+                        hard.value = Math.ceil(requiredCount * 0.5);
+                        medium.value = Math.ceil(requiredCount * 0.35);
+                        easy.value = requiredCount - parseInt(hard.value) - parseInt(medium.value);
+                        break;
+                    case 'random':
+                        // Random distribution
+                        let remaining = requiredCount;
+                        easy.value = Math.floor(Math.random() * (remaining + 1));
+                        remaining -= parseInt(easy.value);
+                        medium.value = Math.floor(Math.random() * (remaining + 1));
+                        hard.value = remaining - parseInt(medium.value);
+                        break;
+                }
+                
+                updateDifficultyTotals();
+                updateSelectionPreview();
+            }
+
+            function addCategoryRule() {
+                const rulesContainer = document.getElementById('categoryRules');
+                const ruleId = 'rule_' + Date.now();
+                
+                const ruleDiv = document.createElement('div');
+                ruleDiv.className = 'category-rule';
+                ruleDiv.id = ruleId;
+                
+                ruleDiv.innerHTML = `
+                    <select class="form-select form-select-sm category-select" style="flex: 2;">
+                        <option value="">Select Category</option>
+                        ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                    </select>
+                    <input type="number" class="form-control form-control-sm easy-input" placeholder="Easy" min="0" style="flex: 1;">
+                    <input type="number" class="form-control form-control-sm medium-input" placeholder="Med" min="0" style="flex: 1;">
+                    <input type="number" class="form-control form-control-sm hard-input" placeholder="Hard" min="0" style="flex: 1;">
+                    <button type="button" class="remove-rule" onclick="removeRule('${ruleId}')">×</button>
                 `;
                 
-                // Update the select button state
-                const checkbox = document.getElementById(`question_${questionId}`);
-                const selectBtn = document.getElementById('selectFromPreviewBtn');
-                selectBtn.textContent = checkbox.checked ? 'Unselect Question' : 'Select Question';
-            });
-        });
-        
-        // Select from preview button handler
-        document.getElementById('selectFromPreviewBtn').addEventListener('click', function() {
-            if (currentPreviewQuestionId) {
-                const checkbox = document.getElementById(`question_${currentPreviewQuestionId}`);
+                rulesContainer.appendChild(ruleDiv);
                 
-                // Toggle selection
-                checkbox.checked = !checkbox.checked;
-                checkbox.dispatchEvent(new Event('change'));
-                
-                // Update button text
-                this.textContent = checkbox.checked ? 'Unselect Question' : 'Select Question';
+                // Add event listeners for live updates
+                ruleDiv.querySelectorAll('input, select').forEach(input => {
+                    input.addEventListener('input', updateSelectionPreview);
+                });
             }
-        });
-        
-        // Helper functions
-        function updateSelectionCount() {
-            const selectedCount = document.querySelectorAll('.question-checkbox:checked').length;
-            selectedCountEl.textContent = selectedCount;
-            submitBtnCount.textContent = selectedCount;
-            progressText.textContent = `${selectedCount} of ${requiredCount} questions selected`;
-            
-            // Update submit button state
-            if (selectedCount === 0) {
-                addSelectedBtn.disabled = true;
-                addSelectedBtn.textContent = 'Select Questions First';
-            } else {
-                addSelectedBtn.disabled = false;
-                addSelectedBtn.innerHTML = `Add ${selectedCount} Selected Question${selectedCount !== 1 ? 's' : ''}`;
-            }
-        }
-        
-        function updateQuestionCardStyle(checkbox) {
-            const card = checkbox.closest('.question-card');
-            if (checkbox.checked) {
-                card.classList.add('selected');
-            } else {
-                card.classList.remove('selected');
-            }
-        }
-        
-        function applyFilters() {
-            // Get selected categories
-            const selectedCategories = Array.from(categoryFilters)
-                .filter(filter => filter.checked)
-                .map(filter => filter.value);
-            
-            // Get selected difficulty levels
-            const selectedDifficulties = Array.from(difficultyFilters)
-                .filter(filter => filter.checked)
-                .map(filter => filter.value);
-            
-            // Show/hide questions based on filters
-            allQuestionCards.forEach(card => {
-                const category = card.getAttribute('data-category');
-                const difficulty = card.getAttribute('data-difficulty');
-                
-                if (selectedCategories.includes(category) && selectedDifficulties.includes(difficulty)) {
-                    card.classList.remove('hidden');
-                    card.style.display = '';
-                } else {
-                    card.classList.add('hidden');
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Show/hide category sections based on whether they have visible questions
-            document.querySelectorAll('.category-section').forEach(section => {
-                const category = section.getAttribute('data-category');
-                
-                if (selectedCategories.includes(category)) {
-                    const visibleQuestions = section.querySelectorAll('.question-card:not(.hidden)');
-                    if (visibleQuestions.length > 0) {
-                        section.style.display = '';
-                    } else {
-                        section.style.display = 'none';
-                    }
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-        }
-        
-        // Initial filter application
-        applyFilters();
-        
-        // Initial submit button state
-        updateSelectionCount();
-    });
-</script>
 
+            function updateDifficultyTotals() {
+                const easy = parseInt(document.getElementById('easyCount').value) || 0;
+                const medium = parseInt(document.getElementById('mediumCount').value) || 0;
+                const hard = parseInt(document.getElementById('hardCount').value) || 0;
+                const total = easy + medium + hard;
+                
+                document.getElementById('difficultyTotal').textContent = total;
+                document.getElementById('previewEasy').textContent = easy;
+                document.getElementById('previewMedium').textContent = medium;
+                document.getElementById('previewHard').textContent = hard;
+                document.getElementById('previewTotal').textContent = total;
+                
+                validateSelection();
+            }
+
+            function updateSelectionPreview() {
+                updateDifficultyTotals();
+                
+                // Update category breakdown
+                const categoryBreakdown = document.getElementById('categoryBreakdown');
+                const rules = document.querySelectorAll('.category-rule');
+                
+                categoryBreakdown.innerHTML = '';
+                
+                rules.forEach(rule => {
+                    const category = rule.querySelector('.category-select').value;
+                    const easy = parseInt(rule.querySelector('.easy-input').value) || 0;
+                    const medium = parseInt(rule.querySelector('.medium-input').value) || 0;
+                    const hard = parseInt(rule.querySelector('.hard-input').value) || 0;
+                    
+                    if (category && (easy + medium + hard) > 0) {
+                        const item = document.createElement('div');
+                        item.className = 'category-breakdown-item';
+                        item.innerHTML = `
+                            <span class="fw-medium">${category}</span>
+                            <div class="breakdown-badges">
+                                ${easy > 0 ? `<span class="breakdown-badge easy">E:${easy}</span>` : ''}
+                                ${medium > 0 ? `<span class="breakdown-badge medium">M:${medium}</span>` : ''}
+                                ${hard > 0 ? `<span class="breakdown-badge hard">H:${hard}</span>` : ''}
+                            </div>
+                        `;
+                        categoryBreakdown.appendChild(item);
+                    }
+                });
+                
+                if (categoryBreakdown.children.length === 0) {
+                    categoryBreakdown.innerHTML = '<small class="text-muted">No category rules defined</small>';
+                }
+            }
+
+            function validateSelection() {
+                const total = parseInt(document.getElementById('previewTotal').textContent);
+                const messagesContainer = document.getElementById('validationMessages');
+                const executeBtn = document.getElementById('executeSmartSelection');
+                
+                messagesContainer.innerHTML = '';
+                let isValid = true;
+                
+                if (total === 0) {
+                    messagesContainer.innerHTML = '<div class="validation-message error">Please specify at least one question to select.</div>';
+                    isValid = false;
+                } else if (total > requiredCount) {
+                    messagesContainer.innerHTML = `<div class="validation-message error">Total selection (${total}) exceeds required count (${requiredCount}).</div>`;
+                    isValid = false;
+                } else if (total < requiredCount) {
+                    messagesContainer.innerHTML = `<div class="validation-message warning">Total selection (${total}) is less than required (${requiredCount}). ${requiredCount - total} questions will be randomly selected.</div>`;
+                } else {
+                    messagesContainer.innerHTML = '<div class="validation-message success">Selection configuration is valid!</div>';
+                }
+                
+                executeBtn.disabled = !isValid;
+            }
+
+            function executeSmartSelection() {
+                clearAllSelections();
+                
+                const easyCount = parseInt(document.getElementById('easyCount').value) || 0;
+                const mediumCount = parseInt(document.getElementById('mediumCount').value) || 0;
+                const hardCount = parseInt(document.getElementById('hardCount').value) || 0;
+                
+                // Simple implementation for demo
+                const availableQuestions = Array.from(allQuestionCards)
+                    .filter(card => !card.classList.contains('hidden'))
+                    .map(card => ({
+                        id: card.getAttribute('data-question-id'),
+                        difficulty: card.getAttribute('data-difficulty'),
+                        category: card.getAttribute('data-category'),
+                        card: card
+                    }));
+                
+                let selected = [];
+                
+                // Select by difficulty
+                ['easy', 'medium', 'hard'].forEach(difficulty => {
+                    const count = difficulty === 'easy' ? easyCount : difficulty === 'medium' ? mediumCount : hardCount;
+                    const available = availableQuestions.filter(q => q.difficulty === difficulty);
+                    const shuffled = available.sort(() => 0.5 - Math.random());
+                    selected.push(...shuffled.slice(0, count));
+                });
+                
+                // Fill remaining randomly if needed
+                const totalSelected = selected.length;
+                if (totalSelected < requiredCount) {
+                    const remaining = requiredCount - totalSelected;
+                    const selectedIds = new Set(selected.map(q => q.id));
+                    const unselected = availableQuestions.filter(q => !selectedIds.has(q.id));
+                    const shuffled = unselected.sort(() => 0.5 - Math.random());
+                    selected.push(...shuffled.slice(0, remaining));
+                }
+                
+                // Apply selections
+                selected.forEach(question => {
+                    const checkbox = document.getElementById(`question_${question.id}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        updateQuestionCardStyle(checkbox);
+                    }
+                });
+                
+                updateSelectionCount();
+                bootstrap.Modal.getInstance(document.getElementById('smartAutoSelectModal')).hide();
+                
+                alert(`Smart selection completed! Selected ${selected.length} questions.`);
+            }
+
+            function setupSmartCompleteModal() {
+                const currentSelected = document.querySelectorAll('.question-checkbox:checked').length;
+                const stillNeeded = requiredCount - currentSelected;
+                
+                document.getElementById('currentlySelected').textContent = currentSelected;
+                document.getElementById('stillNeeded').textContent = stillNeeded;
+                
+                // Auto-calculate custom distribution
+                const third = Math.floor(stillNeeded / 3);
+                const remainder = stillNeeded % 3;
+                document.getElementById('completeEasyCount').value = third + (remainder > 0 ? 1 : 0);
+                document.getElementById('completeMediumCount').value = third + (remainder > 1 ? 1 : 0);
+                document.getElementById('completeHardCount').value = third;
+            }
+
+            function executeSmartComplete() {
+                const currentSelected = document.querySelectorAll('.question-checkbox:checked').length;
+                const stillNeeded = requiredCount - currentSelected;
+                
+                if (stillNeeded <= 0) {
+                    alert('Selection is already complete!');
+                    return;
+                }
+                
+                const strategy = document.querySelector('input[name="completeStrategy"]:checked').value;
+                
+                // Get unselected questions
+                const unselectedQuestions = Array.from(allQuestionCards)
+                    .filter(card => {
+                        if (card.classList.contains('hidden')) return false;
+                        const checkbox = card.querySelector('.question-checkbox');
+                        return !checkbox.checked;
+                    })
+                    .map(card => ({
+                        id: card.getAttribute('data-question-id'),
+                        difficulty: card.getAttribute('data-difficulty'),
+                        category: card.getAttribute('data-category'),
+                        card: card
+                    }));
+                
+                let toSelect = [];
+                
+                switch(strategy) {
+                    case 'balanced':
+                        const third = Math.floor(stillNeeded / 3);
+                        const remainder = stillNeeded % 3;
+                        const easyNeeded = third + (remainder > 0 ? 1 : 0);
+                        const mediumNeeded = third + (remainder > 1 ? 1 : 0);
+                        const hardNeeded = third;
+                        
+                        ['easy', 'medium', 'hard'].forEach((difficulty, index) => {
+                            const count = [easyNeeded, mediumNeeded, hardNeeded][index];
+                            const available = unselectedQuestions.filter(q => q.difficulty === difficulty);
+                            const shuffled = available.sort(() => 0.5 - Math.random());
+                            toSelect.push(...shuffled.slice(0, count));
+                        });
+                        break;
+                    case 'easy':
+                        const easyQuestions = unselectedQuestions.filter(q => q.difficulty === 'easy');
+                        toSelect = easyQuestions.sort(() => 0.5 - Math.random()).slice(0, stillNeeded);
+                        break;
+                    case 'hard':
+                        const hardQuestions = unselectedQuestions.filter(q => q.difficulty === 'hard');
+                        toSelect = hardQuestions.sort(() => 0.5 - Math.random()).slice(0, stillNeeded);
+                        break;
+                    case 'random':
+                        toSelect = unselectedQuestions.sort(() => 0.5 - Math.random()).slice(0, stillNeeded);
+                        break;
+                    case 'custom':
+                        const customEasy = parseInt(document.getElementById('completeEasyCount').value) || 0;
+                        const customMedium = parseInt(document.getElementById('completeMediumCount').value) || 0;
+                        const customHard = parseInt(document.getElementById('completeHardCount').value) || 0;
+                        
+                        ['easy', 'medium', 'hard'].forEach((difficulty, index) => {
+                            const count = [customEasy, customMedium, customHard][index];
+                            const available = unselectedQuestions.filter(q => q.difficulty === difficulty);
+                            const shuffled = available.sort(() => 0.5 - Math.random());
+                            toSelect.push(...shuffled.slice(0, count));
+                        });
+                        break;
+                }
+                
+                // If we don't have enough questions, fill with what's available
+                if (toSelect.length < stillNeeded) {
+                    const selectedIds = new Set(toSelect.map(q => q.id));
+                    const remaining = unselectedQuestions.filter(q => !selectedIds.has(q.id));
+                    const shuffled = remaining.sort(() => 0.5 - Math.random());
+                    toSelect.push(...shuffled.slice(0, stillNeeded - toSelect.length));
+                }
+                
+                // Apply selections
+                toSelect.forEach(question => {
+                    const checkbox = document.getElementById(`question_${question.id}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        updateQuestionCardStyle(checkbox);
+                    }
+                });
+                
+                updateSelectionCount();
+                bootstrap.Modal.getInstance(document.getElementById('smartCompleteModal')).hide();
+                
+                alert(`Smart complete finished! Added ${toSelect.length} more questions.`);
+            }
+            
+            // Make removeRule globally accessible
+            window.removeRule = function(ruleId) {
+                const element = document.getElementById(ruleId);
+                if (element) {
+                    element.remove();
+                    updateSelectionPreview();
+                }
+            };
+        });
+    </script>
 </body>
 </html>
