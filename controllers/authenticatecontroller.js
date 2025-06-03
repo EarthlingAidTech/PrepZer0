@@ -117,7 +117,7 @@ exports.signupcontrol = async (req, res) => {
     }
     
     // USN validation and parsing
-    const usn = USN.toLowerCase();
+    const usn = USN.toLowerCase().trim();
     // Updated regex to handle any college code (not just BY)
     const regex = /^(\d{0,2})([a-z]{2})(\d{2})([a-z]{2})(\d{3})$/;
     const match = usn.match(regex);
