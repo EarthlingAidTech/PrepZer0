@@ -31,7 +31,7 @@ exports.getExam = async (req, res) => {
         console.log("authenticated");
         const Userprofile = await User.findById({ _id: req.user.id });
         if (Userprofile.usertype === "admin" || Userprofile.usertype === "teacher") {
-            res.render("create_exam", { pic: Userprofile.imageurl, logged_in: "true" });
+            res.render("create_exam1", { pic: Userprofile.imageurl, logged_in: "true" });
         } else {
             res.redirect("/admin/login");
         }
@@ -81,41 +81,287 @@ exports.searchStudent = async (req, res) => {
 
 
 
+// exports.createExam = async (req, res) => {
+//     try {
+//         let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill,additionalCandidates, draft ,  settings  } = req.body;
+//             const examSettings = {
+//             camera: settings?.camera === 'true',
+//             phone: settings?.phone === 'true', 
+//             showResults: settings?.showResults === 'true'
+//         };
+//         if(!scheduleTill || !scheduledAt){
+//             console.log("what the fuck")
+//             const newExamss = new Exam({
+//                 name,
+//                 departments: Array.isArray(departments) ? departments : [departments], 
+//                 semester,
+//                 questionType,
+//                 duration: Duration,
+//                 numMCQs: parseInt(numMCQs) || 0,
+//                 numCoding: parseInt(numCoding) || 0,
+//                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
+//                 createdBy: req.user.id,
+//                 testStatus:"draft" ,
+//                 settings: examSettings 
+
+//             });
+//             await newExamss.save();
+//             res.redirect("/admin");
+//         }
+        
+//         let newExam;
+        
+//         if(!scheduleTill || !scheduledAt || draft){
+//             console.log("Creating draft exam");
+//             newExam = new Exam({
+//                 name,
+//                 departments: Array.isArray(departments) ? departments : [departments], 
+//                 semester,
+//                 questionType,
+//                 duration: Duration,
+//                 numMCQs: parseInt(numMCQs) || 0,
+//                 numCoding: parseInt(numCoding) || 0,
+//                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
+//                 createdBy: req.user.id,
+//                 testStatus: "draft",
+//                 settings: examSettings 
+//             });
+//             await newExam.save();
+//         } else {
+//             try {
+//                 scheduledAt = moment.tz(scheduledAt, "Asia/Kolkata").toDate();
+//                 scheduleTill = moment.tz(scheduleTill, "Asia/Kolkata").toDate();
+//             } catch(err) {
+//                 console.error("Error converting dates:", err);
+//             }
+            
+//             newExam = new Exam({
+//                 name,
+//                 departments: Array.isArray(departments) ? departments : [departments], 
+//                 semester,
+//                 questionType,
+//                 scheduledAt,
+//                 scheduleTill,
+//                 duration: Duration,
+//                 numMCQs: parseInt(numMCQs) || 0,
+//                 numCoding: parseInt(numCoding) || 0,
+//                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
+//                 createdBy: req.user.id,
+//                 settings: examSettings 
+//             });
+
+//             await newExam.save();
+            
+//             // Schedule reminder email for this exam
+//             if (!draft) {
+//                 await scheduleExamReminder(newExam);
+//                 console.log(`Reminder scheduled for exam: ${newExam.name}`);
+//             }
+//         }
+
+//         const exam = await newExam.save();
+//          // Process additional candidates if any
+//         if (additionalCandidates) {
+//         const candidates = JSON.parse(additionalCandidates);
+        
+//         if (candidates.length > 0) {
+//           const candidatesData = candidates.map(candidate => ({
+//             exam: exam._id,
+//             usn: candidate.usn,
+//             isAdditional: true
+//         }));
+          
+//           await ExamCandidate.insertMany(candidatesData);
+//         }
+//         }
+//         req.flash('success', draft ? 'Exam saved as draft successfully' : 'Exam created successfully');
+//         res.redirect("/admin");
+//     } catch (error) {
+//         console.error("Error creating exam:", error);
+//         res.status(400).send(error.message);
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
+// Add this new method to validate Excel USNs
+exports.validateExcelUSNs = async (req, res) => {
+    try {
+        const { usns } = req.body;
+        
+        if (!usns || !Array.isArray(usns)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid USNs provided'
+            });
+        }
+        
+        const validatedStudents = [];
+        const foundStudents = [];
+        const notFoundUSNs = [];
+        
+        console.log(`🔍 Validating ${usns.length} USNs against User database...`);
+        
+        // Check each USN against the User model
+        for (const usn of usns) {
+            try {
+                // Search for student in User model (case-insensitive)
+                const student = await User.findOne({ 
+                    USN: { $regex: new RegExp(`^${usn}$`, 'i') }
+                });
+                
+                if (student) {
+                    // Student found in database
+                    foundStudents.push(student);
+                    validatedStudents.push({
+                        usn: student.USN,
+                        studentId: student._id, // Store the ObjectId reference
+                        name: student.fname || student.name || 'Unknown Name',
+                        department: student.Department,
+                        semester: student.Semester,
+                        email: student.email,
+                        phone: student.phone,
+                        year: student.Year,
+                        rollno: student.Rollno,
+                        foundInDatabase: true
+                    });
+                    console.log(`✅ Found: ${usn} -> ${student.fname || student.name} (${student.Department})`);
+                } else {
+                    // Student not found in database
+                    notFoundUSNs.push(usn);
+                    validatedStudents.push({
+                        usn: usn,
+                        studentId: null,
+                        name: 'Not Registered',
+                        department: 'Unknown',
+                        semester: null,
+                        email: null,
+                        foundInDatabase: false
+                    });
+                    console.log(`❌ Not found: ${usn}`);
+                }
+            } catch (error) {
+                console.error(`Error checking USN ${usn}:`, error);
+                notFoundUSNs.push(usn);
+                validatedStudents.push({
+                    usn: usn,
+                    studentId: null,
+                    name: 'Error checking',
+                    department: 'Unknown',
+                    semester: null,
+                    email: null,
+                    foundInDatabase: false
+                });
+            }
+        }
+        
+        const summary = {
+            totalUSNs: usns.length,
+            foundInDatabase: foundStudents.length,
+            notFoundInDatabase: notFoundUSNs.length
+        };
+        
+        console.log(`📊 Validation Summary:`, summary);
+        console.log(`📋 Not found USNs:`, notFoundUSNs);
+        
+        return res.json({
+            success: true,
+            validatedStudents: validatedStudents,
+            foundStudents: foundStudents,
+            notFoundUSNs: notFoundUSNs,
+            ...summary
+        });
+        
+    } catch (error) {
+        console.error('Error validating Excel USNs:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error while validating USNs'
+        });
+    }
+};
+
+// Updated createExam method
 exports.createExam = async (req, res) => {
     try {
-        let { name, departments, semester, questionType, numMCQs, numCoding, numTotalQuestions, scheduledAt, Duration, scheduleTill,additionalCandidates, draft ,  settings  } = req.body;
-            const examSettings = {
+        let { 
+            name, 
+            departments, 
+            semester, 
+            questionType, 
+            numMCQs, 
+            numCoding, 
+            numTotalQuestions, 
+            scheduledAt, 
+            Duration, 
+            scheduleTill,
+            additionalCandidates, 
+            excelCandidates,
+            draft,  
+            settings  
+        } = req.body;
+
+        const examSettings = {
             camera: settings?.camera === 'true',
             phone: settings?.phone === 'true', 
             showResults: settings?.showResults === 'true'
         };
-        if(!scheduleTill || !scheduledAt){
-            console.log("what the fuck")
-            const newExamss = new Exam({
-                name,
-                departments: Array.isArray(departments) ? departments : [departments], 
-                semester,
-                questionType,
-                duration: Duration,
-                numMCQs: parseInt(numMCQs) || 0,
-                numCoding: parseInt(numCoding) || 0,
-                numTotalQuestions: parseInt(numTotalQuestions) || 0,
-                createdBy: req.user.id,
-                testStatus:"draft" ,
-                settings: examSettings 
 
-            });
-            await newExamss.save();
-            res.redirect("/admin");
+        // Parse excel candidates if provided
+        let parsedExcelCandidates = [];
+        if (excelCandidates) {
+            try {
+                parsedExcelCandidates = JSON.parse(excelCandidates);
+                console.log(`📝 Parsed ${parsedExcelCandidates.length} Excel candidates`);
+            } catch (error) {
+                console.error("Error parsing excel candidates:", error);
+            }
+        }
+
+        // Parse additional candidates if provided
+        let parsedAdditionalCandidates = [];
+        if (additionalCandidates) {
+            try {
+                parsedAdditionalCandidates = JSON.parse(additionalCandidates);
+                console.log(`📝 Parsed ${parsedAdditionalCandidates.length} additional candidates`);
+            } catch (error) {
+                console.error("Error parsing additional candidates:", error);
+            }
+        }
+
+        // Check if candidates are provided via Excel
+        const hasExcelCandidates = parsedExcelCandidates && parsedExcelCandidates.length > 0;
+        const hasAdditionalCandidates = parsedAdditionalCandidates && parsedAdditionalCandidates.length > 0;
+        
+        // Validate exam data using the schema's static method
+        // Note: Individual candidates still require departments/semester, only Excel candidates don't
+        const validation = Exam.validateExamData(req.body, hasExcelCandidates, false);
+        if (!validation.isValid) {
+            req.flash('error', validation.errors.join(', '));
+            return res.redirect('/admin/create_exam');
         }
         
-        let newExam;
-        
-        if(!scheduleTill || !scheduledAt || draft){
-            console.log("Creating draft exam");
-            newExam = new Exam({
+        // Ensure departments is an array
+        if (!departments) {
+            departments = [];
+        } else if (!Array.isArray(departments)) {
+            departments = [departments];
+        }
+
+        // Handle the case where only schedule is missing (first condition)
+        if (!scheduleTill || !scheduledAt) {
+            console.log("Creating draft exam without schedule");
+            const newExamss = new Exam({
                 name,
-                departments: Array.isArray(departments) ? departments : [departments], 
+                departments: departments,
                 semester,
                 questionType,
                 duration: Duration,
@@ -124,9 +370,47 @@ exports.createExam = async (req, res) => {
                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
                 createdBy: req.user.id,
                 testStatus: "draft",
-                settings: examSettings 
+                settings: examSettings,
+                excelCandidatesPresent: hasExcelCandidates,
+                additionalCandidatesPresent: hasAdditionalCandidates
             });
-            await newExam.save();
+            
+            const savedExam = await newExamss.save();
+
+            // Process additional candidates even for draft
+            if (parsedAdditionalCandidates && parsedAdditionalCandidates.length > 0) {
+                await this.saveAdditionalCandidates(savedExam._id, parsedAdditionalCandidates);
+            }
+
+            // Process excel candidates even for draft
+            if (parsedExcelCandidates && parsedExcelCandidates.length > 0) {
+                await this.saveExcelCandidates(savedExam._id, parsedExcelCandidates);
+            }
+
+            req.flash('success', 'Exam saved as draft successfully');
+            res.redirect("/admin");
+            return;
+        }
+        
+        let newExam;
+        
+        if (!scheduleTill || !scheduledAt || draft) {
+            console.log("Creating draft exam");
+            newExam = new Exam({
+                name,
+                departments: departments,
+                semester,
+                questionType,
+                duration: Duration,
+                numMCQs: parseInt(numMCQs) || 0,
+                numCoding: parseInt(numCoding) || 0,
+                numTotalQuestions: parseInt(numTotalQuestions) || 0,
+                createdBy: req.user.id,
+                testStatus: "draft",
+                settings: examSettings,
+                excelCandidatesPresent: hasExcelCandidates,
+                additionalCandidatesPresent: hasAdditionalCandidates
+            });
         } else {
             try {
                 scheduledAt = moment.tz(scheduledAt, "Asia/Kolkata").toDate();
@@ -137,7 +421,7 @@ exports.createExam = async (req, res) => {
             
             newExam = new Exam({
                 name,
-                departments: Array.isArray(departments) ? departments : [departments], 
+                departments: departments,
                 semester,
                 questionType,
                 scheduledAt,
@@ -147,12 +431,12 @@ exports.createExam = async (req, res) => {
                 numCoding: parseInt(numCoding) || 0,
                 numTotalQuestions: parseInt(numTotalQuestions) || 0,
                 createdBy: req.user.id,
-                settings: examSettings 
+                settings: examSettings,
+                excelCandidatesPresent: hasExcelCandidates,
+                additionalCandidatesPresent: hasAdditionalCandidates
             });
 
-            await newExam.save();
-            
-            // Schedule reminder email for this exam
+            // Schedule reminder email for this exam only if not draft
             if (!draft) {
                 await scheduleExamReminder(newExam);
                 console.log(`Reminder scheduled for exam: ${newExam.name}`);
@@ -160,108 +444,320 @@ exports.createExam = async (req, res) => {
         }
 
         const exam = await newExam.save();
-         // Process additional candidates if any
-        if (additionalCandidates) {
-        const candidates = JSON.parse(additionalCandidates);
-        
-        if (candidates.length > 0) {
-          const candidatesData = candidates.map(candidate => ({
-            exam: exam._id,
-            usn: candidate.usn,
-            isAdditional: true
-        }));
-          
-          await ExamCandidate.insertMany(candidatesData);
+
+        // Process additional candidates (individual selections)
+        if (parsedAdditionalCandidates && parsedAdditionalCandidates.length > 0) {
+            await this.saveAdditionalCandidates(exam._id, parsedAdditionalCandidates);
         }
+
+        // Process excel candidates with complete data
+        if (parsedExcelCandidates && parsedExcelCandidates.length > 0) {
+            await this.saveExcelCandidates(exam._id, parsedExcelCandidates);
         }
+
         req.flash('success', draft ? 'Exam saved as draft successfully' : 'Exam created successfully');
         res.redirect("/admin");
+        
     } catch (error) {
         console.error("Error creating exam:", error);
-        res.status(400).send(error.message);
+        req.flash('error', 'Error creating exam: ' + error.message);
+        res.redirect("/admin");
+    }
+};
+
+// Helper method to save additional candidates
+exports.saveAdditionalCandidates = async (examId, candidates) => {
+    try {
+        const additionalCandidatesData = candidates.map(candidate => ({
+            exam: examId,
+            usn: candidate.usn,
+            name: candidate.name || 'Unknown',
+            department: candidate.department || 'Unknown',
+            semester: candidate.semester || null,
+            email: candidate.email || null,
+            isAdditional: true,
+            source: 'manual'
+        }));
+        
+        await ExamCandidate.insertMany(additionalCandidatesData);
+        console.log(`✅ Added ${additionalCandidatesData.length} additional candidates`);
+    } catch (error) {
+        console.error("Error saving additional candidates:", error);
+        throw error;
+    }
+};
+
+// Helper method to save Excel candidates with validation data
+exports.saveExcelCandidates = async (examId, candidates) => {
+    try {
+        const excelCandidatesData = candidates.map(candidate => ({
+            exam: examId,
+            usn: candidate.usn,
+            student: candidate.studentId || null, // Store ObjectId reference if found
+            isAdditional: true
+        }));
+        
+        await ExamCandidate.insertMany(excelCandidatesData);
+        
+        const foundCount = candidates.filter(c => c.foundInDatabase).length;
+        const notFoundCount = candidates.length - foundCount;
+        
+        console.log(`✅ Added ${excelCandidatesData.length} Excel candidates`);
+        console.log(`📊 Found in database: ${foundCount}, Not found: ${notFoundCount}`);
+    } catch (error) {
+        console.error("Error saving Excel candidates:", error);
+        throw error;
+    }
+};
+
+// Updated getEligibleStudents method
+exports.getEligibleStudents = async (req, res) => {
+    try {
+        const { examId } = req.params;
+        
+        const exam = await Exam.findById(examId);
+        if (!exam) {
+            return res.status(404).json({
+                success: false,
+                message: 'Exam not found'
+            });
+        }
+        
+        let allStudents = [];
+        
+        // Only query department students if departments and semester are specified
+        if (exam.departments && exam.departments.length > 0 && exam.semester) {
+            const departmentStudents = await User.find({
+                Department: { $in: exam.departments },
+                Semester: exam.semester
+            });
+            
+            // Map User model fields correctly for display
+            const mappedDepartmentStudents = departmentStudents.map(student => ({
+                _id: student._id,
+                USN: student.USN,
+                usn: student.USN,
+                name: student.fname || student.name || 'Unknown Name',
+                Department: student.Department,
+                Semester: student.Semester,
+                email: student.email,
+                phone: student.phone,
+                Year: student.Year,
+                Rollno: student.Rollno,
+                source: 'department'
+            }));
+            
+            allStudents = [...mappedDepartmentStudents];
+            console.log(`📚 Found ${departmentStudents.length} students from departments: ${exam.departments.join(', ')}, Semester: ${exam.semester}`);
+        }
+        
+        // Get additional candidates from ExamCandidate model
+        const additionalCandidates = await ExamCandidate.find({
+            exam: examId,
+            isAdditional: true
+        });
+        
+        console.log(`👥 Found ${additionalCandidates.length} additional candidates`);
+        
+        // Get all USNs from additional candidates
+        const additionalUSNs = additionalCandidates.map(candidate => candidate.usn);
+        
+        // Fetch all User data for these USNs in one query
+        const additionalStudentData = await User.find({
+            USN: { $in: additionalUSNs }
+        });
+        
+        console.log(`🔍 Found ${additionalStudentData.length} users in database for ${additionalUSNs.length} additional USNs`);
+        
+        // Process each additional candidate
+        for (const candidate of additionalCandidates) {
+            // Check if the student is already included based on USN
+            const isAlreadyIncluded = allStudents.some(student => 
+                student.USN === candidate.usn || student.usn === candidate.usn
+            );
+            
+            if (!isAlreadyIncluded && candidate.usn) {
+                // Find the corresponding user data for this USN
+                const userData = additionalStudentData.find(user => 
+                    user.USN.toLowerCase() === candidate.usn.toLowerCase()
+                );
+                
+                if (userData) {
+                    // Student found in User model - use their complete data
+                    allStudents.push({
+                        _id: userData._id,
+                        USN: userData.USN,
+                        usn: userData.USN,
+                        name: userData.fname || userData.name || 'Unknown Name',
+                        Department: userData.Department,
+                        Semester: userData.Semester,
+                        email: userData.email,
+                        phone: userData.phone,
+                        Year: userData.Year,
+                        Rollno: userData.Rollno,
+                        source: 'excel',
+                        isExcelStudent: true,
+                        foundInDatabase: true
+                    });
+                    console.log(`✅ Added Excel student with full data: ${candidate.usn} -> ${userData.fname || userData.name} (${userData.Department})`);
+                } else {
+                    // Student not found in User model
+                    allStudents.push({
+                        _id: candidate._id,
+                        USN: candidate.usn,
+                        usn: candidate.usn,
+                        name: 'Not Registered',
+                        Department: 'Unknown',
+                        Semester: 'N/A',
+                        email: null,
+                        phone: null,
+                        source: 'excel',
+                        isExcelStudent: true,
+                        notRegistered: true,
+                        foundInDatabase: false
+                    });
+                    console.log(`⚠️ Added unregistered student: ${candidate.usn}`);
+                }
+            }
+        }
+        
+        // Sort students by name for better display
+        allStudents.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        
+        const registeredCount = allStudents.filter(s => s.foundInDatabase !== false).length;
+        const unregisteredCount = allStudents.filter(s => s.foundInDatabase === false).length;
+        
+        console.log(`📊 Total students found: ${allStudents.length}`);
+        console.log(`📋 Breakdown - Registered: ${registeredCount}, Unregistered: ${unregisteredCount}`);
+        
+        return res.render("view_selected_students", {
+            students: allStudents,
+            exam: exam
+        });
+    } catch (err) {
+        console.error("Error in getEligibleStudents:", err);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
     }
 };
 
 
 
 
-// Get eligible students for an exam
-exports.getEligibleStudents = async (req, res) => {
-    try {
-      const { examId } = req.params;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // Get eligible students for an exam
+// exports.getEligibleStudents = async (req, res) => {
+//     try {
+//       const { examId } = req.params;
       
-      const exam = await Exam.findById(examId);
-      if (!exam) {
-        return res.status(404).json({
-          success: false,
-          message: 'Exam not found'
-        });
-      }
+//       const exam = await Exam.findById(examId);
+//       if (!exam) {
+//         return res.status(404).json({
+//           success: false,
+//           message: 'Exam not found'
+//         });
+//       }
       
-      // Get students from eligible departments and semester
-      const departmentStudents = await User.find({
-        Department: { $in: exam.departments },
-        Semester: exam.semester
-      });
+//       // Get students from eligible departments and semester
+//       const departmentStudents = await User.find({
+//         Department: { $in: exam.departments },
+//         Semester: exam.semester
+//       });
       
-      // Get additional candidates from ExamCandidate model
-      const additionalCandidates = await ExamCandidate.find({
-        exam: examId,
-        isAdditional: true
-      });
+//       // Get additional candidates from ExamCandidate model
+//       const additionalCandidates = await ExamCandidate.find({
+//         exam: examId,
+//         isAdditional: true
+//       });
       
-      console.log("Additional candidates found:", additionalCandidates);
+//       console.log("Additional candidates found:", additionalCandidates);
       
-      const allStudents = [...departmentStudents];
+//       const allStudents = [...departmentStudents];
       
-      // For each additional candidate, find the student in the User model by USN
-      for (const candidate of additionalCandidates) {
-        // Check if the student is already included based on USN
-        const isAlreadyIncluded = allStudents.some(student => 
-          student.usn === candidate.usn
-        );
+//       // For each additional candidate, find the student in the User model by USN
+//       for (const candidate of additionalCandidates) {
+//         // Check if the student is already included based on USN
+//         const isAlreadyIncluded = allStudents.some(student => 
+//           student.usn === candidate.usn
+//         );
         
-        if (!isAlreadyIncluded && candidate.usn) {
-          try {
-            // Find the student by USN in the User model (not by ID)
-            const studentData = await User.findOne({ USN: candidate.usn });
+//         if (!isAlreadyIncluded && candidate.usn) {
+//           try {
+//             // Find the student by USN in the User model (not by ID)
+//             const studentData = await User.findOne({ USN: candidate.usn });
             
-            if (studentData) {
-              // Student found in User model, add to the list
-              allStudents.push(studentData);
-            } else {
-              // Student not found in User model, add basic info
-              allStudents.push({
-                usn: candidate.usn,
-                name: 'Unknown Student',
-                Department: 'Additional',
-                Semester: exam.semester
-              });
-            }
-          } catch (err) {
-            console.error("Error finding student by USN:", err);
-            // Fall back to basic info on error
-            allStudents.push({
-              usn: candidate.usn,
-              name: 'Unknown Student',
-              Department: 'Additional',
-              Semester: exam.semester
-            });
-          }
-        }
-      }
+//             if (studentData) {
+//               // Student found in User model, add to the list
+//               allStudents.push(studentData);
+//             } else {
+//               // Student not found in User model, add basic info
+//               allStudents.push({
+//                 usn: candidate.usn,
+//                 name: 'Unknown Student',
+//                 Department: 'Additional',
+//                 Semester: exam.semester
+//               });
+//             }
+//           } catch (err) {
+//             console.error("Error finding student by USN:", err);
+//             // Fall back to basic info on error
+//             allStudents.push({
+//               usn: candidate.usn,
+//               name: 'Unknown Student',
+//               Department: 'Additional',
+//               Semester: exam.semester
+//             });
+//           }
+//         }
+//       }
       
-      return res.render("view_selected_students", {
-        students: allStudents
-      });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({
-        success: false,
-        message: 'Server error'
-      });
-    }
-  };
+//       return res.render("view_selected_students", {
+//         students: allStudents
+//       });
+//     } catch (err) {
+//       console.error(err);
+//       return res.status(500).json({
+//         success: false,
+//         message: 'Server error'
+//       });
+//     }
+//   };
 
 
 

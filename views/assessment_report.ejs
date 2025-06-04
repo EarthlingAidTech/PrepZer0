@@ -648,31 +648,62 @@
       <div class="score-title">Assessment Score</div>
       
       <% if (report.combinedScore) { %>
-        <!-- Display combined score (MCQ + Coding) -->
+        <!-- Display total combined score -->
         <div class="score-value"><%= report.combinedScore.obtained %><span class="score-max">/<%= report.combinedScore.total %></span></div>
         
-        <% if (report.combinedScore.mcq && report.combinedScore.coding) { %>
-          <!-- Show score breakdown if both MCQ and coding are present -->
-          <div class="score-breakdown">
-            <div class="score-component">
-              <div class="score-component-title">MCQ Score</div>
-              <div class="score-component-value"><%= report.combinedScore.mcq.obtained %>/<%= report.combinedScore.mcq.total %></div>
-            </div>
-            <div class="score-component">
-              <div class="score-component-title">Coding Score</div>
-              <div class="score-component-value">
-                <% if (report.combinedScore.coding.evaluationStatus === 'Evaluated') { %>
-                  <%= report.combinedScore.coding.obtained %>/<%= report.combinedScore.coding.total %>
-                <% } else { %>
-                  Pending
-                <% } %>
-              </div>
+        <!-- ALWAYS show breakdown for MCQ and Coding -->
+        <div class="score-breakdown">
+          <!-- MCQ Component -->
+          <div class="score-component">
+            <div class="score-component-title">MCQ Score</div>
+            <div class="score-component-value">
+              <%= report.combinedScore.mcq.obtained %>/<%= report.combinedScore.mcq.total %>
             </div>
           </div>
-        <% } %>
-      <% } else { %>
-        <!-- Fallback to using just MCQ score -->
+          
+          <!-- Coding Component -->
+          <div class="score-component">
+            <div class="score-component-title">Coding Score</div>
+            <div class="score-component-value">
+              <% if (report.combinedScore.coding.evaluationStatus === 'Evaluated') { %>
+                <%= report.combinedScore.coding.obtained %>/<%= report.combinedScore.coding.total %>
+              <% } else if (report.combinedScore.coding.evaluationStatus === 'No Coding Questions') { %>
+                0/0
+              <% } else { %>
+                Pending
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% } else if (report.score.mcq && report.score.coding) { %>
+        <!-- Mixed assessment handled by ReportModel -->
         <div class="score-value"><%= report.score.obtained %><span class="score-max">/<%= report.score.total %></span></div>
+        
+        <div class="score-breakdown">
+          <div class="score-component">
+            <div class="score-component-title">MCQ Score</div>
+            <div class="score-component-value"><%= report.score.mcq.obtained %>/<%= report.score.mcq.total %></div>
+          </div>
+          <div class="score-component">
+            <div class="score-component-title">Coding Score</div>
+            <div class="score-component-value"><%= report.score.coding.obtained %>/<%= report.score.coding.total %></div>
+          </div>
+        </div>
+      <% } else { %>
+        <!-- Fallback for older data structure -->
+        <div class="score-value"><%= report.score.obtained %><span class="score-max">/<%= report.score.total %></span></div>
+        
+        <!-- Show breakdown anyway -->
+        <div class="score-breakdown">
+          <div class="score-component">
+            <div class="score-component-title">MCQ Score</div>
+            <div class="score-component-value"><%= report.score.obtained %>/<%= report.score.total %></div>
+          </div>
+          <div class="score-component">
+            <div class="score-component-title">Coding Score</div>
+            <div class="score-component-value">0/0</div>
+          </div>
+        </div>
       <% } %>
       
       <div class="rank-info">
@@ -698,7 +729,9 @@
               <tr class="<%= index === 0 ? 'rank-1' : (index === 1 ? 'rank-2' : (index === 2 ? 'rank-3' : '')) %>">
                 <td>#<%= index + 1 %></td>
                 <td><%= performer.studentName %></td>
-                <td><%= performer.score %>/<%= report.score.total %></td>
+                <td>
+                  <%= performer.score %>/<%= report.combinedScore ? report.combinedScore.total : report.score.total %>
+                </td>
                 <td><%= new Date(performer.submittedAt).toLocaleString() %></td>
               </tr>
             <% }); %>
@@ -712,19 +745,23 @@
       <div class="time-analysis">
         <div class="info-item">
           <span class="info-label">Test Start Time:</span>
-          <span class="info-value"><%= report.timeAnalysis.startTime.toLocaleString() %></span>
+          <span class="info-value">
+            <%= report.timeAnalysis.startTime ? new Date(report.timeAnalysis.startTime).toLocaleString() : 'Not Available' %>
+          </span>
         </div>
         <div class="info-item">
           <span class="info-label">Test End Time:</span>
-          <span class="info-value"><%= report.timeAnalysis.endTime.toLocaleString() %></span>
+          <span class="info-value">
+            <%= report.timeAnalysis.endTime ? new Date(report.timeAnalysis.endTime).toLocaleString() : 'Not Available' %>
+          </span>
         </div>
         <div class="info-item">
           <span class="info-label">Test Duration:</span>
           <span class="info-value"><%= report.timeAnalysis.duration %>
-            <% if (report.timeAnalysis.durationInMinutes > 0) { %>
+            <% if (report.timeAnalysis.durationInMinutes && report.timeAnalysis.durationInMinutes > 0) { %>
               <small class="text-muted">(<%= report.timeAnalysis.durationInMinutes %> minutes)</small>
             <% } %>
-      </span>
+          </span>
         </div>
       </div>
     </section>
@@ -770,7 +807,8 @@
       </div>
     </section>
     
-    <!-- MCQ Questions Section -->
+    <!-- MCQ Questions Section - Only show if MCQ questions exist -->
+    <% if (report.questions && report.questions.length > 0) { %>
     <section class="card">
       <h2 class="card-title">MCQ Questions</h2>
       <div class="questions-list">
@@ -813,47 +851,53 @@
         <% }); %>
       </div>
     </section>
+    <% } %>
     
-    <!-- Coding Questions Section (if coding evaluation exists) -->
-    <% if (report.codingEvaluation) { %>
+    <!-- Coding Questions Section - Only show if coding evaluation exists -->
+    <% if (report.codingEvaluation || report.evaluationResult) { %>
     <section class="card">
       <h2 class="card-title">Coding Assessment</h2>
+      
+      <% 
+        // Use either codingEvaluation or evaluationResult depending on what's available
+        const codingData = report.codingEvaluation || report.evaluationResult;
+      %>
       
       <!-- Coding Summary Statistics -->
       <div class="coding-summary">
         <div class="info-item">
           <span class="info-label">Total Questions:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.totalQuestions || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.totalQuestions || (codingData.questions ? codingData.questions.length : 0) || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Attempted:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.attempted || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.attempted || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Correct:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.correct || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.correct || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Partial:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.partial || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.partial || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Incorrect:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.incorrect || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.incorrect || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Total Test Cases:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.totalTestCases || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.totalTestCases || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Passed Test Cases:</span>
-          <span class="info-value"><%= report.codingEvaluation.summary?.passedTestCases || 0 %></span>
+          <span class="info-value"><%= codingData.summary?.passedTestCases || 0 %></span>
         </div>
         <div class="info-item">
           <span class="info-label">Success Rate:</span>
           <span class="info-value">
-            <%= report.codingEvaluation.summary?.totalTestCases ? 
-                Math.round((report.codingEvaluation.summary.passedTestCases / report.codingEvaluation.summary.totalTestCases) * 100) : 
+            <%= codingData.summary?.totalTestCases ? 
+                Math.round((codingData.summary.passedTestCases / codingData.summary.totalTestCases) * 100) : 
                 0 %>%
           </span>
         </div>
@@ -861,18 +905,18 @@
       
       <!-- Individual Coding Questions -->
       <div class="questions-list">
-        <% if (report.codingEvaluation.questions && report.codingEvaluation.questions.length > 0) { %>
-          <% report.codingEvaluation.questions.forEach((question, index) => { %>
+        <% if (codingData.questions && codingData.questions.length > 0) { %>
+          <% codingData.questions.forEach((question, index) => { %>
             <div class="question-item">
               <div class="question-title">
-                <%= index + 1 %>. <%= question.title || 'Coding Question' %>
+                <%= index + 1 %>. <%= question.title || question.questionTitle || 'Coding Question' %>
                 <% if (question.classification) { %>
                   <span class="classification-badge"><%= question.classification %></span>
                 <% } %>
                 <span class="question-score 
                   <%= question.status === 'correct' ? 'question-score-success' : 
                      (question.status === 'partial' ? 'question-score-partial' : 'question-score-error') %>">
-                  <%= question.score %>/<%= question.maxScore %> pts
+                  <%= question.score || question.marks || 0 %>/<%= question.maxScore || question.maxMarks || 0 %> pts
                 </span>
               </div>
               
@@ -891,7 +935,7 @@
               <div class="test-cases-summary">
                 <div class="info-item">
                   <span class="info-label">Test Cases:</span>
-                  <span class="info-value"><%= question.testCasesPassed || 0 %>/<%= question.testCasesTotal || 0 %> passed</span>
+                  <span class="info-value"><%= question.testCasesPassed || 0 %>/<%= question.testCasesTotal || question.totalTestCases || 0 %> passed</span>
                 </div>
               </div>
               
@@ -1056,6 +1100,7 @@
         })
         .catch(error => {
           console.error('Error:', error);
+          alert('Error deleting records. Please try again.');
         })
         .finally(() => {
           modal.style.display = 'none';

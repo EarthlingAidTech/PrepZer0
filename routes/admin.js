@@ -58,6 +58,7 @@ router.route("/search_student").get(examController.searchStudent)
 
 // Get eligible students for an exam
 router.route('/exam/:examId/eligible-students').get(examController.getEligibleStudents);
+router.route('/validate_excel_usns').post(examController.validateExcelUSNs);
 
 
 

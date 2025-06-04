@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Exam</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- Include your CSS file here -->
+    <style>
+        :root {
+    --primary-color: #1D4ED8;
+    --primary-hover: #1e40af;
+    --secondary-color: #64748b;
+    --background-color: #111827;
+    --card-background: #1F2836;
+    --navbar-background: #2563eb;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --input-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+}
+
+body {
+    background-color: var(--background-color);
+    min-height: 100vh;
+    padding: 20px 0;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.top-navbar {
+    background-color: var(--navbar-background);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    background-color: rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.settings-button {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    background-color: rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.settings-button:hover {
+    background-color: rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+.form-card {
+    background-color: var(--card-background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: none;
+    overflow: hidden;
+    padding: 0;
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    padding: 18px 25px;
+    font-size: 1.2rem;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #e2e8f0;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #4b5563;
+    box-shadow: var(--input-shadow);
+    transition: all 0.2s ease;
+    background-color: #374151;
+    color: #e5e7eb;
+}
+
+.form-control::placeholder {
+    color: #9ca3af;
+}
+
+.form-control:focus, .form-select:focus {
+    color: #fff;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+    background-color: #3c4655;
+}
+
+.form-check-input {
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: 0.25em;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-label {
+    padding-left: 5px;
+    font-weight: 400;
+    color: #e2e8f0;
+}
+
+.btn-save-draft {
+    background-color: white;
+    color: #475569;
+    border: none;
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-save-draft:hover {
+    background-color: #f8fafc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-create-exam {
+    background-color: var(--navbar-background);
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-create-exam:hover {
+    background-color: #1e40af;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    border-color: #cbd5e1;
+    background-color: white;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f1f5f9;
+    color: #334155;
+    border-color: #cbd5e1;
+}
+
+/* Excel Upload Button */
+.btn-excel-upload {
+    background-color: #059669;
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.875rem;
+}
+
+.btn-excel-upload:hover {
+    background-color: #047857;
+    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+    color: white;
+}
+
+.departments-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.section-divider {
+    width: 100%;
+    height: 1px;
+    background-color: #4b5563;
+    margin: 15px 0;
+    grid-column: 1 / -1;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.date-time-group {
+    position: relative;
+}
+
+.date-time-group .icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    pointer-events: none;
+}
+
+.duration-quick-select {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.form-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+/* Excel Upload Section */
+.excel-upload-section {
+    border: 2px dashed #4b5563;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+    background-color: #2d3748;
+    transition: all 0.3s ease;
+}
+
+.excel-upload-section .upload-area {
+    text-align: center;
+    cursor: pointer;
+    padding: 20px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.excel-upload-section .upload-area:hover {
+    background-color: #374151;
+    border-color: #6b7280;
+}
+
+.excel-upload-section.drag-over .upload-area {
+    border-color: var(--primary-color);
+    background-color: rgba(29, 78, 216, 0.1);
+}
+
+.excel-upload-section .upload-icon {
+    font-size: 2rem;
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+.excel-upload-section .upload-text {
+    color: #e2e8f0;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.excel-upload-section .upload-subtext {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.excel-file-input {
+    display: none;
+}
+
+/* Excel Candidates Section */
+.excel-candidates-section {
+    border: 1px solid #4b5563;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    background-color: #2d3748;
+}
+
+.excel-candidates-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.excel-candidates-title {
+    color: #e2e8f0;
+    font-weight: 500;
+    margin: 0;
+}
+
+.excel-stats {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.excel-candidates-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    padding: 10px;
+    background-color: #374151;
+}
+
+.excel-candidate-item {
+    padding: 6px 10px;
+    margin: 2px 0;
+    background-color: #4b5563;
+    border-radius: 4px;
+    color: #e2e8f0;
+    font-size: 0.875rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.excel-candidate-usn {
+    font-weight: 500;
+    color: #93c5fd;
+}
+
+.excel-clear-btn {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.excel-clear-btn:hover {
+    background-color: #b91c1c;
+}
+
+/* Selected candidates styling */
+.selected-candidates-container {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #4b5563;
+    margin-top: 10px;
+}
+
+.candidate-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    margin: 4px;
+    background-color: #e0eaff;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    border: 1px solid #c7d7fe;
+}
+
+.candidate-badge .remove-btn {
+    margin-left: 8px;
+    color: #ef4444;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+/* Modal styling */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    background-color: var(--card-background);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 15px 20px;
+}
+
+.modal-title {
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    border-top: 1px solid #e2e8f0;
+    padding: 15px 20px;
+}
+
+.student-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 15px;
+    position: relative;
+    background-color: var(--card-background);
+    transition: all 0.2s ease;
+}
+
+.student-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.student-card.selected {
+    border-color: var(--primary-color);
+    background-color: #1a365d;
+}
+
+.student-card h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #e2e8f0;
+}
+
+.student-card p {
+    margin-bottom: 5px;
+    color: #cbd5e1;
+}
+
+.student-card .btn-select {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+}
+
+#durationDisplay {
+    margin-top: 8px;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+}
+
+/* Settings modal specific styles */
+.settings-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #374151;
+}
+
+.settings-option:last-child {
+    border-bottom: none;
+}
+
+.settings-option-info {
+    flex-grow: 1;
+}
+
+.settings-option-title {
+    font-weight: 600;
+    color: #e2e8f0;
+    margin-bottom: 5px;
+}
+
+.settings-option-desc {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+.form-switch {
+    padding-left: 2.5em;
+}
+
+.form-switch .form-check-input {
+    width: 2em;
+    margin-left: -2.5em;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280,0,0,.25%29'/%3e%3c/svg%3e");
+    background-position: left center;
+    background-size: contain;
+    border-radius: 2em;
+    transition: background-position .15s ease-in-out;
+}
+
+.form-switch .form-check-input:checked {
+    background-position: right center;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255,255,255,1.0%29'/%3e%3c/svg%3e");
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+/* Department required notice */
+.department-notice {
+    background-color: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 10px;
+    color: #92400e;
+    font-size: 0.875rem;
+    display: none;
+}
+
+.department-notice.show {
+    display: block;
+}
+
+/* Flatpickr custom styles */
+.flatpickr-calendar {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    border: none;
+}
+
+.flatpickr-day.selected {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.flatpickr-day:hover {
+    background: #e0eaff;
+}
+
+.flatpickr-time input:hover,
+.flatpickr-time .flatpickr-am-pm:hover,
+.flatpickr-time input:focus,
+.flatpickr-time .flatpickr-am-pm:focus {
+    background: #f8fafc;
+}
+
+/* Warning modal styles */
+.warning-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    align-items: center;
+    justify-content: center;
+}
+
+.warning-modal-content {
+    background-color: var(--card-background);
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.warning-modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.warning-modal-header i {
+    color: #f59e0b;
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.warning-modal-header h4 {
+    margin: 0;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.warning-modal-body {
+    margin-bottom: 20px;
+    color: #cbd5e1;
+}
+
+.warning-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .form-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .form-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .card-header-buttons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="card form-card">
+            <div class="card-header">
+                <span>Exam Details</span>
+                <div class="card-header-buttons">
+                    <button type="button" class="settings-button" data-bs-toggle="modal" data-bs-target="#settingsModal">
+                        <i class="bi bi-gear"></i> Settings
+                    </button>
+                    <a href="/admin" class="back-button">
+                        <i class="bi bi-arrow-left"></i> Back to Admin Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form id="createExamForm" action="/admin/create_exam" method="POST">
+                    <div class="form-content">
+                        <div class="form-group">
+                            <label for="examName" class="form-label">Exam Name</label>
+                            <input type="text" id="examName" name="name" class="form-control" placeholder="Enter exam name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="semester" class="form-label">Semester</label>
+                            <select id="semester" name="semester" class="form-select" required>
+                                <option value="" disabled selected>Select semester</option>
+                                <option value="1">Semester 1</option>
+                                <option value="2">Semester 2</option>
+                                <option value="3">Semester 3</option>
+                                <option value="4">Semester 4</option>
+                                <option value="5">Semester 5</option>
+                                <option value="6">Semester 6</option>
+                                <option value="7">Semester 7</option>
+                                <option value="8">Semester 8</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group" style="grid-column: 3; text-align: right;">
+                            <label class="form-label" style="color: transparent;">Save</label>
+                            <div>
+                                <button type="submit" name="draft" value="draft" class="btn-save-draft">
+                                    <i class="bi bi-save"></i> Save Draft
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label">Departments</label>
+                            <div class="departments-container">
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-mca" name="departments" value="mc" class="form-check-input">
+                                    <label class="form-check-label" for="dept-mca">MCA</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ise" name="departments" value="is" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ise">ISE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-cse" name="departments" value="cs" class="form-check-input">
+                                    <label class="form-check-label" for="dept-cse">CSE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ete" name="departments" value="et" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ete">ETE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ece" name="departments" value="ec" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ece">ECE</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-ai" name="departments" value="ai" class="form-check-input">
+                                    <label class="form-check-label" for="dept-ai">AI</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" id="dept-civil" name="departments" value="cv" class="form-check-input">
+                                    <label class="form-check-label" for="dept-civil">Civil</label>
+                                </div>
+                            </div>
+
+                            <!-- Department requirement notice -->
+                            <div id="departmentNotice" class="department-notice">
+                                <i class="bi bi-info-circle"></i> 
+                                Department and semester selection is not required when adding candidates via Excel upload only.
+                            </div>
+                            
+                            <div class="mt-3 d-flex justify-content-between">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#selectCandidatesModal">
+                                        <i class="bi bi-person-plus"></i> Select Additional Candidates
+                                    </button>
+                                    <button type="button" class="btn-excel-upload" onclick="triggerExcelUpload()">
+                                        <i class="bi bi-file-earmark-excel"></i> Add Candidates Using Excel
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadExcelTemplate()">
+                                        <i class="bi bi-download"></i> Download Template
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#excelHelpModal">
+                                        <i class="bi bi-question-circle"></i> Format Help
+                                    </button>
+                                </div>
+                                <button type="submit" name="action" value="create" class="btn-create-exam">
+                                    <i class="bi bi-check-circle"></i> Create Exam
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Excel Upload Section -->
+                        <div id="excelUploadSection" class="excel-upload-section full-width" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0 text-light">Upload Excel File</h6>
+                                <button type="button" class="btn-close btn-close-white" onclick="hideExcelUpload()" aria-label="Close"></button>
+                            </div>
+                            <div onclick="triggerFileUpload()" style="cursor: pointer;">
+                                <div class="upload-icon">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </div>
+                                <div class="upload-text">Click to upload Excel file or drag and drop</div>
+                                <div class="upload-subtext">
+                                    Supported formats: .xlsx, .xls<br>
+                                    <small><strong>Required:</strong> Excel file must contain a column with "USN" in the header</small>
+                                </div>
+                            </div>
+                            <input type="file" id="excelFileInput" class="excel-file-input" accept=".xlsx,.xls" onchange="handleExcelUpload(event)">
+                        </div>
+
+                        <!-- Excel Candidates Display -->
+                        <div id="excelCandidatesSection" class="excel-candidates-section full-width" style="display: none;">
+                            <div class="excel-candidates-header">
+                                <h6 class="excel-candidates-title">Excel Candidates</h6>
+                                <div class="excel-stats">
+                                    <span id="excelCandidatesCount">0</span> candidates found
+                                    <button type="button" class="excel-clear-btn ms-2" onclick="clearExcelCandidates()">
+                                        <i class="bi bi-x"></i> Clear
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="excelCandidatesList" class="excel-candidates-list"></div>
+                            <!-- Hidden input to store excel candidates USNs -->
+                            <input type="hidden" id="excelCandidatesInput" name="excelCandidates">
+                        </div>
+                        
+                        <!-- Selected candidates display section -->
+                        <div id="selectedCandidatesSection" class="selected-candidates-container full-width" style="display: none;">
+                            <label class="form-label">Selected Additional Candidates</label>
+                            <div id="selectedCandidatesList" class="mt-2"></div>
+                            <!-- Hidden input to store selected candidates USNs -->
+                            <input type="hidden" id="selectedCandidatesInput" name="additionalCandidates">
+                        </div>
+
+                        <div class="section-divider"></div>
+
+                        <div class="form-group">
+                            <label for="questionType" class="form-label">Question Type</label>
+                            <select id="questionType" name="questionType" class="form-select" onchange="toggleQuestionFields()" required>
+                                <option value="mcq">MCQ</option>
+                                <option value="coding">Coding</option>
+                                <option value="mcq&coding">MCQ + Coding</option>
+                            </select>
+                        </div>
+
+                        <div id="mcqFields" class="form-group" style="display: none;">
+                            <label for="numMCQs" class="form-label">Number of MCQ Questions</label>
+                            <input type="number" id="numMCQs" name="numMCQs" class="form-control" onchange="updateTotalQuestions()" placeholder="Enter MCQ count">
+                        </div>
+
+                        <div id="codingFields" class="form-group" style="display: none;">
+                            <label for="numCoding" class="form-label">Number of Coding Questions</label>
+                            <input type="number" id="numCoding" name="numCoding" class="form-control" onchange="updateTotalQuestions()" placeholder="Enter coding count">
+                        </div>
+
+                        <div id="totalQuestionFields" class="form-group" style="display: none;">
+                            <label for="numTotalQuestions" class="form-label">Total Questions</label>
+                            <input type="number" id="numTotalQuestions" name="numTotalQuestions" class="form-control" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="duration" class="form-label">Duration (minutes)</label>
+                            <input type="number" id="duration" name="Duration" class="form-control" placeholder="Enter duration">
+                            <!-- Quick duration buttons -->
+                            <div class="duration-quick-select">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(30)">30m</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(60)">1h</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(90)">1.5h</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDuration(120)">2h</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scheduledAt" class="form-label">Exam Start Time</label>
+                            <div class="date-time-group">
+                                <input type="text" id="scheduledAt" name="scheduledAt" class="form-control" placeholder="Select date and time" readonly>
+                                <span class="icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scheduleTill" class="form-label">Exam End Time</label>
+                            <div class="date-time-group">
+                                <input type="text" id="scheduleTill" name="scheduleTill" class="form-control" placeholder="Select date and time" readonly>
+                                <span class="icon"><i class="bi bi-calendar-event"></i></span>
+                            </div>
+                            <div id="durationDisplay"></div>
+                        </div>
+
+                        <div class="text-center mt-3" style="grid-column: span 2;">
+                            <button type="button" class="btn btn-outline-primary" id="calculateEndTime">
+                                <i class="bi bi-calculator"></i> Calculate End Time From Duration
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden inputs for settings -->
+                    <input type="hidden" id="cameraSettingInput" name="settings[camera]" value="false">
+                    <input type="hidden" id="phoneSettingInput" name="settings[phone]" value="true">
+                    <input type="hidden" id="showResultsSettingInput" name="settings[showResults]" value="false">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">
+                        <i class="bi bi-gear me-2"></i>Exam Settings
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <div class="settings-option-title">Camera Monitoring</div>
+                            <div class="settings-option-desc">Enable camera access to monitor students during the exam</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="cameraSetting" onchange="updateSettingsInputs()">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <div class="settings-option-title">Phone Detection</div>
+                            <div class="settings-option-desc">Block or warn students when phone usage is detected</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="phoneSetting" checked onchange="updateSettingsInputs()">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-option">
+                        <div class="settings-option-info">
+                            <div class="settings-option-title">Show Results</div>
+                            <div class="settings-option-desc">Display exam results to students immediately after completion</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showResultsSetting" onchange="updateSettingsInputs()">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Select Candidates Modal -->
+    <div class="modal fade" id="selectCandidatesModal" tabindex="-1" aria-labelledby="selectCandidatesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectCandidatesModalLabel">Select Additional Candidates</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="usnInput" class="form-control" placeholder="Enter student USN">
+                        <button class="btn btn-primary" type="button" id="searchUsnBtn">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <div id="studentSearchResults" class="mt-3">
+                        <!-- Student cards will be dynamically added here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveSelectedCandidates">Save Selected</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excel Help Modal -->
+    <div class="modal fade" id="excelHelpModal" tabindex="-1" aria-labelledby="excelHelpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="excelHelpModalLabel">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Excel File Format Guide
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <strong>Required:</strong> Your Excel file must contain a column with "USN" in the header name.
+                    </div>
+                    
+                    <h6><i class="bi bi-check-circle text-success"></i> Accepted File Formats:</h6>
+                    <ul>
+                        <li>.xlsx (Excel 2007+)</li>
+                        <li>.xls (Excel 97-2003)</li>
+                    </ul>
+                    
+                    <h6><i class="bi bi-check-circle text-success"></i> Accepted USN Column Names:</h6>
+                    <ul>
+                        <li>USN</li>
+                        <li>Student USN</li>
+                        <li>Roll Number</li>
+                        <li>Registration Number</li>
+                        <li>Any column containing "USN"</li>
+                    </ul>
+                    
+                    <h6><i class="bi bi-table"></i> Sample Format:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>USN</th>
+                                    <th>Student Name</th>
+                                    <th>Department</th>
+                                    <th>Semester</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1AB21CS001</td>
+                                    <td>John Doe</td>
+                                    <td>Computer Science</td>
+                                    <td>5</td>
+                                </tr>
+                                <tr>
+                                    <td>1AB21IS002</td>
+                                    <td>Jane Smith</td>
+                                    <td>Information Science</td>
+                                    <td>5</td>
+                                </tr>
+                                <tr>
+                                    <td>1AB21EC003</td>
+                                    <td>Bob Johnson</td>
+                                    <td>Electronics</td>
+                                    <td>4</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Note:</strong> Only the USN column is required. Other columns (Name, Department, Semester) are optional and will be ignored during processing.
+                    </div>
+                    
+                    <h6><i class="bi bi-gear"></i> Processing Details:</h6>
+                    <ul>
+                        <li>System automatically finds the USN column</li>
+                        <li>Duplicate USNs are automatically removed</li>
+                        <li>Empty USN cells are skipped</li>
+                        <li>All USNs are converted to uppercase</li>
+                        <li>Other columns are ignored</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="downloadExcelTemplate(); bootstrap.Modal.getInstance(document.getElementById('excelHelpModal')).hide();">
+                        <i class="bi bi-download"></i> Download Template
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Past Date Warning Modal -->
+    <div class="warning-modal" id="pastDateWarningModal">
+        <div class="warning-modal-content">
+            <div class="warning-modal-header">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <h4>Invalid Date Selection</h4>
+            </div>
+            <div class="warning-modal-body">
+                <p>You cannot schedule an exam in the past. Please select a future date and time.</p>
+            </div>
+            <div class="warning-modal-footer">
+                <button type="button" class="btn btn-primary" onclick="closePastDateWarning()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add required JS libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        // Initialize the selected candidates arrays
+        let selectedCandidates = [];
+        let excelCandidates = [];
+        let startDatePicker, endDatePicker;
+        
+        // Settings object to track current settings
+        let examSettings = {
+            camera: false,
+            phone: true,
+            showResults: false
+        };
+        
+        function toggleQuestionFields() {
+            const type = document.getElementById("questionType").value;
+            document.getElementById("mcqFields").style.display = type === "mcq" || type === "mcq&coding" ? "block" : "none";
+            document.getElementById("codingFields").style.display = type === "coding" || type === "mcq&coding" ? "block" : "none";
+            document.getElementById("totalQuestionFields").style.display = type === "mcq&coding" ? "block" : "none";
+            
+            // Auto-update total questions when toggle happens
+            updateTotalQuestions();
+        }
+        
+        // Function to update settings inputs
+        function updateSettingsInputs() {
+            examSettings.camera = document.getElementById('cameraSetting').checked;
+            examSettings.phone = document.getElementById('phoneSetting').checked;
+            examSettings.showResults = document.getElementById('showResultsSetting').checked;
+            
+            // Update hidden inputs
+            document.getElementById('cameraSettingInput').value = examSettings.camera;
+            document.getElementById('phoneSettingInput').value = examSettings.phone;
+            document.getElementById('showResultsSettingInput').value = examSettings.showResults;
+        }
+        
+        // Function to show past date warning modal
+        function showPastDateWarning() {
+            document.getElementById('pastDateWarningModal').style.display = 'flex';
+        }
+        
+        // Function to close past date warning modal
+        function closePastDateWarning() {
+            document.getElementById('pastDateWarningModal').style.display = 'none';
+        }
+        
+        // New function to automatically update total questions
+        function updateTotalQuestions() {
+            const type = document.getElementById("questionType").value;
+            if (type === "mcq&coding") {
+                const mcqCount = parseInt(document.getElementById("numMCQs").value) || 0;
+                const codingCount = parseInt(document.getElementById("numCoding").value) || 0;
+                document.getElementById("numTotalQuestions").value = mcqCount + codingCount;
+            }
+        }
+        
+        // Function to set duration quickly
+        function setDuration(minutes) {
+            document.getElementById('duration').value = minutes;
+        }
+        
+        // Function to check if a date is in the past
+        function isDateInPast(date) {
+            const now = new Date();
+            // Add a small buffer (5 seconds) to prevent false positives during input
+            now.setSeconds(now.getSeconds() - 5);
+            return date < now;
+        }
+        
+        // Function to get a default future date (current time + 1 hour)
+        function getDefaultFutureDate() {
+            const defaultTime = new Date();
+            defaultTime.setHours(defaultTime.getHours() + 1);
+            return defaultTime;
+        }
+
+        // Function to download Excel template
+        function downloadExcelTemplate() {
+            // Create a new workbook
+            const wb = XLSX.utils.book_new();
+            
+            // Create sample data for the template
+            const sampleData = [
+                ['USN', 'Student Name', 'Department', 'Semester'],
+                ['1AB21CS001', 'John Doe', 'Computer Science', '5'],
+                ['1AB21IS002', 'Jane Smith', 'Information Science', '5'],
+                ['1AB21EC003', 'Bob Johnson', 'Electronics', '4'],
+                ['', '', '', ''],
+                ['', '', '', '']
+            ];
+            
+            // Create worksheet
+            const ws = XLSX.utils.aoa_to_sheet(sampleData);
+            
+            // Set column widths
+            ws['!cols'] = [
+                { width: 15 }, // USN
+                { width: 20 }, // Name
+                { width: 20 }, // Department
+                { width: 10 }  // Semester
+            ];
+            
+            // Add the worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, "Student_List");
+            
+            // Save the file
+            XLSX.writeFile(wb, "Student_Upload_Template.xlsx");
+        }
+
+        // Excel Upload Functions
+        function triggerExcelUpload() {
+            // Show the Excel upload section
+            document.getElementById('excelUploadSection').style.display = 'block';
+        }
+
+        function triggerFileUpload() {
+            // Trigger the file input when the upload area is clicked
+            document.getElementById('excelFileInput').click();
+        }
+
+        function hideExcelUpload() {
+            // Hide the Excel upload section
+            document.getElementById('excelUploadSection').style.display = 'none';
+        }
+        
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading state
+            const uploadSection = document.getElementById('excelUploadSection');
+            const originalContent = uploadSection.innerHTML;
+            uploadSection.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="mt-2 text-light">Processing Excel file...</div>
+                </div>
+            `;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // Get the first worksheet
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    // Convert to JSON
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (jsonData.length === 0) {
+                        alert('The Excel file appears to be empty.');
+                        uploadSection.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    // Find USN column
+                    const headers = jsonData[0];
+                    if (!headers) {
+                        alert('No headers found in the Excel file.');
+                        uploadSection.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    const usnColumnIndex = headers.findIndex(header => 
+                        header && header.toString().toLowerCase().includes('usn')
+                    );
+                    
+                    if (usnColumnIndex === -1) {
+                        alert(`USN column not found in the Excel file. 
+
+Please ensure your Excel file has a column with "USN" in the header.
+
+Accepted header names:
+- USN
+- Student USN  
+- Roll Number USN
+- Registration USN
+
+Current headers found: ${headers.join(', ')}`);
+                        uploadSection.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    // Extract USNs (skip header row)
+                    const usns = [];
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const usn = jsonData[i][usnColumnIndex];
+                        if (usn && usn.toString().trim()) {
+                            usns.push(usn.toString().trim().toUpperCase());
+                        }
+                    }
+                    
+                    if (usns.length === 0) {
+                        alert('No valid USNs found in the Excel file.');
+                        uploadSection.innerHTML = originalContent;
+                        return;
+                    }
+                    
+                    // Remove duplicates
+                    const uniqueUSNs = [...new Set(usns)];
+                    
+                    // Send USNs to backend for validation and processing
+                    processExcelUSNs(uniqueUSNs, uploadSection);
+                    
+                } catch (error) {
+                    alert('Error reading Excel file: ' + error.message);
+                    console.error('Excel parsing error:', error);
+                    uploadSection.innerHTML = originalContent;
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('Error reading the file. Please try again.');
+                uploadSection.innerHTML = originalContent;
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Function to process Excel USNs by checking against User model
+        function processExcelUSNs(usns, uploadSection) {
+            // Show processing state
+            uploadSection.innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Processing...</span>
+                    </div>
+                    <div class="mt-2 text-light">Validating USNs against database...</div>
+                </div>
+            `;
+            
+            // Send USNs to backend for validation
+            fetch('/admin/validate_excel_usns', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ usns: usns })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                // Check if response is actually JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        console.error('Received non-JSON response:', text);
+                        throw new Error('Server returned HTML instead of JSON. Check if the route exists.');
+                    });
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update excel candidates with validated data
+                    excelCandidates = data.validatedStudents;
+                    updateExcelCandidatesDisplay();
+                    updateDepartmentRequirement();
+                    
+                    // Hide upload section
+                    uploadSection.style.display = 'none';
+                    
+                    // Show detailed success message
+                    showExcelValidationResults(data);
+                    
+                } else {
+                    alert('Error validating USNs: ' + (data.message || 'Unknown error'));
+                    // Reset upload section
+                    resetUploadSection(uploadSection);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing Excel file: ' + error.message);
+                resetUploadSection(uploadSection);
+            });
+        }
+        
+        function updateExcelCandidatesDisplay() {
+            const section = document.getElementById('excelCandidatesSection');
+            const list = document.getElementById('excelCandidatesList');
+            const count = document.getElementById('excelCandidatesCount');
+            
+            if (excelCandidates.length > 0) {
+                count.textContent = excelCandidates.length;
+                
+                let html = '';
+                excelCandidates.forEach(candidate => {
+                    const statusIcon = candidate.foundInDatabase ? 
+                        '<i class="bi bi-check-circle-fill text-success" title="Found in database"></i>' : 
+                        '<i class="bi bi-exclamation-triangle-fill text-warning" title="Not found in database"></i>';
+                    
+                    const studentInfo = candidate.foundInDatabase ? 
+                        `${candidate.name} (${candidate.department})` : 
+                        'Not registered';
+                    
+                    html += `
+                        <div class="excel-candidate-item">
+                            <div>
+                                <span class="excel-candidate-usn">${candidate.usn}</span>
+                                <br>
+                                <small class="text-muted">${studentInfo}</small>
+                            </div>
+                            <div>${statusIcon}</div>
+                        </div>
+                    `;
+                });
+                
+                list.innerHTML = html;
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+        
+        function updateDepartmentRequirement() {
+            const departmentSection = document.querySelector('#departmentSection');
+            const semesterSection = document.querySelector('#semesterSection');
+            
+            if (excelCandidates.length > 0) {
+                // If excel candidates are present, make departments and semester optional
+                if (departmentSection) {
+                    const label = departmentSection.querySelector('label');
+                    if (label) {
+                        label.innerHTML = label.innerHTML.replace(' *', '');
+                        label.innerHTML += ' <small class="text-muted">(Optional when Excel uploaded)</small>';
+                    }
+                }
+                
+                if (semesterSection) {
+                    const label = semesterSection.querySelector('label');
+                    if (label) {
+                        label.innerHTML = label.innerHTML.replace(' *', '');
+                        label.innerHTML += ' <small class="text-muted">(Optional when Excel uploaded)</small>';
+                    }
+                }
+            } else {
+                // If no excel candidates, make departments and semester required
+                if (departmentSection) {
+                    const label = departmentSection.querySelector('label');
+                    if (label && !label.innerHTML.includes(' *')) {
+                        label.innerHTML = label.innerHTML.replace(' <small class="text-muted">(Optional when Excel uploaded)</small>', '');
+                        label.innerHTML += ' *';
+                    }
+                }
+                
+                if (semesterSection) {
+                    const label = semesterSection.querySelector('label');
+                    if (label && !label.innerHTML.includes(' *')) {
+                        label.innerHTML = label.innerHTML.replace(' <small class="text-muted">(Optional when Excel uploaded)</small>', '');
+                        label.innerHTML += ' *';
+                    }
+                }
+            }
+        }
+        function showExcelValidationResults(data) {
+            const { 
+                totalUSNs, 
+                foundInDatabase, 
+                notFoundInDatabase, 
+                foundStudents, 
+                notFoundUSNs 
+            } = data;
+            
+            // Create detailed alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-info alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <h6><i class="bi bi-file-earmark-excel"></i> Excel Processing Complete</h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>📊 Summary:</strong><br>
+                        • Total USNs processed: <span class="badge bg-primary">${totalUSNs}</span><br>
+                        • Found in database: <span class="badge bg-success">${foundInDatabase}</span><br>
+                        • Not found in database: <span class="badge bg-warning">${notFoundInDatabase}</span>
+                    </div>
+                    ${notFoundInDatabase > 0 ? `
+                    <div class="col-md-6">
+                        <strong>⚠️ USNs not found:</strong><br>
+                        <small class="text-muted">${notFoundUSNs.slice(0, 5).join(', ')}${notFoundUSNs.length > 5 ? ` and ${notFoundUSNs.length - 5} more...` : ''}</small>
+                    </div>
+                    ` : ''}
+                </div>
+                <hr>
+                <small><strong>Note:</strong> Students found in database will have complete details. Students not found will be added with USN only.</small>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            const uploadSection = document.getElementById('excelUploadSection');
+            uploadSection.parentNode.insertBefore(alertDiv, uploadSection);
+            
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 10000);
+        }
+        
+        // Function to reset upload section to original state
+        function resetUploadSection(uploadSection) {
+            uploadSection.innerHTML = `
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0 text-light">Upload Excel File</h6>
+                    <button type="button" class="btn-close btn-close-white" onclick="hideExcelUpload()" aria-label="Close"></button>
+                </div>
+                <div onclick="triggerFileUpload()" style="cursor: pointer;">
+                    <div class="upload-icon">
+                        <i class="bi bi-cloud-upload"></i>
+                    </div>
+                    <div class="upload-text">Click to upload Excel file or drag and drop</div>
+                    <div class="upload-subtext">
+                        Supported formats: .xlsx, .xls<br>
+                        <small><strong>Required:</strong> Excel file must contain a column with "USN" in the header</small>
+                    </div>
+                </div>
+                <input type="file" id="excelFileInput" class="excel-file-input" accept=".xlsx,.xls" onchange="handleExcelUpload(event)">
+            `;
+        }
+            const section = document.getElementById('excelCandidatesSection');
+            const list = document.getElementById('excelCandidatesList');
+            const count = document.getElementById('excelCandidatesCount');
+            
+            if (excelCandidates.length > 0) {
+                count.textContent = excelCandidates.length;
+                
+                let html = '';
+                excelCandidates.forEach(candidate => {
+                    html += `
+                        <div class="excel-candidate-item">
+                            <span class="excel-candidate-usn">${candidate.usn}</span>
+                        </div>
+                    `;
+                });
+                
+                list.innerHTML = html;
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        
+
+        function clearExcelCandidates() {
+            excelCandidates = [];
+            document.getElementById('excelCandidatesSection').style.display = 'none';
+            document.getElementById('excelUploadSection').style.display = 'none';
+            document.getElementById('excelFileInput').value = '';
+            updateDepartmentRequirement();
+        }
+
+        function updateDepartmentRequirement() {
+            const notice = document.getElementById('departmentNotice');
+            const departmentCheckboxes = document.querySelectorAll('input[name="departments"]');
+            const semesterSelect = document.getElementById('semester');
+            
+            // Only show notice and remove requirement if ONLY Excel candidates are present
+            // If individual candidates are also present, departments are still required
+            if (excelCandidates.length > 0 && selectedCandidates.length === 0) {
+                // Show notice and remove required from departments and semester
+                notice.classList.add('show');
+                departmentCheckboxes.forEach(checkbox => {
+                    checkbox.removeAttribute('required');
+                });
+                semesterSelect.removeAttribute('required');
+            } else {
+                // Hide notice - departments and semester are required
+                notice.classList.remove('show');
+                semesterSelect.setAttribute('required', '');
+                // Note: departments don't have required attribute in HTML, validation is handled in JS
+            }
+        }
+
+        // Setup drag and drop for excel upload
+        function setupDragAndDrop() {
+            const uploadSection = document.getElementById('excelUploadSection');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadSection.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadSection.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadSection.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                uploadSection.classList.add('drag-over');
+            }
+            
+            function unhighlight(e) {
+                uploadSection.classList.remove('drag-over');
+            }
+            
+            uploadSection.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                        document.getElementById('excelFileInput').files = files;
+                        handleExcelUpload({ target: { files: [file] } });
+                    } else {
+                        alert('Please upload only Excel files (.xlsx or .xls)');
+                    }
+                }
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleQuestionFields();
+            updateSettingsInputs(); // Initialize settings inputs
+            setupDragAndDrop(); // Setup drag and drop functionality
+            
+            // Initialize Flatpickr date pickers
+            const commonConfig = {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                minuteIncrement: 5,
+                allowInput: true
+            };
+            
+            // Start date picker
+            startDatePicker = flatpickr("#scheduledAt", {
+                ...commonConfig,
+                minDate: "today",
+                onClose: function(selectedDates, dateStr) {
+                    // Check if selected date is in the past
+                    if (selectedDates[0] && isDateInPast(selectedDates[0])) {
+                        showPastDateWarning();
+                        
+                        // Reset to a reasonable future time
+                        setTimeout(() => {
+                            startDatePicker.setDate(getDefaultFutureDate());
+                        }, 100);
+                        return;
+                    }
+                    
+                    // Update the minimum date of the end date picker
+                    if (dateStr) {
+                        endDatePicker.set('minDate', dateStr);
+                    }
+                    
+                    // If end date is before start date, update it
+                    if (endDatePicker.selectedDates[0] && selectedDates[0] && endDatePicker.selectedDates[0] < selectedDates[0]) {
+                        endDatePicker.setDate(selectedDates[0]);
+                    }
+                    
+                    updateDurationDisplay();
+                },
+                onChange: function() {
+                    // Just update the display without validation
+                    updateDurationDisplay();
+                }
+            });
+            
+            // End date picker
+            endDatePicker = flatpickr("#scheduleTill", {
+                ...commonConfig,
+                minDate: "today",
+                onClose: function(selectedDates) {
+                    // Check if selected date is in the past
+                    if (selectedDates[0] && isDateInPast(selectedDates[0])) {
+                        showPastDateWarning();
+                        
+                        // Reset to a reasonable future time
+                        setTimeout(() => {
+                            endDatePicker.setDate(getDefaultFutureDate());
+                        }, 100);
+                        return;
+                    }
+                    
+                    updateDurationDisplay();
+                },
+                onChange: function() {
+                    // Just update the display without validation
+                    updateDurationDisplay();
+                }
+            });
+            
+            // Calculate end time button
+            document.getElementById('calculateEndTime').addEventListener('click', function() {
+                const duration = parseInt(document.getElementById('duration').value);
+                const startDate = startDatePicker.selectedDates[0];
+                
+                if (isNaN(duration) || !startDate) {
+                    alert('Please enter a valid duration and start time first');
+                    return;
+                }
+                
+                // Calculate end time
+                const endDate = new Date(startDate.getTime() + duration * 60000);
+                endDatePicker.setDate(endDate);
+            });
+            
+            // Search button click handler
+            document.getElementById('searchUsnBtn').addEventListener('click', function() {
+                const usn = document.getElementById('usnInput').value.trim();
+                if (usn) {
+                    searchStudent(usn);
+                }
+            });
+            
+            // USN input enter key handler
+            document.getElementById('usnInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    document.getElementById('searchUsnBtn').click();
+                }
+            });
+            
+            // Save selected candidates button handler
+            document.getElementById('saveSelectedCandidates').addEventListener('click', function() {
+                updateSelectedCandidatesDisplay();
+                // Close the modal
+                bootstrap.Modal.getInstance(document.getElementById('selectCandidatesModal')).hide();
+            });
+            
+            // Form submission handler
+            document.getElementById('createExamForm').addEventListener('submit', function(e) {
+                // Prepare selected candidates for form submission
+                document.getElementById('selectedCandidatesInput').value = JSON.stringify(selectedCandidates);
+                
+                // Prepare excel candidates for form submission
+                document.getElementById('excelCandidatesInput').value = JSON.stringify(excelCandidates);
+                
+                // Update settings inputs before submission
+                updateSettingsInputs();
+                
+                // Validate form
+                if (!validateForm()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Add event listeners for MCQ and Coding inputs to update total
+            document.getElementById('numMCQs').addEventListener('input', updateTotalQuestions);
+            document.getElementById('numCoding').addEventListener('input', updateTotalQuestions);
+            
+            // Add event listeners for settings toggles
+            document.getElementById('cameraSetting').addEventListener('change', updateSettingsInputs);
+            document.getElementById('phoneSetting').addEventListener('change', updateSettingsInputs);
+            document.getElementById('showResultsSetting').addEventListener('change', updateSettingsInputs);
+        });
+        
+        // Function to update the duration display
+        function updateDurationDisplay() {
+            const startDate = startDatePicker.selectedDates[0];
+            const endDate = endDatePicker.selectedDates[0];
+            
+            if (startDate && endDate) {
+                if (endDate < startDate) {
+                    document.getElementById('durationDisplay').innerHTML = 
+                        '<span class="text-danger">End time must be after start time</span>';
+                    return;
+                }
+                
+                const diffMs = endDate - startDate;
+                const diffMins = Math.round(diffMs / 60000);
+                const hours = Math.floor(diffMins / 60);
+                const mins = diffMins % 60;
+                
+                let durationText = '';
+                if (hours > 0) {
+                    durationText += hours + ' hour' + (hours > 1 ? 's' : '');
+                }
+                if (mins > 0) {
+                    if (durationText) durationText += ' and ';
+                    durationText += mins + ' minute' + (mins > 1 ? 's' : '');
+                }
+                
+                document.getElementById('durationDisplay').innerHTML = 
+                    `Exam duration: <strong>${durationText}</strong>`;
+                
+                // Update the duration input if it's empty
+                if (!document.getElementById('duration').value) {
+                    document.getElementById('duration').value = diffMins;
+                }
+            } else {
+                document.getElementById('durationDisplay').innerHTML = '';
+            }
+        }
+        
+        // Form validation function
+        function validateForm() {
+            const startDate = startDatePicker.selectedDates[0];
+            const endDate = endDatePicker.selectedDates[0];
+            const duration = document.getElementById('duration').value;
+            const examName = document.getElementById('examName').value;
+            const departments = document.querySelectorAll('input[name="departments"]:checked');
+            const semester = document.getElementById('semester').value;
+            
+            if (!examName.trim()) {
+                alert('Please enter an exam name');
+                return false;
+            }
+
+            // Department and semester validation logic:
+            // - Required if no Excel candidates
+            // - Required if individual candidates are present (even with Excel candidates)
+            // - Not required ONLY if Excel candidates exist and no individual candidates
+            const onlyExcelCandidates = excelCandidates.length > 0 && selectedCandidates.length === 0;
+            
+            if (!onlyExcelCandidates) {
+                // Departments and semester are required
+                if (departments.length === 0) {
+                    alert('Please select at least one department');
+                    return false;
+                }
+                
+                if (!semester) {
+                    alert('Please select a semester');
+                    return false;
+                }
+            }
+
+            // Check if at least one method of candidate selection is used
+            if (departments.length === 0 && selectedCandidates.length === 0 && excelCandidates.length === 0) {
+                alert('Please select at least one department or add candidates individually/via Excel');
+                return false;
+            }
+            
+            if (!startDate) {
+                alert('Please select a start time for the exam');
+                return false;
+            }
+            
+            if (isDateInPast(startDate)) {
+                showPastDateWarning();
+                return false;
+            }
+            
+            if (!endDate) {
+                alert('Please select an end time for the exam');
+                return false;
+            }
+            
+            if (endDate <= startDate) {
+                alert('End time must be after start time');
+                return false;
+            }
+            
+            if (!duration || isNaN(duration) || duration <= 0) {
+                alert('Please enter a valid duration');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Function to search for a student by USN
+        function searchStudent(usn) {
+            // Show loading indicator
+            document.getElementById('studentSearchResults').innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+            
+            // Make AJAX request to backend
+            fetch(`/admin/search_student?usn=${encodeURIComponent(usn)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayStudentCard(data.student);
+                    } else {
+                        document.getElementById('studentSearchResults').innerHTML = 
+                            `<div class="alert alert-warning">No student found with USN: ${usn}</div>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('studentSearchResults').innerHTML = 
+                        `<div class="alert alert-danger">Error searching for student: ${error.message}</div>`;
+                });
+        }
+        
+        // Function to display student card
+        function displayStudentCard(student) {
+            const resultsContainer = document.getElementById('studentSearchResults');
+            
+            // Check if student is already selected
+            const isSelected = selectedCandidates.some(c => c.usn === student.usn);
+            
+            const cardHtml = `
+                <div class="student-card ${isSelected ? 'selected' : ''}" data-usn="${student.usn}">
+                    <button type="button" class="btn ${isSelected ? 'btn-success' : 'btn-outline-primary'} btn-sm btn-select" 
+                            onclick="toggleStudentSelection('${student.usn}', '${student.name}', '${student.department}')">
+                        ${isSelected ? '<i class="bi bi-check"></i> Selected' : 'Select'}
+                    </button>
+                    <h5>${student.name}</h5>
+                    <p><strong>USN:</strong> ${student.usn}</p>
+                    <p><strong>Department:</strong> ${student.department}</p>
+                    <p><strong>Semester:</strong> ${student.semester}</p>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = cardHtml;
+        }
+        
+        // Function to toggle student selection
+        function toggleStudentSelection(usn, name, department) {
+            const index = selectedCandidates.findIndex(c => c.usn === usn);
+            const studentCard = document.querySelector(`.student-card[data-usn="${usn}"]`);
+            const selectBtn = studentCard.querySelector('.btn-select');
+            
+            if (index === -1) {
+                // Add student to selected candidates
+                selectedCandidates.push({ usn, name, department });
+                studentCard.classList.add('selected');
+                selectBtn.classList.remove('btn-outline-primary');
+                selectBtn.classList.add('btn-success');
+                selectBtn.innerHTML = '<i class="bi bi-check"></i> Selected';
+            } else {
+                // Remove student from selected candidates
+                selectedCandidates.splice(index, 1);
+                studentCard.classList.remove('selected');
+                selectBtn.classList.remove('btn-success');
+                selectBtn.classList.add('btn-outline-primary');
+                selectBtn.innerHTML = 'Select';
+            }
+            
+            updateDepartmentRequirement();
+        }
+        
+        // Function to update the selected candidates display in the main form
+        function updateSelectedCandidatesDisplay() {
+            const container = document.getElementById('selectedCandidatesSection');
+            const list = document.getElementById('selectedCandidatesList');
+            
+            if (selectedCandidates.length > 0) {
+                let html = '';
+                selectedCandidates.forEach(candidate => {
+                    html += `
+                        <div class="candidate-badge">
+                            ${candidate.name} (${candidate.usn})
+                            <span class="remove-btn" onclick="removeCandidate('${candidate.usn}')">&times;</span>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+            
+            updateDepartmentRequirement();
+        }
+        
+        // Function to remove a candidate
+        function removeCandidate(usn) {
+            const index = selectedCandidates.findIndex(c => c.usn === usn);
+            if (index !== -1) {
+                selectedCandidates.splice(index, 1);
+                updateSelectedCandidatesDisplay();
+            }
+        }
+    </script>
+</body>
+</html>
