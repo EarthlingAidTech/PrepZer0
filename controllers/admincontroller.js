@@ -1277,17 +1277,26 @@ async function handleCandidatesDataRequest(req, res, examId) {
     // Determine if this exam has MCQ questions, coding questions, or both
     const hasMCQ = exam.questionType === 'mcq' || exam.questionType === 'mcq&coding';
     const hasCoding = exam.questionType === 'coding' || exam.questionType === 'mcq&coding';
-    
+
+
+    let maxCodingScore = 0;
+    if (hasCoding) {
+        const codingEvaluation = await EvaluationResult.findOne({
+            examId: exam._id
+        }).lean();   
+        maxCodingScore = codingEvaluation ? (codingEvaluation.maxPossibleScore || 0) : 0;
+    }
+
     // Calculate maximum possible scores
     let maxMCQScore = 0;
     if (hasMCQ && exam.mcqQuestions && exam.mcqQuestions.length > 0) {
         maxMCQScore = exam.mcqQuestions.reduce((sum, q) => sum + (q.marks || 0), 0);
     }
     
-    let maxCodingScore = 0;
-    if (hasCoding && exam.codingQuestions && exam.codingQuestions.length > 0) {
-        maxCodingScore = exam.codingQuestions.reduce((sum, q) => sum + (q.maxMarks || 0), 0);
-    }
+    
+    // if (hasCoding && exam.codingQuestions && exam.codingQuestions.length > 0) {
+    //     maxCodingScore = exam.codingQuestions.reduce((sum, q) => sum + (q.maxMarks || 0), 0);
+    // }
     
     // Build base query for submissions
     let submissionQuery = { exam: examId };
@@ -1411,11 +1420,34 @@ async function handleCandidatesDataRequest(req, res, examId) {
             
             // Get MCQ score
             let mcqScore = 0;
-            if (hasMCQ && submission._id) {
+            if (hasMCQ && !hasCoding && submission._id) {
                 try {
                     const report = await ReportModel.getAssessmentReport(submission._id);
                     if (report && report.score) {
                         mcqScore = report.score.obtained;
+                    }
+                } catch (error) {
+                    console.error(`Error getting report for submission ${submission._id}:`, error);
+                    if (submission.mcqAnswers && submission.mcqAnswers.length > 0) {
+                        let calculatedMCQScore = 0;
+                        for (const answer of submission.mcqAnswers) {
+                            try {
+                                const question = await mongoose.model('MCQ').findById(answer.questionId);
+                                if (question && answer.selectedOption === question.correctAnswer) {
+                                    calculatedMCQScore += question.marks || 0;
+                                }
+                            } catch (err) {
+                                console.error('Error calculating MCQ score:', err);
+                            }
+                        }
+                        mcqScore = calculatedMCQScore;
+                    }
+                }
+            }else if(hasMCQ && hasCoding && submission._id){
+                try {
+                    const report = await ReportModel.getAssessmentReport(submission._id);
+                    if (report && report.score) {
+                        mcqScore = report.score.mcq.obtained;
                     }
                 } catch (error) {
                     console.error(`Error getting report for submission ${submission._id}:`, error);
@@ -1447,7 +1479,7 @@ async function handleCandidatesDataRequest(req, res, examId) {
                     isEvaluated = true;
                 }
             }
-            
+
             const totalScore = mcqScore + codingScore;
             const totalPossible = maxMCQScore + maxCodingScore;
             

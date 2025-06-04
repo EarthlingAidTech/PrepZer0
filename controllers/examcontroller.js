@@ -1963,7 +1963,7 @@ exports.exportExamReport = async (req, res) => {
         ];
         
         // Add EvaluationResult query if exam has coding questions
-        if (questionType.toLowerCase() === 'coding' || questionType.toLowerCase() === 'mcq & coding') {
+        if (questionType.toLowerCase() === 'coding' || questionType.toLowerCase() === 'mcq&coding') {
             dataQueries.push(
                 EvaluationResult.find({ examId: examId })
                     .populate('userId', '_id')
@@ -2033,7 +2033,7 @@ exports.exportExamReport = async (req, res) => {
                     });
                     console.log(`Coding ranking generated for ${ranking.allStudentsRanking.length} students`);
                 }
-            } else if (questionType.toLowerCase() === 'mcq & coding') {
+            } else if (questionType.toLowerCase() === 'mcq&coding') {
                 // For Mixed, use combined ranking
                 const mcqQuestions = await MCQ.find({ examId: examId }).exec();
                 const ranking = await ReportModel.getMixedRanking(examId, null, mcqQuestions);
@@ -2172,8 +2172,8 @@ exports.exportExamReport = async (req, res) => {
                 if (questionType.toLowerCase() === 'mcq') {
                     // For MCQ only - use existing logic
                     if (detailedReport && detailedReport.score) {
-                        maxScore = detailedReport.score.total;
-                        obtainedScore = detailedReport.score.obtained;
+                        maxScore = detailedReport.score.mcq.total;
+                        obtainedScore = detailedReport.score.mcq.obtained;
                     } else if (!obtainedScore) {
                         maxScore = (submission.mcqAnswers?.length || 0) || defaultMaxScore;
                     }
@@ -2181,12 +2181,12 @@ exports.exportExamReport = async (req, res) => {
                     // For Coding only - use EvaluationResult totalScore and maxPossibleScore
                     obtainedScore = evaluationResult.totalScore || 0;
                     maxScore = evaluationResult.maxPossibleScore || exam.totalMarks || 100;
-                } else if (questionType.toLowerCase() === 'mcq & coding') {
+                } else if (questionType.toLowerCase() === 'mcq&coding') {
                     // For Mixed type
                     // Get MCQ score using same logic as MCQ-only
                     if (detailedReport && detailedReport.score) {
-                        mcqScore = detailedReport.score.obtained || submission.score || 0;
-                        mcqMaxScore = detailedReport.score.total || (submission.mcqAnswers?.length || 0);
+                        mcqScore = detailedReport.score.mcq.obtained || submission.score || 0;
+                        mcqMaxScore = detailedReport.score.mcq.total || (submission.mcqAnswers?.length || 0);
                     } else {
                         mcqScore = submission.score || 0;
                         mcqMaxScore = (submission.mcqAnswers?.length || 0);
@@ -2206,9 +2206,9 @@ exports.exportExamReport = async (req, res) => {
                     ((obtainedScore / maxScore) * 100).toFixed(2) + '%' : 'N/A';
                 
                 // Calculate individual percentages for mixed type
-                const mcqPercentage = questionType.toLowerCase() === 'mcq & coding' && mcqMaxScore > 0 ? 
+                const mcqPercentage = questionType.toLowerCase() === 'mcq&coding' && mcqMaxScore > 0 ? 
                     ((mcqScore / mcqMaxScore) * 100).toFixed(2) + '%' : 'N/A';
-                const codingPercentage = questionType.toLowerCase() === 'mcq & coding' && codingMaxScore > 0 ? 
+                const codingPercentage = questionType.toLowerCase() === 'mcq&coding' && codingMaxScore > 0 ? 
                     ((codingScore / codingMaxScore) * 100).toFixed(2) + '%' : 'N/A';
                 
                 // Get integrity data
@@ -2284,7 +2284,7 @@ exports.exportExamReport = async (req, res) => {
                         'Coding Max Score': maxScore,
                         'Coding Percentage': percentage
                     });
-                } else if (questionType.toLowerCase() === 'mcq & coding') {
+                } else if (questionType.toLowerCase() === 'mcq&coding') {
                     Object.assign(baseRowData, {
                         'MCQ Score': mcqScore,
                         'MCQ Max Score': mcqMaxScore,
@@ -2332,7 +2332,7 @@ exports.exportExamReport = async (req, res) => {
                 { header: 'Coding Max Score', key: 'Coding Max Score', width: 15 },
                 { header: 'Coding Percentage', key: 'Coding Percentage', width: 18 }
             );
-        } else if (questionType.toLowerCase() === 'mcq & coding') {
+        } else if (questionType.toLowerCase() === 'mcq&coding') {
             columns.push(
                 { header: 'MCQ Score', key: 'MCQ Score', width: 12 },
                 { header: 'MCQ Max Score', key: 'MCQ Max Score', width: 15 },

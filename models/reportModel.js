@@ -245,7 +245,7 @@ class ReportModel {
         case 'coding':
           reportData = await this.getCodingReport(submission, integrityData);
           break;
-        case 'mcq & coding':
+        case 'mcq&coding':
           reportData = await this.getMixedReport(submission, integrityData);
           break;
         default:
@@ -348,7 +348,11 @@ class ReportModel {
   // New mixed (MCQ & Coding) report logic
   async getMixedReport(submission, integrityData) {
     // Fetch MCQ questions
-    const mcqQuestions = await MCQ.find({ examId: submission.exam._id }).exec();
+    // const mcqQuestions = await MCQ.find({ examId: submission.exam._id }).exec();
+
+    const mcqQuestions = await MCQ.find({ 
+      _id: { $in: submission.exam.mcqQuestions } 
+    }).exec();
 
     // Fetch evaluation result for coding part
     const evaluationResult = await EvaluationResult.findOne({
@@ -378,6 +382,7 @@ class ReportModel {
     // Calculate MCQ scores
     const mcqScore = questionsWithAnswers.reduce((sum, q) => sum + (q.isCorrect ? q.marks : 0), 0);
     const mcqMaxScore = mcqQuestions.reduce((sum, q) => sum + q.marks, 0);
+   
 
     // Get coding scores
     const codingScore = evaluationResult ? evaluationResult.totalScore || 0 : 0;
@@ -386,6 +391,9 @@ class ReportModel {
     // Calculate total scores
     const totalScore = mcqScore + codingScore;
     const totalMaxScore = mcqMaxScore + codingMaxScore;
+    
+
+
 
     // Get ranking for mixed type
     const ranking = await this.getMixedRanking(submission.exam._id, submission.student._id, mcqQuestions);

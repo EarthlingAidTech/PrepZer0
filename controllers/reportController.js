@@ -410,8 +410,8 @@ exports.viewAssessmentReport = async(req,res) => {
 
       // Determine question type
       const questionType = submission.exam.questionType.toLowerCase();
-      const hasCoding = questionType === 'coding' || questionType === 'mcq&coding' || questionType === 'mcq & coding';
-      const hasMCQ = questionType === 'mcq' || questionType === 'mcq&coding' || questionType === 'mcq & coding';
+      const hasCoding = questionType === 'coding' || questionType === 'mcq&coding';
+      const hasMCQ = questionType === 'mcq' || questionType === 'mcq&coding';
       
       // If it has coding questions, fetch coding evaluation results
       if (hasCoding) {
@@ -429,13 +429,18 @@ exports.viewAssessmentReport = async(req,res) => {
       let mcqScore = 0, mcqTotal = 0, codingScore = 0, codingTotal = 0;
       
       // Get MCQ scores if available
-      if (reportData.score && (questionType === 'mcq' || questionType === 'mcq&coding' || questionType === 'mcq & coding')) {
+      if (reportData.score && (questionType === 'mcq')) {
         mcqScore = reportData.score.obtained || 0;
         mcqTotal = reportData.score.total || 0;
       }
+
+      if (reportData.score && (questionType === 'mcq&coding')) {
+        mcqScore = reportData.score.mcq.obtained || 0;
+        mcqTotal = reportData.score.mcq.total || 0;
+      }
       
       // Get Coding scores if available
-      if (reportData.codingEvaluation && (questionType === 'coding' || questionType === 'mcq&coding' || questionType === 'mcq & coding')) {
+      if (reportData.codingEvaluation && (questionType === 'coding' || questionType === 'mcq&coding')) {
         codingScore = reportData.codingEvaluation.totalScore || 0;
         codingTotal = reportData.codingEvaluation.maxPossibleScore || 0;
       }
