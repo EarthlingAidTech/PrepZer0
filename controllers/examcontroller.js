@@ -2172,8 +2172,8 @@ exports.exportExamReport = async (req, res) => {
                 if (questionType.toLowerCase() === 'mcq') {
                     // For MCQ only - use existing logic
                     if (detailedReport && detailedReport.score) {
-                        maxScore = detailedReport.score.mcq.total;
-                        obtainedScore = detailedReport.score.mcq.obtained;
+                        maxScore = detailedReport.score.total;
+                        obtainedScore = detailedReport.score.obtained;
                     } else if (!obtainedScore) {
                         maxScore = (submission.mcqAnswers?.length || 0) || defaultMaxScore;
                     }
