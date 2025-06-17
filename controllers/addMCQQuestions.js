@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const addMCQ = require('../models/MCQschema');
 
 // Connect to MongoDB 'test' database
-mongoose.connect('mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0', {
+mongoose.connect('mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/bmsitdb?retryWrites=true&w=majority&appName=Cluster0', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
