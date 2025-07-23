@@ -428,55 +428,160 @@ class ReportModel {
   }
 
   // MCQ ranking logic (original)
-  async getMCQRanking(examId, studentId, mcqQuestions) {
-    const allSubmissions = await Submission.find({ exam: examId })
-      .populate('student')
-      .exec();
+  // async getMCQRanking(examId, studentId, mcqQuestions) {
+  //   const allSubmissions = await Submission.find({ exam: examId })
+  //     .populate('student')
+  //     .exec();
+
+
+  //   // Test populate separately
+  //   const testSubmission = await Submission.findOne({ exam: examId })
+  //     .populate('student')
+  //     .exec();
+
+  //   console.log('Test submission:', testSubmission);
+  //   console.log('Test student:', testSubmission.student);
+  //   console.log('Test student type:', typeof testSubmission.student);
     
-    // Calculate scores for all submissions
-    const submissionsWithScores = await Promise.all(allSubmissions.map(async (sub) => {
-      const answers = sub.mcqAnswers || [];
+  //   // Calculate scores for all submissions
+  //   const submissionsWithScores = await Promise.all(allSubmissions.map(async (sub) => {
+  //     const answers = sub.mcqAnswers || [];
       
-      let score = 0;
-      for (const answer of answers) {
-        const question = mcqQuestions.find(q => q._id.toString() === answer.questionId.toString());
-        if (question && answer.selectedOption === question.correctAnswer) {
-          score += question.marks;
+  //     let score = 0;
+  //     for (const answer of answers) {
+  //       const question = mcqQuestions.find(q => q._id.toString() === answer.questionId.toString());
+  //       if (question && answer.selectedOption === question.correctAnswer) {
+  //         score += question.marks;
+  //       }
+  //     }
+      
+  //     return {
+  //       studentId: sub.student._id,
+  //       studentName: sub.student.fname,
+  //       score: score,
+  //       submittedAt: sub.submittedAt
+  //     };
+  //   }));
+    
+  //   // Sort by score (descending) and submission time (ascending - earlier submission gets better rank)
+  //   submissionsWithScores.sort((a, b) => {
+  //     if (b.score !== a.score) {
+  //       return b.score - a.score; // Higher score gets better rank
+  //     }
+  //     // If scores are equal, earlier submission time gets better rank
+  //     return new Date(a.submittedAt) - new Date(b.submittedAt);
+  //   });
+    
+  //   // Find rank if studentId is provided
+  //   let studentRank = null;
+  //   if (studentId) {
+  //     studentRank = submissionsWithScores.findIndex(s => 
+  //       s.studentId.toString() === studentId.toString()
+  //     ) + 1;
+  //   }
+    
+  //   return {
+  //     rank: studentRank,
+  //     totalStudents: submissionsWithScores.length,
+  //     topPerformers: submissionsWithScores.slice(0, 3),
+  //     allStudentsRanking: submissionsWithScores // Add this for controller use
+  //   };
+  // }
+
+
+
+
+
+async getMCQRanking(examId, studentId, mcqQuestions) {
+    try {
+        const allSubmissions = await Submission.find({ exam: examId })
+            .populate('student')
+            .exec();
+
+        // Filter out submissions with null students (orphaned references)
+        const validSubmissions = allSubmissions.filter(sub => sub.student !== null);
+        
+        // Log orphaned submissions for debugging
+        const orphanedCount = allSubmissions.length - validSubmissions.length;
+        if (orphanedCount > 0) {
+            console.warn(`Found ${orphanedCount} orphaned submissions for exam ${examId}`);
+            
+            // Log the orphaned submission details
+            const orphanedSubs = allSubmissions.filter(sub => sub.student === null);
+            orphanedSubs.forEach(sub => {
+                console.warn(`Orphaned submission: ${sub._id} - student reference exists but user not found`);
+            });
         }
-      }
-      
-      return {
-        studentId: sub.student._id,
-        studentName: sub.student.fname,
-        score: score,
-        submittedAt: sub.submittedAt
-      };
-    }));
-    
-    // Sort by score (descending) and submission time (ascending - earlier submission gets better rank)
-    submissionsWithScores.sort((a, b) => {
-      if (b.score !== a.score) {
-        return b.score - a.score; // Higher score gets better rank
-      }
-      // If scores are equal, earlier submission time gets better rank
-      return new Date(a.submittedAt) - new Date(b.submittedAt);
-    });
-    
-    // Find rank if studentId is provided
-    let studentRank = null;
-    if (studentId) {
-      studentRank = submissionsWithScores.findIndex(s => 
-        s.studentId.toString() === studentId.toString()
-      ) + 1;
+        
+        // Calculate scores for valid submissions only
+        const submissionsWithScores = await Promise.all(validSubmissions.map(async (sub) => {
+            try {
+                const answers = sub.mcqAnswers || [];
+                
+                let score = 0;
+                for (const answer of answers) {
+                    const question = mcqQuestions.find(q => q._id.toString() === answer.questionId.toString());
+                    if (question && answer.selectedOption === question.correctAnswer) {
+                        score += question.marks;
+                    }
+                }
+                
+                return {
+                    studentId: sub.student._id,
+                    studentName: sub.student.fname || 'Unknown Student',
+                    score: score,
+                    submittedAt: sub.submittedAt
+                };
+            } catch (error) {
+                console.error(`Error processing submission ${sub._id}:`, error);
+                return null;
+            }
+        }));
+        
+        // Filter out any failed submissions
+        const validResults = submissionsWithScores.filter(result => result !== null);
+        
+        // Sort by score (descending) and submission time (ascending - earlier submission gets better rank)
+        validResults.sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score; // Higher score gets better rank
+            }
+            // If scores are equal, earlier submission time gets better rank
+            return new Date(a.submittedAt) - new Date(b.submittedAt);
+        });
+        
+        // Find rank if studentId is provided
+        let studentRank = null;
+        if (studentId) {
+            studentRank = validResults.findIndex(s => 
+                s.studentId.toString() === studentId.toString()
+            ) + 1;
+            
+            // If student not found in rankings, set rank to 0
+            if (studentRank === 0) {
+                studentRank = null;
+            }
+        }
+        
+        return {
+            rank: studentRank,
+            totalStudents: validResults.length,
+            topPerformers: validResults.slice(0, 3),
+            allStudentsRanking: validResults // Add this for controller use
+        };
+        
+    } catch (error) {
+        console.error('Error in getMCQRanking:', error);
+        throw error;
     }
-    
-    return {
-      rank: studentRank,
-      totalStudents: submissionsWithScores.length,
-      topPerformers: submissionsWithScores.slice(0, 3),
-      allStudentsRanking: submissionsWithScores // Add this for controller use
-    };
-  }
+}
+
+
+
+
+
+
+
 
   // Coding ranking logic
   async getCodingRanking(examId, studentId) {

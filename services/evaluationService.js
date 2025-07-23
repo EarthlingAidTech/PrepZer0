@@ -8,8 +8,8 @@ const EvaluationResult = require('../models/EvaluationResultSchema');
 const ReportModel = require('./../models/reportModel')
 
 // Config for Judge0 API - make sure this URL is correct
-const JUDGE0_API = process.env.JUDGE0_API || 'https://101c-14-97-164-222.ngrok-free.app/';
-
+// const JUDGE0_API = process.env.JUDGE0_API || 'https://101c-14-97-164-222.ngrok-free.app/';
+const JUDGE0_API = process.env.JUDGE0_API || 'https://judge0-ce.p.rapidapi.com/';
 // Enable debugging mode
 const DEBUG = true;
 
@@ -939,16 +939,18 @@ async function submitToJudge0(code, languageId, input, timeout, memoryLimit) {
     };
     
     console.log('Backend submission payload (matching frontend):', requestData);
-    
+    const headers = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'x-rapidapi-key': '747bf6e1b2mshcc375745133f654p1e244fjsn1045702ff68e',  // Replace with your actual key
+  'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
+};
     // Submit the code - same as frontend
-    const submissionResponse = await fetch(`${JUDGE0_API}submissions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify(requestData)
-    });
+const submissionResponse = await fetch(`${JUDGE0_API}submissions?base64_encoded=false&wait=false`, {
+  method: 'POST',
+  headers,
+  body: JSON.stringify(requestData)
+});
     
     const responseText = await submissionResponse.text();
     console.log('Judge0 response:', responseText);
@@ -969,11 +971,10 @@ async function submitToJudge0(code, languageId, input, timeout, memoryLimit) {
     while (retries < maxRetries) {
       await new Promise(resolve => setTimeout(resolve, 1500)); // Match frontend interval
       
-      const resultResponse = await fetch(`${JUDGE0_API}submissions/${token}`, {
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
+const resultResponse = await fetch(`${JUDGE0_API}submissions/${token}?base64_encoded=false`, {
+  method: 'GET',
+  headers
+});
       
       const resultText = await resultResponse.text();
       
@@ -2090,4 +2091,4 @@ module.exports = {
   evaluateCode,
   getEvaluationResults,
   getAllEvaluationResults
-};2
+};

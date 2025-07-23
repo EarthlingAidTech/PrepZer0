@@ -2,7 +2,8 @@ const User = require("./../models/usermodel");
 const Exam = require("../models/Exam");
 const Submission = require("./../models/SubmissionSchema");
 const { redirect } = require("express/lib/response");
-const MCQQuestion = require("./../models/MCQQuestion")
+const MCQQuestion = require("./../models/MCQQuestion");
+const ExamCandidate = require('../models/ExamCandidate');
 
 exports.getcontrol = async (req, res) => {
     if (req.isAuthenticated()) {
@@ -16,10 +17,43 @@ exports.getcontrol = async (req, res) => {
                 const currentTime = new Date();
                 
                 // Find ALL exams that match the student's semester and department
+                // const exams = await Exam.find({
+                //     semester: student.Semester,
+                //     departments: student.Department
+                // });
+
+
+                
                 const exams = await Exam.find({
-                    semester: student.Semester,
-                    departments: student.Department
+                    $or: [
+                        // Regular exams created with department and semester selection
+                        {
+                            semester: student.Semester,
+                            departments: student.Department
+                        },
+                        // Exams created via Excel sheet (find via ExamCandidate)
+                        {
+                            _id: {
+                                $in: await ExamCandidate.find({
+                                    usn: student.USN // Assuming student has USN field
+                                }).distinct('exam')
+                            }
+                        }
+                    ]
                 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 // Fetch submissions with exam details
                 const submissions = await Submission.find({ student: req.user._id })

@@ -1262,15 +1262,15 @@ body {
                     if (usnColumnIndex === -1) {
                         alert(`USN column not found in the Excel file. 
 
-Please ensure your Excel file has a column with "USN" in the header.
+                        Please ensure your Excel file has a column with "USN" in the header.
 
-Accepted header names:
-- USN
-- Student USN  
-- Roll Number USN
-- Registration USN
+                        Accepted header names:
+                        - USN
+                        - Student USN  
+                        - Roll Number USN
+                        - Registration USN
 
-Current headers found: ${headers.join(', ')}`);
+                        Current headers found: ${headers.join(', ')}`);
                         uploadSection.innerHTML = originalContent;
                         return;
                     }

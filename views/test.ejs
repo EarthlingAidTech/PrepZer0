@@ -1361,13 +1361,13 @@ if (typeof window !== 'undefined') {
 const examIntegrity = (function() {
     // Configuration
     const config = {
-        maxViolations: 3,                // Maximum violations before auto-submit
-        maxRefreshes: 2,                 // Maximum allowed page refreshes
+        maxViolations: 999,                // Maximum violations before auto-submit
+        maxRefreshes: 999,                 // Maximum allowed page refreshes
         pingInterval: 20000,             // Ping interval in ms (20 seconds)
         tabFocusCooldown: 1000,          // Time between focus events in ms
         webcamCaptureInterval: 5000,     // Webcam capture interval in ms
         resizeCooldown: 500,             // Time between resize events in ms
-        maxResizeAttempts: 2             // Maximum resize attempts before violation
+        maxResizeAttempts: 999             // Maximum resize attempts before violation
     };
 
     // State variables

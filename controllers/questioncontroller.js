@@ -335,7 +335,7 @@ exports.postcoding_from_db = async (req, res) => {
                     constraits: dbQuestion.constraits,
                     inputFormat: dbQuestion.inputFormat,
                     outputFormat: dbQuestion.outputFormat,
-                    
+                    starterCode:dbQuestion.starterCode,
                     maxMarks: dbQuestion.maxMarks,
                     testCases: dbQuestion.testCases,
                     level: dbQuestion.level,
@@ -556,6 +556,9 @@ exports.postaddcodingQuestion = async (req, res) => {
         res.status(500).send(`Error adding Coding Question: ${error.message}`);
     }
 }
+
+
+
 // exports.postaddcodingQuestion = async (req, res) => {
    
 //     try {
