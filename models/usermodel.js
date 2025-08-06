@@ -50,7 +50,7 @@ const UserSchema = new mongoose.Schema({
         ,
         Department :  { 
             type: String,
-            enum: ["mc", "is", "cs", "et", "ec", "ai", "cv"] // enum: ["MCA", "ISE", "CSE", "ETE", "CIV", "COM", "AI"]
+            enum: ["ad", "is", "cs", "et", "ec", "ai", "cv"] // enum: ["MCA", "ISE", "CSE", "ETE", "CIV", "COM", "AI"]
              },
       
         Year : {

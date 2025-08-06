@@ -122,6 +122,79 @@
             gap: 2rem;
         }
 
+
+
+
+        /* ✅ UPDATED CSS: Better styles for code formatting in MCQ questions */
+
+.question-with-code {
+    line-height: 1.6;
+}
+
+.code-block {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', Consolas, Monaco, 'Liberation Mono', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 16px 0;
+    overflow-x: auto;
+    border-left: 4px solid #4a90e2;
+    white-space: pre-wrap; /* Preserves spacing and allows wrapping */
+    word-wrap: break-word;
+    
+    /* ✅ ADDED: Better syntax highlighting colors */
+    /* Keywords will appear in different colors if you add syntax highlighting later */
+}
+
+/* ✅ ADDED: Specific styling for C syntax elements */
+.code-block {
+    /* Make sure HTML entities display correctly */
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+/* ✅ ENHANCED: Better styling for existing question title */
+.question-title {
+    color: #2d3748;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* ✅ OPTIONAL: Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .code-block {
+        background-color: #1a202c;
+        color: #cbd5e0;
+        border-left-color: #63b3ed;
+    }
+    
+    .question-title {
+        color: #f7fafc;
+    }
+}
+
+/* ✅ RESPONSIVE: Better mobile display */
+@media (max-width: 768px) {
+    .code-block {
+        font-size: 13px;
+        padding: 16px;
+        margin: 12px 0;
+        border-radius: 6px;
+    }
+    
+    .question-title {
+        font-size: 16px;
+    }
+}
+
+
+
+
         @media (max-width: 1024px) {
             .main-container {
                 grid-template-columns: 1fr;
@@ -3181,6 +3254,7 @@ function handlePasteAttempt(e) {
 
     <script>
     // Judge0 API base URL
+    
 const JUDGE0_API_URL = 'https://101c-14-97-164-222.ngrok-free.app/submissions';
     
     // Store the exam data in localStorage when the page loads
@@ -3640,6 +3714,7 @@ document.head.appendChild(styleElement);
             darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
         } else if (currentTheme === 'light') {
             document.body.classList.remove('dark-theme');
+            document.body.
             darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
         } else if (prefersDarkScheme.matches) {
             document.body.classList.add('dark-theme');
@@ -3931,84 +4006,116 @@ function loadQuestion(index) {
 
     // Function to display an MCQ question
     function displayMCQQuestion(question, index) {
-        const questionContainer = document.getElementById('questionContainer');
-        questionContainer.innerHTML = ''; // Clear previous content
+    const questionContainer = document.getElementById('questionContainer');
+    questionContainer.innerHTML = ''; // Clear previous content
+    
+    // Create question display
+    const questionElement = document.createElement('div');
+    questionElement.classList.add('mcq-question');
+    
+    // Add question title and text
+    const questionTitle = document.createElement('h2');
+    questionTitle.classList.add('question-title');
+    
+    // ✅ UPDATED: Better approach for handling code formatting
+    const questionText = question.questionTitle || question.question;
+    
+    // Check if question contains code
+    if (questionText.includes('CODE:')) {
+        const parts = questionText.split('CODE:');
+        const questionPart = parts[0].trim().replace(/\\n$/, '').replace(/\n$/, '');
+        const codePart = parts[1].trim();
         
-        // Create question display
-        const questionElement = document.createElement('div');
-        questionElement.classList.add('mcq-question');
+        // Set the question part as text
+        questionTitle.textContent = questionPart;
         
-        // Add question title and text
-        const questionTitle = document.createElement('h2');
-        questionTitle.classList.add('question-title');
-        questionTitle.textContent = question.questionTitle || question.question;
+        // ✅ NEW: Create code block element separately to avoid HTML escaping issues
+        const codeBlock = document.createElement('div');
+        codeBlock.classList.add('code-block');
+        
+        // ✅ FIX: Use textContent to automatically handle HTML characters correctly
+        const formattedCode = codePart
+            .replace(/\\n/g, '\n')  // Convert \\n to actual newlines
+            .replace(/\t/g, '    '); // Convert tabs to 4 spaces
+        
+        codeBlock.textContent = formattedCode;
+        
+        // Add both elements to the question
         questionElement.appendChild(questionTitle);
+        questionElement.appendChild(codeBlock);
+    } else {
+        // ✅ FALLBACK: Handle non-code questions
+        const formattedQuestion = formatQuestionText(questionText);
+        questionTitle.innerHTML = formattedQuestion;
+        questionElement.appendChild(questionTitle);
+    }
+    
+    // ✅ CHANGED: Add specific class for code formatting
+    questionTitle.classList.add('question-with-code');
+    
+    // Add options (unchanged - works perfectly)
+    const optionsContainer = document.createElement('div');
+    optionsContainer.classList.add('mcq-options');
+    
+    question.options.forEach((option, i) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.classList.add('mcq-option');
         
-
+        // Check if this option is already selected
+        const isSelected = getSelectedMCQAnswer(question._id, i);
+        if (isSelected) {
+            optionDiv.classList.add('selected');
+        }
         
-        // Add options
-        const optionsContainer = document.createElement('div');
-        optionsContainer.classList.add('mcq-options');
+        // Create radio input
+        const radioInput = document.createElement('input');
+        radioInput.type = 'radio';
+        radioInput.name = `q${index}`;
+        radioInput.id = `q${index}opt${i}`;
+        radioInput.value = i;
+        radioInput.checked = isSelected;
         
-        question.options.forEach((option, i) => {
-            const optionDiv = document.createElement('div');
-            optionDiv.classList.add('mcq-option');
+        // Create label
+        const label = document.createElement('label');
+        label.htmlFor = `q${index}opt${i}`;
+        label.textContent = option;
+        
+        // Add event listener to save answer and update UI
+        radioInput.addEventListener('change', () => {
+            // Save the selected answer
+            saveMCQAnswer(question._id, i, option);
             
-            // Check if this option is already selected
-            const isSelected = getSelectedMCQAnswer(question._id, i);
-            if (isSelected) {
-                optionDiv.classList.add('selected');
-            }
-            
-            // Create radio input
-            const radioInput = document.createElement('input');
-            radioInput.type = 'radio';
-            radioInput.name = `q${index}`;
-            radioInput.id = `q${index}opt${i}`;
-            radioInput.value = i;
-            radioInput.checked = isSelected;
-            
-            // Create label
-            const label = document.createElement('label');
-            label.htmlFor = `q${index}opt${i}`;
-            label.textContent = option;
-            
-            // Add event listener to save answer and update UI
-            radioInput.addEventListener('change', () => {
-                // Save the selected answer
-                saveMCQAnswer(question._id, i, option);
-                
-                // Update the UI
-                optionsContainer.querySelectorAll('.mcq-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
-                optionDiv.classList.add('selected');
-                
-                // Update progress
-                updateProgress();
+            // Update the UI
+            optionsContainer.querySelectorAll('.mcq-option').forEach(opt => {
+                opt.classList.remove('selected');
             });
+            optionDiv.classList.add('selected');
             
-            // Also add click event to the whole option div for better UX
-            optionDiv.addEventListener('click', () => {
-                radioInput.checked = true;
-                
-                // Trigger the change event
-                const event = new Event('change');
-                radioInput.dispatchEvent(event);
-            });
-            
-            // Append elements
-            optionDiv.appendChild(radioInput);
-            optionDiv.appendChild(label);
-            optionsContainer.appendChild(optionDiv);
+            // Update progress
+            updateProgress();
         });
         
-        questionElement.appendChild(optionsContainer);
-        questionContainer.appendChild(questionElement);
+        // Also add click event to the whole option div for better UX
+        optionDiv.addEventListener('click', () => {
+            radioInput.checked = true;
+            
+            // Trigger the change event
+            const event = new Event('change');
+            radioInput.dispatchEvent(event);
+        });
         
-        // Clear any badges from previous questions
-        document.getElementById('questionBadges').innerHTML = '';
-    }
+        // Append elements
+        optionDiv.appendChild(radioInput);
+        optionDiv.appendChild(label);
+        optionsContainer.appendChild(optionDiv);
+    });
+    
+    questionElement.appendChild(optionsContainer);
+    questionContainer.appendChild(questionElement);
+    
+    // Clear any badges from previous questions
+    document.getElementById('questionBadges').innerHTML = '';
+}
 
     // Function to display a coding question
     function displayCodingQuestion(question, index) {

@@ -942,7 +942,7 @@ async function submitToJudge0(code, languageId, input, timeout, memoryLimit) {
     const headers = {
   'Content-Type': 'application/json',
   'Accept': 'application/json',
-  'x-rapidapi-key': '747bf6e1b2mshcc375745133f654p1e244fjsn1045702ff68e',  // Replace with your actual key
+  'x-rapidapi-key': 'fe15daa4admsh359f7ef5e75c711p127ec1jsn29f46cbe01c1',
   'x-rapidapi-host': 'judge0-ce.p.rapidapi.com'
 };
     // Submit the code - same as frontend

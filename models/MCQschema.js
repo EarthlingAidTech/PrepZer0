@@ -8,7 +8,7 @@ const mcqQuestionSchema = new mongoose.Schema({
     enum: [
         'Data Structures',
         'Algorithms',
-        'Databases',
+        'DBMS',
         'Object-Oriented Programming',
         'Networking',
         'Operating Systems',
@@ -16,6 +16,7 @@ const mcqQuestionSchema = new mongoose.Schema({
         'Mathematics',
         'Artificial Intelligence',
         'Machine Learning',
+        'UNIX',
         'other'
       ]
   },

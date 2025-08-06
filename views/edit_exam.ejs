@@ -77,7 +77,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Departments:</label><br>
-                    <% ["mc", "is", "cs", "et", "ec", "ai", "cv"].forEach(dept => { %>
+                    <% ["ad", "is", "cs", "et", "ec", "ai", "cv"].forEach(dept => { %>
                         <div class="form-check form-check-inline">
                             <input type="checkbox" name="departments" value="<%= dept %>" class="form-check-input" 
                                 <%= exam.departments.includes(dept) ? "checked" : "" %>>
