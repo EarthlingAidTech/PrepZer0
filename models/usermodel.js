@@ -24,14 +24,14 @@ const UserSchema = new mongoose.Schema({
         } ,
         fname : {
             type : String , 
-            minlength : 3  ,
+            minlength : 0  ,
             maxlength  : 20 
            
         },
         lname : {
             type : String , 
-            minlength : 2  ,
-            maxlength  : 15 
+            minlength : 0  ,
+            maxlength  : 30 
            
         },
         usertype: {
@@ -50,7 +50,7 @@ const UserSchema = new mongoose.Schema({
         ,
         Department :  { 
             type: String,
-            enum: ["ad", "is", "cs", "et", "ec", "ai", "cv"] // enum: ["MCA", "ISE", "CSE", "ETE", "CIV", "COM", "AI"]
+            enum: ["cg","ad", "is", "cs", "et", "ec", "ai", "cv"] // enum: ["MCA", "ISE", "CSE", "ETE", "CIV", "COM", "AI"]
              },
       
         Year : {

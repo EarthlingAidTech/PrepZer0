@@ -3255,8 +3255,7 @@ function handlePasteAttempt(e) {
     <script>
     // Judge0 API base URL
     
-const JUDGE0_API_URL = 'https://101c-14-97-164-222.ngrok-free.app/submissions';
-    
+
     // Store the exam data in localStorage when the page loads
     window.addEventListener('DOMContentLoaded', () => {
         // Assuming 'exam' is passed from the server to the EJS template
@@ -5756,26 +5755,31 @@ function clearExamData() {
     // Judge0 API Functions
 // Judge0 API Configuration - Updated and Fixed
 const JUDGE0_CONFIG = {
-    baseUrl: 'https://101c-14-97-164-222.ngrok-free.app',
+    // Change this URL to RapidAPI's Judge0 endpoint
+    baseUrl: 'https://judge0-ce.p.rapidapi.com',
     endpoints: {
         submissions: '/submissions',
         status: '/submissions'
     },
+    // Add RapidAPI configuration
+    rapidApi: {
+        key: 'fe15daa4admsh359f7ef5e75c711p127ec1jsn29f46cbe01c1', // Replace with your actual RapidAPI key
+        host: 'judge0-ce.p.rapidapi.com'
+    },
     limits: {
-        cpu_time_limit: 2,        // Use underscore format as per Judge0 API
-        memory_limit: 256000,     // 256MB in KB
-        wall_time_limit: 10,      // Wall time limit
+        cpu_time_limit: 2,
+        memory_limit: 256000,
+        wall_time_limit: 10,
         max_processes_and_or_threads: 30,
         enable_network: false,
         enable_per_process_and_thread_time_limit: false,
         enable_per_process_and_thread_memory_limit: false
     },
     retries: {
-        maxAttempts:3,
+        maxAttempts: 3,
         interval: 1500
     }
 };
-
 // Language configurations with proper Judge0 language IDs
 const LANGUAGE_CONFIG = {
     '71': { name: 'Python (3.10.0)', extension: 'py' },
@@ -5795,7 +5799,6 @@ async function createSubmission(languageId, sourceCode, stdin = '') {
             stdinLength: stdin.length
         });
 
-        // Validate inputs
         if (!sourceCode || sourceCode.trim() === '') {
             throw new Error('Source code cannot be empty');
         }
@@ -5804,22 +5807,24 @@ async function createSubmission(languageId, sourceCode, stdin = '') {
             throw new Error('Invalid language ID');
         }
 
-        // Prepare the submission payload according to Judge0 API spec
         const submissionPayload = {
             source_code: sourceCode,
             language_id: parseInt(languageId),
             stdin: stdin || '',
             expected_output: null,
-          
         };
 
         console.log('Submission payload:', submissionPayload);
 
+        // UPDATED: Add RapidAPI headers
         const response = await fetch(`${JUDGE0_CONFIG.baseUrl}${JUDGE0_CONFIG.endpoints.submissions}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                // Add RapidAPI headers
+                'X-RapidAPI-Key': JUDGE0_CONFIG.rapidApi.key,
+                'X-RapidAPI-Host': JUDGE0_CONFIG.rapidApi.host
             },
             body: JSON.stringify(submissionPayload)
         });
@@ -5831,7 +5836,7 @@ async function createSubmission(languageId, sourceCode, stdin = '') {
             const errorText = await response.text();
             console.error('Judge0 API Error Response:', errorText);
             
-            let errorMessage = `HTTPs ${response.status}: ${response.statusText}`;
+            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
             
             try {
                 const errorJson = JSON.parse(errorText);
@@ -5864,7 +5869,7 @@ async function createSubmission(languageId, sourceCode, stdin = '') {
     }
 }
 
-// Fixed function to get submission result from Judge0
+// 3. UPDATE THE getSubmissionResult FUNCTION (around line 950)
 async function getSubmissionResult(token) {
     try {
         if (!token || token === 'undefined') {
@@ -5875,10 +5880,14 @@ async function getSubmissionResult(token) {
 
         const url = `${JUDGE0_CONFIG.baseUrl}${JUDGE0_CONFIG.endpoints.status}/${token}?fields=stdout,stderr,status,time,memory,compile_output,message,exit_code,created_at,finished_at`;
         
+        // UPDATED: Add RapidAPI headers
         const response = await fetch(url, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                // Add RapidAPI headers
+                'X-RapidAPI-Key': JUDGE0_CONFIG.rapidApi.key,
+                'X-RapidAPI-Host': JUDGE0_CONFIG.rapidApi.host
             }
         });
 
@@ -5898,7 +5907,6 @@ async function getSubmissionResult(token) {
         throw error;
     }
 }
-
 // Enhanced function to poll for submission result with better error handling
 async function pollSubmissionResult(token) {
     if (!token || token === 'undefined') {
