@@ -39,7 +39,7 @@ app.set('views', path.join(__dirname, 'views'));
 const mongoose = require('mongoose')
 const MongoStore = require('connect-mongo');
 const dbname = "codingplatform"
-const dburl = "mongodb+srv://rajsony1113:LORBg1gkm7X5FWZ8@cluster0.ckfeyfa.mongodb.net/newcollege?retryWrites=true&w=majority&appName=Cluster0"
+const dburl = "mongodb+srv://earthlingaidtech:prep@cluster0.zsi3qjh.mongodb.net/bmsitdb?retryWrites=true&w=majority"
 
 mongoose.connect(dburl,
 {useNewUrlParser: true},
