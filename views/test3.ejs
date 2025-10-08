@@ -6,16 +6,6 @@
     <title><%=exam.name%></title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <!-- Add these lines in the <head> section, after the Font Awesome link -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/monokai.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/theme/github.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/python/python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/closebrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.15/addon/selection/active-line.min.js"></script>
     <style>
         :root {
             --primary: #2563eb;
@@ -340,147 +330,7 @@
             flex: 1;
         }
 
-        /* Code Editor Styles */
-        .editor-section {
-            margin-top: 2rem;
-            border-top: 1px solid var(--border);
-            padding-top: 1.5rem;
-        }
 
-.language-selector {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    background-color: #f8fafc;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border);
-}
-body.dark-theme .language-selector {
-    background-color: #2d2d3f;
-    border-color: #374151;
-}
-
-      .language-selector label {
-    font-weight: 600;
-    color: var(--dark);
-    white-space: nowrap;
-}
-
-body.dark-theme .language-selector label {
-    color: #e5e7eb;
-}
-
-.language-selector select {
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border);
-    border-radius: var(--border-radius);
-    background-color: var(--white);
-    font-size: 0.95rem;
-    cursor: pointer;
-    min-width: 200px;
-    transition: all 0.2s ease;
-}
-
-   .language-selector select:hover {
-    border-color: var(--primary);
-}
-
-.language-selector select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-body.dark-theme .language-selector select {
-    background-color: #374151;
-    color: #e5e7eb;
-    border-color: #4b5563;
-}
-
-/* Enhanced Code Editor Container */
-.code-editor {
-    border: 2px solid var(--border);
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    background-color: var(--white);
-    transition: border-color 0.2s ease;
-    position: relative;
-}
-
-.code-editor:focus-within {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-body.dark-theme .code-editor {
-    background-color: #1e1e1e;
-    border-color: #374151;
-}
-.code-textarea {
-    width: 100%;
-    min-height: 450px;
-    height: 450px;
-    max-height: 600px;
-    padding: 15px;
-    font-family: 'Consolas', 'Monaco', 'Courier New', 'Fira Code', monospace;
-    font-size: 15px;
-    line-height: 1.5;
-    border: none;
-    resize: vertical;
-    background-color: #ffffff;
-    color: #1f2937;
-    outline: none;
-    tab-size: 4;
-    -moz-tab-size: 4;
-}
-
-.code-textarea:focus {
-    outline: none;
-}
-
-body.dark-theme .code-textarea {
-    background-color: #1e1e1e;
-    color: #e5e7eb;
-}
-
-/* Enhanced Editor Buttons */
-.editor-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background-color: #f8fafc;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--border);
-}
-
-body.dark-theme .editor-buttons {
-    background-color: #2d2d3f;
-    border-color: #374151;
-}
-
-.editor-buttons .btn {
-    flex: 1;
-    min-width: 140px;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    border-radius: var(--border-radius);
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.editor-buttons .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.editor-buttons .btn:active {
-    transform: translateY(0);
-}
 
         /* Button Styles */
         .btn {
@@ -904,146 +754,7 @@ body.dark-theme .execution-output {
             }
         }
     </style>
-    <style>
-    
-.CodeMirror {
-    height: 450px !important; /* Increased height */
-    min-height: 450px;
-    max-height: 600px; /* Allow some expansion */
-    border: none;
-    border-radius: var(--border-radius);
-    font-family: 'Consolas', 'Monaco', 'Courier New', 'Fira Code', monospace;
-    font-size: 15px; /* Slightly larger font */
-    line-height: 1.5;
-    resize: vertical; /* Allow vertical resizing */
-}
 
-.CodeMirror-scroll {
-    min-height: 450px;
-    padding: 10px 0; /* Add some padding */
-}
-
-.CodeMirror-lines {
-    padding: 10px 0; /* Better spacing */
-}
-
-.CodeMirror-line {
-    padding: 0 10px; /* Better horizontal padding */
-}
-
-/* Enhanced line numbers */
-.CodeMirror-gutters {
-    border-right: 1px solid #e1e5e9;
-    background-color: #f8fafc;
-    padding-right: 10px;
-}
-
-body.dark-theme .CodeMirror-gutters {
-    background-color: #2d2d2d;
-    border-color: #374151;
-    color: #6b7280;
-}
-
-.CodeMirror-linenumber {
-    color: #6b7280;
-    font-size: 13px;
-    padding: 0 8px 0 0;
-    text-align: right;
-    min-width: 30px;
-}
-
-body.dark-theme .CodeMirror-linenumber {
-    color: #9ca3af;
-}
-
-/* Active line highlighting */
-.CodeMirror-activeline-background {
-    background-color: rgba(37, 99, 235, 0.05) !important;
-}
-
-body.dark-theme .CodeMirror-activeline-background {
-    background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-/* Selection highlighting */
-.CodeMirror-selected {
-    background-color: rgba(37, 99, 235, 0.2) !important;
-}
-
-body.dark-theme .CodeMirror-selected {
-    background-color: rgba(59, 130, 246, 0.3) !important;
-}
-
-/* Cursor */
-.CodeMirror-cursor {
-    border-left: 2px solid var(--primary);
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    0%, 50% { opacity: 1; }
-    51%, 100% { opacity: 0; }
-}
-
-.CodeMirror-focused .CodeMirror-selected {
-    background: rgba(59, 130, 246, 0.3);
-}
-
-.CodeMirror-line {
-    padding: 0 4px;
-}
-
-/* Ensure CodeMirror works well with existing layout */
-.code-editor .CodeMirror {
-    margin-top: 0;
-}
-.code-editor-toolbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    background-color: #f1f5f9;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
-    color: var(--secondary);
-}
-
-body.dark-theme .code-editor-toolbar {
-    background-color: #374151;
-    border-color: #4b5563;
-    color: #9ca3af;
-}
-
-.code-editor-info {
-    display: flex;
-    gap: 1rem;
-}
-
-.code-editor-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.code-editor-actions button {
-    padding: 0.25rem 0.5rem;
-    border: 1px solid var(--border);
-    background-color: var(--white);
-    border-radius: 0.25rem;
-    cursor: pointer;
-    font-size: 0.8rem;
-}
-
-body.dark-theme .code-editor-actions button {
-    background-color: #4b5563;
-    border-color: #6b7280;
-    color: #e5e7eb;
-}
-
-.custom-input-textarea {
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
-}
-    </style>
 </head>
 <body>
     <p id="camneed" hidden><%=exam.settings.camera%></p>
@@ -1146,602 +857,7 @@ body.dark-theme .code-editor-actions button {
             </div>
         </div>
     </div>
-    <script>
-        const CopyPasteControl = (function() {
-    let isExamActive = false;
-    let allowedClipboardContent = null;
-    const CLIPBOARD_KEY = 'examAllowedClipboard';
-    
-    /**
-     * Initialize copy-paste control system
-     */
-    function init() {
-        console.log('Initializing copy-paste control system...');
-        
-        // Clear any existing clipboard data
-        localStorage.removeItem(CLIPBOARD_KEY);
-        
-        // Add global event listeners immediately
-        setupGlobalListeners();
-        
-        return {
-            start: startControl,
-            stop: stopControl,
-            setupCodeEditor: setupCodeEditorControl
-        };
-    }
-    
-    /**
-     * Start copy-paste control (when exam begins)
-     */
-    function startControl() {
-        isExamActive = true;
-        allowedClipboardContent = null;
-        localStorage.removeItem(CLIPBOARD_KEY);
-        console.log('Copy-paste control activated');
-        
-        // Show notification about copy-paste restrictions
-        if (typeof examIntegrity !== 'undefined' && examIntegrity.showNotification) {
-            examIntegrity.showNotification(
-                'Copy-paste is restricted during the exam. You can only copy/paste within code editors.',
-                'warning'
-            );
-        }
-    }
-    
-    /**
-     * Stop copy-paste control (when exam ends)
-     */
-    function stopControl() {
-        isExamActive = false;
-        allowedClipboardContent = null;
-        localStorage.removeItem(CLIPBOARD_KEY);
-        console.log('Copy-paste control deactivated');
-    }
-    
-    /**
-     * Set up global event listeners for copy-paste prevention
-     */
-    function setupGlobalListeners() {
-        // Use capture phase (true) to intercept events before they reach targets
-        document.addEventListener('copy', handleGlobalCopy, true);
-        document.addEventListener('paste', handleGlobalPaste, true);
-        document.addEventListener('cut', handleGlobalCut, true);
-        document.addEventListener('keydown', handleKeyboardShortcuts, true);
-        
-        // Prevent context menu globally
-        document.addEventListener('contextmenu', (e) => {
-            if (isExamActive && !isCodeEditor(e.target)) {
-                e.preventDefault();
-                showCopyPasteWarning('Right-click context menu is disabled during the exam.');
-            }
-        });
-        
-        // Clear clipboard when focus leaves code editor
-        document.addEventListener('focusout', handleFocusOut);
-        
-        console.log('Global copy-paste event listeners set up');
-    }
-    
-    /**
-     * Handle global copy events
-     */
-    function handleGlobalCopy(e) {
-        if (!isExamActive) return;
-        
-        const target = e.target;
-        console.log('Copy event detected on:', target.tagName, target.className, target.id);
-        
-        // Check if the copy is from a code editor
-        if (isCodeEditor(target)) {
-            console.log('Copy allowed from code editor');
-            // Allow copy from code editor and store the content
-            handleCodeEditorCopy(e, target);
-            return;
-        }
-        
-        // Block copy from anywhere else
-        console.log('Copy blocked - not from code editor');
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        showCopyPasteWarning('Copying is only allowed from code editors during the exam.');
-        logCopyPasteViolation('copy_attempt');
-        
-        return false;
-    }
-    
-    /**
-     * Handle global paste events
-     */
-    function handleGlobalPaste(e) {
-        if (!isExamActive) return;
-        
-        const target = e.target;
-        console.log('Paste event detected on:', target.tagName, target.className, target.id);
-        
-        // Check if the paste is into a code editor
-        if (isCodeEditor(target)) {
-            console.log('Paste allowed into code editor');
-            // Allow paste into code editor but validate content
-            return handleCodeEditorPaste(e, target);
-        }
-        
-        // Block paste anywhere else
-        console.log('Paste blocked - not into code editor');
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        showCopyPasteWarning('Pasting is only allowed into code editors during the exam.');
-        logCopyPasteViolation('paste_attempt');
-        
-        return false;
-    }
-    
-    /**
-     * Handle global cut events
-     */
-    function handleGlobalCut(e) {
-        if (!isExamActive) return;
-        
-        const target = e.target;
-        console.log('Cut event detected on:', target.tagName, target.className, target.id);
-        
-        // Check if the cut is from a code editor
-        if (isCodeEditor(target)) {
-            console.log('Cut allowed from code editor');
-            // Allow cut from code editor and store the content
-            handleCodeEditorCut(e, target);
-            return;
-        }
-        
-        // Block cut from anywhere else
-        console.log('Cut blocked - not from code editor');
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        
-        showCopyPasteWarning('Cutting text is only allowed from code editors during the exam.');
-        logCopyPasteViolation('cut_attempt');
-        
-        return false;
-    }
-    
-    /**
-     * Handle keyboard shortcuts for copy/paste
-     */
-    function handleKeyboardShortcuts(e) {
-        if (!isExamActive) return;
-        
-        const target = e.target;
-        const isCtrlC = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c';
-        const isCtrlV = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v';
-        const isCtrlX = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'x';
-        const isCtrlA = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a';
-        
-        if (isCtrlC || isCtrlV || isCtrlX) {
-            console.log('Keyboard shortcut detected:', e.key, 'on', target.tagName, target.className);
-            
-            // If it's not a code editor, prevent the action
-            if (!isCodeEditor(target)) {
-                console.log('Keyboard shortcut blocked - not in code editor');
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                
-                const action = isCtrlC ? 'copying' : isCtrlV ? 'pasting' : 'cutting';
-                showCopyPasteWarning(`Keyboard ${action} is only allowed in code editors during the exam.`);
-                logCopyPasteViolation(`keyboard_${action.replace('ing', '')}_attempt`);
-                
-                return false;
-            } else {
-                console.log('Keyboard shortcut allowed in code editor');
-            }
-        }
-        
-        // Allow Ctrl+A everywhere for better UX (selecting all text)
-        if (isCtrlA) {
-            return true;
-        }
-    }
-    
-    /**
-     * Check if the target element is a code editor
-     */
-    function isCodeEditor(element) {
-        if (!element) return false;
-        
-        // More comprehensive check for code editor
-        const isCodeTextarea = element.classList.contains('code-textarea');
-        const hasCodeEditorId = element.id && element.id.startsWith('codeEditor-');
-        const isInCodeEditor = element.closest('.code-editor') !== null;
-        const isInEditorSection = element.closest('.editor-section') !== null;
-        const isCustomInput = element.classList.contains('custom-input-textarea') || 
-                            (element.id && element.id.startsWith('custom-input-'));
-        
-        const result = isCodeTextarea || hasCodeEditorId || isInCodeEditor || isInEditorSection || isCustomInput;
-        
-        if (result) {
-            console.log('Element identified as code editor:', {
-                tagName: element.tagName,
-                className: element.className,
-                id: element.id,
-                isCodeTextarea,
-                hasCodeEditorId,
-                isInCodeEditor,
-                isInEditorSection,
-                isCustomInput
-            });
-        }
-        
-        return result;
-    }
-    
-    /**
-     * Handle copy operation from code editor
-     */
-    function handleCodeEditorCopy(e, target) {
-        setTimeout(() => {
-            try {
-                // Get the selected text
-                const selectedText = target.value.substring(target.selectionStart, target.selectionEnd);
-                
-                if (selectedText) {
-                    // Store the allowed clipboard content
-                    allowedClipboardContent = selectedText;
-                    localStorage.setItem(CLIPBOARD_KEY, JSON.stringify({
-                        content: selectedText,
-                        timestamp: Date.now(),
-                        questionId: extractQuestionId(target)
-                    }));
-                    
-                    console.log('Allowed copy from code editor:', selectedText.substring(0, 50) + '...');
-                    showCopyPasteSuccess('Code copied successfully!');
-                }
-            } catch (error) {
-                console.error('Error handling code editor copy:', error);
-            }
-        }, 10);
-    }
-    
-    /**
-     * Handle cut operation from code editor
-     */
-    function handleCodeEditorCut(e, target) {
-        setTimeout(() => {
-            try {
-                // Get the selected text before it's cut
-                const selectedText = target.value.substring(target.selectionStart, target.selectionEnd);
-                
-                if (selectedText) {
-                    // Store the allowed clipboard content
-                    allowedClipboardContent = selectedText;
-                    localStorage.setItem(CLIPBOARD_KEY, JSON.stringify({
-                        content: selectedText,
-                        timestamp: Date.now(),
-                        questionId: extractQuestionId(target)
-                    }));
-                    
-                    console.log('Allowed cut from code editor:', selectedText.substring(0, 50) + '...');
-                    showCopyPasteSuccess('Code cut successfully!');
-                }
-            } catch (error) {
-                console.error('Error handling code editor cut:', error);
-            }
-        }, 10);
-    }
-    
-    /**
-     * Handle paste operation into code editor
-     */
-    function handleCodeEditorPaste(e, target) {
-        e.preventDefault();
-        
-        try {
-            // Get clipboard data
-            const clipboardData = e.clipboardData || window.clipboardData;
-            const pastedContent = clipboardData.getData('text/plain');
-            
-            console.log('Attempting to paste into code editor:', pastedContent.substring(0, 50) + '...');
-            
-            // Check if the pasted content is allowed
-            if (!isContentAllowed(pastedContent)) {
-                showCopyPasteWarning('You can only paste content that was copied from a code editor during this exam.');
-                logCopyPasteViolation('unauthorized_paste_attempt');
-                return false;
-            }
-            
-            // Insert the content at cursor position
-            const startPos = target.selectionStart;
-            const endPos = target.selectionEnd;
-            const beforeText = target.value.substring(0, startPos);
-            const afterText = target.value.substring(endPos);
-            
-            target.value = beforeText + pastedContent + afterText;
-            
-            // Set cursor position after pasted content
-            const newCursorPos = startPos + pastedContent.length;
-            target.setSelectionRange(newCursorPos, newCursorPos);
-            
-            // Trigger input event to save changes
-            const inputEvent = new Event('input', { bubbles: true });
-            target.dispatchEvent(inputEvent);
-            
-            console.log('Allowed paste into code editor:', pastedContent.substring(0, 50) + '...');
-            showCopyPasteSuccess('Code pasted successfully!');
-            
-            return true;
-            
-        } catch (error) {
-            console.error('Error handling code editor paste:', error);
-            showCopyPasteWarning('Failed to paste content. Please try again.');
-            return false;
-        }
-    }
-    
-    /**
-     * Check if content is allowed to be pasted
-     */
-    function isContentAllowed(content) {
-        if (!content) return false;
-        
-        // Check against stored allowed content
-        if (allowedClipboardContent === content) {
-            return true;
-        }
-        
-        // Check against localStorage stored content
-        try {
-            const storedData = localStorage.getItem(CLIPBOARD_KEY);
-            if (storedData) {
-                const parsed = JSON.parse(storedData);
-                
-                // Check if content matches and is not too old (within 1 hour)
-                const isRecent = (Date.now() - parsed.timestamp) < (60 * 60 * 1000);
-                
-                if (parsed.content === content && isRecent) {
-                    return true;
-                }
-            }
-        } catch (error) {
-            console.error('Error checking stored clipboard content:', error);
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Extract question ID from target element
-     */
-    function extractQuestionId(target) {
-        if (target.id && target.id.startsWith('codeEditor-')) {
-            return target.id.replace('codeEditor-', '');
-        }
-        return 'unknown';
-    }
-    
-    /**
-     * Handle focus out events
-     */
-    function handleFocusOut(e) {
-        if (!isExamActive) return;
-        
-        const target = e.target;
-        
-        // If focus is leaving a code editor
-        if (isCodeEditor(target)) {
-            setTimeout(() => {
-                const activeElement = document.activeElement;
-                if (!isCodeEditor(activeElement)) {
-                    // Optional: Clear allowed clipboard content when leaving code editor area
-                    // Uncomment the lines below if you want to clear clipboard when leaving code editor
-                    // allowedClipboardContent = null;
-                    // localStorage.removeItem(CLIPBOARD_KEY);
-                    // console.log('Cleared allowed clipboard content on focus out');
-                }
-            }, 100);
-        }
-    }
-    
-    /**
-     * Set up individual code editor controls
-     */
-    function setupCodeEditorControl(questionId) {
-        const codeEditor = document.getElementById(`codeEditor-${questionId}`);
-        
-        if (!codeEditor) {
-            console.error(`Code editor not found for question: ${questionId}`);
-            return;
-        }
-        
-        console.log(`Setting up copy-paste control for code editor: ${questionId}`);
-        
-        // Mark this element as a code editor (additional safety)
-        codeEditor.dataset.isCodeEditor = 'true';
-        
-        // No need to add specific event listeners here since global listeners handle everything
-        console.log(`Copy-paste control set up for code editor: ${questionId}`);
-    }
-    
-    /**
-     * Show copy-paste warning message
-     */
-    function showCopyPasteWarning(message) {
-        console.log('Showing copy-paste warning:', message);
-        
-        // Try to use existing notification system
-        if (typeof examIntegrity !== 'undefined' && examIntegrity.showNotification) {
-            examIntegrity.showNotification(message, 'error');
-        } else {
-            // Fallback notification
-            const notification = createNotification(message, 'warning');
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }, 4000);
-        }
-    }
-    
-    /**
-     * Show copy-paste success message
-     */
-    function showCopyPasteSuccess(message) {
-        console.log('Showing copy-paste success:', message);
-        
-        // Try to use existing notification system
-        if (typeof examIntegrity !== 'undefined' && examIntegrity.showNotification) {
-            examIntegrity.showNotification(message, 'success');
-        } else {
-            // Fallback notification
-            const notification = createNotification(message, 'success');
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.classList.add('show');
-            }, 10);
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
-            }, 2000);
-        }
-    }
-    
-    /**
-     * Create notification element
-     */
-    function createNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `copy-paste-notification ${type}`;
-        
-        const bgColor = type === 'warning' ? '#fff3cd' : type === 'success' ? '#d1fae5' : '#fee2e2';
-        const textColor = type === 'warning' ? '#856404' : type === 'success' ? '#065f46' : '#991b1b';
-        const borderColor = type === 'warning' ? '#ffeeba' : type === 'success' ? '#6ee7b7' : '#fca5a5';
-        
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: ${bgColor};
-            color: ${textColor};
-            border: 1px solid ${borderColor};
-            padding: 12px 16px;
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 10000;
-            max-width: 350px;
-            transform: translateX(110%);
-            transition: transform 0.3s ease;
-            font-size: 14px;
-            line-height: 1.4;
-        `;
-        
-        notification.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <i class="fas fa-${type === 'warning' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'times-circle'}"></i>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        // Add show class for animation
-        notification.classList.add = function(className) {
-            if (className === 'show') {
-                this.style.transform = 'translateX(0)';
-            }
-        };
-        
-        notification.classList.remove = function(className) {
-            if (className === 'show') {
-                this.style.transform = 'translateX(110%)';
-            }
-        };
-        
-        return notification;
-    }
-    
-    /**
-     * Log copy-paste violations
-     */
-    function logCopyPasteViolation(violationType) {
-        console.log(`Copy-paste violation: ${violationType}`);
-        
-        // Try to use existing integrity system
-        if (typeof examIntegrity !== 'undefined' && examIntegrity.getViolationCounts) {
-            // You can extend the integrity system to handle copy-paste violations
-        }
-        
-        // Send to server
-        try {
-            const examId = document.getElementById('exam')?.textContent;
-            const userId = document.getElementById('user')?.textContent;
-            
-            if (examId && userId) {
-                fetch('/update-integrity', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        examId: examId,
-                        userId: userId,
-                        eventType: `copyPaste_${violationType}`
-                    })
-                }).catch(error => {
-                    console.error('Error logging copy-paste violation:', error);
-                });
-            }
-        } catch (error) {
-            console.error('Error sending copy-paste violation log:', error);
-        }
-    }
-    
-    /**
-     * Get current clipboard status (for debugging)
-     */
-    function getClipboardStatus() {
-        return {
-            isExamActive,
-            hasAllowedContent: !!allowedClipboardContent,
-            allowedContentPreview: allowedClipboardContent ? allowedClipboardContent.substring(0, 50) + '...' : null,
-            storedData: localStorage.getItem(CLIPBOARD_KEY)
-        };
-    }
-    
-    // Public API
-    return {
-        init,
-        startControl,
-        stopControl,
-        setupCodeEditorControl,
-        getClipboardStatus
-    };
-})();
 
-// Initialize the system when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.copyPasteControl = CopyPasteControl.init();
-    });
-} else {
-    window.copyPasteControl = CopyPasteControl.init();
-}
-    </script>
 <script>
 
     /**
@@ -2334,7 +1450,7 @@ if (typeof window !== 'undefined') {
  * Exam Integrity Monitoring Module
  * 
  * This module provides functionality for:
- * 1. Integrity monitoring (tab changes, mouse exits, fullscreen controls, copy/paste prevention, etc.)
+ * 1. Integrity monitoring (tab changes, mouse exits, fullscreen controls,  etc.)
  * 2. Activity ping tracking to server
  * 3. Webcam capture and submission
  * 
@@ -2369,8 +1485,7 @@ const examIntegrity = (function() {
             tabChangeCount: 0,
             mouseOutCount: 0,
             fullscreenExitCount: 0,
-            // copyAttemptCount: 0,
-            // pasteAttemptCount: 0,
+         
             focusChangeCount: 0,
             refreshViolationCount: 0
         },
@@ -2382,8 +1497,6 @@ const examIntegrity = (function() {
         tabChangeCount: null,
         mouseOutCount: null,
         fullscreenExitCount: null,
-        copyAttemptCount: null,
-        pasteAttemptCount: null,
         focusChangeCount: null,
         refreshViolationCount: null,
         totalViolations: null,
@@ -2485,8 +1598,7 @@ const examIntegrity = (function() {
         elements.tabChangeCount = document.getElementById('tabChangeCount');
         elements.mouseOutCount = document.getElementById('mouseOutCount');
         elements.fullscreenExitCount = document.getElementById('fullscreenExitCount');
-        elements.copyAttemptCount = document.getElementById('copyAttemptCount');
-        elements.pasteAttemptCount = document.getElementById('pasteAttemptCount');
+      
         elements.focusChangeCount = document.getElementById('focusChangeCount');
         elements.refreshViolationCount = document.getElementById('refreshViolationCount');
         elements.totalViolations = document.getElementById('totalViolations');
@@ -2559,13 +1671,9 @@ const examIntegrity = (function() {
         // Mouse exit detection
         document.addEventListener('mouseout', handleMouseOut);
         
-        // Copy/paste prevention
-        document.addEventListener('copy', handleCopyAttempt);
-        document.addEventListener('paste', handlePasteAttempt);
-        if (!window.copyPasteControl) {
-        document.addEventListener('copy', handleCopyAttempt);
-        document.addEventListener('paste', handlePasteAttempt);
-    }
+     
+       
+        
         // Keyboard shortcuts prevention
         document.addEventListener('keydown', preventKeyboardShortcuts);
         
@@ -2642,8 +1750,7 @@ const examIntegrity = (function() {
         if (elements.tabChangeCount) elements.tabChangeCount.textContent = state.violations.tabChangeCount;
         if (elements.mouseOutCount) elements.mouseOutCount.textContent = state.violations.mouseOutCount;
         if (elements.fullscreenExitCount) elements.fullscreenExitCount.textContent = state.violations.fullscreenExitCount;
-        if (elements.copyAttemptCount) elements.copyAttemptCount.textContent = state.violations.copyAttemptCount;
-        if (elements.pasteAttemptCount) elements.pasteAttemptCount.textContent = state.violations.pasteAttemptCount;
+      
         if (elements.focusChangeCount) elements.focusChangeCount.textContent = state.violations.focusChangeCount;
         if (elements.refreshViolationCount) elements.refreshViolationCount.textContent = state.violations.refreshViolationCount;
         if (elements.totalViolations) elements.totalViolations.textContent = state.totalViolations;
@@ -2781,49 +1888,7 @@ const examIntegrity = (function() {
         }
     }
 
-    /**
-     * Handle copy attempts
-     */
-   // 1. Update the integrity monitoring copy/paste handlers
-function handleCopyAttempt(e) {
-    if (!state.examStarted) return;
-    
-    const target = e.target;
-    const isCodeEditor = target.classList.contains('code-textarea') || 
-                        target.id.startsWith('codeEditor-') ||
-                        target.closest('.code-editor') !== null;
-    
-    if (!isCodeEditor) {
-        // Only count violations for non-code-editor attempts
-        state.violations.copyAttemptCount++;
-        state.totalViolations++;
-        sendIntegrityUpdate("copyAttempts");
-        updateStatus("Copy attempt detected outside code editor");
-        updateUI();
-        checkAndTriggerAutoSubmit();
-    }
-}
-
-function handlePasteAttempt(e) {
-    if (!state.examStarted) return;
-    
-    const target = e.target;
-    const isCodeEditor = target.classList.contains('code-textarea') || 
-                        target.id.startsWith('codeEditor-') ||
-                        target.closest('.code-editor') !== null;
-    
-    if (!isCodeEditor) {
-        // Only count violations for non-code-editor attempts
-        state.violations.pasteAttemptCount++;
-        state.totalViolations++;
-        sendIntegrityUpdate("pasteAttempts");
-        updateStatus("Paste attempt detected outside code editor");
-        updateUI();
-        checkAndTriggerAutoSubmit();
-    }
-}
-
-
+  
     /**
      * Handle resize events (potential DevTools)
      */
@@ -3022,8 +2087,7 @@ function handlePasteAttempt(e) {
         if (state.violations.tabChangeCount > 0) violationsHTML += `<li>Tab changes: ${state.violations.tabChangeCount}</li>`;
         if (state.violations.mouseOutCount > 0) violationsHTML += `<li>Mouse left window: ${state.violations.mouseOutCount}</li>`;
         if (state.violations.fullscreenExitCount > 0) violationsHTML += `<li>Fullscreen exits: ${state.violations.fullscreenExitCount}</li>`;
-        if (state.violations.copyAttemptCount > 0) violationsHTML += `<li>Copy attempts: ${state.violations.copyAttemptCount}</li>`;
-        if (state.violations.pasteAttemptCount > 0) violationsHTML += `<li>Paste attempts: ${state.violations.pasteAttemptCount}</li>`;
+       
         if (state.violations.focusChangeCount > 0) violationsHTML += `<li>Focus changes: ${state.violations.focusChangeCount}</li>`;
         if (state.violations.refreshViolationCount > 0) violationsHTML += `<li>Page refreshes: ${state.violations.refreshViolationCount}</li>`;
         
@@ -3253,10 +2317,7 @@ function handlePasteAttempt(e) {
 
 
     <script>
-    // Judge0 API base URL
-    
-const JUDGE0_API_URL = 'https://101c-14-97-164-222.ngrok-free.app/submissions';
-    
+
     // Store the exam data in localStorage when the page loads
     window.addEventListener('DOMContentLoaded', () => {
         // Assuming 'exam' is passed from the server to the EJS template
@@ -3355,8 +2416,7 @@ const JUDGE0_API_URL = 'https://101c-14-97-164-222.ngrok-free.app/submissions';
     
     // Start monitoring when the exam begins
   
-    // Example: Submit exam button
-
+  
         
         // Get exam data and update the title
 if (examData) {
@@ -3367,11 +2427,12 @@ if (examData) {
             let examType = '';
             if (examData.questionType === "mcq") {
                 examType = 'Multiple Choice';
-            } else if (examData.questionType === "coding") {
-                examType = 'Coding';
-            } else if (examData.questionType === "mcq&coding") {
-                examType = 'Mixed (MCQ & Coding)';
             }
+            // } else if (examData.questionType === "coding") {
+            //     examType = 'Coding';
+            // } else if (examData.questionType === "mcq&coding") {
+            //     examType = 'Mixed (MCQ & Coding)';
+            // }
             document.getElementById('examTypeStart').textContent = examType;
             
             // Display question count
@@ -3391,10 +2452,7 @@ if (examData) {
     if (startOverlay) {
         startOverlay.remove();
     }
-       if (window.copyPasteControl) {
-        window.copyPasteControl.start();
-        console.log('Copy-paste control started');
-    }
+     
     // Show the main content
     const mainContainer = document.querySelector('.main-container');
     const header = document.querySelector('.header');
@@ -3672,12 +2730,8 @@ document.head.appendChild(styleElement);
         // Store questions separately for easier access
         if (examData.questionType === "mcq") {
             localStorage.setItem('mcqQuestions', JSON.stringify(examData.mcqQuestions));
-        } else if (examData.questionType === "coding") {
-            localStorage.setItem('codingQuestions', JSON.stringify(examData.codingQuestions));
-        } else if (examData.questionType === "mcq&coding") {
-            localStorage.setItem('mcqQuestions', JSON.stringify(examData.mcqQuestions));
-            localStorage.setItem('codingQuestions', JSON.stringify(examData.codingQuestions));
         }
+      
         
         // Initialize current question index
         localStorage.setItem('currentQuestionIndex', '0');
@@ -3748,11 +2802,8 @@ document.head.appendChild(styleElement);
         let examType = '';
         if (examData.questionType === "mcq") {
             examType = 'Multiple Choice';
-        } else if (examData.questionType === "coding") {
-            examType = 'Coding';
-        } else if (examData.questionType === "mcq&coding") {
-            examType = 'Mixed (MCQ & Coding)';
-        }
+        } 
+       
         document.getElementById('examType').textContent = examType;
         
         // Determine which question to load first
@@ -3818,15 +2869,8 @@ function getTotalQuestions(examData) {
     if (examData.questionType === "mcq") {
         const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
         total = mcqQuestions.length; // Use actual array length instead of examData.numMCQs
-    } else if (examData.questionType === "coding") {
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
-        total = codingQuestions.length; // Use actual array length instead of examData.numCoding
-    } else if (examData.questionType === "mcq&coding") {
-        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
-        total = mcqQuestions.length + codingQuestions.length; // Calculate from actual arrays
-    }
-    
+    } 
+
     console.log(`Total questions calculated: ${total} for type: ${examData.questionType}`); // Debug log
     return total;
 }
@@ -3893,23 +2937,7 @@ function getTotalQuestions(examData) {
             answeredCount += Object.keys(answers.mcq).length;
         }
         
-        // Count coding answers
-        if (answers.coding) {
-            // Only count non-empty coding answers
-            for (const questionId in answers.coding) {
-                if (answers.coding[questionId] && answers.coding[questionId].trim() !== '') {
-                    const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-                    const question = codingQuestions.find(q => q._id === questionId);
-                    
-                    // Check if the answer is not just the starter code
-                    if (question && !isStarterCode(answers.coding[questionId], question)) {
-                        answeredCount++;
-                    }
-                }
-            }
-        }
-        
-        // Update progress bar and stats
+
         const progressPercent = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
         document.getElementById('progressFill').style.width = `${progressPercent}%`;
         document.getElementById('answeredQuestions').textContent = `${answeredCount} answered`;
@@ -3947,35 +2975,35 @@ function loadQuestion(index) {
         question = mcqQuestions[index];
         questionType = "mcq";
     } 
-    else if (examData.questionType === "coding") {
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-        if (!codingQuestions || index >= codingQuestions.length) {
-            console.error(`Coding question not found at index: ${index}`);
-            return;
-        }
-        question = codingQuestions[index];
-        questionType = "coding";
-    } 
-    else if (examData.questionType === "mcq&coding") {
-        // For mixed exams, determine if we're showing MCQ or coding based on index
-        const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
+// else if (examData.questionType === "mcq&coding") {
+//         // For mixed exams, determine if we're showing MCQ or coding based on index
+//         const mcqQuestions = JSON.parse(localStorage.getItem('mcqQuestions')) || [];
+//         const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
         
-        console.log(`Mixed exam: MCQ count: ${mcqQuestions.length}, Coding count: ${codingQuestions.length}, Index: ${index}`); // Debug log
+//         console.log(`Mixed exam: MCQ count: ${mcqQuestions.length}, Coding count: ${codingQuestions.length}, Index: ${index}`); // Debug log
         
-        if (index < mcqQuestions.length) {
-            question = mcqQuestions[index];
-            questionType = "mcq";
-        } else {
-            const codingIndex = index - mcqQuestions.length;
-            if (codingIndex >= codingQuestions.length) {
-                console.error(`Coding question not found at adjusted index: ${codingIndex}`);
-                return;
-            }
-            question = codingQuestions[codingIndex];
-            questionType = "coding";
-        }
-    }
+//         if (index < mcqQuestions.length) {
+//             question = mcqQuestions[index];
+//             questionType = "mcq";
+//         } else {
+//             const codingIndex = index - mcqQuestions.length;
+//             if (codingIndex >= codingQuestions.length) {
+//                 console.error(`Coding question not found at adjusted index: ${codingIndex}`);
+//                 return;
+//             }
+//             question = codingQuestions[codingIndex];
+//             questionType = "coding";
+//         }
+//     }
+//         else if (examData.questionType === "coding") {
+//         const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
+//         if (!codingQuestions || index >= codingQuestions.length) {
+//             console.error(`Coding question not found at index: ${index}`);
+//             return;
+//         }
+//         question = codingQuestions[index];
+//         questionType = "coding";
+//     } 
     
     if (!question) {
         console.error(`Question not found at index: ${index}`);
@@ -3996,9 +3024,8 @@ function loadQuestion(index) {
     // Display the question based on type
     if (questionType === "mcq") {
         displayMCQQuestion(question, index);
-    } else {
-        displayCodingQuestion(question, index);
-    }
+    } 
+
     
     // Update the question navigation UI
     updateQuestionNavigation(index);
@@ -4045,7 +3072,7 @@ function loadQuestion(index) {
         questionElement.appendChild(codeBlock);
     } else {
         // ✅ FALLBACK: Handle non-code questions
-        const formattedQuestion = formatQuestionText(questionText);
+        const formattedQuestion = questionText;
         questionTitle.innerHTML = formattedQuestion;
         questionElement.appendChild(questionTitle);
     }
@@ -4117,891 +3144,6 @@ function loadQuestion(index) {
     document.getElementById('questionBadges').innerHTML = '';
 }
 
-    // Function to display a coding question
-    function displayCodingQuestion(question, index) {
-        const questionContainer = document.getElementById('questionContainer');
-        questionContainer.innerHTML = ''; // Clear previous content
-        
-        // Add badges to the question header
-        const badgesContainer = document.getElementById('questionBadges');
-        badgesContainer.innerHTML = '';
-        
-        if (question.level) {
-            const levelBadge = document.createElement('div');
-            levelBadge.className = `badge badge-${question.level}`;
-            levelBadge.textContent = question.level.toUpperCase();
-            badgesContainer.appendChild(levelBadge);
-        }
-        
-        if (question.classification) {
-            const categoryBadge = document.createElement('div');
-            categoryBadge.className = 'badge badge-category';
-            categoryBadge.textContent = question.classification;
-            badgesContainer.appendChild(categoryBadge);
-        }
-        
-        if (question.maxMarks) {
-            const marksBadge = document.createElement('div');
-            marksBadge.className = 'badge badge-marks';
-            marksBadge.textContent = `${question.maxMarks} marks`;
-            badgesContainer.appendChild(marksBadge);
-        }
-        
-        // Create question display with additional test case elements
-        const questionElement = document.createElement('div');
-        questionElement.classList.add('coding-question');
-        
-        // Add question title
-        const questionTitle = document.createElement('h2');
-        questionTitle.classList.add('question-title');
-        questionTitle.textContent = question.questionTile || `Problem ${index + 1}`;
-        questionElement.appendChild(questionTitle);
-        
-        // Add question description
-        const questionDescription = document.createElement('div');
-        questionDescription.classList.add('question-description');
-        questionDescription.innerHTML = question.questiontext;
-        questionElement.appendChild(questionDescription);
-        
-        // Add input format if available
-        if (question.inputFormat) {
-            const inputFormatTitle = document.createElement('h3');
-            inputFormatTitle.classList.add('section-title');
-            inputFormatTitle.innerHTML = '<i class="fas fa-sign-in-alt"></i> Input Format';
-            questionElement.appendChild(inputFormatTitle);
-            
-            const inputFormat = document.createElement('p');
-            inputFormat.innerHTML = question.inputFormat;
-            questionElement.appendChild(inputFormat);
-        }
-        
-        // Add output format if available
-        if (question.outputFormat) {
-            const outputFormatTitle = document.createElement('h3');
-            outputFormatTitle.classList.add('section-title');
-            outputFormatTitle.innerHTML = '<i class="fas fa-sign-out-alt"></i> Output Format';
-            questionElement.appendChild(outputFormatTitle);
-            
-            const outputFormat = document.createElement('p');
-            outputFormat.innerHTML = question.outputFormat;
-            questionElement.appendChild(outputFormat);
-        }
-        
-        // Add constraints if available
-        if (question.constraits) {
-            const constraintsTitle = document.createElement('h3');
-            constraintsTitle.classList.add('section-title');
-            constraintsTitle.innerHTML = '<i class="fas fa-exclamation-circle"></i> Constraints';
-            questionElement.appendChild(constraintsTitle);
-            
-            const constraints = document.createElement('p');
-            constraints.innerHTML = question.constraits;
-            questionElement.appendChild(constraints);
-        }
-        
-        // Add sample input/output if available
-        if (question.sampleInput || question.sampleOutput) {
-            const sampleTitle = document.createElement('h3');
-            sampleTitle.classList.add('section-title');
-            sampleTitle.innerHTML = '<i class="fas fa-vial"></i> Sample Test Case';
-            questionElement.appendChild(sampleTitle);
-            
-            if (question.sampleInput) {
-                const sampleInputTitle = document.createElement('h4');
-                sampleInputTitle.textContent = 'Sample Input:';
-                sampleInputTitle.style.fontWeight = '600';
-                sampleInputTitle.style.marginTop = '0.75rem';
-                questionElement.appendChild(sampleInputTitle);
-                
-                const sampleInput = document.createElement('pre');
-                sampleInput.textContent = question.sampleInput;
-                questionElement.appendChild(sampleInput);
-            }
-            
-            if (question.sampleOutput) {
-                const sampleOutputTitle = document.createElement('h4');
-                sampleOutputTitle.textContent = 'Sample Output:';
-                sampleOutputTitle.style.fontWeight = '600';
-                sampleOutputTitle.style.marginTop = '0.75rem';
-                questionElement.appendChild(sampleOutputTitle);
-                
-                const sampleOutput = document.createElement('pre');
-                sampleOutput.textContent = question.sampleOutput;
-                questionElement.appendChild(sampleOutput);
-            }
-        }
-        
-        // Display public test cases if any
-        if (question.testCases && question.testCases.filter(tc => tc.isPublic).length > 0) {
-            const testCasesTitle = document.createElement('h3');
-            testCasesTitle.classList.add('section-title');
-            testCasesTitle.innerHTML = '<i class="fas fa-clipboard-check"></i> Public Test Cases';
-            questionElement.appendChild(testCasesTitle);
-            
-            const publicTestCases = question.testCases.filter(tc => tc.isPublic);
-            
-            publicTestCases.forEach((testCase, tcIndex) => {
-                const testCaseTitle = document.createElement('h4');
-                testCaseTitle.textContent = `Test Case ${tcIndex + 1}:`;
-                testCaseTitle.style.fontWeight = '600';
-                testCaseTitle.style.marginTop = '1rem';
-                questionElement.appendChild(testCaseTitle);
-                
-                const testInputTitle = document.createElement('h5');
-                testInputTitle.textContent = 'Input:';
-                testInputTitle.style.fontWeight = '500';
-                testInputTitle.style.marginTop = '0.5rem';
-                questionElement.appendChild(testInputTitle);
-                
-                const testInput = document.createElement('pre');
-                testInput.textContent = testCase.input;
-                questionElement.appendChild(testInput);
-                
-                const testOutputTitle = document.createElement('h5');
-                testOutputTitle.textContent = 'Expected Output:';
-                testOutputTitle.style.fontWeight = '500';
-                testOutputTitle.style.marginTop = '0.5rem';
-                questionElement.appendChild(testOutputTitle);
-                
-                const testOutput = document.createElement('pre');
-                testOutput.textContent = testCase.expectedOutput;
-                questionElement.appendChild(testOutput);
-            });
-        }
-        
-        // Add code editor section
-        const editorSection = document.createElement('div');
-        editorSection.classList.add('editor-section');
-        
-        const editorTitle = document.createElement('h3');
-        editorTitle.classList.add('section-title');
-        editorTitle.innerHTML = '<i class="fas fa-code"></i> Your Solution';
-        editorSection.appendChild(editorTitle);
-        
-        // Language selector
-   const languageSelector = document.createElement('div');
-    languageSelector.classList.add('language-selector');
-    
-    const languageLabel = document.createElement('label');
-    languageLabel.htmlFor = `language-select-${question._id}`;
-    languageLabel.textContent = 'Select Language:';
-    languageSelector.appendChild(languageLabel);
-    
-    const languageSelect = document.createElement('select');
-    languageSelect.id = `language-select-${question._id}`;
-    languageSelect.classList.add('language-select');
-    
-    const languages = [
-        { id: '71', name: 'Python (3.10.0)' },
-        { id: '62', name: 'Java (OpenJDK 17)' },
-        { id: '54', name: 'C++ (GCC 11.2.0)' },
-        { id: '63', name: 'JavaScript (Node.js 16.13.0)' },
-        { id: '51', name: 'C# (Mono 6.12.0)' },
-        { id: '50', name: 'C (GCC 11.2.0)' }
-    ];
-    
-    // Get the previously selected language for this question
-    const selectedLanguageId = getSelectedLanguageForQuestion(question._id);
-    
-    languages.forEach(lang => {
-        const option = document.createElement('option');
-        option.value = lang.id;
-        option.textContent = lang.name;
-        if (lang.id === selectedLanguageId) {
-            option.selected = true;
-        }
-        languageSelect.appendChild(option);
-    });
-    
-    // Set the previous language tracker
-    languageSelect.dataset.previousLanguage = selectedLanguageId;
-    
-    languageSelector.appendChild(languageSelect);
-    editorSection.appendChild(languageSelector);
-    
-    // Code editor with proper initialization
-    const codeEditorContainer = document.createElement('div');
-    codeEditorContainer.classList.add('code-editor');
-    
-    const codeTextarea = document.createElement('textarea');
-    codeTextarea.id = `codeEditor-${question._id}`;
-    codeTextarea.classList.add('code-textarea');
-    codeTextarea.spellcheck = false;
-    
-    // Load saved code for the selected language or use starter code
-    const savedCode = getCodeForLanguage(question._id, selectedLanguageId);
-    if (savedCode && savedCode.trim() !== '') {
-        codeTextarea.value = savedCode;
-    } else {
-        codeTextarea.value = getStarterCode(question, selectedLanguageId);
-    }
-    
-    codeEditorContainer.appendChild(codeTextarea);
-    editorSection.appendChild(codeEditorContainer);
-        // Editor buttons
-           const editorButtons = document.createElement('div');
-    editorButtons.classList.add('editor-buttons');
-    
-    const runCodeBtn = document.createElement('button');
-    runCodeBtn.classList.add('btn', 'btn-primary');
-    runCodeBtn.dataset.questionId = question._id;
-    runCodeBtn.innerHTML = '<i class="fas fa-play"></i> Run Code';
-    editorButtons.appendChild(runCodeBtn);
-    
-    const runCustomBtn = document.createElement('button');
-    runCustomBtn.classList.add('btn', 'btn-secondary', 'run-custom-btn'); // Added a class for easier selection
-    runCustomBtn.dataset.questionId = question._id;
-    runCustomBtn.innerHTML = '<i class="fas fa-keyboard"></i> Custom Input';
-    editorButtons.appendChild(runCustomBtn);
-    
-    const runAllTestsBtn = document.createElement('button');
-    runAllTestsBtn.classList.add('btn', 'btn-secondary', 'run-all-tests-btn'); // Added a class for easier selection
-    runAllTestsBtn.dataset.questionId = question._id;
-    runAllTestsBtn.innerHTML = '<i class="fas fa-vials"></i> Run All Tests';
-    editorButtons.appendChild(runAllTestsBtn);
-        
-        editorSection.appendChild(editorButtons);
-        questionElement.appendChild(editorSection);
-        
-        // Custom test input section (hidden by default)
-        const customTestSection = document.createElement('div');
-        customTestSection.classList.add('custom-test-section');
-        customTestSection.id = `custom-test-${question._id}`;
-        customTestSection.style.display = 'none';
-        
-        const customTestTitle = document.createElement('h3');
-        customTestTitle.classList.add('section-title');
-        customTestTitle.innerHTML = '<i class="fas fa-keyboard"></i> Custom Test Input';
-        customTestSection.appendChild(customTestTitle);
-        
-        const customInputLabel = document.createElement('p');
-        customInputLabel.textContent = 'Enter your test input:';
-        customTestSection.appendChild(customInputLabel);
-        
-        const customInputTextarea = document.createElement('textarea');
-        customInputTextarea.id = `custom-input-${question._id}`;
-        customInputTextarea.classList.add('custom-input-textarea');
-        customInputTextarea.placeholder = 'Enter your test input here...';
-        customTestSection.appendChild(customInputTextarea);
-        
-        const runCustomInputBtn = document.createElement('button');
-        runCustomInputBtn.id = `run-custom-input-${question._id}`;
-        runCustomInputBtn.classList.add('btn', 'btn-primary');
-        runCustomInputBtn.innerHTML = '<i class="fas fa-play"></i> Run With Custom Input';
-        customTestSection.appendChild(runCustomInputBtn);
-        
-        questionElement.appendChild(customTestSection);
-        
-        // Results section (hidden by default)
-        const resultsSection = document.createElement('div');
-        resultsSection.classList.add('results-section');
-        resultsSection.id = `results-${question._id}`;
-        resultsSection.style.display = 'none';
-        
-        const resultsTitle = document.createElement('h3');
-        resultsTitle.classList.add('section-title');
-        resultsTitle.innerHTML = '<i class="fas fa-clipboard-list"></i> Results';
-        resultsSection.appendChild(resultsTitle);
-        
-        const resultOutput = document.createElement('div');
-        resultOutput.id = `result-output-${question._id}`;
-        resultOutput.classList.add('result-output');
-        resultsSection.appendChild(resultOutput);
-        
-        const testResultsSection = document.createElement('div');
-        testResultsSection.id = `test-results-${question._id}`;
-        testResultsSection.classList.add('test-results');
-        testResultsSection.style.display = 'none';
-        
-        const testResultsTitle = document.createElement('h4');
-        testResultsTitle.classList.add('section-title');
-        testResultsTitle.innerHTML = '<i class="fas fa-tasks"></i> Test Case Results';
-        testResultsSection.appendChild(testResultsTitle);
-        
-        const testResultsTable = document.createElement('table');
-        testResultsTable.classList.add('test-results-table');
-        
-        const tableHead = document.createElement('thead');
-        tableHead.innerHTML = `
-            <tr>
-                <th>Test Case</th>
-                <th>Status</th>
-                <th>Time</th>
-                <th>Memory</th>
-                <th>Details</th>
-            </tr>
-        `;
-        testResultsTable.appendChild(tableHead);
-        
-        const tableBody = document.createElement('tbody');
-        tableBody.id = `test-results-body-${question._id}`;
-        testResultsTable.appendChild(tableBody);
-        
-        testResultsSection.appendChild(testResultsTable);
-        resultsSection.appendChild(testResultsSection);
-        
-        questionElement.appendChild(resultsSection);
-        
-        // Append the complete question element to the container
-        questionContainer.appendChild(questionElement);
-        
-        // Add event listeners for code editor features
-        setupCodeEditor(question._id);
-        
-        // Add event listeners for code execution buttons
-        setupCodeExecutionButtons(question._id);
-        
-        // Add event listener for language selection to update the starter code
-        const langSelect = document.getElementById(`language-select-${question._id}`);
-    // languageSelect.addEventListener('change', () => {
-    //     const selectedLanguage = languageSelect.value;
-    //     const codeEditor = document.getElementById(`codeEditor-${question._id}`);
-    //     const currentCode = codeEditor.value;
-        
-    //     // Save current code for the previously selected language
-    //     const previousLanguage = languageSelect.dataset.previousLanguage || '71';
-    //     saveCodeForLanguage(question._id, previousLanguage, currentCode);
-        
-    //     // Load code for the newly selected language
-    //     const savedCodeForNewLang = getCodeForLanguage(question._id, selectedLanguage);
-        
-    //     if (savedCodeForNewLang && savedCodeForNewLang.trim() !== '') {
-    //         // Use saved code if it exists and is not empty
-    //         codeEditor.value = savedCodeForNewLang;
-    //     } else {
-    //         // Use starter code for the new language
-    //         codeEditor.value = getStarterCode(question, selectedLanguage);
-    //     }
-        
-    //     // Update the previous language tracker
-    //     languageSelect.dataset.previousLanguage = selectedLanguage;
-        
-    //     // Save the new code and language selection
-    //     saveCodeForLanguage(question._id, selectedLanguage, codeEditor.value);
-    // });
-    // Replace the existing language change event listener with this:
-languageSelect.addEventListener('change', () => {
-    const selectedLanguage = languageSelect.value;
-    const codeEditor = document.getElementById(`codeEditor-${question._id}`);
-    
-    let currentCode = '';
-    
-    // Get current code from CodeMirror if it exists, otherwise from textarea
-    if (codeEditor.codeMirrorInstance) {
-        currentCode = codeEditor.codeMirrorInstance.getValue();
-    } else {
-        currentCode = codeEditor.value;
-    }
-    
-    // Save current code for the previously selected language
-    const previousLanguage = languageSelect.dataset.previousLanguage || '71';
-    saveCodeForLanguage(question._id, previousLanguage, currentCode);
-    
-    // Load code for the newly selected language
-    const savedCodeForNewLang = getCodeForLanguage(question._id, selectedLanguage);
-    
-    let newCode = '';
-    if (savedCodeForNewLang && savedCodeForNewLang.trim() !== '') {
-        newCode = savedCodeForNewLang;
-    } else {
-        newCode = getStarterCode(question, selectedLanguage);
-    }
-    
-    // Update both CodeMirror and textarea
-    if (codeEditor.codeMirrorInstance) {
-        codeEditor.codeMirrorInstance.setValue(newCode);
-        codeEditor.codeMirrorInstance.setOption('mode', getCodeMirrorMode(selectedLanguage));
-    } else {
-        codeEditor.value = newCode;
-    }
-    
-    // Update the previous language tracker
-    languageSelect.dataset.previousLanguage = selectedLanguage;
-    
-    // Save the new code and language selection
-    saveCodeForLanguage(question._id, selectedLanguage, newCode);
-});
-    }
-
-
-// function saveCodeForLanguage(questionId, languageId, code) {
-//     const answers = JSON.parse(localStorage.getItem('examAnswers')) || { mcq: {}, coding: {} };
-    
-//     if (!answers.codingByLanguage) {
-//         answers.codingByLanguage = {};
-//     }
-    
-//     if (!answers.codingByLanguage[questionId]) {
-//         answers.codingByLanguage[questionId] = {};
-//     }
-    
-//     // Save code for specific language
-//     answers.codingByLanguage[questionId][languageId] = code;
-    
-//     // Also save the currently selected language
-//     answers.codingByLanguage[questionId].selectedLanguage = languageId;
-    
-//     localStorage.setItem('examAnswers', JSON.stringify(answers));
-// }
-
-function saveCodeForLanguage(questionId, languageId, code) {
-    if (!questionId || !languageId || code === undefined) {
-        console.warn('Invalid parameters for saveCodeForLanguage:', { questionId, languageId, code: !!code });
-        return;
-    }
-    
-    const answers = JSON.parse(localStorage.getItem('examAnswers')) || { mcq: {}, coding: {} };
-    
-    if (!answers.codingByLanguage) {
-        answers.codingByLanguage = {};
-    }
-    
-    if (!answers.codingByLanguage[questionId]) {
-        answers.codingByLanguage[questionId] = {};
-    }
-    
-    // Save code for specific language
-    answers.codingByLanguage[questionId][languageId] = code;
-    
-    // Also save the currently selected language
-    answers.codingByLanguage[questionId].selectedLanguage = languageId;
-    
-    // ALSO save to the old structure for backward compatibility
-    if (!answers.coding) {
-        answers.coding = {};
-    }
-    answers.coding[questionId] = code;
-    
-    localStorage.setItem('examAnswers', JSON.stringify(answers));
-    
-    console.log(`Saved code for question ${questionId}, language ${languageId}:`, {
-        codeLength: code.length,
-        firstLine: code.split('\n')[0].substring(0, 50) + '...'
-    });
-}
-
-
-function getCodeForLanguage(questionId, languageId) {
-    const answers = JSON.parse(localStorage.getItem('examAnswers'));
-    
-    if (answers && 
-        answers.codingByLanguage && 
-        answers.codingByLanguage[questionId] && 
-        answers.codingByLanguage[questionId][languageId]) {
-        return answers.codingByLanguage[questionId][languageId];
-    }
-    
-    return null;
-}
-    // Function to set up code editor
-    // Function to set up code editor with CodeMirror
-// function setupCodeEditor(questionId) {
-//     const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-//     if (!codeTextarea) return;
-    
-//     // Get the language selector
-//     const languageSelect = document.getElementById(`language-select-${questionId}`);
-//     const selectedLanguageId = languageSelect ? languageSelect.value : '71';
-    
-//     // Hide the original textarea
-//     codeTextarea.style.display = 'none';
-    
-//     // Create CodeMirror instance
-//     const editor = CodeMirror(codeTextarea.parentNode, {
-//         value: codeTextarea.value,
-//         mode: getCodeMirrorMode(selectedLanguageId),
-//         theme: document.body.classList.contains('dark-theme') ? 'monokai' : 'github',
-//         lineNumbers: true,
-//         autoCloseBrackets: true,
-//         matchBrackets: true,
-//         styleActiveLine: true,
-//         indentUnit: 4,
-//         tabSize: 4,
-//         indentWithTabs: false,
-//         lineWrapping: false,
-//         extraKeys: {
-//             "Tab": function(cm) {
-//                 if (cm.somethingSelected()) {
-//                     cm.indentSelection("add");
-//                 } else {
-//                     cm.replaceSelection("    ");
-//                 }
-//             },
-//             "Shift-Tab": function(cm) {
-//                 cm.indentSelection("subtract");
-//             }
-//         }
-//     });
-    
-//     // Store reference to editor
-//     codeTextarea.codeMirrorInstance = editor;
-    
-//     // Update textarea value when editor changes
-//     editor.on('change', function() {
-//         codeTextarea.value = editor.getValue();
-        
-//         // Debounce to avoid saving too frequently
-//         clearTimeout(codeTextarea.saveTimeout);
-//         codeTextarea.saveTimeout = setTimeout(() => {
-//             const currentLanguage = languageSelect ? languageSelect.value : '71';
-//             saveCodeForLanguage(questionId, currentLanguage, editor.getValue());
-//             updateProgress();
-//         }, 1000);
-//     });
-    
-//     // Handle language changes
-//     if (languageSelect) {
-//         const originalChangeHandler = languageSelect.onchange;
-//         languageSelect.onchange = function() {
-//             // Call original handler first
-//             if (originalChangeHandler) {
-//                 originalChangeHandler.call(this);
-//             }
-            
-//             // Update CodeMirror mode
-//             const newMode = getCodeMirrorMode(this.value);
-//             editor.setOption('mode', newMode);
-//         };
-//     }
-    
-//     // Handle theme changes
-//     const themeObserver = new MutationObserver(function(mutations) {
-//         mutations.forEach(function(mutation) {
-//             if (mutation.attributeName === 'class') {
-//                 const isDark = document.body.classList.contains('dark-theme');
-//                 editor.setOption('theme', isDark ? 'monokai' : 'github');
-//             }
-//         });
-//     });
-    
-//     themeObserver.observe(document.body, {
-//         attributes: true,
-//         attributeFilter: ['class']
-//     });
-    
-//     // Set up copy-paste control
-//     if (window.copyPasteControl) {
-//         window.copyPasteControl.setupCodeEditor(questionId);
-//         console.log(`Copy-paste control set up for editor: ${questionId}`);
-//     }
-    
-//     // Refresh editor after a short delay to ensure proper rendering
-//     setTimeout(() => {
-//         editor.refresh();
-//     }, 100);
-// }
-function setupCodeEditor(questionId) {
-    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-    if (!codeTextarea) return;
-    
-    // Get the language selector
-    const languageSelect = document.getElementById(`language-select-${questionId}`);
-    const selectedLanguageId = languageSelect ? languageSelect.value : '71';
-    
-    // Hide the original textarea
-    codeTextarea.style.display = 'none';
-    
-    // Create a toolbar for the editor (optional)
-    const toolbar = document.createElement('div');
-    toolbar.className = 'code-editor-toolbar';
-    toolbar.innerHTML = `
-        <div class="code-editor-info">
-            <span>Language: <strong>${LANGUAGE_CONFIG[selectedLanguageId]?.name || 'Python'}</strong></span>
-            <span>Lines: <span id="line-count-${questionId}">1</span></span>
-        </div>
-        <div class="code-editor-actions">
-            <button type="button" onclick="formatCode('${questionId}')" title="Format Code">
-                <i class="fas fa-indent"></i>
-            </button>
-            <button type="button" onclick="toggleWordWrap('${questionId}')" title="Toggle Word Wrap">
-                <i class="fas fa-align-left"></i>
-            </button>
-        </div>
-    `;
-    
-    // Insert toolbar before the code editor
-    codeTextarea.parentNode.insertBefore(toolbar, codeTextarea);
-    
-    // Create CodeMirror instance with enhanced options
-    const editor = CodeMirror(codeTextarea.parentNode, {
-        value: codeTextarea.value,
-        mode: getCodeMirrorMode(selectedLanguageId),
-        theme: document.body.classList.contains('dark-theme') ? 'monokai' : 'github',
-        lineNumbers: true,
-        autoCloseBrackets: true,
-        matchBrackets: true,
-        styleActiveLine: true,
-        indentUnit: 4,
-        tabSize: 5,
-        indentWithTabs: false,
-        lineWrapping: false,
-        foldGutter: true,
-        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true},
-        searchCursor: true,
-        autoRefresh: true,
-        viewportMargin: 10,
-        extraKeys: {
-            "Tab": function(cm) {
-                if (cm.somethingSelected()) {
-                    cm.indentSelection("add");
-                } else {
-                    cm.replaceSelection("    ");
-                }
-            },
-            "Shift-Tab": function(cm) {
-                cm.indentSelection("subtract");
-            },
-            "Ctrl-/": function(cm) {
-                cm.toggleComment();
-            },
-            "Cmd-/": function(cm) {
-                cm.toggleComment();
-            },
-            "F11": function(cm) {
-                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-            },
-            "Esc": function(cm) {
-                if (cm.getOption("fullScreen")) cm.setOption("fullScreen", true);
-            }
-        }
-    });
-    
-    // Store reference to editor
-    codeTextarea.codeMirrorInstance = editor;
-    
-    // Update line count display
-    const updateLineCount = () => {
-        const lineCountSpan = document.getElementById(`line-count-${questionId}`);
-        if (lineCountSpan) {
-            lineCountSpan.textContent = editor.lineCount();
-        }
-    };
-    
-    // Update textarea value and line count when editor changes
-    editor.on('change', function() {
-        codeTextarea.value = editor.getValue();
-        updateLineCount();
-        
-        // Debounce to avoid saving too frequently
-        clearTimeout(codeTextarea.saveTimeout);
-        codeTextarea.saveTimeout = setTimeout(() => {
-            const currentLanguage = languageSelect ? languageSelect.value : '71';
-            saveCodeForLanguage(questionId, currentLanguage, editor.getValue());
-            updateProgress();
-        }, 1000);
-    });
-    
-    // Update line count initially
-    updateLineCount();
-    
-    // Handle language changes
-    if (languageSelect) {
-        const originalChangeHandler = languageSelect.onchange;
-        languageSelect.onchange = function() {
-            // Update toolbar info
-            const toolbarInfo = toolbar.querySelector('.code-editor-info span');
-            if (toolbarInfo) {
-                toolbarInfo.innerHTML = `Language: <strong>${LANGUAGE_CONFIG[this.value]?.name || 'Unknown'}</strong>`;
-            }
-            
-            // Call original handler
-            if (originalChangeHandler) {
-                originalChangeHandler.call(this);
-            }
-            
-            // Update CodeMirror mode
-            const newMode = getCodeMirrorMode(this.value);
-            editor.setOption('mode', newMode);
-        };
-    }
-    
-    // Handle theme changes
-    const themeObserver = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-                const isDark = document.body.classList.contains('dark-theme');
-                editor.setOption('theme', isDark ? 'monokai' : 'github');
-            }
-        });
-    });
-    
-    themeObserver.observe(document.body, {
-        attributes: true,
-        attributeFilter: ['class']
-    });
-    
-    // Set up copy-paste control
-    if (window.copyPasteControl) {
-        window.copyPasteControl.setupCodeEditor(questionId);
-        console.log(`Copy-paste control set up for editor: ${questionId}`);
-    }
-    
-    // Make editor resizable
-    editor.on('refresh', function() {
-        const editorElement = editor.getWrapperElement();
-        if (editorElement) {
-            editorElement.style.resize = 'vertical';
-            editorElement.style.overflow = 'auto';
-        }
-    });
-    
-    // Refresh editor after a short delay to ensure proper rendering
-    setTimeout(() => {
-        editor.refresh();
-        editor.focus();
-    }, 100);
-    
-    // Add window resize listener to refresh editor
-    window.addEventListener('resize', () => {
-        setTimeout(() => editor.refresh(), 100);
-    });
-}
-
-// Utility functions for editor enhancements
-function formatCode(questionId) {
-    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-    if (codeTextarea && codeTextarea.codeMirrorInstance) {
-        const editor = codeTextarea.codeMirrorInstance;
-        const totalLines = editor.lineCount();
-        editor.autoFormatRange({line: 0, ch: 0}, {line: totalLines});
-    }
-}
-
-function toggleWordWrap(questionId) {
-    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-    if (codeTextarea && codeTextarea.codeMirrorInstance) {
-        const editor = codeTextarea.codeMirrorInstance;
-        const currentWrap = editor.getOption('lineWrapping');
-        editor.setOption('lineWrapping', !currentWrap);
-    }
-}
-// Helper function to get CodeMirror mode based on language ID
-function getCodeMirrorMode(languageId) {
-    const modeMap = {
-        '71': 'python',           // Python
-        '62': 'text/x-java',      // Java
-        '54': 'text/x-c++src',    // C++
-        '63': 'javascript',       // JavaScript
-        '51': 'text/x-csharp',    // C#
-        '50': 'text/x-csrc'       // C
-    };
-    
-    return modeMap[languageId] || 'python';
-}
-//     function setupCodeEditor(questionId) {
-//         const codeEditor = document.getElementById(`codeEditor-${questionId}`);
-        
-//         // Add event listener to save code when typing
-//         codeEditor.addEventListener('input', () => {
-//             // Debounce to avoid saving too frequently
-//             clearTimeout(codeEditor.saveTimeout);
-//             codeEditor.saveTimeout = setTimeout(() => {
-//                 saveCodingAnswer(questionId, codeEditor.value);
-//                 updateProgress();
-//             }, 1000);
-//         });
-        
-//         // Add tab key support
-//         codeEditor.addEventListener('keydown', function(e) {
-//             if (e.key === 'Tab') {
-//                 e.preventDefault();
-//                 const start = this.selectionStart;
-//                 const end = this.selectionEnd;
-                
-//                 // Insert tab at the cursor position
-//                 this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
-                
-//                 // Move the cursor position after the tab
-//                 this.selectionStart = this.selectionEnd = start + 4;
-//             }
-//         });
-//     }
-//  if (window.copyPasteControl) {
-//         window.copyPasteControl.setupCodeEditor(questionId);
-//         console.log(`Copy-paste control set up for editor: ${questionId}`);
-//     }
-    // Function to set up code execution buttons
-    function setupCodeExecutionButtons(questionId) {
-        // Run code button
-        const runCodeBtn = document.querySelector(`.btn-primary[data-question-id="${questionId}"]`);
-        if (runCodeBtn) {
-            runCodeBtn.addEventListener('click', () => runCode(questionId));
-        }
-        
-        // Run custom test button
-   const runCustomBtn = document.querySelector(`.run-custom-btn[data-question-id="${questionId}"]`);
-    if (runCustomBtn) {
-        runCustomBtn.addEventListener('click', () => {
-            const customTestSection = document.getElementById(`custom-test-${questionId}`);
-            // Toggle the display
-            if (customTestSection.style.display === 'none') {
-                customTestSection.style.display = 'block';
-            } else {
-                customTestSection.style.display = 'none';
-            }
-        });
-    }
-        
-        // Run with custom input button
-           const runCustomInputBtn = document.getElementById(`run-custom-input-${questionId}`);
-    if (runCustomInputBtn) {
-        runCustomInputBtn.addEventListener('click', () => runCodeWithCustomInput(questionId));
-    }
-    
-    // Run all tests button - FIXED
-    const runAllTestsBtn = document.querySelector(`.run-all-tests-btn[data-question-id="${questionId}"]`);
-    if (runAllTestsBtn) {
-        runAllTestsBtn.addEventListener('click', () => runAllTests(questionId));
-    }
-    }
-
-    // Helper function to get starter code for a language
-    function getStarterCode(question, languageId) {
-        if (!question.starterCode || question.starterCode.length === 0) {
-            return question.solutionTemplate || '';
-        }
-        
-        // Find the starter code for the selected language
-        const starter = question.starterCode.find(code => code.language === getLanguageName(languageId));
-        
-        // If found, return that code, otherwise return the first available or template
-        return starter ? starter.code : (question.starterCode[0].code || question.solutionTemplate || '');
-    }
-
-    // Helper function to check if current code is a starter code
-    function isStarterCode(code, question, languageId) {
-        if (!question || !question.starterCode) return false;
-        
-        // First check - is the code the starter code for the CURRENT language?
-        if (languageId) {
-            const currentLanguageName = getLanguageName(languageId);
-            const starterForCurrentLanguage = question.starterCode.find(
-                starter => starter.language === currentLanguageName
-            );
-            
-            if (starterForCurrentLanguage && starterForCurrentLanguage.code === code) {
-                return true;
-            }
-        }
-        
-        // Second check - is the code ANY starter code from ANY language?
-        return question.starterCode.some(starter => starter.code === code);
-    }
-
-    // Helper function to convert languageId to language name
-    function getLanguageName(languageId) {
-        const languageMap = {
-            '62': 'java',
-            '71': 'python',
-            '54': 'cpp',
-            '63': 'javascript',
-            '51': 'csharp',
-            '50': 'c'
-        };
-        
-        return languageMap[languageId] || 'python';
-    }
 
     // Function to save MCQ answer to localStorage
     function saveMCQAnswer(questionId, optionIndex, optionText) {
@@ -5028,25 +3170,8 @@ function getCodeMirrorMode(languageId) {
                answers.mcq[questionId].index === optionIndex;
     }
 
-    // Function to save coding answer to localStorage
-    function saveCodingAnswer(questionId, code) {
-        const answers = JSON.parse(localStorage.getItem('examAnswers'));
-        if (!answers.coding) {
-            answers.coding = {};
-        }
-        answers.coding[questionId] = code;
-        localStorage.setItem('examAnswers', JSON.stringify(answers));
-        
-        // Mark the question as answered in navigation
-        updateQuestionNavigation();
-    }
 
-    // Function to get saved coding answer
-    function getSavedCodingAnswer(questionId) {
-        const answers = JSON.parse(localStorage.getItem('examAnswers'));
-        return answers && answers.coding && answers.coding[questionId] ? answers.coding[questionId] : '';
-    }
-
+   
     // Function to check for unanswered questions
     function checkUnansweredQuestions() {
         const examData = JSON.parse(localStorage.getItem('currentExam'));
@@ -5054,7 +3179,7 @@ function getCodeMirrorMode(languageId) {
         
         // Initialize arrays to store question IDs
         let mcqQuestionIds = [];
-        let codingQuestionIds = [];
+
         
         // Get all question IDs based on the exam type
         if (examData.questionType === "mcq" || examData.questionType === "mcq&coding") {
@@ -5062,19 +3187,15 @@ function getCodeMirrorMode(languageId) {
             mcqQuestionIds = mcqQuestions.map(q => q._id);
         }
         
-        if (examData.questionType === "coding" || examData.questionType === "mcq&coding") {
-            const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-            codingQuestionIds = codingQuestions.map(q => q._id);
-        }
+      
         
         // Check which questions have been answered
         const answeredMcqIds = answers.mcq ? Object.keys(answers.mcq) : [];
-        const answeredCodingIds = answers.coding ? Object.keys(answers.coding) : [];
+      
         
         // Find unanswered questions
         const unansweredMcqIds = mcqQuestionIds.filter(id => !answeredMcqIds.includes(id));
-        const unansweredCodingIds = codingQuestionIds.filter(id => !answeredCodingIds.includes(id));
-        
+
         // Mark unanswered questions in the navigation
         const navButtons = document.querySelectorAll('.nav-button');
         navButtons.forEach(button => {
@@ -5086,18 +3207,7 @@ function getCodeMirrorMode(languageId) {
                 isUnanswered = true;
             }
             
-            // Check if this is an unanswered coding question
-            if (examData.questionType === "mcq&coding" && index >= mcqQuestionIds.length) {
-                const codingIndex = index - mcqQuestionIds.length;
-                if (codingIndex < codingQuestionIds.length && 
-                    unansweredCodingIds.includes(codingQuestionIds[codingIndex])) {
-                    isUnanswered = true;
-                }
-            } else if (examData.questionType === "coding") {
-                if (unansweredCodingIds.includes(codingQuestionIds[index])) {
-                    isUnanswered = true;
-                }
-            }
+
             
             // Mark unanswered questions with a red border
             if (isUnanswered) {
@@ -5109,25 +3219,14 @@ function getCodeMirrorMode(languageId) {
         
         return {
             unansweredMcq: unansweredMcqIds.length,
-            unansweredCoding: unansweredCodingIds.length,
-            total: unansweredMcqIds.length + unansweredCodingIds.length
+            // unansweredCoding: unansweredCodingIds.length,
+            total: unansweredMcqIds.length // + unansweredCodingIds.length
         };
     }
 
     
-function getSelectedLanguageForQuestion(questionId) {
-    const answers = JSON.parse(localStorage.getItem('examAnswers'));
-    
-    if (answers && 
-        answers.codingByLanguage && 
-        answers.codingByLanguage[questionId] && 
-        answers.codingByLanguage[questionId].selectedLanguage) {
-        return answers.codingByLanguage[questionId].selectedLanguage;
-    }
-    
-    return '71'; // Default to Python
-}
-    function setupQuestionNavigation() {
+
+function setupQuestionNavigation() {
     const examData = JSON.parse(localStorage.getItem('currentExam'));
     const navigationContainer = document.getElementById('questionNavigation');
     
@@ -5264,141 +3363,7 @@ function updateQuestionNavigation(currentIndex) {
         }, 1000);
     }
 
-    // Function to submit exam
-    // function submitExam() {
-    //     const examData = JSON.parse(localStorage.getItem('currentExam'));
-    //     const answers = JSON.parse(localStorage.getItem('examAnswers'));
-        
-    //     // Show loading indicator
-    //     const submitButton = document.getElementById('submitExam');
-    //     const originalButtonText = submitButton.innerHTML;
-    //     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-    //     submitButton.disabled = true;
-        
-    //     // Prepare submission data according to Mongoose schema format
-    //     const submissionData = {
-    //         exam: examData._id,
-    //         mcqAnswers: [],
-    //         codingAnswers: []
-    //     };
-        
-    //     // Process MCQ answers
-    //     if (answers.mcq && Object.keys(answers.mcq).length > 0) {
-    //         for (const questionId in answers.mcq) {
-    //             const answerData = answers.mcq[questionId];
-                
-    //             // Send the actual option text (value) instead of just the index
-    //             submissionData.mcqAnswers.push({
-    //                 questionId: questionId,
-    //                 selectedOption: answerData.value || answerData.index.toString()
-    //             });
-    //         }
-    //     }
-        
-    //     // Process coding answers
-    //       if (answers.codingByLanguage && Object.keys(answers.codingByLanguage).length > 0) {
-    //     for (const questionId in answers.codingByLanguage) {
-    //         const questionData = answers.codingByLanguage[questionId];
-    //         const selectedLanguage = questionData.selectedLanguage || '71';
-    //         const codeForSelectedLanguage = questionData[selectedLanguage];
-            
-    //         if (codeForSelectedLanguage && codeForSelectedLanguage.trim() !== '') {
-    //             submissionData.codingAnswers.push({
-    //                 questionId: questionId,
-    //                 code: codeForSelectedLanguage,
-    //                 language: parseInt(selectedLanguage)
-    //             });
-    //         }
-    //     }
-    // }
-    //        const userId = document.getElementById('user').textContent;
-    // const examId = document.getElementById('exam').textContent;
-    //         const integrity = examIntegrity.init({
-    //     // Required exam information
-    //     examId: examId,
-    //     userId: userId,
-        
-    //     // Optional: Custom API endpoints
-    //     apiEndpoints: {
-    //         integrityUpdate: '/update-integrity',
-    //         activityPing: '/dashboard/see-active',
-    //         saveImage: '/save-image'
-    //     },
-        
-    //     // Optional: Custom behavior configuration
-    //     config: {
-    //         maxViolations: 5,                // Default: 3
-    //         maxRefreshes: 3,                 // Default: 2
-    //         pingInterval: 30000,             // Default: 20000 (20 seconds)
-    //         webcamCaptureInterval: 10000     // Default: 5000 (5 seconds)
-    //     },
-        
-    //     // Optional: Callback when violations trigger auto-submit
-    //     onAutoSubmit: function(reason) {
-    //         console.log(`Auto-submitting exam due to: ${reason}`);
-            
-    //         // Your custom submit logic
-    //         document.getElementById('examForm').submit();
-            
-    //         // Optional: Redirect after submission
-    //         setTimeout(() => {
-    //             window.location.href = '/exam-complete';
-    //         }, 1000);
-    //     },
-        
-    //     // Optional: Start webcam automatically on init
-    //     startWebcam: false
-    // });
-    
-    //             const violations = integrity.getViolationCounts();
-    //     console.log('Final violation counts:', violations);
-        
-    //     // Stop integrity monitoring
-    //     integrity.stop();
-        
-    //     console.log('Submission data:', submissionData);
-        
-    //     // Send submission to server using fetch API with JSON
-    //     fetch('/dashboard/submit-test', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(submissionData)
-    //     })
-    //     .then(response => {
-    //         if (!response.ok) {
-    //             if (response.redirected) {
-    //                 window.location.href = response.url;
-    //                 return;
-    //             }
-    //             return response.text().then(text => {
-    //                 throw new Error(text || 'Submission failed');
-    //             });
-    //         }
-    //         return response.json();
-    //     })
-    //     .then(data => {
-    //         showSuccessMessage('Exam submitted successfully!');
-            
-    //         // Clear exam data from localStorage
-    //         clearExamData();
-            
-    //         // Redirect to dashboard or results page after a short delay
-    //         setTimeout(() => {
-    //             window.close();
-    //         }, 1500);
-    //     })
-    //     .catch(error => {
-    //         console.error('Error submitting exam:', error);
-    //         showErrorMessage(`There was an error submitting your exam: ${error.message}`);
-            
-    //         // Reset button state
-    //         submitButton.innerHTML = originalButtonText;
-    //         submitButton.disabled = false;
-    //     });
-    // }
-// Function to submit exam - FIXED VERSION
+
 function submitExam() {
     const examData = JSON.parse(localStorage.getItem('currentExam'));
     const answers = JSON.parse(localStorage.getItem('examAnswers'));
@@ -5409,38 +3374,17 @@ function submitExam() {
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
     submitButton.disabled = true;
     
-    // CRITICAL FIX: Save current code before submitting
-    const currentIndex = parseInt(localStorage.getItem('currentQuestionIndex')) || 0;
-    const currentLanguageSelect = document.querySelector(`select[id^="language-select-"]`);
-    const currentCodeEditor = document.querySelector(`textarea[id^="codeEditor-"]`);
-    
-    if (currentLanguageSelect && currentCodeEditor) {
-        const questionId = currentCodeEditor.id.replace('codeEditor-', '');
-        const currentLanguage = currentLanguageSelect.value;
-        const currentCode = currentCodeEditor.value;
-        
-        console.log('Saving current code before submit:', {
-            questionId,
-            currentLanguage,
-            codeLength: currentCode.length
-        });
-        
-        // Save the current code
-        saveCodeForLanguage(questionId, currentLanguage, currentCode);
-    }
-    
+   
     // Refresh answers after saving current code
     const updatedAnswers = JSON.parse(localStorage.getItem('examAnswers'));
-        if (window.copyPasteControl) {
-        window.copyPasteControl.stop();
-        console.log('Copy-paste control stopped');
-    }
+        
+    
 
     // Prepare submission data
     const submissionData = {
         exam: examData._id,
         mcqAnswers: [],
-        codingAnswers: []
+        // codingAnswers: []
     };
     
     // Process MCQ answers
@@ -5454,111 +3398,11 @@ function submitExam() {
         }
     }
     
-    // FIXED: Process coding answers with better logic
-    const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions')) || [];
-    
-    console.log('Processing coding questions:', codingQuestions.length);
-    console.log('Available coding answers:', updatedAnswers.codingByLanguage);
-    
-    for (const question of codingQuestions) {
-        const questionId = question._id;
-        let codeToSubmit = null;
-        let languageToSubmit = '71'; // Default to Python
-        
-        console.log(`Processing question ${questionId}...`);
-        
-        // PRIMARY: Check the new language-specific structure
-        if (updatedAnswers.codingByLanguage && 
-            updatedAnswers.codingByLanguage[questionId]) {
-            
-            const questionData = updatedAnswers.codingByLanguage[questionId];
-            const selectedLanguage = questionData.selectedLanguage || '71';
-            const codeForSelectedLanguage = questionData[selectedLanguage];
-            
-            console.log(`Found language data for ${questionId}:`, {
-                selectedLanguage,
-                hasCode: !!codeForSelectedLanguage,
-                codeLength: codeForSelectedLanguage ? codeForSelectedLanguage.length : 0
-            });
-            
-            if (codeForSelectedLanguage && codeForSelectedLanguage.trim() !== '') {
-                // IMPROVED: Better starter code detection
-                const isStarter = isStarterCode(codeForSelectedLanguage, question, selectedLanguage);
-                console.log(`Is starter code for ${questionId}:`, isStarter);
-                
-                if (!isStarter) {
-                    codeToSubmit = codeForSelectedLanguage;
-                    languageToSubmit = selectedLanguage;
-                    console.log(`Selected code for ${questionId} (language ${selectedLanguage})`);
-                } else {
-                    console.log(`Skipping starter code for ${questionId}`);
-                }
-            }
-        }
-        
-        // FALLBACK: Check the old coding structure if no valid code found
-        if (!codeToSubmit && updatedAnswers.coding && updatedAnswers.coding[questionId]) {
-            const fallbackCode = updatedAnswers.coding[questionId];
-            console.log(`Checking fallback code for ${questionId}:`, {
-                hasCode: !!fallbackCode,
-                codeLength: fallbackCode ? fallbackCode.length : 0
-            });
-            
-            if (fallbackCode && fallbackCode.trim() !== '' && 
-                !isStarterCode(fallbackCode, question)) {
-                codeToSubmit = fallbackCode;
-                languageToSubmit = '71'; // Default language
-                console.log(`Using fallback code for ${questionId}`);
-            }
-        }
-        
-        // ADDITIONAL FALLBACK: Check if there's code in any language for this question
-        if (!codeToSubmit && updatedAnswers.codingByLanguage && 
-            updatedAnswers.codingByLanguage[questionId]) {
-            
-            const questionData = updatedAnswers.codingByLanguage[questionId];
-            
-            // Try all available languages for this question
-            const availableLanguages = ['71', '62', '54', '63', '51', '50'];
-            for (const langId of availableLanguages) {
-                if (questionData[langId] && questionData[langId].trim() !== '') {
-                    const code = questionData[langId];
-                    if (!isStarterCode(code, question, langId)) {
-                        codeToSubmit = code;
-                        languageToSubmit = langId;
-                        console.log(`Found code in alternative language ${langId} for ${questionId}`);
-                        break;
-                    }
-                }
-            }
-        }
-        
-        // Submit the code if we found valid code
-        if (codeToSubmit) {
-            submissionData.codingAnswers.push({
-                questionId: questionId,
-                code: codeToSubmit,
-                language: parseInt(languageToSubmit)
-            });
-            console.log(`✓ Added coding answer for question ${questionId}:`, {
-                codeLength: codeToSubmit.length,
-                language: languageToSubmit,
-                firstLine: codeToSubmit.split('\n')[0].substring(0, 50) + '...'
-            });
-        } else {
-            console.log(`✗ No valid code found for question ${questionId}`);
-        }
-    }
-    
+  
     console.log('Final submission data:', {
         exam: submissionData.exam,
         mcqCount: submissionData.mcqAnswers.length,
-        codingCount: submissionData.codingAnswers.length,
-        codingAnswers: submissionData.codingAnswers.map(ca => ({
-            questionId: ca.questionId,
-            language: ca.language,
-            codeLength: ca.code.length
-        }))
+       
     });
     
     // Get integrity data
@@ -5688,7 +3532,7 @@ function submitExam() {
 function clearExamData() {
     localStorage.removeItem('currentExam');
     localStorage.removeItem('mcqQuestions');
-    localStorage.removeItem('codingQuestions');
+    // localStorage.removeItem('codingQuestions');
     localStorage.removeItem('currentQuestionIndex');
     localStorage.removeItem('examEndTime');
     localStorage.removeItem('examAnswers');
@@ -5752,722 +3596,6 @@ function clearExamData() {
             submitExam();
         });
     }
-
-    // Judge0 API Functions
-// Judge0 API Configuration - Updated and Fixed
-const JUDGE0_CONFIG = {
-    baseUrl: 'https://101c-14-97-164-222.ngrok-free.app',
-    endpoints: {
-        submissions: '/submissions',
-        status: '/submissions'
-    },
-    limits: {
-        cpu_time_limit: 2,        // Use underscore format as per Judge0 API
-        memory_limit: 256000,     // 256MB in KB
-        wall_time_limit: 10,      // Wall time limit
-        max_processes_and_or_threads: 30,
-        enable_network: false,
-        enable_per_process_and_thread_time_limit: false,
-        enable_per_process_and_thread_memory_limit: false
-    },
-    retries: {
-        maxAttempts:3,
-        interval: 1500
-    }
-};
-
-// Language configurations with proper Judge0 language IDs
-const LANGUAGE_CONFIG = {
-    '71': { name: 'Python (3.10.0)', extension: 'py' },
-    '62': { name: 'Java (OpenJDK 17)', extension: 'java' },
-    '54': { name: 'C++ (GCC 11.2.0)', extension: 'cpp' },
-    '63': { name: 'JavaScript (Node.js 16.13.0)', extension: 'js' },
-    '51': { name: 'C# (Mono 6.12.0)', extension: 'cs' },
-    '50': { name: 'C (GCC 11.2.0)', extension: 'c' }
-};
-
-// Fixed function to create a submission in Judge0
-async function createSubmission(languageId, sourceCode, stdin = '') {
-    try {
-        console.log('Creating submission with:', {
-            languageId,
-            sourceCodeLength: sourceCode.length,
-            stdinLength: stdin.length
-        });
-
-        // Validate inputs
-        if (!sourceCode || sourceCode.trim() === '') {
-            throw new Error('Source code cannot be empty');
-        }
-
-        if (!languageId || !LANGUAGE_CONFIG[languageId]) {
-            throw new Error('Invalid language ID');
-        }
-
-        // Prepare the submission payload according to Judge0 API spec
-        const submissionPayload = {
-            source_code: sourceCode,
-            language_id: parseInt(languageId),
-            stdin: stdin || '',
-            expected_output: null,
-          
-        };
-
-        console.log('Submission payload:', submissionPayload);
-
-        const response = await fetch(`${JUDGE0_CONFIG.baseUrl}${JUDGE0_CONFIG.endpoints.submissions}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(submissionPayload)
-        });
-
-        console.log('Response status:', response.status);
-        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Judge0 API Error Response:', errorText);
-            
-            let errorMessage = `HTTPs ${response.status}: ${response.statusText}`;
-            
-            try {
-                const errorJson = JSON.parse(errorText);
-                if (errorJson.message) {
-                    errorMessage = errorJson.message;
-                } else if (errorJson.error) {
-                    errorMessage = errorJson.error;
-                } else if (errorJson.errors) {
-                    errorMessage = JSON.stringify(errorJson.errors);
-                }
-            } catch (parseError) {
-                errorMessage = errorText || errorMessage;
-            }
-            
-            throw new Error(`Judge0 API Error: ${errorMessage}`);
-        }
-
-        const data = await response.json();
-        console.log('Submission created successfully:', data);
-
-        if (!data.token) {
-            throw new Error('No token received from Judge0 API');
-        }
-
-        return data.token;
-        
-    } catch (error) {
-        console.error('Error creating submission:', error);
-        throw new Error(`Failed to create submission: ${error.message}`);
-    }
-}
-
-// Fixed function to get submission result from Judge0
-async function getSubmissionResult(token) {
-    try {
-        if (!token || token === 'undefined') {
-            throw new Error('Invalid token provided');
-        }
-
-        console.log('Getting submission result for token:', token);
-
-        const url = `${JUDGE0_CONFIG.baseUrl}${JUDGE0_CONFIG.endpoints.status}/${token}?fields=stdout,stderr,status,time,memory,compile_output,message,exit_code,created_at,finished_at`;
-        
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error getting submission result:', errorText);
-            throw new Error(`Failed to get submission result: HTTP ${response.status}`);
-        }
-
-        const result = await response.json();
-        console.log('Submission result:', result);
-        
-        return result;
-        
-    } catch (error) {
-        console.error('Error getting submission result:', error);
-        throw error;
-    }
-}
-
-// Enhanced function to poll for submission result with better error handling
-async function pollSubmissionResult(token) {
-    if (!token || token === 'undefined') {
-        throw new Error('Invalid token for polling');
-    }
-
-    let result = null;
-    let attempts = 0;
-    const maxAttempts = JUDGE0_CONFIG.retries.maxAttempts;
-    const interval = JUDGE0_CONFIG.retries.interval;
-    
-    console.log(`Starting to poll for result of token: ${token}`);
-
-    while (attempts < maxAttempts) {
-        try {
-            result = await getSubmissionResult(token);
-            
-            console.log(`Polling attempt ${attempts + 1}/${maxAttempts}, Status ID: ${result.status?.id}, Description: ${result.status?.description}`);
-            
-            // Status IDs in Judge0:
-            // 1: In Queue
-            // 2: Processing
-            // 3: Accepted
-            // 4: Wrong Answer
-            // 5: Time Limit Exceeded
-            // 6: Compilation Error
-            // 7: Runtime Error (SIGSEGV)
-            // 8: Runtime Error (SIGXFSZ)
-            // 9: Runtime Error (SIGFPE)
-            // 10: Runtime Error (SIGABRT)
-            // 11: Runtime Error (NZEC)
-            // 12: Runtime Error (Other)
-            // 13: Internal Error
-            // 14: Exec Format Error
-            
-            if (result.status && result.status.id > 2) {
-                console.log('Submission completed with status:', result.status);
-                return result;
-            }
-            
-            // Wait before next poll
-            await new Promise(resolve => setTimeout(resolve, interval));
-            attempts++;
-            
-        } catch (error) {
-            console.error(`Polling attempt ${attempts + 1} failed:`, error);
-            attempts++;
-            
-            if (attempts >= maxAttempts) {
-                throw error;
-            }
-            
-            // Wait before retrying
-            await new Promise(resolve => setTimeout(resolve, interval));
-        }
-    }
-    
-    throw new Error(`Timed out waiting for submission result after ${maxAttempts} attempts`);
-}
-
-// Enhanced function to format output from Judge0
-function formatOutput(result) {
-    console.log('Formatting output for result:', result);
-    
-    if (!result || !result.status) {
-        return {
-            success: false,
-            output: 'Invalid result data',
-            executionTime: 0,
-            memory: 0,
-            status: 'Unknown'
-        };
-    }
-
-    const status = result.status;
-    const stdout = result.stdout || '';
-    const stderr = result.stderr || '';
-    const time = parseFloat(result.time) || 0;
-    const memory = parseInt(result.memory) || 0;
-
-    switch (status.id) {
-        case 3: // Accepted
-            return {
-                success: true,
-                output: stdout || '(No output)',
-                executionTime: time,
-                memory: memory,
-                status: 'Accepted'
-            };
-            
-        case 4: // Wrong Answer
-            return {
-                success: false,
-                output: stdout || '(No output)',
-                executionTime: time,
-                memory: memory,
-                status: 'Wrong Answer'
-            };
-            
-        case 5: // Time Limit Exceeded
-            return {
-                success: false,
-                output: 'Time Limit Exceeded',
-                executionTime: time,
-                memory: memory,
-                status: 'Time Limit Exceeded'
-            };
-            
-        case 6: // Compilation Error
-            return {
-                success: false,
-                output: result.compile_output || 'Compilation Error',
-                executionTime: 0,
-                memory: 0,
-                status: 'Compilation Error'
-            };
-            
-        case 7: // Runtime Error (SIGSEGV)
-        case 8: // Runtime Error (SIGXFSZ)
-        case 9: // Runtime Error (SIGFPE)
-        case 10: // Runtime Error (SIGABRT)
-        case 11: // Runtime Error (NZEC)
-        case 12: // Runtime Error (Other)
-            return {
-                success: false,
-                output: stderr || result.message || 'Runtime Error',
-                executionTime: time,
-                memory: memory,
-                status: `Runtime Error (${status.description})`
-            };
-            
-        case 13: // Internal Error
-            return {
-                success: false,
-                output: 'Judge0 Internal Error',
-                executionTime: 0,
-                memory: 0,
-                status: 'Internal Error'
-            };
-            
-        case 14: // Exec Format Error
-            return {
-                success: false,
-                output: 'Executable Format Error',
-                executionTime: 0,
-                memory: 0,
-                status: 'Exec Format Error'
-            };
-            
-        default:
-            return {
-                success: false,
-                output: stderr || result.message || `Unknown status: ${status.description}`,
-                executionTime: time,
-                memory: memory,
-                status: status.description || 'Unknown'
-            };
-    }
-}
-
-// Enhanced function to run code with sample input
-async function runCode(questionId) {
-    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-    const languageSelect = document.getElementById(`language-select-${questionId}`);
-    const resultsSection = document.getElementById(`results-${questionId}`);
-    const resultOutput = document.getElementById(`result-output-${questionId}`);
-    
-    if (!codeTextarea || !languageSelect) {
-        console.error('Required elements not found');
-        return;
-    }
-
-    const code = codeTextarea.value.trim();
-    const languageId = languageSelect.value;
-    
-    // Validate inputs
-    if (!code) {
-        resultOutput.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle"></i> Please enter some code before running.</p>';
-        resultsSection.style.display = 'block';
-        return;
-    }
-
-    // Get the appropriate question data
-    const examData = JSON.parse(localStorage.getItem('currentExam'));
-    let question;
-    
-    if (examData.questionType === "coding") {
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-        question = codingQuestions.find(q => q._id == questionId);
-    } else if (examData.questionType === "mcq&coding") {
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-        question = codingQuestions.find(q => q._id == questionId);
-    }
-    
-    if (!question) {
-        console.error('Question not found');
-        resultOutput.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle"></i> Question data not found.</p>';
-        resultsSection.style.display = 'block';
-        return;
-    }
-    
-    const sampleInput = question.sampleInput || '';
-    
-    // Show loading message
-    resultOutput.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Running your code...</div>';
-    resultsSection.style.display = 'block';
-    
-    try {
-        // Create submission
-        console.log('Creating submission for sample input...');
-        const token = await createSubmission(languageId, code, sampleInput);
-        
-        if (!token) {
-            throw new Error('Failed to get submission token');
-        }
-        
-        // Poll for result
-        console.log('Polling for result...');
-        const result = await pollSubmissionResult(token);
-        
-        // Format and display result
-        const formattedResult = formatOutput(result);
-        
-        let statusClass = formattedResult.success ? 'result-pass' : 'result-fail';
-        
-        let outputHtml = `
-            <h4 class="section-title"><i class="fas fa-terminal"></i> Execution Result:</h4>
-            <div class="execution-status ${statusClass}">
-                <i class="fas fa-${formattedResult.success ? 'check' : 'times'}-circle"></i>
-                Status: ${formattedResult.status}
-            </div>
-            <pre class="execution-output">${escapeHtml(formattedResult.output)}</pre>
-            <div class="execution-details">
-                <p><i class="fas fa-clock"></i> Execution Time: ${formattedResult.executionTime}s</p>
-                <p><i class="fas fa-memory"></i> Memory Used: ${Math.round(formattedResult.memory / 1000)}KB</p>
-            </div>
-        `;
-        
-        // Compare with expected output if available and execution was successful
-        if (question.sampleOutput && formattedResult.success) {
-            const isCorrect = compareOutputs(question.sampleOutput, formattedResult.output);
-            
-            outputHtml += `<div class="comparison-result">
-                <p>Sample Test: <span class="${isCorrect ? 'result-pass' : 'result-fail'}">
-                    <i class="fas fa-${isCorrect ? 'check' : 'times'}-circle"></i> 
-                    ${isCorrect ? 'PASSED' : 'FAILED'}
-                </span></p>
-            </div>`;
-            
-            if (!isCorrect) {
-                outputHtml += '<div id="diff-container-' + questionId + '"></div>';
-            }
-        }
-        
-        resultOutput.innerHTML = outputHtml;
-        
-        // Add diff view if test failed
-        if (question.sampleOutput && formattedResult.success && !compareOutputs(question.sampleOutput, formattedResult.output)) {
-            const diffContainer = document.getElementById(`diff-container-${questionId}`);
-            if (diffContainer) {
-                diffContainer.appendChild(displayDiff(question.sampleOutput, formattedResult.output));
-            }
-        }
-        
-    } catch (error) {
-        console.error('Error running code:', error);
-        resultOutput.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle"></i> Error: ${error.message}</p>`;
-    }
-}
-
-// Enhanced function to run code with custom input
-async function runCodeWithCustomInput(questionId) {
-    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-    const languageSelect = document.getElementById(`language-select-${questionId}`);
-    const customInput = document.getElementById(`custom-input-${questionId}`);
-    const resultsSection = document.getElementById(`results-${questionId}`);
-    const resultOutput = document.getElementById(`result-output-${questionId}`);
-    
-    if (!codeTextarea || !languageSelect || !customInput) {
-        console.error('Required elements not found');
-        return;
-    }
-
-    const code = codeTextarea.value.trim();
-    const languageId = languageSelect.value;
-    const stdin = customInput.value;
-    
-    // Validate inputs
-    if (!code) {
-        resultOutput.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle"></i> Please enter some code before running.</p>';
-        resultsSection.style.display = 'block';
-        return;
-    }
-    
-    // Show loading message
-    resultOutput.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Running your code with custom input...</div>';
-    resultsSection.style.display = 'block';
-    
-    try {
-        // Create submission
-        console.log('Creating submission for custom input...');
-        const token = await createSubmission(languageId, code, stdin);
-        
-        if (!token) {
-            throw new Error('Failed to get submission token');
-        }
-        
-        // Poll for result
-        console.log('Polling for result...');
-        const result = await pollSubmissionResult(token);
-        
-        // Format and display result
-        const formattedResult = formatOutput(result);
-        
-        let statusClass = formattedResult.success ? 'result-pass' : 'result-fail';
-        
-        let outputHtml = `
-            <h4 class="section-title"><i class="fas fa-keyboard"></i> Custom Test Result:</h4>
-            <div class="execution-status ${statusClass}">
-                <i class="fas fa-${formattedResult.success ? 'check' : 'times'}-circle"></i>
-                Status: ${formattedResult.status}
-            </div>
-            <pre class="execution-output">${escapeHtml(formattedResult.output)}</pre>
-            <div class="execution-details">
-                <p><i class="fas fa-clock"></i> Execution Time: ${formattedResult.executionTime}s</p>
-                <p><i class="fas fa-memory"></i> Memory Used: ${Math.round(formattedResult.memory / 1000)}KB</p>
-            </div>
-        `;
-        
-        resultOutput.innerHTML = outputHtml;
-        
-    } catch (error) {
-        console.error('Error running code with custom input:', error);
-        resultOutput.innerHTML = `<p class="error"><i class="fas fa-exclamation-circle"></i> Error: ${error.message}</p>`;
-    }
-}
-
-// Enhanced function to run all test cases
-async function runAllTests(questionId) {
-    const codeTextarea = document.getElementById(`codeEditor-${questionId}`);
-    const languageSelect = document.getElementById(`language-select-${questionId}`);
-    const resultsSection = document.getElementById(`results-${questionId}`);
-    const resultOutput = document.getElementById(`result-output-${questionId}`);
-    const testResultsSection = document.getElementById(`test-results-${questionId}`);
-    const testResultsBody = document.getElementById(`test-results-body-${questionId}`);
-    
-    if (!codeTextarea || !languageSelect) {
-        console.error('Code editor or language selector not found');
-        return;
-    }
-    
-    const code = codeTextarea.value.trim();
-    const languageId = languageSelect.value;
-    
-    // Validate inputs
-    if (!code) {
-        resultOutput.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle"></i> Please enter some code before running tests.</p>';
-        resultsSection.style.display = 'block';
-        return;
-    }
-    
-    // Get the appropriate question data
-    const examData = JSON.parse(localStorage.getItem('currentExam'));
-    let question;
-    
-    if (examData.questionType === "coding") {
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-        question = codingQuestions.find(q => q._id == questionId);
-    } else if (examData.questionType === "mcq&coding") {
-        const codingQuestions = JSON.parse(localStorage.getItem('codingQuestions'));
-        question = codingQuestions.find(q => q._id == questionId);
-    }
-    
-    // Check if question has test cases
-    if (!question || !question.testCases || question.testCases.length === 0) {
-        resultOutput.innerHTML = '<p class="error"><i class="fas fa-exclamation-circle"></i> No test cases available for this question.</p>';
-        resultsSection.style.display = 'block';
-        return;
-    }
-    
-    // Show loading message
-    resultOutput.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Running all test cases...</div>';
-    resultsSection.style.display = 'block';
-    testResultsSection.style.display = 'block';
-    testResultsBody.innerHTML = '';
-    
-    let allTestsPassed = true;
-    let totalTime = 0;
-    let maxMemory = 0;
-    let passedTests = 0;
-    
-    // Run all test cases
-    for (let i = 0; i < question.testCases.length; i++) {
-        const testCase = question.testCases[i];
-        
-        try {
-            // Create row with loading state
-            const row = document.createElement('tr');
-            row.id = `test-row-${questionId}-${i}`;
-            row.innerHTML = `
-                <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
-                <td colspan="4"><i class="fas fa-spinner fa-spin"></i> Running...</td>
-            `;
-            testResultsBody.appendChild(row);
-            
-            // Create submission for this test case
-            console.log(`Creating submission for test case ${i + 1}...`);
-            const token = await createSubmission(languageId, code, testCase.input);
-            
-            if (!token) {
-                throw new Error('Failed to get submission token');
-            }
-            
-            // Poll for result
-            console.log(`Polling for test case ${i + 1} result...`);
-            const result = await pollSubmissionResult(token);
-            
-            // Format result
-            const formattedResult = formatOutput(result);
-            
-            // Check if output matches expected output (only if execution was successful)
-            let isCorrect = false;
-            if (formattedResult.success) {
-                isCorrect = compareOutputs(testCase.expectedOutput, formattedResult.output);
-                if (isCorrect) {
-                    passedTests++;
-                }
-            }
-            
-            // Update aggregate statistics
-            totalTime += parseFloat(formattedResult.executionTime || 0);
-            maxMemory = Math.max(maxMemory, formattedResult.memory || 0);
-            
-            // If any test fails, mark all tests as failed
-            if (!isCorrect) {
-                allTestsPassed = false;
-            }
-            
-            // Update the row with results
-            row.innerHTML = `
-                <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
-                <td class="${isCorrect ? 'result-pass' : 'result-fail'}">
-                    <i class="fas fa-${isCorrect ? 'check' : 'times'}-circle"></i> 
-                    ${isCorrect ? 'PASS' : (formattedResult.success ? 'FAIL' : formattedResult.status)}
-                </td>
-                <td>${formattedResult.executionTime}s</td>
-                <td>${Math.round(formattedResult.memory / 1000)}KB</td>
-                <td><span class="test-details-link" data-test-id="${questionId}-${i}">View Details</span></td>
-            `;
-            
-            // Create hidden details div
-            const detailsDiv = document.createElement('div');
-            detailsDiv.id = `test-details-${questionId}-${i}`;
-            detailsDiv.style.display = 'none';
-            detailsDiv.className = 'test-case-details-container';
-            
-            detailsDiv.innerHTML = `
-                <h4>Test Case ${i + 1} Details</h4>
-                <div class="test-case-status">
-                    <p><strong>Status:</strong> ${formattedResult.status}</p>
-                </div>
-                <div class="test-case-input">
-                    <h5>Input:</h5>
-                    <pre>${escapeHtml(testCase.input)}</pre>
-                </div>
-                <div class="test-case-output">
-                    <h5>Expected Output:</h5>
-                    <pre>${escapeHtml(testCase.expectedOutput)}</pre>
-                </div>
-                <div class="test-case-actual">
-                    <h5>Your Output:</h5>
-                    <pre>${escapeHtml(formattedResult.output)}</pre>
-                </div>
-            `;
-            
-            // If test failed and execution was successful, add diff view
-            if (!isCorrect && formattedResult.success) {
-                detailsDiv.appendChild(displayDiff(testCase.expectedOutput, formattedResult.output));
-            }
-            
-            testResultsSection.appendChild(detailsDiv);
-            
-        } catch (error) {
-            console.error('Error running test case:', error);
-            allTestsPassed = false;
-            
-            // Update row with error
-            const row = document.getElementById(`test-row-${questionId}-${i}`) || document.createElement('tr');
-            row.innerHTML = `
-                <td>Test Case ${i + 1}${testCase.isPublic ? ' (Public)' : ' (Hidden)'}</td>
-                <td class="result-fail"><i class="fas fa-times-circle"></i> ERROR</td>
-                <td>-</td>
-                <td>-</td>
-                <td>${error.message}</td>
-            `;
-            
-            if (!row.parentNode) {
-                testResultsBody.appendChild(row);
-            }
-        }
-    }
-    
-    // Update overall result
-    resultOutput.innerHTML = `
-        <div class="result-summary">
-            <h4><i class="fas fa-clipboard-check"></i> Overall Result:</h4>
-            <p class="${allTestsPassed ? 'result-pass' : 'result-fail'}">
-                <i class="fas fa-${allTestsPassed ? 'check' : 'times'}-circle"></i> 
-                ${passedTests}/${question.testCases.length} test cases passed
-            </p>
-            <div class="execution-details">
-                <p><i class="fas fa-clock"></i> Total Execution Time: ${totalTime.toFixed(3)}s</p>
-                <p><i class="fas fa-memory"></i> Max Memory Used: ${Math.round(maxMemory / 1000)}KB</p>
-            </div>
-        </div>
-    `;
-    
-    // Add event listeners to the "View Details" links
-    document.querySelectorAll('.test-details-link').forEach(link => {
-        link.addEventListener('click', function() {
-            const testId = this.getAttribute('data-test-id');
-            const detailsDiv = document.getElementById(`test-details-${testId}`);
-            
-            // Toggle display
-            if (detailsDiv) {
-                detailsDiv.style.display = detailsDiv.style.display === 'none' ? 'block' : 'none';
-            }
-        });
-    });
-}
- 
-    // Function to compare expected output with actual output
-    function compareOutputs(expected, actual) {
-        // Normalize line endings and trim whitespace
-        expected = expected.replace(/\r\n/g, '\n').trim();
-        actual = actual.replace(/\r\n/g, '\n').trim();
-        
-        return expected === actual;
-    }
-    
-    // Function to display pretty diff between expected and actual output
-    function displayDiff(expected, actual) {
-        const diff = document.createElement('div');
-        diff.className = 'diff-view';
-        
-        const expectedDiv = document.createElement('div');
-        expectedDiv.className = 'diff-expected';
-        expectedDiv.innerHTML = `<h4>Expected Output:</h4><pre>${escapeHtml(expected)}</pre>`;
-        
-        const actualDiv = document.createElement('div');
-        actualDiv.className = 'diff-actual';
-        actualDiv.innerHTML = `<h4>Your Output:</h4><pre>${escapeHtml(actual)}</pre>`;
-        
-        diff.appendChild(expectedDiv);
-        diff.appendChild(actualDiv);
-        
-        return diff;
-    }
-
-    // Helper function to escape HTML for safe display
-    function escapeHtml(string) {
-        return string
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-   // Function to run code with sample input
 
 
 
