@@ -204,11 +204,20 @@ exports.signupcontrol = async (req, res) => {
       await User.register(userData, password);
     } catch (error) {
       console.error("User registration error:", error);
-      return res.status(500).render('signup', { 
-        errormsg: "Registration failed. Please try again." 
+      return res.status(500).render('signup', {
+        errormsg: "Registration failed. Please try again.",
+        isStudentPage: true
       });
     }
-    
+
+    // In development, skip email verification and auto-verify user
+    if (process.env.NODE_ENV === 'development') {
+      await User.findOneAndUpdate({ email }, { userallowed: true, active: true });
+      console.log(`[DEV] Auto-verified user: ${email}`);
+      req.session.lau = email;
+      return res.redirect('/authenticate/login');
+    }
+
     // Send verification email
     try {
       await sendEmails({
@@ -216,19 +225,20 @@ exports.signupcontrol = async (req, res) => {
         subject: "Verify your Prepzer0 account",
         html: generateVerificationEmail(verificationUrl)
       });
-      
+
       // Set session variable
       req.session.lau = email;
       return res.redirect('/authenticate/signup?emailSent=true');
-      
+
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
-      
+
       // Delete the user if email fails
       await User.deleteOne({ email });
-      
-      return res.status(500).render('signup', { 
-        errormsg: "Failed to send verification email. Please try again." 
+
+      return res.status(500).render('signup', {
+        errormsg: "Failed to send verification email. Please try again.",
+        isStudentPage: true
       });
     }
     
